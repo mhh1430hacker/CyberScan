@@ -26,6 +26,8 @@ def evaluate_model(
     dataset_root: Path | None = None,
     splits: list[str] | None = None,
     compute_embeddings: bool = True,
+    *,
+    expected_sha256: str,
 ) -> dict[str, Any]:
     """
     Evaluate a trained StructuralClassifier on dataset splits.
@@ -35,6 +37,7 @@ def evaluate_model(
         manifest_path: Path to the manifest CSV
         dataset_root: Root directory containing binary files (defaults to manifest parent)
         splits: List of splits to evaluate (default: ["val", "test"])
+        expected_sha256: Approved SHA-256 of the model file from a trusted source
     """
     if dataset_root is None:
         dataset_root = manifest_path.parent
@@ -43,12 +46,9 @@ def evaluate_model(
         splits = ["val", "test"]
     
     # Load the trained model
-    classifier = StructuralClassifier(model_path)
-    if not classifier.load():
+    classifier = StructuralClassifier()
+    if not classifier.load(model_path, expected_sha256=expected_sha256):
         raise RuntimeError(f"Failed to load model: {classifier.metadata.get('load_error', 'unknown')}")
-    
-    if classifier.model is None:
-        raise RuntimeError("Model is not trained")
     
     # Load and prepare dataset (use random split for evaluation to match training)
     bundle = prepare_dataset(
@@ -161,6 +161,8 @@ def evaluate_model_consistency(
     model_path: Path,
     manifest_path: Path,
     dataset_root: Path | None = None,
+    *,
+    expected_sha256: str,
 ) -> dict[str, Any]:
     """
     Evaluate model consistency after reload.
@@ -171,8 +173,8 @@ def evaluate_model_consistency(
         dataset_root = manifest_path.parent
     
     # Load original model
-    original = StructuralClassifier(model_path)
-    if not original.load():
+    original = StructuralClassifier()
+    if not original.load(model_path, expected_sha256=expected_sha256):
         raise RuntimeError(f"Failed to load original model: {original.metadata.get('load_error', 'unknown')}")
     
     # Prepare dataset
@@ -187,8 +189,8 @@ def evaluate_model_consistency(
     original_proba = original.predict_proba(X_test)
     
     # Reload model
-    reloaded = StructuralClassifier(model_path)
-    if not reloaded.load():
+    reloaded = StructuralClassifier()
+    if not reloaded.load(model_path, expected_sha256=expected_sha256):
         raise RuntimeError(f"Failed to reload model: {reloaded.metadata.get('load_error', 'unknown')}")
     
     # Get reloaded predictions
@@ -211,6 +213,11 @@ def main():
     """CLI entry point for evaluation."""
     parser = argparse.ArgumentParser(description="Evaluate StructuralClassifier model")
     parser.add_argument("--model", type=Path, required=True, help="Path to trained model JSON")
+    parser.add_argument(
+        "--sha256",
+        required=True,
+        help="Approved SHA-256 of the model file, taken from a trusted record (not from the file)",
+    )
     parser.add_argument("--manifest", type=Path, required=True, help="Path to manifest CSV")
     parser.add_argument("--dataset-root", type=Path, help="Dataset root directory")
     parser.add_argument("--splits", nargs="+", default=["val", "test"], help="Splits to evaluate")
@@ -224,6 +231,7 @@ def main():
         manifest_path=args.manifest,
         dataset_root=args.dataset_root,
         splits=args.splits,
+        expected_sha256=args.sha256,
     )
     
     if args.consistency:
@@ -231,6 +239,7 @@ def main():
             model_path=args.model,
             manifest_path=args.manifest,
             dataset_root=args.dataset_root,
+            expected_sha256=args.sha256,
         )
     
     if args.output:

@@ -214,8 +214,14 @@ def train_from_manifest(
         "validation_metrics": metrics,
         "split_method": split_method,
     }
-    saved_path = clf.save(model_output_path, metadata=metadata)
-    return {"model_path": str(saved_path), **metadata}
+    # Only scalar provenance is stored in the artifact; full metrics are returned to the caller.
+    provenance = {
+        "training_examples": len(train_entries),
+        "validation_examples": len(val_entries),
+        "split_method": split_method,
+    }
+    saved_path = clf.save(model_output_path, metadata=provenance)
+    return {"model_path": str(saved_path), "sha256": clf.artifact_sha256, **metadata}
 
 
 def _parse_args():

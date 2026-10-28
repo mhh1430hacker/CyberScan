@@ -2,27 +2,31 @@
 """
 Structural Classifier for CyberScan.
 
-A RandomForest-based binary/multiclass classifier operating on deterministic
+A RandomForest-based multiclass classifier operating on deterministic
 4096-dimensional structural embeddings extracted from binary files.
 
-No neural network dependencies; pure scikit-learn + NumPy.
+Training uses scikit-learn in memory. Persisted models use the plain-JSON
+``cyberscan-forest`` format (``ml.forest_format``): saving exports the fitted
+trees with ``ml.forest_export``, and loading is always explicit and requires a
+SHA-256 digest from a trusted source. Constructing a classifier never reads a
+model file, and no executable deserialization (pickle/joblib) is used.
 """
 from __future__ import annotations
 
-import base64
-import hashlib
-import io
-import json
 import logging
-import os
+import tempfile
 import warnings
+from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
-import joblib
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import LabelEncoder
+
+from ml.feature_schema import FEATURE_SCHEMA_VERSION
+from ml.forest_export import export_random_forest, write_model_artifact
+from ml.forest_format import FORMAT_NAME, ForestModel, ModelFormatError, load_model
 
 # Suppress sklearn warnings for cleaner output
 warnings.filterwarnings("ignore", category=UserWarning, module="sklearn")
@@ -30,19 +34,31 @@ warnings.filterwarnings("ignore", category=UserWarning, module="sklearn")
 logger = logging.getLogger(__name__)
 
 # Model format identifier
-MODEL_FORMAT = "cyberscan-random-forest-json-v1"
+MODEL_FORMAT = FORMAT_NAME
 
 # Expected embedding dimension
 LATENT_DIMENSION = 4096
 
-# Expected embedding schema version
-EMBEDDING_SCHEMA = "byte-histogram-entropy-v1"
+# Feature schema that persisted models must declare
+EMBEDDING_SCHEMA = FEATURE_SCHEMA_VERSION
 
 # Three-class labels
 CLASS_LABELS = ("clean", "suspicious", "malware")
 
 # Default model save location
 DEFAULT_MODEL_PATH = Path("models/structural_classifier.json")
+
+# Human-readable prefixes for loader rejection codes (see ml.forest_format).
+_LOAD_ERROR_PREFIXES = {
+    "unapproved": "Model not approved",
+    "io": "Model file could not be read",
+    "too_large": "Model file is too large",
+    "digest_mismatch": "Model file does not match the approved digest",
+    "not_json": "Model file is not a plain JSON model; executable model files are not loaded",
+    "schema": "Incompatible model artifact",
+    "structure": "Invalid model artifact",
+    "values": "Invalid model artifact",
+}
 
 
 def _extract_features_from_bytes(data: bytes) -> np.ndarray:
@@ -114,14 +130,18 @@ class StructuralClassifier:
     Uses deterministic 4096-dimensional embeddings extracted from byte statistics,
     entropy patterns, and structural features. No neural network dependencies.
 
-    Model is serialized as JSON with base64-encoded joblib payload for security.
+    A classifier holds either an in-memory scikit-learn forest produced by
+    ``train`` or a validated ``ForestModel`` produced by ``load``. Constructing
+    a classifier does not load anything; call ``load(path, expected_sha256=...)``.
     """
 
     def __init__(self, model_path: str | Path | None = None):
-        """Initialize classifier, optionally loading from model_path."""
+        """Initialize classifier. ``model_path`` is remembered but never loaded here."""
         self.model_path = Path(model_path) if model_path else DEFAULT_MODEL_PATH
         self.model: RandomForestClassifier | None = None
         self.label_encoder: LabelEncoder | None = None
+        self.forest: ForestModel | None = None
+        self.artifact_sha256: str | None = None
         self.metadata: dict[str, Any] = {
             "format": MODEL_FORMAT,
             "schema_version": 1,
@@ -132,8 +152,11 @@ class StructuralClassifier:
             "scores_are_calibrated": False,
             "load_error": None,
         }
-        if model_path:
-            self.load()
+
+    @property
+    def is_ready(self) -> bool:
+        """True when a trained or validated, loaded model can produce predictions."""
+        return self.forest is not None or self.model is not None
 
     def embed_bytes(self, data: bytes) -> np.ndarray:
         """Extract 4096-dim embedding from raw bytes."""
@@ -155,32 +178,6 @@ class StructuralClassifier:
         if not np.all(np.isfinite(X)):
             raise ValueError("Input contains non-finite values (NaN or Inf)")
 
-    def _compute_model_hash(self) -> str:
-        """Compute SHA-256 hash of serialized model for integrity."""
-        if self.model is None:
-            return ""
-        buffer = io.BytesIO()
-        joblib.dump(self.model, buffer)
-        return hashlib.sha256(buffer.getvalue()).hexdigest()
-
-    def _serialize_model(self) -> str:
-        """Serialize model to base64-encoded joblib."""
-        if self.model is None:
-            return ""
-        buffer = io.BytesIO()
-        joblib.dump(self.model, buffer)
-        return base64.b64encode(buffer.getvalue()).decode("ascii")
-
-    def _deserialize_model(self, encoded: str) -> RandomForestClassifier:
-        """Deserialize model from base64-encoded joblib."""
-        decoded = base64.b64decode(encoded.encode("ascii"))
-        buffer = io.BytesIO(decoded)
-        # Safe load: only allow our own model class
-        model = joblib.load(buffer)
-        if not isinstance(model, RandomForestClassifier):
-            raise ValueError("Deserialized object is not a RandomForestClassifier")
-        return model
-
     def train(self, X: np.ndarray, y: list[str]) -> dict:
         """
         Train the classifier on embeddings and labels.
@@ -197,7 +194,7 @@ class StructuralClassifier:
             X = X.reshape(1, -1)
         self._validate_input(X)
 
-# Encode labels
+        # Encode labels
         self.label_encoder = LabelEncoder()
         self.label_encoder.fit(CLASS_LABELS)
         # Accept both string labels and integer labels
@@ -222,11 +219,12 @@ class StructuralClassifier:
             n_jobs=-1,
         )
         self.model.fit(X, y_encoded)
+        self.forest = None
+        self.artifact_sha256 = None
 
         # Update metadata
         self.metadata["training_samples"] = int(X.shape[0])
-        self.metadata["classes"] = self.label_encoder.classes_.tolist()
-        self.metadata["_model_hash"] = self._compute_model_hash()
+        self.metadata["classes"] = list(CLASS_LABELS)
 
         return {
             "training_samples": int(X.shape[0]),
@@ -234,20 +232,26 @@ class StructuralClassifier:
             "n_estimators": self.model.n_estimators,
         }
 
+    def _trained_class_labels(self) -> list[str]:
+        """Label names for each entry of the in-memory forest's ``classes_``."""
+        assert self.model is not None and self.label_encoder is not None
+        return [str(name) for name in self.label_encoder.inverse_transform(self.model.classes_)]
+
     def predict(self, X: np.ndarray) -> dict:
         """
         Predict class labels with detailed scores.
 
         Returns dict with status, label, class_scores, scores_are_calibrated, repair_review_candidate.
         - If untrained: status="untrained", label=None, infection_score=None, class_scores={}
-        - If trained: status="classified", label=predicted class, class_scores={class: score%}
+        - If trained or loaded: status="classified", label=predicted class,
+          class_scores={class: score%} for the first sample, in CLASS_LABELS order.
         """
         X = np.asarray(X)
         if X.ndim == 1:
             X = X.reshape(1, -1)
         self._validate_input(X)
 
-        if self.model is None:
+        if not self.is_ready:
             return {
                 "status": "untrained",
                 "label": None,
@@ -257,18 +261,24 @@ class StructuralClassifier:
                 "repair_review_candidate": None,
             }
 
-        y_pred_encoded = self.model.predict(X)
-        labels = self.label_encoder.inverse_transform(y_pred_encoded)
-
-        proba = self.model.predict_proba(X)
-        class_scores = {}
-        class_names = self.label_encoder.inverse_transform(self.model.classes_)
-        for i, class_name in enumerate(class_names):
-            class_scores[class_name] = float(proba[0, i]) * 100
+        proba = self.predict_proba(X)
+        if self.forest is not None:
+            labels = self.forest.predict(X)
+        else:
+            labels = [
+                str(label)
+                for label in self.label_encoder.inverse_transform(self.model.predict(X))
+            ]
+        present = set(self.forest.classes if self.forest is not None else self._trained_class_labels())
+        class_scores = {
+            class_name: float(proba[0, index]) * 100
+            for index, class_name in enumerate(CLASS_LABELS)
+            if class_name in present
+        }
 
         return {
             "status": "classified",
-            "label": labels[0] if len(labels) == 1 else labels.tolist(),
+            "label": labels[0] if len(labels) == 1 else labels,
             "infection_score": None,
             "class_scores": class_scores,
             "scores_are_calibrated": False,
@@ -276,116 +286,106 @@ class StructuralClassifier:
         }
 
     def predict_proba(self, X: np.ndarray) -> np.ndarray:
-        """Return raw class probabilities (n_samples, n_classes)."""
+        """Return raw class scores, shape (n_samples, 3), columns in CLASS_LABELS order.
+
+        Classes absent from an in-memory training set have a score of 0.
+        """
         X = np.asarray(X)
         if X.ndim == 1:
             X = X.reshape(1, -1)
         self._validate_input(X)
 
+        if self.forest is not None:
+            return self.forest.predict_proba(X)
         if self.model is None:
             n_classes = len(CLASS_LABELS)
             return np.ones((X.shape[0], n_classes), dtype=np.float32) / n_classes
 
-        return self.model.predict_proba(X)
+        raw = self.model.predict_proba(X)
+        ordered = np.zeros((X.shape[0], len(CLASS_LABELS)), dtype=np.float64)
+        for column, class_name in enumerate(self._trained_class_labels()):
+            ordered[:, CLASS_LABELS.index(class_name)] = raw[:, column]
+        return ordered
 
     def predict_with_scores(self, X: np.ndarray) -> dict:
         """Predict with detailed class scores. Returns dict matching test expectations."""
         return self.predict(X)
 
-    def save(self, path: str | Path | None = None, metadata: dict | None = None) -> Path:
-        """Save model to JSON file with base64-encoded joblib payload."""
+    def save(self, path: str | Path | None = None, metadata: Mapping[str, Any] | None = None) -> Path:
+        """Export the in-memory forest to the safe JSON format.
+
+        ``metadata`` entries are stored as informational provenance and must be
+        strings, numbers, booleans, or None. The artifact's SHA-256 is stored in
+        ``artifact_sha256`` for review; saving never approves a model.
+        """
         save_path = Path(path) if path else self.model_path
-        save_path.parent.mkdir(parents=True, exist_ok=True)
 
         if self.model is None:
             raise RuntimeError("Cannot save untrained model")
 
-        # Merge additional metadata if provided
-        if metadata:
-            self.metadata.update(metadata)
+        provenance: dict[str, Any] = {}
+        for key, value in (metadata or {}).items():
+            if value is not None and not isinstance(value, (bool, int, float, str)):
+                raise ValueError(
+                    f"Model metadata {key!r} must be a string, number, boolean, or None."
+                )
+            provenance[str(key)] = value
 
-        model_b64 = self._serialize_model()
-
-        payload = {
-            "format": MODEL_FORMAT,
-            "model": {
-                "estimators_b64": model_b64,
-            },
-            "metadata": self.metadata,
-        }
-
-        with save_path.open("w", encoding="utf-8") as f:
-            json.dump(payload, f, indent=2)
-
-        logger.info(f"Model saved to {save_path}")
+        document = export_random_forest(
+            self.model,
+            class_labels=self._trained_class_labels(),
+            provenance=provenance,
+        )
+        self.artifact_sha256 = write_model_artifact(document, save_path)
+        logger.info("Model saved to %s (sha256 %s)", save_path, self.artifact_sha256)
         return save_path
 
-    def load(self, path: str | Path | None = None) -> bool:
+    def load(self, path: str | Path | None = None, *, expected_sha256: str | None = None) -> bool:
         """
-        Load model from JSON file.
+        Load a model artifact through the safe, digest-first loader.
 
-        Returns True on success, False on failure (check metadata["load_error"]).
+        ``expected_sha256`` must come from a trusted source outside the
+        artifact. Without it nothing is read. Returns True on success, False on
+        failure (see metadata["load_error"]). A failed load discards any
+        previously loaded artifact.
         """
         load_path = Path(path) if path else self.model_path
         self.model_path = load_path
-
-        if not load_path.exists():
-            self.metadata["load_error"] = f"Model file not found: {load_path}"
-            return False
+        self.forest = None
+        self.artifact_sha256 = None
 
         try:
-            with load_path.open("r", encoding="utf-8") as f:
-                payload = json.load(f)
-
-            # Validate format
-            if payload.get("format") != MODEL_FORMAT:
-                self.metadata["load_error"] = f"Invalid format: {payload.get('format')}"
-                return False
-
-            # Validate metadata
-            metadata = payload.get("metadata", {})
-            required_keys = ["schema_version", "embedding_schema", "embedding_dimension", "classes"]
-            for key in required_keys:
-                if key not in metadata:
-                    self.metadata["load_error"] = f"Missing metadata key: {key}"
-                    return False
-
-            if metadata["embedding_schema"] != EMBEDDING_SCHEMA:
-                self.metadata["load_error"] = f"Incompatible embedding schema: {metadata['embedding_schema']}"
-                return False
-
-            if metadata["embedding_dimension"] != LATENT_DIMENSION:
-                self.metadata["load_error"] = f"Incompatible embedding dimension: {metadata['embedding_dimension']}"
-                return False
-
-            # Deserialize model
-            model_b64 = payload.get("model", {}).get("estimators_b64")
-            if not model_b64:
-                self.metadata["load_error"] = "Missing model payload"
-                return False
-
-            self.model = self._deserialize_model(model_b64)
-            self.label_encoder = LabelEncoder()
-            self.label_encoder.fit(metadata["classes"])
-
-# Verify model hash
-            computed_hash = self._compute_model_hash()
-            stored_hash = metadata.get("_model_hash", "")
-            if stored_hash and computed_hash != stored_hash:
-                logger.warning(f"Model hash mismatch: computed={computed_hash[:16]}... stored={stored_hash[:16]}...")
-
-            self.metadata = metadata
-            self.metadata["load_error"] = None
-            return True
-
-        except (json.JSONDecodeError, UnicodeDecodeError):
-            self.metadata["load_error"] = "executable model files are not loaded"
-            logger.error("Failed to load model: not valid JSON (executable pickle rejected)")
+            forest = load_model(
+                load_path,
+                expected_sha256,
+                expected_feature_schema=EMBEDDING_SCHEMA,
+                expected_n_features=LATENT_DIMENSION,
+                expected_classes=CLASS_LABELS,
+            )
+        except ModelFormatError as exc:
+            prefix = _LOAD_ERROR_PREFIXES.get(exc.code, "Model rejected")
+            self.metadata["load_error"] = f"{prefix}: {exc}"
+            logger.warning("Structural model not loaded (%s): %s", exc.code, exc)
             return False
-        except Exception as e:
-            self.metadata["load_error"] = f"Load failed: {e}"
-            logger.error(f"Failed to load model: {e}")
-            return False
+
+        self.forest = forest
+        self.artifact_sha256 = forest.sha256
+        self.metadata = {
+            "format": MODEL_FORMAT,
+            "schema_version": 1,
+            "embedding_schema": forest.feature_schema,
+            "embedding_dimension": forest.n_features,
+            "embedding_dim": forest.n_features,
+            "classes": list(forest.classes),
+            "labels": list(forest.classes),
+            "n_estimators": len(forest.trees),
+            "training_examples": forest.provenance.get("training_examples"),
+            "provenance": dict(forest.provenance),
+            "artifact_sha256": forest.sha256,
+            "scores_are_calibrated": False,
+            "load_error": None,
+        }
+        return True
 
 
 def extract_structural_embedding(file_path: Path | str) -> np.ndarray:
@@ -397,7 +397,7 @@ def extract_structural_embedding(file_path: Path | str) -> np.ndarray:
 
 
 if __name__ == "__main__":
-    # Quick self-test
+    # Quick self-test in a temporary directory
     clf = StructuralClassifier()
     test_data = b"MZ\x90\x00" + b"test" * 100
     emb = clf.embed_bytes(test_data)
@@ -416,12 +416,12 @@ if __name__ == "__main__":
     pred = clf.predict(emb)
     print(f"Trained prediction: {pred}")
 
-    # Save and reload
-    test_model = Path("test_model.json")
-    clf.save(test_model)
-    clf2 = StructuralClassifier(test_model)
-    assert clf2.load()
-    pred2 = clf2.predict(emb)
+    # Save and reload with the digest reported by save()
+    with tempfile.TemporaryDirectory() as directory:
+        test_model = Path(directory) / "test_model.json"
+        clf.save(test_model)
+        clf2 = StructuralClassifier()
+        assert clf2.load(test_model, expected_sha256=clf.artifact_sha256)
+        pred2 = clf2.predict(emb)
     print(f"Reloaded prediction: {pred2}")
     assert pred["label"] == pred2["label"]
-    print("Self-test passed!")

@@ -48,7 +48,7 @@ def test_classifier_rejects_incompatible_metadata(tmp_path):
     )
     classifier = StructuralClassifier(model_path)
 
-    assert classifier.load() is False
+    assert classifier.load(expected_sha256=hashlib.sha256(model_path.read_bytes()).hexdigest()) is False
     assert "Missing metadata keys" in classifier.metadata["load_error"] or "incompatible" in classifier.metadata["load_error"].lower()
 
 
@@ -80,11 +80,13 @@ def test_three_class_manifest_trains_and_reloads_classifier(tmp_path):
 
     model_path = tmp_path / "trained.json"
     training = train_from_manifest(manifest, model_path, dataset_root=tmp_path, split_method="random", test_size=0.25)
-    classifier = StructuralClassifier(model_path)
+    classifier = StructuralClassifier()
+    digest = hashlib.sha256(model_path.read_bytes()).hexdigest()
 
     assert training["training_examples"] == 90
     assert training["validation_metrics"]["sample_count"] == 30
-    assert classifier.load()
+    assert training["sha256"] == digest
+    assert classifier.load(model_path, expected_sha256=digest)
     assert classifier.metadata["embedding_schema"] == EMBEDDING_SCHEMA
     assert classifier.metadata["scores_are_calibrated"] is False
     vector = classifier.embed_bytes(b"sample held out from the training manifest")
@@ -94,9 +96,10 @@ def test_three_class_manifest_trains_and_reloads_classifier(tmp_path):
     assert sum(prediction["class_scores"].values()) == pytest.approx(100.0)
     assert prediction["scores_are_calibrated"] is False
     assert prediction["repair_review_candidate"] is None
-    assert '"format": "cyberscan-random-forest-json-v1"' in model_path.read_text(
-        encoding="utf-8"
-    )[:100]
+    artifact = model_path.read_bytes()
+    assert json.loads(artifact)["format"] == MODEL_FORMAT == "cyberscan-forest"
+    for marker in (b"estimators_b64", b"cyberscan-random-forest-json-v1", b"gASV", b"gAWV", b"\x80\x04"):
+        assert marker not in artifact
 
 
 def test_family_group_holdout_has_no_group_leakage():
@@ -140,12 +143,19 @@ def test_classifier_rejects_non_finite_inference_vectors_with_scores(tmp_path):
         rf.predict([float("nan")] * LATENT_DIMENSION)
 
 
-def test_classifier_does_not_load_executable_pickle_artifacts(tmp_path):
+def test_classifier_does_not_load_executable_pickle_artifacts(tmp_path, monkeypatch):
+    import pickle
+
+    def forbidden(*_args, **_kwargs):
+        raise AssertionError("pickle must never be used to load a model")
+
+    for name in ("load", "loads", "Unpickler"):
+        monkeypatch.setattr(pickle, name, forbidden)
     model_path = tmp_path / "legacy.json"
     model_path.write_bytes(b"\x80\x04cos\nsystem\n.")
     classifier = StructuralClassifier(model_path)
 
-    assert classifier.load() is False
+    assert classifier.load(expected_sha256=hashlib.sha256(model_path.read_bytes()).hexdigest()) is False
     assert "executable model files are not loaded" in classifier.metadata["load_error"]
 
 

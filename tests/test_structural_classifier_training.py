@@ -73,9 +73,10 @@ def test_structural_classifier_can_train_on_synthetic_data(tmp_path: Path):
     assert len(preds["label"]) == len(test_X)
 
 def test_structural_classifier_fails_without_training(tmp_path: Path):
-    # Ensure classifier doesn't load without trained model
+    # An explicitly configured but missing model file is not loaded
     classifier = StructuralClassifier()
-    assert not classifier.load()
+    assert not classifier.load(tmp_path / "missing.json", expected_sha256="0" * 64)
+    assert "could not be read" in classifier.metadata["load_error"]
     # Try to predict (should fail gracefully)
     prediction = classifier.predict(np.zeros((1, 4096)))
     assert prediction["status"] == "untrained"
