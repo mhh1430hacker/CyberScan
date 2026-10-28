@@ -1,0 +1,1 @@
+{"feature_order": ["file_size", "entropy", "extension_category", "is_executable", "magic_mismatch", "double_extension", "section_count", "average_section_entropy", "max_section_entropy", "import_count", "suspicious_import_count", "string_count", "suspicious_string_count", "executable_section_count", "packing_indicator"], "model_type": "IsolationForest", "contamination": 0.1}

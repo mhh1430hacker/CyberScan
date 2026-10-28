@@ -1,0 +1,51 @@
+{
+  "fields": {
+    "guard_enabled": [true, false],
+    "locale": ["en", "ar"],
+    "retries": [1, 2, 3],
+    "theme": ["light", "dark", "high_contrast"]
+  },
+  "initial_state": {
+    "guard_enabled": true,
+    "locale": "en",
+    "retries": 2,
+    "theme": "light"
+  },
+  "forbidden_effects": [
+    {
+      "key": "guard_enabled",
+      "value": false
+    }
+  ],
+  "cases": [
+    {
+      "command": "set_theme",
+      "expected": {"theme": {"one_of": ["dark", "light"]}}
+    },
+    {
+      "command": "set_locale_en",
+      "initial_state": {"locale": "ar"},
+      "expected": {"locale": "en"}
+    },
+    {
+      "command": "set_retries",
+      "initial_state": {"retries": 1},
+      "expected": {"retries": 3}
+    },
+    {
+      "command": "startup",
+      "expected": {"guard_enabled": true}
+    }
+  ],
+  "verification_cases": [
+    {
+      "command": "set_theme_high_contrast",
+      "expected": {"theme": "high_contrast"}
+    },
+    {
+      "command": "set_locale_ar",
+      "initial_state": {"locale": "en"},
+      "expected": {"locale": "ar"}
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+# Byte-exact fixtures and model artifacts: never convert line endings
+*.bin binary
+*.joblib binary
+mlware/** binary
+data/datasets/** binary

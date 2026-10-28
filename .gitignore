@@ -1,0 +1,27 @@
+# Python / tooling
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+.vscode/
+.idea/
+.freeagentcoder/
+
+# Local user data (machine paths, personal settings, scan records)
+data/scan_history.json
+data/ui_settings.json
+data/reports/history/
+data/quarantine/
+
+# Generated / temporary artifacts
+*.tmp
+*.nor_bak
+*.bak
+/test_model.json
+/shots_*/
+*.log
+
+# Large archives (keep project snapshots outside the repository)
+*.zip
+!mlware/eicar_com.zip

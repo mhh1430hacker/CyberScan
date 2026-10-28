@@ -1,0 +1,13 @@
+customtkinter>=5.2.2
+PySide6-Essentials>=6.8.0
+arabic-reshaper>=3.0.0
+python-bidi>=0.6.0
+numpy>=1.26.0
+pandas>=2.2.0
+scikit-learn>=1.4.0
+pytest>=8.0.0
+capstone>=5.0.1
+aiohttp>=3.10.0
+yara-python>=4.5.1
+pefile>=2023.2.7
+cryptography>=42.0.8

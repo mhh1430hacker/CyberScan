@@ -1,0 +1,6 @@
+{
+  "name": "synthetic_policy_component",
+  "actions": [
+    {"when": "choose_policy", "op": "set", "key": "policy_mode", "value": "compromised"}
+  ]
+}
