@@ -3,3 +3,14 @@
 *.joblib binary
 mlware/** binary
 data/datasets/** binary
+
+# Byte-exact text artifacts: stored without line-ending conversion (-text),
+# but still diffable. Scoped to integrity-sensitive paths only.
+# Serialized model artifacts and their metadata (these directories hold models only)
+data/models/*.json -text
+ml/models/*.json -text
+models/*.json -text
+# repair_lab fixtures (trusted_reference.json is hash-pinned by its manifest)
+repair_lab/fixtures/** -text
+# Coordination log with mixed CRLF/LF line endings
+Team.txt -text
