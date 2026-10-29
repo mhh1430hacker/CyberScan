@@ -535,6 +535,100 @@ AR_TRANSLATIONS: Mapping[str, str] = {
     "CyberScan is a defensive cybersecurity research prototype. It analyzes files, URLs, and indicators without executing targets. Its evidence and model scores are investigative aids, not proof of malware or calibrated probabilities. The 4096-D projection is deterministic and non-lossless. Packed or encrypted content may hide semantics. There is no automatic repair, deletion, or quarantine action. Public intelligence is optional and disabled by default.": "CyberScan نموذج بحثي دفاعي للأمن السيبراني. يحلل الملفات والروابط والمؤشرات دون تشغيلها. أدلته ودرجات نموذجه أدوات تحقيق وليست إثباتًا لوجود برمجية خبيثة أو احتمالات معايرة. إسقاط 4096 بُعدًا حتمي وغير بلا فقدان. قد يخفي المحتوى المضغوط أو المشفر دلالاته. لا يوجد إصلاح أو حذف أو حجر تلقائي. الاستخبارات العامة اختيارية ومعطلة افتراضيًا.",
 }
 
+# Results-screen strings. Looked up by exact match only (translate_exact), so
+# short labels such as "High" or "Ran" can never be substituted inside other
+# text, file names, or raw engine evidence.
+AR_RESULT_TRANSLATIONS: Mapping[str, str] = {
+    # verdicts
+    "High risk": "خطر مرتفع",
+    "Needs review": "يحتاج إلى مراجعة",
+    "Low risk": "منخفض المخاطر",
+    "Inconclusive": "غير حاسم",
+    "Strong static indicators were observed. Review the evidence before opening or sharing this target.": "رُصدت مؤشرات ساكنة قوية. راجع الأدلة قبل فتح هذا الهدف أو مشاركته.",
+    "Weak or isolated indicators were observed. Review the evidence before trusting this target.": "رُصدت مؤشرات ضعيفة أو منفردة. راجع الأدلة قبل الوثوق بهذا الهدف.",
+    "No indicators were observed by the engines that ran. This does not prove the target is safe.": "لم ترصد المحركات التي عملت أي مؤشرات. هذا لا يثبت أن الهدف آمن.",
+    "No indicators were observed, but part of the analysis did not complete, so this result cannot be relied on.": "لم تُرصد مؤشرات، لكن جزءًا من التحليل لم يكتمل، لذا لا يمكن الاعتماد على هذه النتيجة.",
+    "The engine returned a result this interface does not recognise. Review the technical details.": "أعاد المحرك نتيجة لا تتعرف عليها هذه الواجهة. راجع التفاصيل التقنية.",
+    # severities
+    "High": "مرتفعة",
+    "Medium": "متوسطة",
+    "Low": "منخفضة",
+    "Info": "معلوماتية",
+    "Unknown": "غير معروفة",
+    # categories
+    "File structure": "بنية الملف",
+    "Entropy and statistics": "الإنتروبيا والإحصاءات",
+    "Heuristic rules": "القواعد الاستدلالية",
+    "Text indicators": "مؤشرات نصية",
+    "URL indicators": "مؤشرات الرابط",
+    "Executable (PE)": "ملف تنفيذي (PE)",
+    "Signature rules (YARA)": "قواعد التواقيع (YARA)",
+    "Archive": "أرشيف",
+    "Test marker": "علامة اختبار",
+    "Threat intelligence": "استخبارات التهديدات",
+    # engines and coverage states
+    "Executable structure (PE)": "بنية الملف التنفيذي (PE)",
+    "Structural model": "النموذج البنيوي",
+    "Archive inspection": "فحص الأرشيف",
+    "Ran": "نُفّذ",
+    "Not applicable": "غير منطبق",
+    "Off": "متوقف",
+    "Unavailable": "غير متاح",
+    "Partial": "جزئي",
+    "Failed": "فشل",
+    # layout
+    "Risk index": "مؤشر الخطورة",
+    "Risk index not available": "مؤشر الخطورة غير متاح",
+    "Heuristic index 0–100 · not a probability": "مؤشر استدلالي من 0 إلى 100 · ليس احتمالًا",
+    "Findings": "الأدلة",
+    "Highest severity": "أعلى خطورة",
+    "ATT&CK techniques": "تقنيات ATT&CK",
+    "Engines that ran": "المحركات التي عملت",
+    "{count} not applicable": "{count} غير منطبق",
+    "{count} off": "{count} متوقف",
+    "{count} at medium or higher": "{count} بخطورة متوسطة أو أعلى",
+    "{ran} of {total}": "{ran} من {total}",
+    "None": "لا يوجد",
+    "Key evidence": "أهم الأدلة",
+    "Strongest first": "الأقوى أولًا",
+    "No indicators observed": "لم تُرصد مؤشرات",
+    "The engines that ran reported no evidence for this target. That is not proof of safety.": "لم تُبلغ المحركات التي عملت عن أي دليل لهذا الهدف. وهذا ليس إثباتًا للأمان.",
+    "View all {count} findings": "عرض جميع الأدلة ({count})",
+    "Weight {value}/100": "الوزن {value}/100",
+    "Indicators by category": "المؤشرات حسب الفئة",
+    "Number of findings": "عدد الأدلة",
+    "Not available: there are no findings to group.": "غير متاح: لا توجد أدلة لتجميعها.",
+    "Scan coverage": "تغطية الفحص",
+    "Not available: the engine reported no coverage data.": "غير متاح: لم يُبلغ المحرك عن بيانات التغطية.",
+    "File details": "معلومات الملف",
+    "Technical details": "التفاصيل التقنية",
+    "Show technical details": "عرض التفاصيل التقنية",
+    "Hide technical details": "إخفاء التفاصيل التقنية",
+    "New scan": "فحص جديد",
+    "Target": "الهدف",
+    "Content type": "نوع المحتوى",
+    "Binary content": "محتوى ثنائي",
+    "Text content": "محتوى نصي",
+    "Size": "الحجم",
+    "SHA-256": "SHA-256",
+    "Mean entropy": "متوسط الإنتروبيا",
+    "{value} / 8 bits per byte": "{value} من 8 بت لكل بايت",
+    "PE status": "حالة PE",
+    "YARA matches": "تطابقات YARA",
+    "Model status": "حالة النموذج",
+    "Limitations": "القيود",
+    "Not available": "غير متاح",
+    "Some engines unavailable: ": "محركات غير متاحة: ",
+    "All enabled engines ran": "عملت جميع المحركات المفعّلة",
+}
+
+
+def translate_exact(text: str, language: str) -> str:
+    """Translate by exact match only; unknown text is returned unchanged."""
+    if language != "ar":
+        return text
+    return AR_RESULT_TRANSLATIONS.get(text, AR_TRANSLATIONS.get(text, text))
+
 
 def translate_text(text: str, language: str) -> str:
     if language != "ar":

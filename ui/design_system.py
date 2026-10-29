@@ -234,7 +234,12 @@ class MeterBar(QWidget):
             return
         fill = QRectF(r)
         fill.setWidth(r.width() * self._shown)
-        gradient = QLinearGradient(0, 0, fill.width(), 0)
+        if self.isRightToLeft():
+            # Fill from the reading start: the right edge in RTL layouts.
+            fill.moveRight(r.right())
+            gradient = QLinearGradient(fill.right(), 0, fill.left(), 0)
+        else:
+            gradient = QLinearGradient(0, 0, fill.width(), 0)
         start = QColor(self._color)
         start.setAlpha(150)
         gradient.setColorAt(0.0, start)
@@ -507,11 +512,17 @@ class VerdictBadge(QWidget):
         self.update()
 
     def _fonts(self):
+        # A stylesheet font-size in px leaves pointSizeF() at -1; derive a real
+        # base size so the verdict is never drawn in a 3pt face.
+        base = self.font().pointSizeF()
+        if base <= 0:
+            pixels = self.font().pixelSize()
+            base = pixels * 0.75 if pixels > 0 else 9.75
         title = QFont(self.font())
-        title.setPointSizeF(title.pointSizeF() + 4.0)
-        title.setWeight(QFont.Weight.DemiBold)
+        title.setPointSizeF(base + 9.0)
+        title.setWeight(QFont.Weight.Bold)
         body = QFont(self.font())
-        body.setPointSizeF(max(8.0, body.pointSizeF() - 0.5))
+        body.setPointSizeF(max(9.0, base + 0.5))
         return title, body
 
     def _resize_for_text(self) -> None:
@@ -542,24 +553,22 @@ class VerdictBadge(QWidget):
         painter.setPen(QPen(QColor(self._color).darker(180), 1))
         painter.drawPath(path)
 
-        accent = QRectF(r.x(), r.y() + 14, 3, r.height() - 28)
+        rtl = self.isRightToLeft()
+        painter.setLayoutDirection(self.layoutDirection())
+        accent_x = r.right() - 3 if rtl else r.x()
+        accent = QRectF(accent_x, r.y() + 14, 3, r.height() - 28)
         painter.setPen(Qt.PenStyle.NoPen)
         painter.setBrush(self._color)
         painter.drawRoundedRect(accent, 1.5, 1.5)
 
+        # Text starts at the reading edge: left in LTR, right in RTL.
+        side = Qt.AlignmentFlag.AlignRight if rtl else Qt.AlignmentFlag.AlignLeft
+        flags = int(side | Qt.AlignmentFlag.AlignTop | Qt.TextFlag.TextWordWrap)
         title, body = self._fonts()
         painter.setFont(title)
         painter.setPen(QPen(QColor(TOKENS["text"])))
-        text_w = r.width() - 32
-        painter.drawText(
-            QRectF(20, 12, text_w, 60),
-            int(
-                Qt.AlignmentFlag.AlignLeft
-                | Qt.AlignmentFlag.AlignTop
-                | Qt.TextFlag.TextWordWrap
-            ),
-            self._label,
-        )
+        text_w = r.width() - 40
+        painter.drawText(QRectF(20, 12, text_w, 60), flags, self._label)
 
         title_h = QFontMetrics(title).boundingRect(
             0, 0, int(text_w), 4000, int(Qt.TextFlag.TextWordWrap), self._label
@@ -568,10 +577,209 @@ class VerdictBadge(QWidget):
         painter.setPen(QPen(QColor(TOKENS["text_dim"])))
         painter.drawText(
             QRectF(20, 12 + title_h + 6, text_w, r.height() - title_h - 30),
-            int(
-                Qt.AlignmentFlag.AlignLeft
-                | Qt.AlignmentFlag.AlignTop
-                | Qt.TextFlag.TextWordWrap
-            ),
+            flags,
             self._detail,
         )
+
+
+# --------------------------------------------------------------------------
+# Results screen parts
+# --------------------------------------------------------------------------
+
+TONE_COLORS = {
+    "danger": TOKENS["danger"],
+    "warn": TOKENS["warn"],
+    "ok": TOKENS["ok"],
+    "info": TOKENS["info"],
+    "neutral": TOKENS["text_mute"],
+    "accent": TOKENS["accent"],
+}
+
+
+def tone_color(tone: str) -> str:
+    return TONE_COLORS.get(tone, TOKENS["text_mute"])
+
+
+class CollapsibleSection(QWidget):
+    """Section whose body is hidden until the header is activated.
+
+    Rarely needed detail lives here instead of being removed. The header is a
+    real button, so it is reachable and operable from the keyboard.
+    """
+
+    toggled = Signal(bool)
+
+    def __init__(self, title: str = "", parent=None):
+        super().__init__(parent)
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(8)
+        self.header = QPushButton()
+        self.header.setObjectName("sectionToggle")
+        self.header.setCheckable(True)
+        self.header.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.header.toggled.connect(self._on_toggled)
+        layout.addWidget(self.header)
+        self.body = QWidget()
+        self.body_layout = QVBoxLayout(self.body)
+        self.body_layout.setContentsMargins(2, 0, 2, 2)
+        self.body_layout.setSpacing(10)
+        self.body.setVisible(False)
+        layout.addWidget(self.body)
+        self._title = title
+        self._sync_header()
+
+    def set_title(self, title: str) -> None:
+        self._title = title
+        self._sync_header()
+
+    def is_expanded(self) -> bool:
+        return self.header.isChecked()
+
+    def set_expanded(self, expanded: bool) -> None:
+        self.header.setChecked(expanded)
+
+    def _on_toggled(self, expanded: bool) -> None:
+        self.body.setVisible(expanded)
+        self._sync_header()
+        self.toggled.emit(expanded)
+
+    def _sync_header(self) -> None:
+        if self.header.isChecked():
+            arrow = "▾"
+        else:
+            arrow = "◂" if self.isRightToLeft() else "▸"
+        self.header.setText(f"{arrow}  {self._title}".replace("&", "&&"))
+        self.header.setAccessibleName(self._title)
+
+    def changeEvent(self, event) -> None:  # noqa: N802
+        super().changeEvent(event)
+        from PySide6.QtCore import QEvent
+
+        if event.type() == QEvent.Type.LayoutDirectionChange:
+            self._sync_header()
+
+
+class StatTile(QFrame):
+    """One real number from the scan with a short caption."""
+
+    def __init__(self, caption: str = "", parent=None):
+        super().__init__(parent)
+        self.setObjectName("metric")
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(12, 10, 12, 10)
+        layout.setSpacing(2)
+        self.caption = QLabel(caption)
+        self.caption.setObjectName("muted")
+        self.caption.setWordWrap(True)
+        self.value = QLabel("-")
+        self.value.setObjectName("metricValue")
+        self.note = QLabel("")
+        self.note.setObjectName("subtle")
+        self.note.setWordWrap(True)
+        self.note.setVisible(False)
+        layout.addWidget(self.caption)
+        layout.addWidget(self.value)
+        layout.addWidget(self.note)
+
+    def set_value(self, value: str, note: str = "", color: str | None = None) -> None:
+        self.value.setText(value)
+        self.value.setStyleSheet(f"color:{color};" if color else "")
+        self.note.setText(note)
+        self.note.setVisible(bool(note))
+
+
+class FindingCard(QFrame):
+    """One finding: severity (symbol + word + colour), title, explanation.
+
+    Title and explanation are the engine's own text and are shown unchanged.
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setObjectName("findingCard")
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(14, 11, 14, 12)
+        layout.setSpacing(5)
+        top = QHBoxLayout()
+        top.setSpacing(8)
+        self.severity = Chip("", "neutral")
+        self.category = QLabel("")
+        self.category.setObjectName("subtle")
+        self.contribution = QLabel("")
+        self.contribution.setObjectName("subtle")
+        top.addWidget(self.severity)
+        top.addWidget(self.category)
+        top.addStretch(1)
+        top.addWidget(self.contribution)
+        layout.addLayout(top)
+        self.title = QLabel("")
+        self.title.setObjectName("cardTitle")
+        self.title.setWordWrap(True)
+        self.title.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+        self.explanation = QLabel("")
+        self.explanation.setObjectName("muted")
+        self.explanation.setWordWrap(True)
+        self.explanation.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+        layout.addWidget(self.title)
+        layout.addWidget(self.explanation)
+
+    def set_finding(
+        self,
+        severity_text: str,
+        tone: str,
+        category: str,
+        title: str,
+        explanation: str,
+        contribution: str,
+    ) -> None:
+        self.severity.setText(severity_text)
+        self.severity.set_tone(tone)
+        self.category.setText(category)
+        self.title.setText(title)
+        self.explanation.setText(explanation)
+        self.explanation.setVisible(bool(explanation) and explanation != title)
+        self.contribution.setText(contribution)
+        self.setAccessibleName(f"{severity_text}: {title}")
+
+
+class CategoryBars(QWidget):
+    """Horizontal bars: number of findings per category (real counts only)."""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._grid = QVBoxLayout(self)
+        self._grid.setContentsMargins(0, 0, 0, 0)
+        self._grid.setSpacing(9)
+        self.rows: list[tuple[QLabel, MeterBar, QLabel]] = []
+
+    def set_rows(self, rows: list[tuple[str, int, str]]) -> None:
+        """rows: (label, count, colour). Bar length is count / largest count."""
+        while self._grid.count():
+            item = self._grid.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.setParent(None)
+                widget.deleteLater()
+        self.rows = []
+        largest = max((count for _label, count, _color in rows), default=0)
+        for label, count, color in rows:
+            row = QWidget()
+            row_layout = QHBoxLayout(row)
+            row_layout.setContentsMargins(0, 0, 0, 0)
+            row_layout.setSpacing(10)
+            name = QLabel(label)
+            name.setObjectName("muted")
+            name.setMinimumWidth(150)
+            bar = MeterBar(color)
+            bar.setFixedHeight(10)
+            bar.set_value(100.0 * count / largest if largest else 0.0, animate=False)
+            value = QLabel(str(count))
+            value.setObjectName("metaValueMono")
+            value.setMinimumWidth(22)
+            value.setAlignment(Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignRight)
+            row_layout.addWidget(name)
+            row_layout.addWidget(bar, 1)
+            row_layout.addWidget(value)
+            self._grid.addWidget(row)
+            self.rows.append((name, bar, value))

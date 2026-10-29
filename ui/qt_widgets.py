@@ -110,6 +110,7 @@ class RiskGauge(QWidget):
         self.setMinimumSize(168, 168)
         self.setMaximumSize(200, 200)
         self._value = 0.0
+        self._color: QColor | None = None
         self._animation = QPropertyAnimation(self, b"value", self)
         self._animation.setDuration(1100)
         self._animation.setEasingCurve(QEasingCurve.Type.OutCubic)
@@ -122,6 +123,11 @@ class RiskGauge(QWidget):
         self.update()
 
     value = Property(float, get_value, set_value)
+
+    def set_color(self, color: str | None) -> None:
+        """Use the verdict colour instead of the built-in score bands."""
+        self._color = QColor(color) if color else None
+        self.update()
 
     def animate_to(self, value: float) -> None:
         self._animation.stop()
@@ -141,7 +147,9 @@ class RiskGauge(QWidget):
         painter.setPen(QPen(QColor("#202f40"), 11, Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap))
         painter.drawArc(arc, 225 * 16, -270 * 16)
         color = (
-            QColor("#ff7185")
+            self._color
+            if self._color is not None
+            else QColor("#ff7185")
             if self._value >= 50
             else QColor("#ffbd6d")
             if self._value > 0

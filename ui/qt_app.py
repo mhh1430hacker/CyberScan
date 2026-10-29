@@ -33,6 +33,7 @@ from PySide6.QtWidgets import (
     QFrame,
     QGraphicsOpacityEffect,
     QGridLayout,
+    QBoxLayout,
     QHBoxLayout,
     QLabel,
     QLineEdit,
@@ -58,8 +59,11 @@ from reports.exporter import export_report
 from ui.persistence import LocalUiStore
 from ui.design_system import (
     TOKENS,
+    CategoryBars,
     Chip,
+    CollapsibleSection,
     EmptyState,
+    FindingCard,
     Hairline,
     IconRailButton,
     MeterBar,
@@ -68,13 +72,26 @@ from ui.design_system import (
     SectionHeader,
     SeverityDot,
     StageTrack,
+    StatTile,
     VerdictBadge,
     mono_font,
     severity_color,
+    tone_color,
 )
 from ui.qt_widgets import AnimatedBackground, BrandMark, RiskGauge, SignalCanvas, Surface
 from ui.scan_service import ScanService
-from ui.translations import translate_text
+from ui.result_view import (
+    CATEGORY_LABELS,
+    COVERAGE_LABELS,
+    COVERAGE_TONES,
+    ENGINE_LABELS,
+    SEVERITY_LABELS,
+    SEVERITY_RANK,
+    SEVERITY_TONES,
+    ResultView,
+    build_result_view,
+)
+from ui.translations import translate_exact, translate_text
 
 APP_STYLE = """
 /* =====================================================================
@@ -506,6 +523,23 @@ QFrame#statusBanner[tone="error"] {
 }
 QLabel#bannerTitle { color: #f2f7ff; font-size: 13px; font-weight: 700; }
 QLabel#bannerDetail { color: #9bacbf; font-size: 12px; }
+
+/* ---------- results screen ---------- */
+QFrame#findingCard {
+    background: #0f1826; border: 1px solid #1a2637; border-radius: 10px;
+}
+QLabel#cardTitle { color: #e8eef8; font-size: 13px; font-weight: 650; }
+QFrame#resultColumn {
+    background: #0b1220; border: 1px solid #131e2c; border-radius: 12px;
+}
+QPushButton#sectionToggle {
+    background: transparent; color: #e8eef8;
+    border: 1px solid #1a2637; border-radius: 9px;
+    padding: 9px 12px; text-align: left; font-weight: 650;
+}
+QPushButton#sectionToggle:hover { background: #0f1826; }
+QPushButton#sectionToggle:checked { background: #0f1826; border-color: #26364b; }
+QPushButton#sectionToggle:focus { border: 1px solid #5ee0d0; }
 
 /* ---------- dialogs ---------- */
 QMessageBox, QDialog { background: #0b1220; }
@@ -1149,17 +1183,18 @@ class CyberScanApp(QMainWindow):
         self.signal_canvas._timer.start(50)
 
         # ---- results: verdict first ------------------------------------
+        # Texts built here are re-applied in _apply_results_static_text() on
+        # every render, so a language switch updates them too.
+        self._results_static: list[tuple[Any, str]] = []
         self.results_panel = QFrame()
         self.results_panel.setObjectName("surface")
         result_layout = QVBoxLayout(self.results_panel)
         result_layout.setContentsMargins(18, 16, 18, 16)
-        result_layout.setSpacing(12)
-        result_layout.addWidget(
-            SectionHeader(self.tr("Verdict"), self.tr("From the engines that ran"))
-        )
+        result_layout.setSpacing(14)
 
+        # 1. Verdict + risk index: readable in one glance.
         verdict_row = QHBoxLayout()
-        verdict_row.setSpacing(16)
+        verdict_row.setSpacing(18)
         verdict_copy = QVBoxLayout()
         verdict_copy.setSpacing(6)
         self.verdict_badge = VerdictBadge()
@@ -1168,55 +1203,211 @@ class CyberScanApp(QMainWindow):
         self.verdict_label = self._label("Analysis result", "verdict")
         self.verdict_label.setVisible(False)
         verdict_copy.addWidget(self.verdict_label)
-        self.verdict_label.setVisible(False)
         self.target_result_label = self._label("", "mono")
         self.target_result_label.setWordWrap(True)
+        self.target_result_label.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
+        self.target_result_label.setTextInteractionFlags(
+            Qt.TextInteractionFlag.TextSelectableByMouse
+        )
         verdict_copy.addWidget(self.target_result_label)
         self.verdict_summary = self._label("", "muted")
         self.verdict_summary.setWordWrap(True)
         self.verdict_summary.setVisible(False)
         verdict_copy.addWidget(self.verdict_summary)
-        self.limitations_label = self._label("", "subtle")
-        self.limitations_label.setWordWrap(True)
-        verdict_copy.addWidget(self.limitations_label)
-        self.risk_note = self._label("Risk index · not a malware probability", "subtle")
-        verdict_copy.addWidget(self.risk_note)
         self.completeness_chip = QLabel("")
         self.completeness_chip.setObjectName("chip")
         self.completeness_chip.setVisible(False)
         verdict_copy.addWidget(self.completeness_chip, 0, Qt.AlignmentFlag.AlignLeft)
+        self.limitations_label = self._label("", "subtle")
+        self.limitations_label.setWordWrap(True)
+        verdict_copy.addWidget(self.limitations_label)
         verdict_copy.addStretch(1)
         verdict_row.addLayout(verdict_copy, 1)
 
         gauge_col = QVBoxLayout()
         gauge_col.setSpacing(4)
         self.risk_gauge = RiskGauge()
-        gauge_col.addWidget(self.risk_gauge, 0, Qt.AlignmentFlag.AlignTop)
+        gauge_col.addWidget(self.risk_gauge, 0, Qt.AlignmentFlag.AlignHCenter)
+        self.risk_unavailable = QLabel("")
+        self.risk_unavailable.setObjectName("subtle")
+        self.risk_unavailable.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.risk_unavailable.setWordWrap(True)
+        self.risk_unavailable.setMinimumWidth(168)
+        self.risk_unavailable.setVisible(False)
+        self._results_static.append((self.risk_unavailable, "Risk index not available"))
+        gauge_col.addWidget(self.risk_unavailable)
         self.risk_caption = self._label("", "subtle")
         self.risk_caption.setAlignment(Qt.AlignmentFlag.AlignCenter)
         gauge_col.addWidget(self.risk_caption)
+        self.risk_note = self._label("Risk index · not a malware probability", "subtle")
+        self.risk_note.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.risk_note.setWordWrap(True)
+        self.risk_note.setMaximumWidth(220)
+        gauge_col.addWidget(self.risk_note)
+        gauge_col.addStretch(1)
         verdict_row.addLayout(gauge_col, 0)
         result_layout.addLayout(verdict_row)
 
+        # 2. Quick summary: real counts only.
+        stats_row = QHBoxLayout()
+        stats_row.setSpacing(8)
+        self.stat_tiles: dict[str, StatTile] = {}
+        for key, caption in (
+            ("findings", "Findings"),
+            ("severity", "Highest severity"),
+            ("mitre", "ATT&CK techniques"),
+            ("coverage", "Engines that ran"),
+        ):
+            tile = StatTile()
+            self._results_static.append((tile.caption, caption))
+            self.stat_tiles[key] = tile
+            stats_row.addWidget(tile, 1)
+        result_layout.addLayout(stats_row)
+
+        # 3. Evidence cards | category chart + coverage (stacks when narrow).
+        self.results_columns = QBoxLayout(QBoxLayout.Direction.LeftToRight)
+        self.results_columns.setSpacing(12)
+
+        evidence_column = QFrame()
+        evidence_column.setObjectName("resultColumn")
+        evidence_layout = QVBoxLayout(evidence_column)
+        evidence_layout.setContentsMargins(14, 12, 14, 14)
+        evidence_layout.setSpacing(9)
+        self.evidence_header = SectionHeader("", "")
+        self._results_static.append((self.evidence_header.title, "Key evidence"))
+        self._results_static.append((self.evidence_header.caption, "Strongest first"))
+        evidence_layout.addWidget(self.evidence_header)
+        self.finding_cards_layout = QVBoxLayout()
+        self.finding_cards_layout.setSpacing(8)
+        evidence_layout.addLayout(self.finding_cards_layout)
+        self.finding_cards: list[FindingCard] = []
+        self.no_findings_state = QWidget()
+        empty_layout = QVBoxLayout(self.no_findings_state)
+        empty_layout.setContentsMargins(8, 18, 8, 18)
+        empty_layout.setSpacing(6)
+        for object_name, source in (
+            ("emptyTitle", "No indicators observed"),
+            (
+                "emptyBody",
+                "The engines that ran reported no evidence for this target. That is not proof of safety.",
+            ),
+        ):
+            text = QLabel("")
+            text.setObjectName(object_name)
+            text.setWordWrap(True)
+            text.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            empty_layout.addWidget(text)
+            self._results_static.append((text, source))
+        evidence_layout.addWidget(self.no_findings_state)
+        self.findings_overflow_button = QPushButton("")
+        self.findings_overflow_button.setObjectName("quiet")
+        self.findings_overflow_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.findings_overflow_button.clicked.connect(self._show_all_findings)
+        self.findings_overflow_button.setVisible(False)
+        evidence_layout.addWidget(self.findings_overflow_button, 0, Qt.AlignmentFlag.AlignLeft)
+        evidence_layout.addStretch(1)
+        self.results_columns.addWidget(evidence_column, 3)
+
+        side_column = QFrame()
+        side_column.setObjectName("resultColumn")
+        side_layout = QVBoxLayout(side_column)
+        side_layout.setContentsMargins(14, 12, 14, 14)
+        side_layout.setSpacing(10)
+        self.category_header = SectionHeader("", "")
+        self._results_static.append((self.category_header.title, "Indicators by category"))
+        self._results_static.append((self.category_header.caption, "Number of findings"))
+        side_layout.addWidget(self.category_header)
+        self.category_bars = CategoryBars()
+        side_layout.addWidget(self.category_bars)
+        self.category_unavailable = QLabel("")
+        self.category_unavailable.setObjectName("subtle")
+        self.category_unavailable.setWordWrap(True)
+        self._results_static.append(
+            (self.category_unavailable, "Not available: there are no findings to group.")
+        )
+        side_layout.addWidget(self.category_unavailable)
+        side_layout.addWidget(Hairline())
+        self.coverage_header = SectionHeader("", "")
+        self._results_static.append((self.coverage_header.title, "Scan coverage"))
+        side_layout.addWidget(self.coverage_header)
+        self.coverage_layout = QVBoxLayout()
+        self.coverage_layout.setSpacing(6)
+        side_layout.addLayout(self.coverage_layout)
+        self.coverage_unavailable = QLabel("")
+        self.coverage_unavailable.setObjectName("subtle")
+        self.coverage_unavailable.setWordWrap(True)
+        self._results_static.append(
+            (self.coverage_unavailable, "Not available: the engine reported no coverage data.")
+        )
+        side_layout.addWidget(self.coverage_unavailable)
+        side_layout.addStretch(1)
+        self.results_columns.addWidget(side_column, 2)
+        result_layout.addLayout(self.results_columns)
+
+        # 4. File details (collapsed; nothing is removed, only deferred).
+        self.file_section = CollapsibleSection()
+        self._results_static.append((self.file_section.set_title, "File details"))
+        self.file_rows: dict[str, MetaRow] = {}
+        for key, caption in (
+            ("target", "Target"),
+            ("type", "Content type"),
+            ("size", "Size"),
+            ("sha256", "SHA-256"),
+            ("entropy", "Mean entropy"),
+            ("pe", "PE status"),
+            ("yara", "YARA matches"),
+            ("model", "Model status"),
+        ):
+            raw_value = key in {"target", "sha256", "pe"}
+            row = MetaRow(caption, "-", mono=raw_value)
+            row.value.setWordWrap(True)
+            row.layout().setStretch(2, 3)
+            if raw_value:
+                # Paths, hashes and engine identifiers stay left-to-right.
+                row.value.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
+            self._results_static.append((row.label, caption))
+            self.file_rows[key] = row
+            self.file_section.body_layout.addWidget(row)
+        result_layout.addWidget(self.file_section)
+
+        # 5. Technical details: the existing metric strip and detail tabs.
+        self.technical_section = CollapsibleSection()
+        self._results_static.append((self.technical_section.set_title, "Technical details"))
+        self.technical_section.toggled.connect(self._sync_details_button)
         self.result_metrics = QHBoxLayout()
         self.result_metrics.setSpacing(8)
-        result_layout.addLayout(self.result_metrics)
-
+        self.technical_section.body_layout.addLayout(self.result_metrics)
         self.detail_tabs = QTabWidget()
+        self.detail_tabs.setMinimumHeight(320)
         self.detail_tabs.addTab(self._build_result_overview(), self.tr("Evidence"))
         self.detail_tabs.addTab(self._build_structure_detail(), self.tr("Structure"))
         self.detail_tabs.addTab(self._build_detections_detail(), self.tr("Findings"))
         self.detail_tabs.addTab(self._build_engine_detail(), self.tr("Engines"))
         self.detail_tabs.addTab(self._build_intel_detail(), self.tr("Intelligence"))
         self.detail_tabs.addTab(self._build_report_detail(), self.tr("Report"))
-        result_layout.addWidget(self.detail_tabs)
+        self.technical_section.body_layout.addWidget(self.detail_tabs)
+        result_layout.addWidget(self.technical_section)
+
+        # 6. Actions backed by existing functions.
         result_actions = QHBoxLayout()
+        result_actions.setSpacing(8)
+        self.details_button = QPushButton("")
+        self.details_button.setObjectName("secondary")
+        self.details_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.details_button.clicked.connect(self._toggle_technical_details)
+        result_actions.addWidget(self.details_button)
         result_actions.addStretch(1)
         self.export_button = self._button("Export report", self.export_current_report)
         self.export_button.setObjectName("secondary")
         self.export_button.setToolTip(self.tr("Save this result as a text or JSON report"))
         self.export_button.setEnabled(False)
         result_actions.addWidget(self.export_button)
+        self.new_scan_button = QPushButton("")
+        self.new_scan_button.setObjectName("secondary")
+        self.new_scan_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.new_scan_button.clicked.connect(self._return_to_scan)
+        self._results_static.append((self.new_scan_button, "New scan"))
+        result_actions.addWidget(self.new_scan_button)
         result_layout.addLayout(result_actions)
         layout.addWidget(self.results_panel)
         self.results_panel.setMaximumWidth(1180)
@@ -1225,6 +1416,8 @@ class CyberScanApp(QMainWindow):
         self._results_effect.setOpacity(1.0)
         self.results_panel.setGraphicsEffect(self._results_effect)
         self._results_animation: QParallelAnimationGroup | None = None
+        self._results_view: ResultView | None = None
+        self._apply_results_static_text()
         layout.addStretch(1)
         return scroll
 
@@ -1928,18 +2121,17 @@ class CyberScanApp(QMainWindow):
         self._start_next_monitor_scan()
 
     def _render_result(self, result, nextgen, vector, prediction, intelligence, raw_data) -> None:
+        view = build_result_view(result, nextgen)
+        self._results_view = view
         was_hidden = self.results_panel.isHidden()
         self.results_panel.show()
         if was_hidden:
             self._animate_results_entry()
         self._reveal_results()
         self.export_button.setEnabled(True)
-        self.risk_gauge.animate_to(result.combined_score)
-        verdict, color = self._verdict(result)
+        verdict, _color = self._verdict(result)
         self.verdict_label.setText(self.tr(verdict))
-        verdict_copy_text = self._summary_for(result, raw_data)
-        self.verdict_badge.set_verdict(self.tr(verdict), verdict_copy_text, color)
-        self.risk_caption.setText(f"{result.combined_score}/100")
+        self._render_result_screen(view)
         self.target_result_label.setText(result.target)
         self.verdict_summary.setText(
             self._summary_for(result, raw_data)
@@ -1947,11 +2139,7 @@ class CyberScanApp(QMainWindow):
         self._update_completeness_chip(result, prediction, intelligence)
         self.limitations_label.setText(self.tr(result.limitations or ""))
         self._update_result_status_banner(result)
-        while self.result_metrics.count():
-            item = self.result_metrics.takeAt(0)
-            widget = item.widget()
-            if widget:
-                widget.deleteLater()
+        self._clear_layout(self.result_metrics)
         file_size = result.feature_summary.get("file_size", len(raw_data))
         metrics = (
             ("Risk index", f"{result.combined_score}/100"),
@@ -2029,6 +2217,7 @@ class CyberScanApp(QMainWindow):
         )
         self._render_engine_details(result, nextgen, prediction, intelligence)
         self.detail_tabs.setCurrentIndex(0)
+        self._normalize_child_fonts(1.18 if self.settings.get("large_text") else 1.0)
 
     def _animate_results_entry(self) -> None:
         """Fade and lift the results panel without blocking the UI thread."""
@@ -2080,30 +2269,37 @@ class CyberScanApp(QMainWindow):
         QTimer.singleShot(0, scroll_to_verdict)
 
     def _update_completeness_chip(self, result, prediction, intelligence) -> None:
-        """Say honestly which evidence sources contributed to this result."""
-        statuses = {str(k): str(v).lower() for k, v in (result.engine_status or {}).items()}
-        missing = [
-            name
-            for name, status in statuses.items()
-            if status.startswith(("error", "unavailable", "failed", "not_run", "disabled"))
-        ]
-        classifier = str(prediction.get("status", "untrained"))
-        if missing:
+        """Say honestly which evidence sources contributed to this result.
+
+        Uses the same coverage states as the coverage panel. Engines switched
+        off in Settings are a user choice, not missing coverage.
+        """
+        view = getattr(self, "_results_view", None) or build_result_view(result)
+        incomplete = sorted(e.name for e in view.coverage if e.state in {"failed", "partial"})
+        unavailable = sorted(e.name for e in view.coverage if e.state == "unavailable")
+        if incomplete:
+            self.completeness_chip.setText(self.tr("Partial coverage: ") + ", ".join(incomplete))
+            apply_tone(self.completeness_chip, "medium")
+        elif unavailable:
             self.completeness_chip.setText(
-                self.tr("Partial coverage: ") + ", ".join(sorted(missing))
+                self._tx("Some engines unavailable: ")
+                + ", ".join(self._tx(ENGINE_LABELS.get(name, name)) for name in unavailable)
             )
             apply_tone(self.completeness_chip, "medium")
-        elif classifier != "trained":
-            self.completeness_chip.setText(
-                self.tr("Static engines only · structural classifier ") + classifier
-            )
-            apply_tone(self.completeness_chip, "low")
         else:
-            self.completeness_chip.setText(self.tr("All configured engines reported"))
+            self.completeness_chip.setText(self._tx("All enabled engines ran"))
             apply_tone(self.completeness_chip, "low")
         self.completeness_chip.setVisible(True)
 
     def _update_result_status_banner(self, result) -> None:
+        view = getattr(self, "_results_view", None)
+        if view is not None and view.verdict.key == "inconclusive":
+            self.status_banner.set_state(
+                "warning",
+                self._tx(view.verdict.title),
+                self._tx(view.verdict.detail),
+            )
+            return
         if result.classification == "SUSPICIOUS":
             self.status_banner.set_state(
                 "error",
@@ -2124,6 +2320,205 @@ class CyberScanApp(QMainWindow):
                     "This does not prove the target is safe. Static analysis has limits."
                 ),
             )
+
+    # ---- results screen ---------------------------------------------------
+
+    def _tx(self, text: str) -> str:
+        """Exact-match translation for results-screen text (no substring substitution)."""
+        return translate_exact(text, self.language)
+
+    def _apply_results_static_text(self) -> None:
+        for target, source in self._results_static:
+            text = self._tx(source)
+            if isinstance(target, QWidget):
+                target.setText(text)
+            else:
+                target(text)
+        self._sync_details_button()
+
+    def _severity_text(self, severity: str) -> str:
+        symbol, label = SEVERITY_LABELS.get(severity, SEVERITY_LABELS["unknown"])
+        return f"{symbol} {self._tx(label)}"
+
+    @staticmethod
+    def _clear_layout(layout) -> None:
+        while layout.count():
+            item = layout.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.setParent(None)
+                widget.deleteLater()
+
+    def _render_result_screen(self, view: ResultView) -> None:
+        """Draw the verdict-first results from the presentation model only."""
+        self._apply_results_static_text()
+        verdict = view.verdict
+        color = tone_color(verdict.tone)
+        self.verdict_badge.set_verdict(
+            f"{verdict.symbol}  {self._tx(verdict.title)}", self._tx(verdict.detail), color
+        )
+        self.verdict_badge.setAccessibleName(self._tx(verdict.title))
+
+        has_score = view.score is not None
+        self.risk_gauge.setVisible(has_score)
+        self.risk_unavailable.setVisible(not has_score)
+        self.risk_note.setVisible(has_score)
+        if has_score:
+            self.risk_gauge.set_color(color)
+            self.risk_gauge.animate_to(view.score)
+            self.risk_caption.setText(f"{view.score}/100")
+        else:
+            self.risk_caption.setText("")
+
+        findings = view.findings
+        notable = sum(
+            1 for item in findings if SEVERITY_RANK[item.severity] >= SEVERITY_RANK["medium"]
+        )
+        self.stat_tiles["findings"].set_value(
+            str(len(findings)),
+            self._tx("{count} at medium or higher").format(count=notable) if notable else "",
+        )
+        if view.highest_severity:
+            self.stat_tiles["severity"].set_value(
+                self._severity_text(view.highest_severity),
+                color=tone_color(SEVERITY_TONES[view.highest_severity]),
+            )
+        else:
+            self.stat_tiles["severity"].set_value(self._tx("None"))
+        self.stat_tiles["mitre"].set_value(str(view.mitre_count))
+        if view.coverage:
+            states = [engine.state for engine in view.coverage]
+            not_applicable = states.count("not_applicable")
+            switched_off = states.count("disabled")
+            notes = []
+            if not_applicable:
+                notes.append(self._tx("{count} not applicable").format(count=not_applicable))
+            if switched_off:
+                notes.append(self._tx("{count} off").format(count=switched_off))
+            self.stat_tiles["coverage"].set_value(
+                self._tx("{ran} of {total}").format(
+                    ran=view.engines_ran,
+                    total=len(states) - not_applicable - switched_off,
+                ),
+                " · ".join(notes),
+            )
+        else:
+            self.stat_tiles["coverage"].set_value(self._tx("Not available"))
+
+        self._clear_layout(self.finding_cards_layout)
+        self.finding_cards = []
+        shown = findings[:5]
+        for item in shown:
+            card = FindingCard()
+            card.set_finding(
+                self._severity_text(item.severity),
+                SEVERITY_TONES[item.severity],
+                self._tx(CATEGORY_LABELS.get(item.category, item.category)),
+                item.title,
+                item.explanation,
+                self._tx("Weight {value}/100").format(value=item.contribution)
+                if item.contribution > 0
+                else "",
+            )
+            self.finding_cards_layout.addWidget(card)
+            self.finding_cards.append(card)
+        self.no_findings_state.setVisible(not findings)
+        overflow = len(findings) > len(shown)
+        self.findings_overflow_button.setVisible(overflow)
+        if overflow:
+            self.findings_overflow_button.setText(
+                self._tx("View all {count} findings").format(count=len(findings))
+            )
+
+        rows = [
+            (
+                self._tx(CATEGORY_LABELS.get(entry.category, entry.category)),
+                entry.count,
+                tone_color(SEVERITY_TONES[entry.top_severity]),
+            )
+            for entry in view.categories
+        ]
+        self.category_bars.set_rows(rows)
+        self.category_bars.setVisible(bool(rows))
+        self.category_unavailable.setVisible(not rows)
+
+        self._clear_layout(self.coverage_layout)
+        self.coverage_chips: dict[str, Chip] = {}
+        for engine in view.coverage:
+            row = QWidget()
+            row_layout = QHBoxLayout(row)
+            row_layout.setContentsMargins(0, 0, 0, 0)
+            row_layout.setSpacing(8)
+            name = QLabel(self._tx(ENGINE_LABELS.get(engine.name, engine.name)))
+            name.setObjectName("muted")
+            symbol, label = COVERAGE_LABELS[engine.state]
+            chip = Chip(f"{symbol} {self._tx(label)}", COVERAGE_TONES[engine.state])
+            # The raw engine status is shown unchanged as the tooltip.
+            row.setToolTip(engine.status)
+            row_layout.addWidget(name)
+            row_layout.addStretch(1)
+            row_layout.addWidget(chip)
+            self.coverage_layout.addWidget(row)
+            self.coverage_chips[engine.name] = chip
+        self.coverage_unavailable.setVisible(not view.coverage)
+
+        unavailable = self._tx("Not available")
+        profiles = {"binary-content": "Binary content", "text-content": "Text content"}
+        self.file_rows["target"].set_value(view.target or unavailable)
+        self.file_rows["type"].set_value(
+            self._tx(profiles[view.input_profile])
+            if view.input_profile in profiles
+            else (view.input_profile or unavailable)
+        )
+        self.file_rows["size"].set_value(
+            self._format_size(view.file_size) if view.file_size is not None else unavailable
+        )
+        self.file_rows["sha256"].set_value(view.sha256 or unavailable)
+        self.file_rows["entropy"].set_value(
+            self._tx("{value} / 8 bits per byte").format(value=f"{view.mean_entropy:.2f}")
+            if view.mean_entropy is not None
+            else unavailable
+        )
+        self.file_rows["pe"].set_value(view.pe_status or unavailable)
+        self.file_rows["yara"].set_value(str(view.yara_count))
+        self.file_rows["model"].set_value(view.model_status or unavailable)
+
+    def _sync_details_button(self, *_args) -> None:
+        expanded = self.technical_section.is_expanded()
+        self.details_button.setText(
+            self._tx("Hide technical details" if expanded else "Show technical details")
+        )
+
+    def _scroll_area_for(self, widget: QWidget) -> QScrollArea | None:
+        parent = widget.parentWidget()
+        while parent is not None and not isinstance(parent, QScrollArea):
+            parent = parent.parentWidget()
+        return parent
+
+    def _scroll_into_view(self, widget: QWidget, *, top: bool = False) -> None:
+        scroll = self._scroll_area_for(widget)
+        if scroll is None:
+            return
+        if top:
+            QTimer.singleShot(0, lambda: scroll.verticalScrollBar().setValue(0))
+        else:
+            QTimer.singleShot(0, lambda: scroll.ensureWidgetVisible(widget, 0, 24))
+
+    def _toggle_technical_details(self) -> None:
+        expand = not self.technical_section.is_expanded()
+        self.technical_section.set_expanded(expand)
+        if expand:
+            self._scroll_into_view(self.technical_section)
+
+    def _show_all_findings(self) -> None:
+        self.technical_section.set_expanded(True)
+        self.detail_tabs.setCurrentIndex(2)
+        self._scroll_into_view(self.technical_section)
+
+    def _return_to_scan(self) -> None:
+        self._show_analysis()
+        self.target_entry.selectAll()
+        self._scroll_into_view(self._composer, top=True)
 
     @staticmethod
     def _format_size(size: int) -> str:
@@ -2602,6 +2997,9 @@ class CyberScanApp(QMainWindow):
                 self.sidebar.setMaximumWidth(248)
             self.sidebar_history.setMaximumHeight(96 if compact else 150)
             self._reflow_stage_cards(2 if compact else 4)
+            self.results_columns.setDirection(
+                QBoxLayout.Direction.TopToBottom if compact else QBoxLayout.Direction.LeftToRight
+            )
 
     def _reflow_stage_cards(self, columns: int) -> None:
         if columns == getattr(self, "_stage_columns", columns):
