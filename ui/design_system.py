@@ -9,6 +9,7 @@ from PySide6.QtCore import (
     Property,
     QEasingCurve,
     QPointF,
+    QPropertyAnimation,
     QRectF,
     QSize,
     Qt,
@@ -472,13 +473,17 @@ class PrimaryButton(QPushButton):
 class IconRailButton(QPushButton):
     """Navigation entry: glyph over label, selected state painted by qss."""
 
-    def __init__(self, glyph: str, label: str, parent=None):
+    def __init__(self, glyph: str, label: str, parent=None, icon=None):
         super().__init__(parent)
         self.setObjectName("railButton")
         self.setCheckable(True)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.setMinimumHeight(46)
-        self.glyph = glyph
+        # With an icon the glyph is drawn by the icon, not as text.
+        self.glyph = "" if icon is not None else glyph
+        if icon is not None:
+            self.setIcon(icon)
+            self.setIconSize(QSize(18, 18))
         self.text_label = label
         self._sync_text()
 
@@ -486,7 +491,7 @@ class IconRailButton(QPushButton):
         # Escape the ampersand: Qt treats "&X" in button text as a mnemonic
         # and silently swallows both characters ("YARA & PE" -> "YARA_PE").
         label = self.text_label.replace("&", "&&")
-        self.setText(f"{self.glyph}   {label}")
+        self.setText(f"{self.glyph}   {label}" if self.glyph else f"  {label}")
 
     def set_label(self, label: str) -> None:
         self.text_label = label

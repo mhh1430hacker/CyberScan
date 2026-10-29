@@ -11,6 +11,7 @@ from typing import Any
 from urllib.parse import urlsplit
 
 from PySide6.QtCore import (
+    QSize,
     QEasingCurve,
     QEvent,
     QObject,
@@ -77,6 +78,15 @@ from ui.design_system import (
     mono_font,
     severity_color,
     tone_color,
+)
+from ui.home import (
+    FactRow,
+    HeroPanel,
+    ModeSegment,
+    RecentActivity,
+    ScanCore,
+    glyph_icon,
+    glyph_pixmap,
 )
 from ui.qt_widgets import AnimatedBackground, BrandMark, RiskGauge, SignalCanvas, Surface
 from ui.scan_service import ScanService
@@ -541,6 +551,50 @@ QPushButton#sectionToggle:hover { background: #0f1826; }
 QPushButton#sectionToggle:checked { background: #0f1826; border-color: #26364b; }
 QPushButton#sectionToggle:focus { border: 1px solid #5ee0d0; }
 
+/* ---------- main screen ---------- */
+QLabel#heroTitle {
+    color: #f2f7ff;
+    font-family: "Segoe UI Variable Display", "Segoe UI", "Dubai", "Noto Sans Arabic";
+    font-size: 36px; font-weight: 700;
+}
+QLabel#heroBody { color: #9bacbf; font-size: 15px; }
+QLabel#heroFact { color: #b9c7d6; font-size: 13px; }
+QFrame#composer {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #0e1726, stop:1 #0b1220);
+    border: 1px solid #1f2d40;
+    border-radius: 16px;
+}
+QFrame#composer[armed="true"] {
+    border: 1px dashed #5ee0d0;
+    background: #0d1c22;
+}
+QFrame#composer QPushButton#modeChip {
+    min-height: 34px; padding: 0 15px; font-size: 13px;
+}
+QFrame#composer QPushButton#secondary { min-height: 44px; padding: 0 16px; }
+QFrame#composer QLineEdit#targetEntry { min-height: 44px; font-size: 15px; }
+QFrame#activityPanel {
+    background: #0b1220; border: 1px solid #131e2c; border-radius: 16px;
+}
+QPushButton#activityRow {
+    background: #0d1523; border: 1px solid #131e2c; border-radius: 11px;
+    text-align: left; padding: 0; min-height: 62px;
+}
+QPushButton#activityRow:hover { background: #111c2c; border-color: #26364b; }
+QPushButton#activityRow:focus { border: 1px solid #5ee0d0; }
+QLabel#activityName { color: #e8eef8; font-size: 14px; font-weight: 600; }
+QLabel#activityScore {
+    color: #9bacbf; font-family: "Cascadia Mono", "Consolas"; font-size: 13px;
+}
+QPushButton#railButton:checked {
+    background: #0d1f23; color: #e9fbf8;
+    border: 1px solid transparent; border-left: 3px solid #5ee0d0;
+}
+QPushButton#railButton[rtl="true"]:checked {
+    border-left: 1px solid transparent; border-right: 3px solid #5ee0d0;
+}
+QPushButton#railButton { min-height: 40px; }
+
 /* ---------- dialogs ---------- */
 QMessageBox, QDialog { background: #0b1220; }
 QMessageBox QLabel { color: #e8eef8; }
@@ -655,6 +709,7 @@ class StatusBanner(QFrame):
         self.dot.setStyleSheet(f"font-size:12px;color:{color}")
         self.title.setText(title)
         self.detail.setText(detail)
+        self.setVisible(tone != "ready")
         self.setProperty("tone", normalized)
         style = self.style()
         style.unpolish(self)
@@ -847,11 +902,11 @@ class CyberScanApp(QMainWindow):
 
         self.sidebar = QFrame()
         self.sidebar.setObjectName("sidebar")
-        self.sidebar.setMinimumWidth(248)
-        self.sidebar.setMaximumWidth(248)
+        self.sidebar.setMinimumWidth(232)
+        self.sidebar.setMaximumWidth(232)
         rail = QVBoxLayout(self.sidebar)
-        rail.setContentsMargins(14, 20, 14, 16)
-        rail.setSpacing(3)
+        rail.setContentsMargins(14, 22, 14, 16)
+        rail.setSpacing(2)
 
         brand = QHBoxLayout()
         brand.setSpacing(10)
@@ -872,23 +927,29 @@ class CyberScanApp(QMainWindow):
         rail.addSpacing(20)
 
         self.sidebar_primary = self._button(
-            "+   New analysis", self._show_analysis, primary=False
+            "New analysis", self._show_analysis, primary=False
         )
         self.sidebar_primary.setObjectName("railButton")
+        self.sidebar_primary.setIcon(glyph_icon("analysis"))
+        self.sidebar_primary.setIconSize(QSize(18, 18))
         self.sidebar_primary.setCheckable(True)
         self.sidebar_primary.setMinimumHeight(44)
         self.sidebar_primary.setProperty("navKey", "analysis")
         self.sidebar_primary.setToolTip(self.tr("Start a new scan (Ctrl+1)"))
         self.sidebar_primary.setMinimumHeight(40)
         rail.addWidget(self.sidebar_primary)
-        rail.addSpacing(18)
 
-        workspace = self._label("Workspace", "eyebrow")
-        rail.addWidget(workspace)
-        rail.addSpacing(4)
-
+        groups = {"history": "Analyze", "yara": "Evidence", "logs": "System"}
+        self._rail_groups: list[tuple[QLabel, str]] = []
         for label, page, icon in self.NAV_ITEMS[1:]:
-            button = IconRailButton(f"{icon}", self.tr(label))
+            if page in groups:
+                rail.addSpacing(14)
+                group = QLabel(translate_exact(groups[page], self.language))
+                group.setObjectName("eyebrow")
+                self._rail_groups.append((group, groups[page]))
+                rail.addWidget(group)
+                rail.addSpacing(3)
+            button = IconRailButton(f"{icon}", self.tr(label), icon=glyph_icon(page))
             button.setToolTip(self.tr(f"Open {label}"))
             button.clicked.connect(
                 lambda checked=False, key=page: self._show_page(key)
@@ -896,21 +957,17 @@ class CyberScanApp(QMainWindow):
             self._nav_buttons[page] = button
             rail.addWidget(button)
 
-        rail.addSpacing(16)
-        recent = self._label("Recent scans", "eyebrow")
-        rail.addWidget(recent)
-        rail.addSpacing(2)
         self.sidebar_history = QListWidget()
         self.sidebar_history.setObjectName("sidebarHistory")
         self.sidebar_history.setMaximumHeight(150)
         self.sidebar_history.setFrameShape(QFrame.Shape.NoFrame)
         self.sidebar_history.itemActivated.connect(self._open_history_item)
         self.sidebar_history.itemClicked.connect(self._open_history_item)
+        # Kept for compatibility; recent scans now live on the main screen.
+        self.sidebar_history.setVisible(False)
         rail.addWidget(self.sidebar_history)
         self.sidebar_recent_empty = QLabel(self.tr("No scans yet."))
-        self.sidebar_recent_empty.setObjectName("subtle")
-        self.sidebar_recent_empty.setWordWrap(True)
-        rail.addWidget(self.sidebar_recent_empty)
+        self.sidebar_recent_empty.setVisible(False)
 
         rail.addStretch(1)
 
@@ -925,6 +982,7 @@ class CyberScanApp(QMainWindow):
         language_row = QHBoxLayout()
         language_row.setSpacing(6)
         lang_caption = self._label("Language", "subtle")
+        self._rail_groups.append((lang_caption, "Language"))
         language_row.addWidget(lang_caption)
         language_row.addStretch(1)
         self.language_button = self._button(
@@ -933,6 +991,7 @@ class CyberScanApp(QMainWindow):
             quiet=True,
         )
         self.language_button.setObjectName("quiet")
+        self.language_button.setIcon(glyph_icon("globe", TOKENS["text_dim"], TOKENS["text_dim"], 16))
         language_row.addWidget(self.language_button)
         rail.addLayout(language_row)
         shell.addWidget(self.sidebar)
@@ -998,7 +1057,7 @@ class CyberScanApp(QMainWindow):
         self.sidebar.setProperty("rtl", is_rtl)
         self.sidebar.style().unpolish(self.sidebar)
         self.sidebar.style().polish(self.sidebar)
-        for button in self._nav_buttons.values():
+        for button in (*self._nav_buttons.values(), self.sidebar_primary):
             button.setProperty("rtl", is_rtl)
             button.style().unpolish(button)
             button.style().polish(button)
@@ -1025,24 +1084,71 @@ class CyberScanApp(QMainWindow):
         scroll, page, layout = self._scroll_page()
         layout.setContentsMargins(2, 8, 4, 28)
 
-        # ---- composer: the single focal interaction -------------------
+        # ---- hero: identity, location, and state the app can prove -------
+        self.hero = HeroPanel()
+        self.hero.setMaximumWidth(1180)
+        hero_layout = QHBoxLayout(self.hero)
+        hero_layout.setContentsMargins(32, 28, 26, 28)
+        hero_layout.setSpacing(28)
+        hero_copy = QVBoxLayout()
+        hero_copy.setSpacing(10)
+        hero_copy.addStretch(1)
+        self.hero_state = Chip(self.tr("PRIVATE BY DEFAULT"), "accent")
+        self._text_bindings.append((self.hero_state, "PRIVATE BY DEFAULT"))
+        hero_copy.addWidget(self.hero_state, 0, Qt.AlignmentFlag.AlignLeft)
+        self.hero_title = QLabel("")
+        self.hero_title.setObjectName("heroTitle")
+        self.hero_title.setWordWrap(True)
+        hero_copy.addWidget(self.hero_title)
+        self.hero_body = QLabel("")
+        self.hero_body.setObjectName("heroBody")
+        self.hero_body.setWordWrap(True)
+        hero_copy.addWidget(self.hero_body)
+        hero_copy.addSpacing(6)
+        self.fact_engines = FactRow("engines")
+        self.fact_engines.set_text("", "accent")
+        self.detection_summary = self.fact_engines.text
+        self.fact_lookups = FactRow("globe")
+        self.fact_monitor = FactRow("monitor")
+        for fact in (self.fact_engines, self.fact_lookups, self.fact_monitor):
+            hero_copy.addWidget(fact)
+        hero_copy.addStretch(1)
+        hero_layout.addLayout(hero_copy, 1)
+        self.scan_core = ScanCore()
+        hero_layout.addWidget(self.scan_core, 0, Qt.AlignmentFlag.AlignVCenter)
+        layout.addWidget(self.hero)
+
+        # ---- action dock: the one thing to do on this screen -------------
         composer = QFrame()
         composer.setObjectName("composer")
         composer.setMaximumWidth(1180)
         composer.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         self._composer = composer
         composer_layout = QVBoxLayout(composer)
-        composer_layout.setContentsMargins(20, 18, 20, 18)
-        composer_layout.setSpacing(12)
+        composer_layout.setContentsMargins(22, 18, 22, 18)
+        composer_layout.setSpacing(14)
 
-        prompt = QHBoxLayout()
-        prompt.addWidget(self._label("Inspect a target", "sectionTitle"))
-        prompt.addStretch(1)
-        self.hero_state = Chip(self.tr("PRIVATE BY DEFAULT"), "accent")
-        self._text_bindings.append((self.hero_state, "PRIVATE BY DEFAULT"))
-        prompt.addWidget(self.hero_state)
-        composer_layout.addLayout(prompt)
+        self.mode_values = ("File", "URL", "Indicator / text")
+        modes_row = QHBoxLayout()
+        modes_row.setSpacing(10)
+        self.mode_segment = ModeSegment(self.mode_values)
+        self.mode_segment.modeSelected.connect(self._choose_mode_without_dialog)
+        modes_row.addWidget(self.mode_segment, 1)
+        self.shortcut_hint = QLabel("")
+        self.shortcut_hint.setObjectName("subtle")
+        modes_row.addWidget(self.shortcut_hint, 0, Qt.AlignmentFlag.AlignVCenter)
+        composer_layout.addLayout(modes_row)
+        # The combo box stays the single source of the selected mode; the
+        # segmented control above is its visible face.
+        self.input_mode = QComboBox()
+        for mode in self.mode_values:
+            self.input_mode.addItem(self.tr(mode), mode)
+        self.input_mode.currentIndexChanged.connect(self._mode_changed)
+        self.input_mode.setVisible(False)
+        composer_layout.addWidget(self.input_mode)
 
+        entry_row = QHBoxLayout()
+        entry_row.setSpacing(10)
         self.target_entry = QLineEdit()
         self.target_entry.setObjectName("targetEntry")
         self.target_entry.setPlaceholderText(
@@ -1056,54 +1162,32 @@ class CyberScanApp(QMainWindow):
         )
         self.target_entry.returnPressed.connect(self.run_scan)
         self.target_entry.installEventFilter(self)
-        composer_layout.addWidget(self.target_entry)
-
-        modes_row = QHBoxLayout()
-        modes_row.setSpacing(7)
-        modes_row.addWidget(self._label("Type", "subtle"))
-        self.input_mode = QComboBox()
-        self.mode_values = ("File", "URL", "Indicator / text")
-        for mode in self.mode_values:
-            self.input_mode.addItem(self.tr(mode), mode)
-        self.input_mode.currentIndexChanged.connect(self._mode_changed)
-        self.input_mode.setToolTip(
-            self.tr("Choose what kind of target the entry above contains.")
-        )
-        self.input_mode.setFixedWidth(168)
-        modes_row.addWidget(self.input_mode)
+        entry_row.addWidget(self.target_entry, 1)
         self.browse_button = self._button("Choose file…", self.select_file)
         self.browse_button.setObjectName("secondary")
+        self.browse_button.setIcon(glyph_icon("folder", TOKENS["text"], TOKENS["text"], 16))
         self.browse_button.setToolTip(
             self.tr("Pick a local file with the system file dialog (Ctrl+O)")
         )
-        modes_row.addWidget(self.browse_button)
-        self.selected_file_label = self._label("", "subtle")
-        self.selected_file_label.setWordWrap(True)
-        modes_row.addWidget(self.selected_file_label, 1)
-        composer_layout.addLayout(modes_row)
-
-        composer_layout.addWidget(Hairline())
-
-        actions = QHBoxLayout()
-        actions.setSpacing(10)
+        entry_row.addWidget(self.browse_button)
         self.analyze_button = PrimaryButton(self.tr("Analyze target"))
         self.analyze_button.clicked.connect(self.run_scan)
         self._text_bindings.append((self.analyze_button, "Analyze target"))
         self.analyze_button.setToolTip(self.tr("Start the static analysis (Ctrl+Enter)"))
-        actions.addWidget(self.analyze_button)
-        actions.addStretch(1)
-        composer_layout.addLayout(actions)
+        entry_row.addWidget(self.analyze_button)
+        composer_layout.addLayout(entry_row)
 
-        engines_row = QHBoxLayout()
-        engines_row.setSpacing(6)
-        self.engine_chips = QHBoxLayout()
-        self.engine_chips.setSpacing(6)
-        engines_row.addLayout(self.engine_chips)
-        engines_row.addStretch(1)
-        self.detection_summary = self._label("", "subtle")
-        self.detection_summary.setWordWrap(True)
-        engines_row.addWidget(self.detection_summary)
-        composer_layout.addLayout(engines_row)
+        hint_row = QHBoxLayout()
+        hint_row.setSpacing(8)
+        self.drop_icon = QLabel()
+        self.drop_icon.setPixmap(glyph_pixmap("drop", TOKENS["text_mute"], 14))
+        self.drop_icon.setFixedSize(16, 16)
+        hint_row.addWidget(self.drop_icon, 0, Qt.AlignmentFlag.AlignVCenter)
+        self.selected_file_label = QLabel("")
+        self.selected_file_label.setObjectName("subtle")
+        self.selected_file_label.setWordWrap(True)
+        hint_row.addWidget(self.selected_file_label, 1)
+        composer_layout.addLayout(hint_row)
         layout.addWidget(composer)
 
         self.status_banner = StatusBanner()
@@ -1175,6 +1259,7 @@ class CyberScanApp(QMainWindow):
         lab_layout.addWidget(self.stage_track)
         layout.addWidget(lab_panel)
         self._pipeline_panel = lab_panel
+        lab_panel.setVisible(False)
 
         self.signal_canvas = SignalCanvas()
         self.signal_canvas.setVisible(False)
@@ -1418,6 +1503,13 @@ class CyberScanApp(QMainWindow):
         self._results_animation: QParallelAnimationGroup | None = None
         self._results_view: ResultView | None = None
         self._apply_results_static_text()
+
+        # ---- recent activity: saved scans, newest first -----------------
+        self.recent_activity = RecentActivity()
+        self.recent_activity.setMaximumWidth(1180)
+        self.recent_activity.recordActivated.connect(self._open_history_record)
+        self.recent_activity.viewAllRequested.connect(lambda: self._show_page("history"))
+        layout.addWidget(self.recent_activity)
         layout.addStretch(1)
         return scroll
 
@@ -1830,6 +1922,9 @@ class CyberScanApp(QMainWindow):
         title, subtitle = self.PAGE_COPY.get(name, ("New analysis", ""))
         self.page_title.setText(self.tr(title))
         self.page_subtitle.setText(self.tr(subtitle))
+        # The main screen's hero carries its own title.
+        self.page_title.setVisible(name != "analysis")
+        self.page_subtitle.setVisible(name != "analysis")
         self.breadcrumb.setText(self._breadcrumb_for(name))
         self._sync_nav_state(name)
         self._animate_page_entry()
@@ -1892,6 +1987,7 @@ class CyberScanApp(QMainWindow):
 
     def _mode_changed(self, index: int) -> None:
         mode = self.input_mode.itemData(index)
+        self.mode_segment.set_mode(mode)
         self.browse_button.setVisible(mode == "File")
         if mode != "File" and self.target_entry.text().strip() == getattr(
             self, "selected_path", None
@@ -1925,6 +2021,7 @@ class CyberScanApp(QMainWindow):
         self.selected_path = path
         self.target_entry.setText(path)
         self.selected_file_label.setText(path)
+        self.selected_file_label.setProperty("hint", False)
 
     def _choose_mode_without_dialog(self, mode: str) -> None:
         self.input_mode.blockSignals(True)
@@ -2015,6 +2112,9 @@ class CyberScanApp(QMainWindow):
                 return
         self._show_analysis()
         self.results_panel.hide()
+        self._pipeline_panel.setVisible(True)
+        self.scan_core.begin()
+        self.mode_segment.setEnabled(False)
         self.export_button.setEnabled(False)
         self.analyze_button.setEnabled(False)
         self.analyze_button.setText(self.tr("Analyzing…"))
@@ -2052,6 +2152,7 @@ class CyberScanApp(QMainWindow):
         self.analyze_button.setEnabled(True)
         self.analyze_button.setText(self.tr("Analyze target"))
         self.input_mode.setEnabled(True)
+        self.mode_segment.setEnabled(True)
         self.browse_button.setEnabled(True)
         self.signal_canvas.set_scanning(False)
 
@@ -2065,6 +2166,7 @@ class CyberScanApp(QMainWindow):
             states = [track.state_of(i) for i in range(len(self.stage_labels))]
             states[index] = state
             track.set_states(states)
+            self.scan_core.set_stage_states(states)
         if state == "running":
             progress.setRange(0, 0)
             status.setText(self.tr(detail))
@@ -2088,6 +2190,7 @@ class CyberScanApp(QMainWindow):
         self._set_engine_pill("success", "●  ANALYSIS COMPLETE")
         self._restore_input_controls()
         self._render_result(*payload)
+        self.scan_core.finish(tone_color(self._results_view.verdict.tone))
         try:
             self._record_scan_history(result)
         except (OSError, ValueError, TypeError) as exc:
@@ -2104,6 +2207,7 @@ class CyberScanApp(QMainWindow):
         self.worker = None
         self._set_engine_pill("error", "●  ANALYSIS FAILED")
         self._restore_input_controls()
+        self.scan_core.fail()
         self.export_button.setEnabled(False)
         for _title, bar, status in self.stage_labels:
             if bar.minimum() == 0 and bar.maximum() == 0:
@@ -2320,6 +2424,97 @@ class CyberScanApp(QMainWindow):
                     "This does not prove the target is safe. Static analysis has limits."
                 ),
             )
+
+    # ---- main screen --------------------------------------------------------
+
+    def _monitor_running(self) -> bool:
+        thread = getattr(self._monitor, "_thread", None)
+        return bool(thread and thread.is_alive())
+
+    @staticmethod
+    def _history_display_name(target: str) -> str:
+        path = Path(target)
+        name = path.name if path.is_absolute() and path.name else target
+        return name if len(name) <= 64 else name[:61] + "…"
+
+    def _home_when(self, moment: datetime | None, target: str) -> str:
+        if target.startswith(("http://", "https://")):
+            kind = self._tx("URL")
+        elif Path(target).is_absolute():
+            kind = self._tx("File")
+        else:
+            kind = self._tx("Indicator")
+        if moment is None:
+            return kind
+        now = datetime.now(moment.tzinfo)
+        days = (now.date() - moment.date()).days
+        clock = moment.strftime("%H:%M")
+        if days == 0:
+            when = self._tx("Today {time}").format(time=clock)
+        elif days == 1:
+            when = self._tx("Yesterday {time}").format(time=clock)
+        else:
+            when = moment.strftime("%Y-%m-%d %H:%M")
+        return f"{kind} · {when}"
+
+    def _refresh_home(self) -> None:
+        """Main-screen text and facts, read from settings and saved history only."""
+        if not hasattr(self, "recent_activity"):
+            return
+        tx = self._tx
+        for group, source in self._rail_groups:
+            group.setText(tx(source))
+        self.hero_title.setText(tx("Inspect before you trust."))
+        self.hero_body.setText(
+            tx("Check a file, link or indicator with local static engines. Targets are read, never executed.")
+        )
+        if self.settings.get("osint_enabled"):
+            self.fact_lookups.set_text(
+                tx("Public lookups on · supported indicators may be sent to public services"), "warn"
+            )
+        else:
+            self.fact_lookups.set_text(tx("Public lookups off · nothing is sent from this device"))
+        if self._monitor_running():
+            self.fact_monitor.set_text(
+                tx("Downloads monitor on · {folder}").format(
+                    folder=self.settings.get("monitoring_directory", "")
+                ),
+                "ok",
+            )
+        else:
+            self.fact_monitor.set_text(tx("Downloads monitor off"))
+        self.shortcut_hint.setText(tx("Enter to analyze · Ctrl+O to choose a file"))
+        placeholders = {
+            "File": "Paste a file path or choose a local file…",
+            "URL": "Paste a complete http:// or https:// URL…",
+        }
+        self.target_entry.setPlaceholderText(
+            self.tr(
+                placeholders.get(
+                    self.input_mode.currentData(),
+                    "Paste a hash, domain, IP, or suspicious text…",
+                )
+            )
+        )
+        if self.connection_status.text() in {"READY", translate_exact("READY", "ar")}:
+            self.connection_status.setText(tx("READY"))
+        if not self.selected_file_label.text() or self.selected_file_label.property("hint"):
+            self.selected_file_label.setText(tx("Drag a file onto this window, or paste its path."))
+            self.selected_file_label.setProperty("hint", True)
+        self.mode_segment.set_labels(tx)
+        self.mode_segment.set_mode(self.input_mode.currentData())
+        self.recent_activity.set_records(
+            self.scan_history, tx, self._history_display_name, self._home_when
+        )
+        self._normalize_child_fonts(1.18 if self.settings.get("large_text") else 1.0)
+
+    def _open_history_record(self, record_id: str) -> None:
+        self._show_page("history")
+        for index in range(self.history_list.count()):
+            candidate = self.history_list.item(index)
+            if candidate.data(Qt.ItemDataRole.UserRole) == record_id:
+                self.history_list.setCurrentItem(candidate)
+                break
 
     # ---- results screen ---------------------------------------------------
 
@@ -2721,6 +2916,7 @@ class CyberScanApp(QMainWindow):
         if hasattr(self, "history_details") and self.history_list.count() == 0:
             self.history_details.clear()
             self._select_history_record(None)
+        self._refresh_home()
 
     @staticmethod
     def _history_color(classification: str):
@@ -2990,11 +3186,13 @@ class CyberScanApp(QMainWindow):
         if compact != getattr(self, "_compact_layout", None):
             self._compact_layout = compact
             if compact:
-                self.sidebar.setMinimumWidth(214)
-                self.sidebar.setMaximumWidth(214)
+                self.sidebar.setMinimumWidth(204)
+                self.sidebar.setMaximumWidth(204)
+                self.scan_core.setFixedSize(196, 196)
             else:
-                self.sidebar.setMinimumWidth(248)
-                self.sidebar.setMaximumWidth(248)
+                self.sidebar.setMinimumWidth(232)
+                self.sidebar.setMaximumWidth(232)
+                self.scan_core.setFixedSize(248, 248)
             self.sidebar_history.setMaximumHeight(96 if compact else 150)
             self._reflow_stage_cards(2 if compact else 4)
             self.results_columns.setDirection(
@@ -3082,6 +3280,7 @@ class CyberScanApp(QMainWindow):
             self._append_log("Downloads monitoring disabled.")
         self.refresh_workspace_status()
         self._settings_snapshot = dict(updated)
+        self._refresh_home()
 
     def select_monitor_directory(self) -> None:
         directory = QFileDialog.getExistingDirectory(
@@ -3112,6 +3311,7 @@ class CyberScanApp(QMainWindow):
         self.selected_path = path
         self.target_entry.setText(path)
         self.selected_file_label.setText(path)
+        self.selected_file_label.setProperty("hint", False)
         self._append_log(f"[Monitoring] Starting static analysis: {path}")
         self.run_scan()
 
@@ -3186,8 +3386,8 @@ class CyberScanApp(QMainWindow):
             ("ml_analysis", "Structural model"),
         )
         active = [(key, label) for key, label in engines if self.settings.get(key)]
-        summary = self.tr("Active engines: ") + (
-            " · ".join(self.tr(label) for _key, label in active)
+        summary = self.tr("Enabled in Settings: ") + (
+            " · ".join(self._tx(label) for _key, label in active)
             if active
             else self.tr("None")
         )
@@ -3207,7 +3407,7 @@ class CyberScanApp(QMainWindow):
         active_keys = {key for key, _label in active}
         for key, label in engines:
             chips_layout.addWidget(
-                Chip(self.tr(label), "accent" if key in active_keys else "neutral")
+                Chip(self._tx(label), "accent" if key in active_keys else "neutral")
             )
 
     def resizeEvent(self, event) -> None:
@@ -3226,6 +3426,11 @@ class CyberScanApp(QMainWindow):
                 self.tr("Wait for the current static analysis to finish, then close the application."),
             )
             return
+        # Nothing keeps ticking once the window has closed.
+        self.scan_core.stop()
+        self._workspace_timer.stop()
+        for canvas in (self.signal_canvas, self.entropy_canvas, self.embedding_canvas):
+            canvas._timer.stop()
         event.accept()
 
 
