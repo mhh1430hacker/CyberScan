@@ -251,10 +251,10 @@ def test_arabic_main_screen(window):
 def test_narrow_window_shrinks_art_and_rail(window):
     window.resize(1500, 900)
     window._apply_layout_mode()
-    assert window.scan_core.width() == 248
+    assert window.scan_core.width() == 300
     window.resize(1000, 760)
     window._apply_layout_mode()
-    assert window.scan_core.width() == 196
+    assert window.scan_core.width() == 220
     assert window.sidebar.width() <= 240
 
 

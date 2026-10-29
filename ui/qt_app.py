@@ -47,6 +47,7 @@ from PySide6.QtWidgets import (
     QPushButton,
     QScrollArea,
     QSizePolicy,
+    QStackedLayout,
     QStackedWidget,
     QTabWidget,
     QVBoxLayout,
@@ -61,9 +62,11 @@ from ui.persistence import LocalUiStore
 from ui.design_system import (
     TOKENS,
     CategoryBars,
+    CategoryDonut,
     Chip,
     CollapsibleSection,
     EmptyState,
+    FileCard,
     FindingCard,
     Hairline,
     IconRailButton,
@@ -79,6 +82,7 @@ from ui.design_system import (
     severity_color,
     tone_color,
 )
+from ui.journey import JourneyScene
 from ui.home import (
     FactRow,
     HeroPanel,
@@ -582,6 +586,9 @@ QPushButton#activityRow {
 }
 QPushButton#activityRow:hover { background: #111c2c; border-color: #26364b; }
 QPushButton#activityRow:focus { border: 1px solid #5ee0d0; }
+QFrame#fileCard {
+    background: #0d1523; border: 1px solid #131e2c; border-radius: 12px;
+}
 QLabel#activityName { color: #e8eef8; font-size: 14px; font-weight: 600; }
 QLabel#activityScore {
     color: #9bacbf; font-family: "Cascadia Mono", "Consolas"; font-size: 13px;
@@ -709,7 +716,8 @@ class StatusBanner(QFrame):
         self.dot.setStyleSheet(f"font-size:12px;color:{color}")
         self.title.setText(title)
         self.detail.setText(detail)
-        self.setVisible(tone != "ready")
+        # Ready and busy are carried by the status pill and the journey.
+        self.setVisible(tone not in {"ready", "busy"})
         self.setProperty("tone", normalized)
         style = self.style()
         style.unpolish(self)
@@ -807,6 +815,8 @@ class CyberScanApp(QMainWindow):
         ]
         self.last_payload: tuple[Any, ...] | None = None
         self.worker: ScanWorker | None = None
+        self._abandoned_workers: list[ScanWorker] = []
+        self._pending_results_reveal = False
         self.pending_monitor_scans: queue.Queue[str] = queue.Queue()
         self.current_page = "analysis"
         self._text_bindings: list[tuple[QLabel | QPushButton, str]] = []
@@ -1084,12 +1094,20 @@ class CyberScanApp(QMainWindow):
         scroll, page, layout = self._scroll_page()
         layout.setContentsMargins(2, 8, 4, 28)
 
-        # ---- hero: identity, location, and state the app can prove -------
+        # ---- stage: one space for readiness and for the scan journey -------
+        # Page 0 (ready): title, target types, the identity art, a wide drop
+        # zone with the single primary action. Page 1 (journey): the target
+        # travelling through the real pipeline stages, then a compact recap.
         self.hero = HeroPanel()
         self.hero.setMaximumWidth(1180)
-        hero_layout = QHBoxLayout(self.hero)
-        hero_layout.setContentsMargins(32, 28, 26, 28)
-        hero_layout.setSpacing(28)
+        self.stage_stack = QStackedLayout(self.hero)
+
+        idle_page = QWidget()
+        idle_layout = QVBoxLayout(idle_page)
+        idle_layout.setContentsMargins(34, 30, 30, 28)
+        idle_layout.setSpacing(20)
+        top_row = QHBoxLayout()
+        top_row.setSpacing(28)
         hero_copy = QVBoxLayout()
         hero_copy.setSpacing(10)
         hero_copy.addStretch(1)
@@ -1104,40 +1122,25 @@ class CyberScanApp(QMainWindow):
         self.hero_body.setObjectName("heroBody")
         self.hero_body.setWordWrap(True)
         hero_copy.addWidget(self.hero_body)
-        hero_copy.addSpacing(6)
-        self.fact_engines = FactRow("engines")
-        self.fact_engines.set_text("", "accent")
-        self.detection_summary = self.fact_engines.text
-        self.fact_lookups = FactRow("globe")
-        self.fact_monitor = FactRow("monitor")
-        for fact in (self.fact_engines, self.fact_lookups, self.fact_monitor):
-            hero_copy.addWidget(fact)
+        hero_copy.addSpacing(10)
+        self.mode_values = ("File", "URL", "Indicator / text")
+        self.mode_segment = ModeSegment(self.mode_values)
+        self.mode_segment.modeSelected.connect(self._choose_mode_without_dialog)
+        hero_copy.addWidget(self.mode_segment)
         hero_copy.addStretch(1)
-        hero_layout.addLayout(hero_copy, 1)
+        top_row.addLayout(hero_copy, 1)
         self.scan_core = ScanCore()
-        hero_layout.addWidget(self.scan_core, 0, Qt.AlignmentFlag.AlignVCenter)
-        layout.addWidget(self.hero)
+        top_row.addWidget(self.scan_core, 0, Qt.AlignmentFlag.AlignVCenter)
+        idle_layout.addLayout(top_row)
 
-        # ---- action dock: the one thing to do on this screen -------------
+        # The drop zone: entry, file picker and the primary action together.
         composer = QFrame()
         composer.setObjectName("composer")
-        composer.setMaximumWidth(1180)
         composer.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         self._composer = composer
         composer_layout = QVBoxLayout(composer)
-        composer_layout.setContentsMargins(22, 18, 22, 18)
-        composer_layout.setSpacing(14)
-
-        self.mode_values = ("File", "URL", "Indicator / text")
-        modes_row = QHBoxLayout()
-        modes_row.setSpacing(10)
-        self.mode_segment = ModeSegment(self.mode_values)
-        self.mode_segment.modeSelected.connect(self._choose_mode_without_dialog)
-        modes_row.addWidget(self.mode_segment, 1)
-        self.shortcut_hint = QLabel("")
-        self.shortcut_hint.setObjectName("subtle")
-        modes_row.addWidget(self.shortcut_hint, 0, Qt.AlignmentFlag.AlignVCenter)
-        composer_layout.addLayout(modes_row)
+        composer_layout.setContentsMargins(20, 18, 20, 16)
+        composer_layout.setSpacing(12)
         # The combo box stays the single source of the selected mode; the
         # segmented control above is its visible face.
         self.input_mode = QComboBox()
@@ -1146,9 +1149,10 @@ class CyberScanApp(QMainWindow):
         self.input_mode.currentIndexChanged.connect(self._mode_changed)
         self.input_mode.setVisible(False)
         composer_layout.addWidget(self.input_mode)
-
-        entry_row = QHBoxLayout()
-        entry_row.setSpacing(10)
+        self.entry_grid = QGridLayout()
+        self.entry_grid.setHorizontalSpacing(10)
+        self.entry_grid.setVerticalSpacing(10)
+        self._entry_stacked: bool | None = None
         self.target_entry = QLineEdit()
         self.target_entry.setObjectName("targetEntry")
         self.target_entry.setPlaceholderText(
@@ -1162,23 +1166,21 @@ class CyberScanApp(QMainWindow):
         )
         self.target_entry.returnPressed.connect(self.run_scan)
         self.target_entry.installEventFilter(self)
-        entry_row.addWidget(self.target_entry, 1)
         self.browse_button = self._button("Choose file…", self.select_file)
         self.browse_button.setObjectName("secondary")
         self.browse_button.setIcon(glyph_icon("folder", TOKENS["text"], TOKENS["text"], 16))
         self.browse_button.setToolTip(
             self.tr("Pick a local file with the system file dialog (Ctrl+O)")
         )
-        entry_row.addWidget(self.browse_button)
         self.analyze_button = PrimaryButton(self.tr("Analyze target"))
         self.analyze_button.clicked.connect(self.run_scan)
         self._text_bindings.append((self.analyze_button, "Analyze target"))
         self.analyze_button.setToolTip(self.tr("Start the static analysis (Ctrl+Enter)"))
-        entry_row.addWidget(self.analyze_button)
-        composer_layout.addLayout(entry_row)
-
+        self._layout_entry(stacked=False)
+        composer_layout.addLayout(self.entry_grid)
         hint_row = QHBoxLayout()
         hint_row.setSpacing(8)
+        self.hint_row = hint_row
         self.drop_icon = QLabel()
         self.drop_icon.setPixmap(glyph_pixmap("drop", TOKENS["text_mute"], 14))
         self.drop_icon.setFixedSize(16, 16)
@@ -1187,8 +1189,65 @@ class CyberScanApp(QMainWindow):
         self.selected_file_label.setObjectName("subtle")
         self.selected_file_label.setWordWrap(True)
         hint_row.addWidget(self.selected_file_label, 1)
+        self.shortcut_hint = QLabel("")
+        self.shortcut_hint.setObjectName("subtle")
+        self.shortcut_hint.setWordWrap(True)
+        hint_row.addWidget(self.shortcut_hint, 0, Qt.AlignmentFlag.AlignVCenter)
         composer_layout.addLayout(hint_row)
-        layout.addWidget(composer)
+        idle_layout.addWidget(composer)
+        self.stage_stack.addWidget(idle_page)
+
+        journey_page = QWidget()
+        journey_layout = QVBoxLayout(journey_page)
+        journey_layout.setContentsMargins(24, 18, 24, 16)
+        journey_layout.setSpacing(6)
+        journey_head = QHBoxLayout()
+        self.journey_caption = QLabel("")
+        self.journey_caption.setObjectName("eyebrow")
+        journey_head.addWidget(self.journey_caption)
+        journey_head.addStretch(1)
+        self.journey_status = QLabel("")
+        self.journey_status.setObjectName("subtle")
+        journey_head.addWidget(self.journey_status)
+        journey_layout.addLayout(journey_head)
+        journey_layout.addStretch(1)
+        self.journey = JourneyScene()
+        self.journey.concluded.connect(self._journey_concluded)
+        journey_layout.addWidget(self.journey)
+        journey_layout.addStretch(1)
+        journey_actions = QHBoxLayout()
+        journey_actions.addStretch(1)
+        self.cancel_button = QPushButton("")
+        self.cancel_button.setObjectName("secondary")
+        self.cancel_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.cancel_button.clicked.connect(self.cancel_scan)
+        journey_actions.addWidget(self.cancel_button)
+        self.journey_new_scan_button = QPushButton("")
+        self.journey_new_scan_button.setObjectName("secondary")
+        self.journey_new_scan_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.journey_new_scan_button.clicked.connect(self._return_to_scan)
+        self.journey_new_scan_button.setVisible(False)
+        journey_actions.addWidget(self.journey_new_scan_button)
+        journey_layout.addLayout(journey_actions)
+        self.stage_stack.addWidget(journey_page)
+        self._show_stage(0)
+        layout.addWidget(self.hero)
+
+        # ---- facts: application state the app can prove -------------------
+        self.facts_strip = QWidget()
+        self.facts_strip.setMaximumWidth(1180)
+        facts_layout = QBoxLayout(QBoxLayout.Direction.LeftToRight, self.facts_strip)
+        self.facts_layout = facts_layout
+        facts_layout.setContentsMargins(8, 0, 8, 0)
+        facts_layout.setSpacing(26)
+        self.fact_engines = FactRow("engines")
+        self.fact_engines.set_text("", "accent")
+        self.detection_summary = self.fact_engines.text
+        self.fact_lookups = FactRow("globe")
+        self.fact_monitor = FactRow("monitor")
+        for fact in (self.fact_engines, self.fact_lookups, self.fact_monitor):
+            facts_layout.addWidget(fact, 1)
+        layout.addWidget(self.facts_strip)
 
         self.status_banner = StatusBanner()
         self.status_banner.setMaximumWidth(1180)
@@ -1398,10 +1457,15 @@ class CyberScanApp(QMainWindow):
         side_layout = QVBoxLayout(side_column)
         side_layout.setContentsMargins(14, 12, 14, 14)
         side_layout.setSpacing(10)
+        self.file_card = FileCard()
+        side_layout.addWidget(self.file_card)
+        side_layout.addWidget(Hairline())
         self.category_header = SectionHeader("", "")
         self._results_static.append((self.category_header.title, "Indicators by category"))
         self._results_static.append((self.category_header.caption, "Number of findings"))
         side_layout.addWidget(self.category_header)
+        self.category_donut = CategoryDonut()
+        side_layout.addWidget(self.category_donut, 0, Qt.AlignmentFlag.AlignHCenter)
         self.category_bars = CategoryBars()
         side_layout.addWidget(self.category_bars)
         self.category_unavailable = QLabel("")
@@ -2033,8 +2097,11 @@ class CyberScanApp(QMainWindow):
         if watched is self.target_entry and event.type() == QEvent.Type.DragEnter:
             mime = event.mimeData()
             if mime.hasUrls() or mime.hasText():
+                self._set_drop_armed(True)
                 event.acceptProposedAction()
                 return True
+        if watched is self.target_entry and event.type() in (QEvent.Type.DragLeave, QEvent.Type.Drop):
+            self._set_drop_armed(False)
         if watched is self.target_entry and event.type() == QEvent.Type.Drop:
             mime = event.mimeData()
             if mime.hasUrls():
@@ -2055,11 +2122,17 @@ class CyberScanApp(QMainWindow):
 
     def dragEnterEvent(self, event) -> None:
         if event.mimeData().hasUrls():
+            self._set_drop_armed(True)
             event.acceptProposedAction()
         else:
             event.ignore()
 
+    def dragLeaveEvent(self, event) -> None:
+        self._set_drop_armed(False)
+        super().dragLeaveEvent(event)
+
     def dropEvent(self, event) -> None:
+        self._set_drop_armed(False)
         local_paths = [
             url.toLocalFile()
             for url in event.mimeData().urls()
@@ -2112,8 +2185,8 @@ class CyberScanApp(QMainWindow):
                 return
         self._show_analysis()
         self.results_panel.hide()
-        self._pipeline_panel.setVisible(True)
         self.scan_core.begin()
+        self._start_journey(target, mode)
         self.mode_segment.setEnabled(False)
         self.export_button.setEnabled(False)
         self.analyze_button.setEnabled(False)
@@ -2157,8 +2230,9 @@ class CyberScanApp(QMainWindow):
         self.signal_canvas.set_scanning(False)
 
     def _update_stage(self, index: int, state: str, detail: str) -> None:
-        if not 0 <= index < len(self.stage_labels):
+        if self._from_stale_worker() or not 0 <= index < len(self.stage_labels):
             return
+        self.journey_status.setText(self.tr(detail))
         _title, progress, status = self.stage_labels[index]
         stage_title = self.STAGE_TITLES[index]
         track = getattr(self, "stage_track", None)
@@ -2167,6 +2241,7 @@ class CyberScanApp(QMainWindow):
             states[index] = state
             track.set_states(states)
             self.scan_core.set_stage_states(states)
+            self.journey.set_stage_states(states)
         if state == "running":
             progress.setRange(0, 0)
             status.setText(self.tr(detail))
@@ -2181,6 +2256,8 @@ class CyberScanApp(QMainWindow):
             self.lab_caption.setText(self.tr(detail))
 
     def _scan_completed(self, payload: tuple[Any, ...]) -> None:
+        if self._from_stale_worker():
+            return
         self.worker = None
         self.last_payload = payload
         result, nextgen, vector, prediction, intelligence, raw_data = payload
@@ -2190,7 +2267,31 @@ class CyberScanApp(QMainWindow):
         self._set_engine_pill("success", "●  ANALYSIS COMPLETE")
         self._restore_input_controls()
         self._render_result(*payload)
-        self.scan_core.finish(tone_color(self._results_view.verdict.tone))
+        view = self._results_view
+        self.scan_core.finish(tone_color(view.verdict.tone))
+        self.journey.show_evidence(
+            [
+                (tone_color(SEVERITY_TONES[item.severity]), SEVERITY_LABELS[item.severity][0])
+                for item in view.findings
+            ],
+            len(view.findings),
+            self._tx("{count} indicators observed").format(count=len(view.findings))
+            if view.findings
+            else self._tx("No indicators observed"),
+        )
+        self.journey_caption.setText(self._tx("ANALYSIS COMPLETE"))
+        self.journey_status.setText("")
+        self.cancel_button.setVisible(False)
+        self.journey_new_scan_button.setVisible(True)
+        if self.journey.isVisible() and not self.journey.reduced_motion:
+            # Results follow the journey's conclusion instead of jumping in.
+            self.results_panel.hide()
+            self._pending_results_reveal = True
+        else:
+            self._stagger_finding_cards()
+        self.journey.conclude(
+            self._tx(view.verdict.title), view.verdict.symbol, tone_color(view.verdict.tone)
+        )
         try:
             self._record_scan_history(result)
         except (OSError, ValueError, TypeError) as exc:
@@ -2204,10 +2305,17 @@ class CyberScanApp(QMainWindow):
         self._start_next_monitor_scan()
 
     def _scan_failed(self, message: str) -> None:
+        if self._from_stale_worker():
+            return
         self.worker = None
         self._set_engine_pill("error", "●  ANALYSIS FAILED")
         self._restore_input_controls()
         self.scan_core.fail()
+        self.journey.fail(self._tx("Failed"))
+        self.journey_caption.setText(self._tx("ANALYSIS FAILED"))
+        self.journey_status.setText("")
+        self.cancel_button.setVisible(False)
+        self.journey_new_scan_button.setVisible(True)
         self.export_button.setEnabled(False)
         for _title, bar, status in self.stage_labels:
             if bar.minimum() == 0 and bar.maximum() == 0:
@@ -2396,6 +2504,11 @@ class CyberScanApp(QMainWindow):
         self.completeness_chip.setVisible(True)
 
     def _update_result_status_banner(self, result) -> None:
+        self._set_result_banner(result)
+        # The verdict card states the same thing; keep the banner out of view.
+        self.status_banner.setVisible(False)
+
+    def _set_result_banner(self, result) -> None:
         view = getattr(self, "_results_view", None)
         if view is not None and view.verdict.key == "inconclusive":
             self.status_banner.set_state(
@@ -2424,6 +2537,148 @@ class CyberScanApp(QMainWindow):
                     "This does not prove the target is safe. Static analysis has limits."
                 ),
             )
+
+    # ---- scan journey -------------------------------------------------------
+
+    STAGE_SHORT_TITLES = ("Static evidence", "Entropy", "Projection", "Intelligence")
+
+    def _target_identity(self, target: str, mode: str) -> tuple[str, str, str]:
+        """Name, glyph kind and type line for the journey's target card."""
+        if mode == "File":
+            path = Path(target)
+            suffix = path.suffix.lstrip(".").upper()
+            try:
+                size = self._format_size(path.stat().st_size)
+            except OSError:
+                size = ""
+            kind = self._tx("{ext} file").format(ext=f"⁨{suffix}⁩") if suffix else self._tx("File")
+            return path.name or target, "file", " · ".join(part for part in (kind, size) if part)
+        if mode == "URL":
+            return self._history_display_name(target), "url", urlsplit(target).hostname or self._tx("URL")
+        return self._history_display_name(target), "text", self._tx("Text indicator")
+
+    def _layout_entry(self, stacked: bool) -> None:
+        """One row when there is room; the field above the buttons when narrow."""
+        if stacked == self._entry_stacked:
+            return
+        self._entry_stacked = stacked
+        for widget in (self.target_entry, self.browse_button, self.analyze_button):
+            self.entry_grid.removeWidget(widget)
+        for column in range(3):
+            self.entry_grid.setColumnStretch(column, 0)
+        if stacked:
+            self.entry_grid.addWidget(self.target_entry, 0, 0, 1, 2)
+            self.entry_grid.addWidget(self.browse_button, 1, 0)
+            self.entry_grid.addWidget(self.analyze_button, 1, 1)
+            self.entry_grid.setColumnStretch(0, 1)
+            self.entry_grid.setColumnStretch(1, 1)
+        else:
+            self.entry_grid.addWidget(self.target_entry, 0, 0)
+            self.entry_grid.addWidget(self.browse_button, 0, 1)
+            self.entry_grid.addWidget(self.analyze_button, 0, 2)
+            self.entry_grid.setColumnStretch(0, 1)
+
+    def _show_stage(self, index: int) -> None:
+        # Only the visible page may claim height, so the stage panel follows
+        # the journey as it settles into its compact recap.
+        for position in range(self.stage_stack.count()):
+            page = self.stage_stack.widget(position)
+            policy = QSizePolicy.Policy.Preferred if position == index else QSizePolicy.Policy.Ignored
+            page.setSizePolicy(policy, policy)
+        self.stage_stack.setCurrentIndex(index)
+        self.hero.updateGeometry()
+
+    def _start_journey(self, target: str, mode: str) -> None:
+        name, kind, type_line = self._target_identity(target, mode)
+        self._pending_results_reveal = False
+        # Stage states must never carry over from the previous scan.
+        self.stage_track.reset_states()
+        self.journey.set_stage_titles([self._tx(title) for title in self.STAGE_SHORT_TITLES])
+        self.journey_caption.setText(self._tx("ANALYSIS IN PROGRESS"))
+        self.journey_status.setText(self._tx("Static analysis only · the target is never executed"))
+        self.cancel_button.setVisible(True)
+        self.journey_new_scan_button.setVisible(False)
+        self._show_stage(1)
+        self.journey.start(name, kind, type_line)
+
+    def _journey_concluded(self) -> None:
+        if not getattr(self, "_pending_results_reveal", False):
+            return
+        self._pending_results_reveal = False
+        self.results_panel.show()
+        self._animate_results_entry()
+        self._reveal_results()
+        self._stagger_finding_cards()
+        scroll = self._scroll_area_for(self.hero)
+        if scroll is not None:
+            QTimer.singleShot(
+                0,
+                lambda: scroll.verticalScrollBar().setValue(
+                    max(0, self.hero.mapTo(scroll.widget(), self.hero.rect().topLeft()).y() - 12)
+                ),
+            )
+
+    def _stagger_finding_cards(self) -> None:
+        if self.journey.reduced_motion:
+            return
+        for index, card in enumerate(self.finding_cards):
+            card.reveal(70 * index)
+
+    def cancel_scan(self) -> None:
+        """Stop following the running scan and discard its result.
+
+        The engine cannot be interrupted inside a stage; the static read in
+        progress finishes in the background within its configured deadline and
+        its result is ignored and never saved.
+        """
+        worker = self.worker
+        if worker is None or not worker.isRunning():
+            return
+        for signal, slot in (
+            (worker.progress, self._update_stage),
+            (worker.completed, self._scan_completed),
+            (worker.failed, self._scan_failed),
+        ):
+            try:
+                signal.disconnect(slot)
+            except (RuntimeError, TypeError):
+                pass
+        self._abandoned_workers.append(worker)
+        worker.finished.connect(self._forget_abandoned_workers)
+        self.worker = None
+        self._set_engine_pill("warning", "●  ANALYSIS CANCELLED")
+        self._restore_input_controls()
+        self.scan_core.set_idle()
+        self.journey.cancel(self._tx("Cancelled"))
+        self.journey_caption.setText(self._tx("ANALYSIS CANCELLED"))
+        self.journey_status.setText("")
+        self.cancel_button.setVisible(False)
+        self.journey_new_scan_button.setVisible(True)
+        self.status_banner.set_state(
+            "warning",
+            self._tx("Analysis cancelled · nothing was concluded about this target"),
+            self._tx(
+                "The static read already in progress finishes in the background within the configured deadline. Its result is discarded and not saved."
+            ),
+        )
+        self._append_log("Analysis cancelled by the user; its result will be discarded.")
+        self._start_next_monitor_scan()
+
+    def _forget_abandoned_workers(self) -> None:
+        for worker in list(self._abandoned_workers):
+            if not worker.isRunning():
+                self._abandoned_workers.remove(worker)
+                worker.deleteLater()
+
+    def _from_stale_worker(self) -> bool:
+        """True when a signal comes from a worker the user cancelled."""
+        sender = self.sender()
+        return isinstance(sender, ScanWorker) and sender is not self.worker
+
+    def _set_drop_armed(self, armed: bool) -> None:
+        self._composer.setProperty("armed", armed)
+        self._composer.style().unpolish(self._composer)
+        self._composer.style().polish(self._composer)
 
     # ---- main screen --------------------------------------------------------
 
@@ -2484,6 +2739,9 @@ class CyberScanApp(QMainWindow):
         else:
             self.fact_monitor.set_text(tx("Downloads monitor off"))
         self.shortcut_hint.setText(tx("Enter to analyze · Ctrl+O to choose a file"))
+        self.cancel_button.setText(tx("Cancel"))
+        self.journey_new_scan_button.setText(tx("New scan"))
+        self.journey.set_stage_titles([tx(title) for title in self.STAGE_SHORT_TITLES])
         placeholders = {
             "File": "Paste a file path or choose a local file…",
             "URL": "Paste a complete http:// or https:// URL…",
@@ -2502,6 +2760,12 @@ class CyberScanApp(QMainWindow):
             self.selected_file_label.setText(tx("Drag a file onto this window, or paste its path."))
             self.selected_file_label.setProperty("hint", True)
         self.mode_segment.set_labels(tx)
+        # Share width in proportion to text length: one line when there is
+        # room, an even wrap when there is not.
+        for index, fact in enumerate((self.fact_engines, self.fact_lookups, self.fact_monitor)):
+            self.facts_layout.setStretch(index, max(1, len(fact.text.text())))
+        self.hint_row.setStretch(1, max(1, len(self.selected_file_label.text())))
+        self.hint_row.setStretch(2, max(1, len(self.shortcut_hint.text())))
         self.mode_segment.set_mode(self.input_mode.currentData())
         self.recent_activity.set_records(
             self.scan_history, tx, self._history_display_name, self._home_when
@@ -2635,6 +2899,13 @@ class CyberScanApp(QMainWindow):
         ]
         self.category_bars.set_rows(rows)
         self.category_bars.setVisible(bool(rows))
+        self.category_donut.set_segments(
+            [(entry.count, color) for (_label, _count, color), entry in zip(rows, view.categories)],
+            str(len(view.categories)),
+            self._tx("category") if len(view.categories) == 1 else self._tx("categories"),
+        )
+        self.category_donut.setVisible(bool(rows))
+        self._render_file_card(view)
         self.category_unavailable.setVisible(not rows)
 
         self._clear_layout(self.coverage_layout)
@@ -2678,6 +2949,30 @@ class CyberScanApp(QMainWindow):
         self.file_rows["yara"].set_value(str(view.yara_count))
         self.file_rows["model"].set_value(view.model_status or unavailable)
 
+    def _render_file_card(self, view: ResultView) -> None:
+        target = view.target
+        if target.startswith(("http://", "https://")):
+            kind, type_line = "url", self._tx("URL")
+        elif view.file_size is not None:
+            suffix = Path(target).suffix.lstrip(".").upper()
+            kind = "file"
+            type_line = " · ".join(
+                part
+                for part in (
+                    self._tx("{ext} file").format(ext=f"⁨{suffix}⁩") if suffix else self._tx("File"),
+                    self._format_size(view.file_size),
+                )
+                if part
+            )
+        else:
+            kind, type_line = "text", self._tx("Text indicator")
+        self.file_card.set_file(
+            glyph_pixmap(kind, TOKENS["accent"], 28),
+            self._history_display_name(view.display_name or target),
+            type_line,
+            f"SHA-256 {view.sha256[:16]}…" if view.sha256 else "",
+        )
+
     def _sync_details_button(self, *_args) -> None:
         expanded = self.technical_section.is_expanded()
         self.details_button.setText(
@@ -2711,6 +3006,15 @@ class CyberScanApp(QMainWindow):
         self._scroll_into_view(self.technical_section)
 
     def _return_to_scan(self) -> None:
+        if self.worker is not None and self.worker.isRunning():
+            return
+        self._show_stage(0)
+        self.journey.reset()
+        self.results_panel.hide()
+        self.scan_core.set_idle()
+        apply_tone(self.connection_status, "ok")
+        self.connection_status.setText(self._tx("READY"))
+        self.status_banner.set_state("ready", "", "")
         self._show_analysis()
         self.target_entry.selectAll()
         self._scroll_into_view(self._composer, top=True)
@@ -3182,22 +3486,31 @@ class CyberScanApp(QMainWindow):
 
     def _apply_layout_mode(self) -> None:
         """Make the workspace usable on smaller windows or high display scaling."""
+        # Below this width the identity art cannot sit beside the scan types
+        # without forcing horizontal scrolling; the controls keep priority.
+        self.scan_core.setVisible(self.width() >= 1080)
+        self._layout_entry(stacked=self.width() < 1000)
         compact = self.width() < 1180
         if compact != getattr(self, "_compact_layout", None):
             self._compact_layout = compact
             if compact:
                 self.sidebar.setMinimumWidth(204)
                 self.sidebar.setMaximumWidth(204)
-                self.scan_core.setFixedSize(196, 196)
+                self.scan_core.setFixedSize(220, 220)
             else:
                 self.sidebar.setMinimumWidth(232)
                 self.sidebar.setMaximumWidth(232)
-                self.scan_core.setFixedSize(248, 248)
+                self.scan_core.setFixedSize(300, 300)
             self.sidebar_history.setMaximumHeight(96 if compact else 150)
             self._reflow_stage_cards(2 if compact else 4)
             self.results_columns.setDirection(
                 QBoxLayout.Direction.TopToBottom if compact else QBoxLayout.Direction.LeftToRight
             )
+            # One fact per line when narrow, so no line forces a wider page.
+            self.facts_layout.setDirection(
+                QBoxLayout.Direction.TopToBottom if compact else QBoxLayout.Direction.LeftToRight
+            )
+            self.facts_layout.setSpacing(6 if compact else 26)
 
     def _reflow_stage_cards(self, columns: int) -> None:
         if columns == getattr(self, "_stage_columns", columns):
@@ -3418,7 +3731,10 @@ class CyberScanApp(QMainWindow):
     def closeEvent(self, event) -> None:
         if self._monitor:
             self._monitor.stop()
-        if self.worker and self.worker.isRunning():
+        busy = (self.worker and self.worker.isRunning()) or any(
+            worker.isRunning() for worker in self._abandoned_workers
+        )
+        if busy:
             event.ignore()
             QMessageBox.information(
                 self,
@@ -3428,6 +3744,7 @@ class CyberScanApp(QMainWindow):
             return
         # Nothing keeps ticking once the window has closed.
         self.scan_core.stop()
+        self.journey.stop()
         self._workspace_timer.stop()
         for canvas in (self.signal_canvas, self.entropy_canvas, self.embedding_canvas):
             canvas._timer.stop()

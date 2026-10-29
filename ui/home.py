@@ -148,7 +148,7 @@ class ScanCore(QWidget):
         super().__init__(parent)
         self.setMinimumSize(196, 196)
         self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-        self.setFixedSize(248, 248)
+        self.setFixedSize(300, 300)
         self.reduced_motion = prefers_reduced_motion() if reduced_motion is None else reduced_motion
         self.state = "idle"
         self.stage_states = ["waiting"] * self.STAGES
@@ -525,6 +525,30 @@ class VerdictMix(QWidget):
             x = left if self.isRightToLeft() else x + width
 
 
+class ElidedLabel(QLabel):
+    """Single-line label that shortens its text with an ellipsis to fit.
+
+    It never forces its parent wider than the space available; the full text
+    stays in ``text()`` and the tooltip.
+    """
+
+    def minimumSizeHint(self):  # noqa: N802
+        hint = super().minimumSizeHint()
+        return QSize(24, hint.height())
+
+    def setText(self, text: str) -> None:  # noqa: N802
+        super().setText(text)
+        self.setToolTip(text)
+
+    def paintEvent(self, event) -> None:  # noqa: N802
+        painter = QPainter(self)
+        painter.setFont(self.font())
+        painter.setPen(self.palette().color(self.foregroundRole()))
+        rect = self.contentsRect()
+        shown = self.fontMetrics().elidedText(self.text(), Qt.TextElideMode.ElideMiddle, rect.width())
+        painter.drawText(rect, int(self.alignment()), shown)
+
+
 class ActivityRow(QPushButton):
     """A saved scan: verdict, name, type and time, score. Opens the record."""
 
@@ -544,9 +568,9 @@ class ActivityRow(QPushButton):
         self.verdict.setAlignment(Qt.AlignmentFlag.AlignCenter)
         copy = QVBoxLayout()
         copy.setSpacing(1)
-        self.name = QLabel("")
+        self.name = ElidedLabel("")
         self.name.setObjectName("activityName")
-        self.meta = QLabel("")
+        self.meta = ElidedLabel("")
         self.meta.setObjectName("subtle")
         copy.addWidget(self.name)
         copy.addWidget(self.meta)
@@ -565,7 +589,7 @@ class RecentActivity(QFrame):
 
     recordActivated = Signal(str)
     viewAllRequested = Signal()
-    MAX_ROWS = 5
+    MAX_ROWS = 3
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -581,6 +605,7 @@ class RecentActivity(QFrame):
         self.title.setObjectName("sectionTitle")
         self.caption = QLabel("")
         self.caption.setObjectName("sectionCaption")
+        self.caption.setWordWrap(True)
         titles.addWidget(self.title)
         titles.addWidget(self.caption)
         header.addLayout(titles, 1)
@@ -658,7 +683,9 @@ class RecentActivity(QFrame):
             return
 
         self.caption.setText(
-            tr("{count} saved scans · on this device only").format(count=len(records))
+            tr("1 saved scan · on this device only")
+            if len(records) == 1
+            else tr("{count} saved scans · on this device only").format(count=len(records))
         )
         counts = {key: 0 for key in ("SUSPICIOUS", "REVIEW", "NO_INDICATORS_OBSERVED", "other")}
         for record in records:

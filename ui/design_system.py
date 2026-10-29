@@ -747,6 +747,29 @@ class FindingCard(QFrame):
         self.contribution.setText(contribution)
         self.setAccessibleName(f"{severity_text}: {title}")
 
+    def reveal(self, delay_ms: int) -> None:
+        """Fade in after ``delay_ms``; the effect is removed when done."""
+        from PySide6.QtCore import QTimer
+        from PySide6.QtWidgets import QGraphicsOpacityEffect
+
+        effect = QGraphicsOpacityEffect(self)
+        effect.setOpacity(0.0)
+        self.setGraphicsEffect(effect)
+        animation = QPropertyAnimation(effect, b"opacity", self)
+        animation.setDuration(260)
+        animation.setStartValue(0.0)
+        animation.setEndValue(1.0)
+        animation.setEasingCurve(QEasingCurve.Type.OutCubic)
+        animation.finished.connect(self._clear_effect)
+        self._reveal_animation = animation
+        QTimer.singleShot(delay_ms, animation, animation.start)
+        # Never leave a card invisible if the animation clock does not run.
+        QTimer.singleShot(delay_ms + 900, self, self._clear_effect)
+
+    def _clear_effect(self) -> None:
+        if self.graphicsEffect() is not None:
+            self.setGraphicsEffect(None)
+
 
 class CategoryBars(QWidget):
     """Horizontal bars: number of findings per category (real counts only)."""
@@ -788,3 +811,97 @@ class CategoryBars(QWidget):
             row_layout.addWidget(value)
             self._grid.addWidget(row)
             self.rows.append((name, bar, value))
+
+
+class CategoryDonut(QWidget):
+    """Share of findings per category; segment sizes are real counts.
+
+    The centre names how many categories are involved, so the total finding
+    count is not repeated here (the evidence header already states it).
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setFixedSize(176, 176)
+        self.segments: list[tuple[int, str]] = []
+        self.center_value = ""
+        self.center_caption = ""
+
+    def set_segments(self, segments: list[tuple[int, str]], value: str, caption: str) -> None:
+        self.segments = [(count, color) for count, color in segments if count > 0]
+        self.center_value = value
+        self.center_caption = caption
+        self.update()
+
+    def paintEvent(self, event) -> None:  # noqa: N802
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        side = min(self.width(), self.height())
+        thickness = 18.0
+        rect = QRectF(
+            (self.width() - side) / 2 + thickness / 2 + 2,
+            (self.height() - side) / 2 + thickness / 2 + 2,
+            side - thickness - 4,
+            side - thickness - 4,
+        )
+        painter.setPen(QPen(QColor(TOKENS["surface_3"]), thickness))
+        painter.drawArc(rect, 0, 360 * 16)
+        total = sum(count for count, _color in self.segments)
+        if total:
+            angle = 90.0
+            gap = 3.0 if len(self.segments) > 1 else 0.0
+            direction = 1.0 if self.isRightToLeft() else -1.0
+            for count, color in self.segments:
+                span = 360.0 * count / total
+                painter.setPen(QPen(QColor(color), thickness, Qt.PenStyle.SolidLine, Qt.PenCapStyle.FlatCap))
+                painter.drawArc(rect, int(angle * 16), int(direction * max(0.5, span - gap) * 16))
+                angle += direction * span
+        value_font = QFont(self.font())
+        value_font.setPixelSize(30)
+        value_font.setWeight(QFont.Weight.Bold)
+        painter.setFont(value_font)
+        painter.setPen(QColor(TOKENS["text"]))
+        painter.drawText(rect.adjusted(0, -10, 0, -10), int(Qt.AlignmentFlag.AlignCenter), self.center_value)
+        caption_font = QFont(self.font())
+        caption_font.setPixelSize(11)
+        painter.setFont(caption_font)
+        painter.setPen(QColor(TOKENS["text_mute"]))
+        painter.drawText(rect.adjusted(0, 34, 0, 0), int(Qt.AlignmentFlag.AlignCenter), self.center_caption)
+
+
+class FileCard(QFrame):
+    """Identity of the analysed target: kind glyph, name, type, size, hash start."""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setObjectName("fileCard")
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(14, 12, 14, 12)
+        layout.setSpacing(12)
+        self.icon = QLabel()
+        self.icon.setFixedSize(40, 40)
+        self.icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.icon.setObjectName("fileGlyph")
+        copy = QVBoxLayout()
+        copy.setSpacing(2)
+        self.name = QLabel("")
+        self.name.setObjectName("cardTitle")
+        self.name.setWordWrap(True)
+        self.meta = QLabel("")
+        self.meta.setObjectName("muted")
+        self.hash = QLabel("")
+        self.hash.setObjectName("metaValueMono")
+        self.hash.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
+        self.hash.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+        copy.addWidget(self.name)
+        copy.addWidget(self.meta)
+        copy.addWidget(self.hash)
+        layout.addWidget(self.icon, 0, Qt.AlignmentFlag.AlignTop)
+        layout.addLayout(copy, 1)
+
+    def set_file(self, pixmap, name: str, meta: str, hash_text: str) -> None:
+        self.icon.setPixmap(pixmap)
+        self.name.setText(name)
+        self.meta.setText(meta)
+        self.hash.setText(hash_text)
+        self.hash.setVisible(bool(hash_text))
