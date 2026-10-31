@@ -29,10 +29,10 @@ FRAME_MS = 100  # 10 frames a second: the drift is slow, so this is enough
 
 # (colour, radius as share of the long side, x loop seconds, y loop seconds, phase)
 _FIELDS = [
-    ("#1d6f6a", 0.62, 97.0, 71.0, 0.0),
-    ("#2c3f8f", 0.70, 83.0, 113.0, 1.7),
-    ("#5b2d82", 0.55, 127.0, 89.0, 3.1),
-    (None, 0.50, 109.0, 79.0, 4.4),  # the kind hue
+    ("#1b5f5a", 0.55, 97.0, 71.0, 0.0),
+    ("#26357a", 0.60, 83.0, 113.0, 1.7),
+    ("#4a2a6a", 0.48, 127.0, 89.0, 3.1),
+    (None, 0.45, 109.0, 79.0, 4.4),  # the kind hue
 ]
 
 
@@ -127,17 +127,18 @@ class Backdrop(QWidget):
         for color, radius_share, period_x, period_y, phase in _FIELDS:
             base = QColor(color) if color else self._hue
             x = width * (0.5 + 0.42 * math.sin(2 * math.pi * now / period_x + phase))
-            y = height * (0.5 + 0.40 * math.cos(2 * math.pi * now / period_y + phase * 0.7))
+            # Light stays mostly in the upper half, like a hero glow.
+            y = height * (0.22 + 0.22 * math.cos(2 * math.pi * now / period_y + phase * 0.7))
             radius = side * radius_share * (0.92 + 0.08 * math.sin(now / 13.0 + phase))
             glow = QRadialGradient(QPointF(x, y), radius)
-            glow.setColorAt(0.0, alpha(base, 0.34 if color else 0.26))
-            glow.setColorAt(0.55, alpha(base, 0.10))
+            glow.setColorAt(0.0, alpha(base, 0.20 if color else 0.16))
+            glow.setColorAt(0.55, alpha(base, 0.05))
             glow.setColorAt(1.0, alpha(base, 0.0))
             painter.fillRect(QRectF(0, 0, width, height), glow)
         painter.setCompositionMode(QPainter.CompositionMode.CompositionMode_SourceOver)
         vignette = QLinearGradient(0, 0, 0, height)
         vignette.setColorAt(0.0, alpha(TOKENS["bg"], 0.0))
-        vignette.setColorAt(1.0, alpha(TOKENS["bg"], 0.55))
+        vignette.setColorAt(1.0, alpha(TOKENS["bg"], 0.85))
         painter.fillRect(QRectF(0, 0, width, height), vignette)
         painter.end()
         return image

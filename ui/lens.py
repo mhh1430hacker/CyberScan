@@ -1,10 +1,11 @@
-"""The ready state: one place to give CyberScan something to scan.
+"""The ready state: a command bar, like Spotlight or Raycast.
 
-A large drop well, one field and one button. The input kind is detected from
-what is typed or dropped (``ui.file_kind.detect_mode``), so there is no mode
-to choose first. As soon as the input names something, a preview shows its
-kind and the whole lens takes that kind's hue; the button says what it will
-scan. Validation messages appear under the field and clear on the next edit.
+One centred field takes anything: a path, a link, a hash or text. Its kind
+is detected as you type (``ui.file_kind.detect_mode``); a chip inside the
+bar names it in its hue, and the button says what it will scan. Keyboard
+hints are drawn as key caps. A file can be dropped anywhere in the window
+(the window shows ``DropOverlay``); validation messages appear under the bar
+and clear on the next edit.
 
 The lens never runs a scan: it emits ``submitted`` / ``browseRequested`` /
 ``fileDropped`` and the window decides.
@@ -13,82 +14,60 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from PySide6.QtCore import QRectF, QSize, Qt, QTimer, Signal
-from PySide6.QtGui import QColor, QFont, QPainter, QPen
-from PySide6.QtWidgets import QHBoxLayout, QLineEdit, QPushButton, QSizePolicy, QVBoxLayout, QWidget
+from PySide6.QtCore import QEvent, QRectF, Qt, QTimer, Signal
+from PySide6.QtGui import QColor, QPainter, QPen
+from PySide6.QtWidgets import QFrame, QHBoxLayout, QLineEdit, QPushButton, QSizePolicy, QVBoxLayout, QWidget
 
 from ui.copy import tr
 from ui.file_kind import KINDS, detect_mode, display_name, kind_for_target
-from ui.icons import glyph, glyph_icon, icon_font
+from ui.icons import glyph, glyph_icon, glyph_pixmap, icon_font
 from ui.plain_language import format_size, isolate
-from ui.theme import TOKENS, alpha
-from ui.widgets import Ambient, ElidedLabel, KindTile, label
+from ui.theme import TOKENS, alpha, ui_font
+from ui.widgets import ElidedLabel, KindTile, label
 
 
-class DropWell(QWidget):
-    """The painted drop target. It changes only when a drag enters or leaves."""
+def keycap(text: str) -> QWidget:
+    cap = label(text, "key")
+    cap.setAlignment(Qt.AlignmentFlag.AlignCenter)
+    cap.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
+    return cap
 
-    clicked = Signal()
+
+class DropOverlay(QWidget):
+    """Shown over the whole stage while a file is dragged over the window."""
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.armed = False
-        self.hue = QColor(TOKENS["accent"])
-        self.title = ""
+        self.text = ""
         self.hint = ""
-        self.setMinimumHeight(150)
-        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-        self.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+        self.hide()
 
-    def set_text(self, title: str, hint: str) -> None:
-        self.title, self.hint = title, hint
-        self.setAccessibleName(title)
+    def set_text(self, text: str, hint: str) -> None:
+        self.text, self.hint = text, hint
         self.update()
-
-    def set_armed(self, armed: bool) -> None:
-        self.armed = armed
-        self.update()
-
-    def set_hue(self, color: QColor) -> None:
-        self.hue = QColor(color)
-        self.update()
-
-    def sizeHint(self) -> QSize:  # noqa: N802
-        return QSize(600, 150)
-
-    def mouseReleaseEvent(self, event) -> None:  # noqa: N802
-        if event.button() == Qt.MouseButton.LeftButton and self.rect().contains(event.position().toPoint()):
-            self.clicked.emit()
-        super().mouseReleaseEvent(event)
 
     def paintEvent(self, event) -> None:  # noqa: N802
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-        rect = QRectF(self.rect()).adjusted(1.5, 1.5, -1.5, -1.5)
-        hue = self.hue
-        painter.setBrush(alpha(hue, 0.12 if self.armed else 0.04))
-        pen = QPen(alpha(hue, 0.95 if self.armed else 0.45), 2 if self.armed else 1.4)
-        if not self.armed:
-            pen.setStyle(Qt.PenStyle.CustomDashLine)
-            pen.setDashPattern([5, 4])
+        painter.fillRect(self.rect(), QColor(5, 6, 7, 205))
+        frame = QRectF(self.rect()).adjusted(28, 28, -28, -28)
+        pen = QPen(alpha(TOKENS["accent"], 0.85), 1.5)
+        pen.setStyle(Qt.PenStyle.CustomDashLine)
+        pen.setDashPattern([6, 5])
         painter.setPen(pen)
-        painter.drawRoundedRect(rect, 18, 18)
-        center_y = rect.center().y()
-        painter.setFont(icon_font(30))
-        painter.setPen(hue)
-        painter.drawText(QRectF(rect.left(), center_y - 52, rect.width(), 40), int(Qt.AlignmentFlag.AlignCenter), glyph("drop"))
-        font = QFont(self.font())
-        font.setPixelSize(17)
-        font.setWeight(QFont.Weight.DemiBold)
-        painter.setFont(font)
+        painter.setBrush(alpha(TOKENS["accent"], 0.04))
+        painter.drawRoundedRect(frame, 20, 20)
+        center = frame.center()
+        painter.setFont(icon_font(40))
+        painter.setPen(QColor(TOKENS["accent"]))
+        painter.drawText(QRectF(frame.left(), center.y() - 70, frame.width(), 50), int(Qt.AlignmentFlag.AlignCenter), glyph("drop"))
+        painter.setFont(ui_font(26, 600, -0.4))
         painter.setPen(QColor(TOKENS["text"]))
-        painter.drawText(QRectF(rect.left(), center_y - 8, rect.width(), 26), int(Qt.AlignmentFlag.AlignCenter), self.title)
-        font.setPixelSize(13)
-        font.setWeight(QFont.Weight.Normal)
-        painter.setFont(font)
+        painter.drawText(QRectF(frame.left(), center.y() - 10, frame.width(), 36), int(Qt.AlignmentFlag.AlignCenter), self.text)
+        painter.setFont(ui_font(14))
         painter.setPen(QColor(TOKENS["text_mute"]))
-        painter.drawText(QRectF(rect.left() + 12, center_y + 20, rect.width() - 24, 22), int(Qt.AlignmentFlag.AlignCenter), self.hint)
+        painter.drawText(QRectF(frame.left(), center.y() + 32, frame.width(), 24), int(Qt.AlignmentFlag.AlignCenter), self.hint)
 
 
 class Lens(QWidget):
@@ -96,35 +75,51 @@ class Lens(QWidget):
     browseRequested = Signal()
     fileDropped = Signal(str)
     kindChanged = Signal(str)
+    armedChanged = Signal(bool)
+
+    WIDTH = 720
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self.language = "en"
         self.mode = "File"
         self.kind = KINDS["file"]
+        self.armed = False
         self.setAcceptDrops(True)
-        self.ambient = Ambient(self)
-        self.ambient.lower()
 
-        outer = QVBoxLayout(self)
-        outer.setContentsMargins(40, 36, 40, 30)
-        outer.setSpacing(16)
+        outer = QHBoxLayout(self)
+        outer.setContentsMargins(0, 0, 0, 0)
+        outer.addStretch(1)
+        column_host = QWidget()
+        column_host.setMaximumWidth(self.WIDTH)
+        column_host.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
+        column = QVBoxLayout(column_host)
+        column.setContentsMargins(8, 24, 8, 24)
+        column.setSpacing(0)
+        outer.addWidget(column_host, 100)
+        outer.addStretch(1)
+
+        self.privacy = label("", "chip")
+        column.addWidget(self.privacy, 0, Qt.AlignmentFlag.AlignHCenter)
+        column.addSpacing(22)
         self.title = label("", "display", wrap=True)
+        self.title.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+        column.addWidget(self.title)
+        column.addSpacing(10)
         self.lead = label("", "lead", wrap=True)
-        outer.addWidget(self.title)
-        outer.addWidget(self.lead)
-        outer.addSpacing(6)
+        self.lead.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+        column.addWidget(self.lead)
+        column.addSpacing(30)
 
-        self.well = DropWell()
-        self.well.clicked.connect(self.browseRequested)
-        self.choose_button = QPushButton()
-        self.choose_button.setObjectName("ghost")
-        self.choose_button.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.choose_button.clicked.connect(self.browseRequested)
-        outer.addWidget(self.well)
-
-        row = QHBoxLayout()
-        row.setSpacing(10)
+        # The command bar ------------------------------------------------------
+        self.bar = QFrame()
+        self.bar.setObjectName("command")
+        bar = QHBoxLayout(self.bar)
+        bar.setContentsMargins(16, 8, 8, 8)
+        bar.setSpacing(10)
+        self.search_icon = label("")
+        self.search_icon.setPixmap(glyph_pixmap("search", TOKENS["text_mute"], 18))
+        bar.addWidget(self.search_icon)
         self.field = QLineEdit()
         self.field.setObjectName("target")
         self.field.setClearButtonEnabled(True)
@@ -132,23 +127,42 @@ class Lens(QWidget):
         self.field.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         self.field.textChanged.connect(self._edited)
         self.field.returnPressed.connect(self._submit)
+        self.field.installEventFilter(self)
+        bar.addWidget(self.field, 1)
+        self.kind_chip = QWidget()
+        chip = QHBoxLayout(self.kind_chip)
+        chip.setContentsMargins(8, 3, 10, 3)
+        chip.setSpacing(6)
+        self.kind_tile = KindTile(20)
+        self.kind_label = label("", "mute")
+        chip.addWidget(self.kind_tile)
+        chip.addWidget(self.kind_label)
+        self.kind_chip.setVisible(False)
+        bar.addWidget(self.kind_chip)
+        self.enter_cap = keycap("↵")
+        bar.addWidget(self.enter_cap)
         self.scan_button = QPushButton()
         self.scan_button.setObjectName("primary")
         self.scan_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.scan_button.clicked.connect(self._submit)
-        row.addWidget(self.field, 1)
-        row.addWidget(self.choose_button)
-        row.addWidget(self.scan_button)
-        outer.addLayout(row)
+        bar.addWidget(self.scan_button)
+        column.addWidget(self.bar)
+        column.addSpacing(10)
 
-        self.preview = QWidget()
+        self.error = label("", "error", wrap=True)
+        self.error.setVisible(False)
+        column.addWidget(self.error)
+
+        # Preview of what will be scanned ------------------------------------------
+        self.preview = QFrame()
+        self.preview.setObjectName("card")
         preview_row = QHBoxLayout(self.preview)
-        preview_row.setContentsMargins(4, 2, 4, 2)
+        preview_row.setContentsMargins(14, 10, 14, 10)
         preview_row.setSpacing(12)
-        self.preview_tile = KindTile(40)
+        self.preview_tile = KindTile(36)
         preview_row.addWidget(self.preview_tile)
         preview_text = QVBoxLayout()
-        preview_text.setSpacing(0)
+        preview_text.setSpacing(1)
         self.preview_name = ElidedLabel(mode=Qt.TextElideMode.ElideMiddle)
         self.preview_name.setObjectName("section")
         self.preview_meta = label("", "mute")
@@ -156,58 +170,55 @@ class Lens(QWidget):
         preview_text.addWidget(self.preview_meta)
         preview_row.addLayout(preview_text, 1)
         self.preview.setVisible(False)
-        outer.addWidget(self.preview)
+        column.addWidget(self.preview)
+        column.addSpacing(16)
 
-        self.error = label("", "error", wrap=True)
-        self.error.setVisible(False)
-        outer.addWidget(self.error)
-        outer.addStretch(1)
+        # Hints as key caps ------------------------------------------------------------
+        hints = QHBoxLayout()
+        hints.setSpacing(6)
+        hints.addStretch(1)
+        self.choose_button = QPushButton()
+        self.choose_button.setObjectName("ghost")
+        self.choose_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.choose_button.clicked.connect(self.browseRequested)
+        hints.addWidget(self.choose_button)
+        hints.addWidget(keycap("Ctrl"))
+        hints.addWidget(keycap("O"))
+        hints.addSpacing(14)
+        self.drop_hint = label("", "mute")
+        hints.addWidget(self.drop_hint)
+        hints.addStretch(1)
+        column.addLayout(hints)
+        column.addSpacing(12)
 
-        footer = QHBoxLayout()
-        footer.setSpacing(8)
-        self.lock_icon = label("")
-        self.lock_icon.setFixedSize(16, 16)
-        footer.addWidget(self.lock_icon, 0, Qt.AlignmentFlag.AlignVCenter)
-        self.promise = label("", "mute", wrap=True)
-        footer.addWidget(self.promise, 1)
-        self.shortcuts = label("", "mute")
-        footer.addWidget(self.shortcuts, 0, Qt.AlignmentFlag.AlignVCenter)
-        outer.addLayout(footer)
         self.notice = label("", "mute", wrap=True)
+        self.notice.setAlignment(Qt.AlignmentFlag.AlignHCenter)
         self.notice.setVisible(False)
-        outer.addWidget(self.notice)
+        column.addWidget(self.notice)
 
         self._preview_timer = QTimer(self)
         self._preview_timer.setSingleShot(True)
         self._preview_timer.setInterval(120)
         self._preview_timer.timeout.connect(self._refresh_preview)
-        self._apply_hue(animate=False)
 
     # -- text -----------------------------------------------------------------
     def retranslate(self, language: str) -> None:
         self.language = language
         t = lambda text: tr(text, language)  # noqa: E731
+        self.privacy.setText("●  " + t("Local · read-only · nothing leaves this device"))
         self.title.setText(t("Inspect before you trust."))
-        self.lead.setText(t("Drop a file here, or paste a link, a hash or any text."))
-        self.set_armed(self.well.armed)
+        self.lead.setText(t("Paste a path, a link, a hash or any text, or drop a file anywhere."))
         self.choose_button.setText(t("Choose a file"))
-        self.choose_button.setIcon(glyph_icon("folder", TOKENS["text_dim"], 16))
+        self.choose_button.setIcon(glyph_icon("folder", TOKENS["text_dim"], 15))
+        self.drop_hint.setText(t("or drop a file anywhere"))
         self.field.setPlaceholderText(t("Paste a path, a link, a hash or text…"))
         edge = Qt.AlignmentFlag.AlignRight if language == "ar" else Qt.AlignmentFlag.AlignLeft
         for widget in (self.preview_name, self.preview_meta):
             widget.setAlignment(edge | Qt.AlignmentFlag.AlignAbsolute | Qt.AlignmentFlag.AlignVCenter)
-        self.promise.setText(t("Files are read, never opened or run."))
-        self.lock_icon.setPixmap(self._lock_pixmap())
-        # Latin key names inside Arabic: keep them as isolated LTR runs.
-        hint = t("Enter to scan · Ctrl+O to choose a file")
-        self.shortcuts.setText(_isolate_latin(hint) if language == "ar" else hint)
         self._refresh_preview()
 
-    @staticmethod
-    def _lock_pixmap():
-        from ui.icons import glyph_pixmap
-
-        return glyph_pixmap("lock", TOKENS["text_mute"], 14)
+    def overlay_text(self) -> tuple[str, str]:
+        return tr("Drop to scan", self.language), tr("Files are read, never opened or run.", self.language)
 
     def set_notice(self, text: str) -> None:
         self.notice.setText(text)
@@ -224,30 +235,34 @@ class Lens(QWidget):
     def show_error(self, message: str) -> None:
         self.error.setText(message)
         self.error.setVisible(True)
-        self.field.setProperty("invalid", True)
-        self._repolish(self.field)
+        for widget in (self.field, self.bar):
+            widget.setProperty("invalid", True)
+            self._repolish(widget)
         self.field.setFocus()
 
     def clear_error(self) -> None:
         if self.error.isVisible() or self.field.property("invalid"):
             self.error.setVisible(False)
-            self.field.setProperty("invalid", False)
-            self._repolish(self.field)
+            for widget in (self.field, self.bar):
+                widget.setProperty("invalid", False)
+                self._repolish(widget)
 
     def set_armed(self, armed: bool) -> None:
-        self.well.set_armed(armed)
-        t = lambda text: tr(text, self.language)  # noqa: E731
-        self.well.set_text(t("Let go to scan it") if armed else t("Drop a file here"), "" if armed else t("or click to choose one"))
-
-    def set_enabled_for_scan(self, enabled: bool) -> None:
-        for widget in (self.field, self.scan_button, self.choose_button, self.well):
-            widget.setEnabled(enabled)
+        if armed != self.armed:
+            self.armed = armed
+            self.armedChanged.emit(armed)
 
     # -- internals -------------------------------------------------------------
     @staticmethod
     def _repolish(widget: QWidget) -> None:
         widget.style().unpolish(widget)
         widget.style().polish(widget)
+
+    def eventFilter(self, watched, event) -> bool:  # noqa: N802
+        if watched is self.field and event.type() in (QEvent.Type.FocusIn, QEvent.Type.FocusOut):
+            self.bar.setProperty("focused", event.type() == QEvent.Type.FocusIn)
+            self._repolish(self.bar)
+        return False
 
     def _edited(self, _text: str) -> None:
         self.clear_error()
@@ -264,35 +279,26 @@ class Lens(QWidget):
         if not value:
             self.kind = KINDS["file"]
             self.preview.setVisible(False)
+            self.kind_chip.setVisible(False)
             self.scan_button.setText(t("Scan"))
         else:
             self.kind = kind_for_target(value, self.mode)
+            kind_word = t(self.kind.label)
+            self.kind_tile.set_kind(self.kind)
+            self.kind_label.setText(kind_word)
+            self.kind_chip.setVisible(True)
             self.preview_tile.set_kind(self.kind)
             self.preview_name.setText(display_name(value, self.mode))
-            meta = tr("Will be scanned as: {kind}", self.language).format(kind=t(self.kind.label))
+            meta = tr("Will be scanned as: {kind}", self.language).format(kind=kind_word)
             if self.mode == "File":
                 try:
                     meta += " · " + isolate(format_size(Path(value).stat().st_size), self.language)
                 except OSError:
                     pass
             self.preview_meta.setText(meta)
-            self.preview.setVisible(True)
-            kind_word = t(self.kind.label)
+            self.preview.setVisible(self.mode == "File")
             self.scan_button.setText(t("Scan this {kind}").format(kind=kind_word.lower() if self.language == "en" else kind_word))
-        self._apply_hue()
         self.kindChanged.emit(self.kind.key)
-
-    def _apply_hue(self, animate: bool = True) -> None:
-        hue = self.kind.hue if self.text() else TOKENS["accent"]
-        if animate:
-            self.ambient.set_hue(hue, 0.12)
-        else:
-            self.ambient._color = QColor(hue)
-        self.well.set_hue(QColor(hue))
-
-    def resizeEvent(self, event) -> None:  # noqa: N802
-        super().resizeEvent(event)
-        self.ambient.setGeometry(self.rect())
 
     def dragEnterEvent(self, event) -> None:  # noqa: N802
         if event.mimeData().hasUrls() or event.mimeData().hasText():
@@ -317,10 +323,3 @@ class Lens(QWidget):
             event.acceptProposedAction()
         else:
             event.ignore()
-
-
-def _isolate_latin(text: str) -> str:
-    """Wrap Latin runs (key names) in FSI/PDI so they keep their order in RTL."""
-    import re
-
-    return re.sub(r"([A-Za-z][A-Za-z0-9+]*(?:\+[A-Za-z0-9]+)*)", "⁨\\1⁩", text)

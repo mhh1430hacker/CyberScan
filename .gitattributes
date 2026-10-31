@@ -14,3 +14,4 @@ models/*.json -text
 repair_lab/fixtures/** -text
 # Coordination log with mixed CRLF/LF line endings
 Team.txt -text
+*.ttf binary

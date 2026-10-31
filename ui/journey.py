@@ -26,7 +26,7 @@ from PySide6.QtWidgets import QSizePolicy, QWidget
 from ui.file_kind import KINDS, FileKind
 from ui.icons import glyph, icon_font
 from ui.motion import EMPHASIS_MS, prefers_reduced_motion
-from ui.theme import DISPLAY_FONT, TOKENS, alpha, mix
+from ui.theme import TOKENS, alpha, mix, ui_font
 
 STAGE_COUNT = 4
 STAGE_ICONS = ("search", "pulse", "layers", "globe")
@@ -302,25 +302,18 @@ class JourneyScene(QWidget):
             painter.restore()
         painter.setPen(color)
         if self.verdict_symbol and self._morph > 0.5:
-            font = QFont(DISPLAY_FONT)
-            font.setPixelSize(44)
-            font.setWeight(QFont.Weight.Bold)
-            painter.setFont(font)
+            painter.setFont(ui_font(44, 600))
             painter.drawText(rect, int(Qt.AlignmentFlag.AlignCenter), self.verdict_symbol)
         else:
             painter.setFont(icon_font(40))
             painter.drawText(rect, int(Qt.AlignmentFlag.AlignCenter), glyph(self.kind.icon))
-        name_font = QFont(self.font())
-        name_font.setPixelSize(15)
-        name_font.setWeight(QFont.Weight.DemiBold)
+        name_font = ui_font(15, 600, -0.1)
         painter.setFont(name_font)
         painter.setPen(QColor(TOKENS["text"]))
         metrics = QFontMetrics(name_font)
         name = metrics.elidedText(self.target_name, Qt.TextElideMode.ElideMiddle, int(self.width() * 0.7))
         painter.drawText(QRectF(0, rect.bottom() + 10, self.width(), 22), int(Qt.AlignmentFlag.AlignHCenter), name)
-        type_font = QFont(self.font())
-        type_font.setPixelSize(12)
-        painter.setFont(type_font)
+        painter.setFont(ui_font(12))
         painter.setPen(QColor(TOKENS["text_mute"]))
         painter.drawText(
             QRectF(0, rect.bottom() + 32, self.width(), 18), int(Qt.AlignmentFlag.AlignHCenter), self.target_type
@@ -373,10 +366,7 @@ class JourneyScene(QWidget):
             int(Qt.AlignmentFlag.AlignCenter),
             glyph(icon),
         )
-        font = QFont(self.font())
-        font.setPixelSize(13)
-        font.setWeight(QFont.Weight.DemiBold if state in {"running", "complete"} else QFont.Weight.Normal)
-        painter.setFont(font)
+        painter.setFont(ui_font(13, 600 if state in {"running", "complete"} else 400))
         painter.setPen(QColor(TOKENS["text"] if state in {"running", "complete"} else TOKENS["text_mute"]))
         title = self.stage_titles[index] if index < len(self.stage_titles) else ""
         painter.drawText(

@@ -49,14 +49,14 @@ from ui.file_kind import KINDS, FileKind, detect_mode, display_name, kind_for_ta
 from ui.history_rail import GROUPS, HistoryRail, RailItem
 from ui.icons import glyph_icon
 from ui.journey import JourneyScene
-from ui.lens import Lens
+from ui.lens import DropOverlay, Lens
 from ui.motion import fade_in
 from ui.persistence import LocalUiStore
 from ui.result_tiers import ResultPanel, advanced_texts
 from ui.result_view import ResultView, build_result_view
 from ui.scan_service import ScanService
 from ui.settings_sheet import Scrim, SettingsSheet
-from ui.theme import TOKENS, stylesheet, tone_color
+from ui.theme import FAMILIES, TOKENS, load_fonts, stylesheet, tone_color
 from ui.widgets import Ambient, Pill, label
 
 STAGE_TITLES = ("Reading", "Patterns", "Structure", "Lookups")
@@ -185,6 +185,7 @@ class CyberScanApp(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
         ensure_directories()
+        load_fonts()
         screen = QApplication.primaryScreen()
         available = screen.availableGeometry() if screen else None
         width = min(1460, available.width() - 48) if available else 1320
@@ -312,7 +313,7 @@ class CyberScanApp(QMainWindow):
 
         # -- the three views ---------------------------------------------------
         self.lens = Lens()
-        self.lens.setMinimumHeight(520)
+        self.lens.armedChanged.connect(self._show_drop_overlay)
         self.lens.submitted.connect(self.run_scan)
         self.lens.browseRequested.connect(self.select_file)
         self.lens.fileDropped.connect(self._file_dropped)
@@ -391,6 +392,7 @@ class CyberScanApp(QMainWindow):
         column.addStretch(1)
 
         # -- settings sheet over the stage -------------------------------------
+        self.drop_overlay = DropOverlay(self.main)
         self.scrim = Scrim(self.main)
         self.scrim.hide()
         self.scrim.clicked.connect(self.close_settings)
@@ -704,6 +706,7 @@ class CyberScanApp(QMainWindow):
             # A language switch keeps the reader where they were.
             if was_open[0]:
                 self.result_panel.details.setVisible(True)
+                self.result_panel._sync_reasons(True)
             if was_open[1]:
                 self.result_panel.advanced.setVisible(True)
             self.result_panel._sync_buttons()
@@ -1302,6 +1305,7 @@ class CyberScanApp(QMainWindow):
         self._text_scale = (scale, self.language)
         self.setStyleSheet(stylesheet(scale, self.language))
         font = QFont(self.font())
+        font.setFamilies(FAMILIES)
         font.setPixelSize(round(14 * scale))
         self.setFont(font)
 
@@ -1331,6 +1335,15 @@ class CyberScanApp(QMainWindow):
             self.sheet.log_view.appendPlainText(line)
 
     # =============================================================== layout
+    def _show_drop_overlay(self, armed: bool) -> None:
+        if armed and self.worker is None:
+            self.drop_overlay.set_text(*self.lens.overlay_text())
+            self.drop_overlay.setGeometry(self.main.rect())
+            self.drop_overlay.show()
+            self.drop_overlay.raise_()
+        else:
+            self.drop_overlay.hide()
+
     def _toggle_rail(self) -> None:
         self.rail.setVisible(not self.rail.isVisible())
 

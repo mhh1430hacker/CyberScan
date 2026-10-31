@@ -216,9 +216,15 @@ class ResultPanel(QWidget):
         self._kind: FileKind | None = None
         self._texts: dict[str, str] = {}
         self._all_findings = False
-        layout = QVBoxLayout(self)
+        # A main column and, beside it, a properties inspector (Linear-style).
+        self.body = QBoxLayout(QBoxLayout.Direction.LeftToRight, self)
+        self.body.setContentsMargins(0, 0, 0, 0)
+        self.body.setSpacing(16)
+        self.main_column = QWidget()
+        layout = QVBoxLayout(self.main_column)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(16)
+        self.body.addWidget(self.main_column, 1)
 
         self.origin = label("", "mute")
         self.origin.setVisible(False)
@@ -232,7 +238,7 @@ class ResultPanel(QWidget):
         summary.setSpacing(18)
         top = QHBoxLayout()
         top.setSpacing(26)
-        self.medallion = Medallion(132)
+        self.medallion = Medallion(92)
         top.addWidget(self.medallion, 0, Qt.AlignmentFlag.AlignTop)
         words = QVBoxLayout()
         words.setSpacing(8)
@@ -245,20 +251,6 @@ class ResultPanel(QWidget):
         words.addStretch(1)
         top.addLayout(words, 1)
         summary.addLayout(top)
-        meter_row = QHBoxLayout()
-        meter_row.setSpacing(18)
-        meter_col = QVBoxLayout()
-        meter_col.setSpacing(4)
-        self.meter_caption = label("", "eyebrow")
-        self.meter = LevelMeter()
-        meter_col.addWidget(self.meter_caption)
-        meter_col.addWidget(self.meter)
-        meter_col.addStretch(1)
-        meter_row.addLayout(meter_col, 2)
-        self.facts_row = QVBoxLayout()
-        self.facts_row.setSpacing(8)
-        meter_row.addLayout(self.facts_row, 3)
-        summary.addLayout(meter_row)
         actions = QHBoxLayout()
         actions.setSpacing(10)
         self.why_button = QPushButton()
@@ -332,6 +324,7 @@ class ResultPanel(QWidget):
         self.columns.addWidget(self.findings_card, 3)
 
         side = QVBoxLayout()
+        side.setContentsMargins(0, 0, 0, 0)
         side.setSpacing(14)
         self.places_card = card()
         places = QVBoxLayout(self.places_card)
@@ -342,16 +335,6 @@ class ResultPanel(QWidget):
         places.addWidget(self.places_title)
         places.addWidget(self.places)
         side.addWidget(self.places_card)
-        self.checks_card = card()
-        checks = QVBoxLayout(self.checks_card)
-        checks.setContentsMargins(22, 18, 22, 18)
-        checks.setSpacing(8)
-        self.checks_title = label("", "section")
-        checks.addWidget(self.checks_title)
-        self.checks_list = QVBoxLayout()
-        self.checks_list.setSpacing(6)
-        checks.addLayout(self.checks_list)
-        side.addWidget(self.checks_card)
         side.addStretch(1)
         side_widget = QWidget()
         side_widget.setLayout(side)
@@ -437,6 +420,34 @@ class ResultPanel(QWidget):
         advanced.addWidget(self.tabs)
         self.advanced.setVisible(False)
         layout.addWidget(self.advanced)
+        layout.addStretch(1)
+
+        # Inspector: the result's properties at a glance --------------------------
+        self.inspector = card()
+        inspector = QVBoxLayout(self.inspector)
+        inspector.setContentsMargins(20, 18, 20, 18)
+        inspector.setSpacing(10)
+        self.meter_caption = label("", "eyebrow")
+        self.meter = LevelMeter()
+        inspector.addWidget(self.meter_caption)
+        inspector.addWidget(self.meter)
+        inspector.addSpacing(4)
+        self.facts_row = QVBoxLayout()
+        self.facts_row.setSpacing(9)
+        inspector.addLayout(self.facts_row)
+        inspector.addSpacing(6)
+        self.inspector_rule = QFrame()
+        self.inspector_rule.setFixedHeight(1)
+        self.inspector_rule.setStyleSheet("background: rgba(255, 255, 255, 0.07);")
+        inspector.addWidget(self.inspector_rule)
+        inspector.addSpacing(4)
+        self.checks_caption = label("", "eyebrow")
+        inspector.addWidget(self.checks_caption)
+        self.inspector_checks = QVBoxLayout()
+        self.inspector_checks.setSpacing(7)
+        inspector.addLayout(self.inspector_checks)
+        inspector.addStretch(1)
+        self.body.addWidget(self.inspector, 0, Qt.AlignmentFlag.AlignTop)
         self._wide: bool | None = None
 
     # -- state -----------------------------------------------------------------
@@ -456,7 +467,8 @@ class ResultPanel(QWidget):
         self._sync_buttons(details=opening)
         self.detailsToggled.emit(opening)
         if opening:
-            stagger([self.findings_card, self.places_card, self.checks_card, self.about_card])
+            stagger([self.findings_card, self.places_card, self.about_card])
+        self._sync_reasons(opening)
 
     def toggle_advanced(self) -> None:
         opening = not self.advanced.isVisibleTo(self)
@@ -469,6 +481,7 @@ class ResultPanel(QWidget):
             widget.setMaximumHeight(16777215)
             widget.setVisible(False)
         self._all_findings = False
+        self._sync_reasons(False)
         self._sync_buttons(details=False, advanced=False)
 
     # -- content -------------------------------------------------------------------
@@ -513,7 +526,7 @@ class ResultPanel(QWidget):
         self.export_button.setIcon(glyph_icon("save", TOKENS["text_dim"], 15))
         self.findings_title.setText(tr("What caught our attention", language))
         self.places_title.setText(tr("Where we found it", language))
-        self.checks_title.setText(tr("What we checked", language))
+        self.checks_caption.setText(tr("What we checked", language).upper() if language == "en" else tr("What we checked", language))
         self.about_title.setText(tr("About this target", language))
         self.meter_caption.setText(tr("Warning level", language).upper() if language == "en" else tr("Warning level", language))
         self._sync_buttons()
@@ -554,7 +567,6 @@ class ResultPanel(QWidget):
             row.addWidget(mark, 0, Qt.AlignmentFlag.AlignVCenter)
             row.addWidget(text, 1)
             self.facts_row.addWidget(holder)
-        self.facts_row.addStretch(1)
 
     def _render_details(self) -> None:
         details, kind = self._details, self._kind
@@ -575,26 +587,38 @@ class ResultPanel(QWidget):
         )
         self.places_card.setVisible(bool(details.places))
         self.places.set_rows(list(details.places), tr("Where we found it", self.language))
-        _clear(self.checks_list)
+        # Checks live in the inspector: state always, the reason with level 2.
+        _clear(self.inspector_checks)
+        self._reason_labels = []
         for check in details.checks:
             holder = QWidget()
             column = QVBoxLayout(holder)
-            column.setContentsMargins(0, 0, 0, 2)
+            column.setContentsMargins(0, 0, 0, 0)
             column.setSpacing(2)
             row = QHBoxLayout()
-            row.setSpacing(10)
-            name = label(check.name, "body")
-            pill = Pill(f"{check.symbol} {check.state}", check.tone)
+            row.setSpacing(8)
+            dot = label(check.symbol)
+            dot.setStyleSheet(f"color: {tone_color(check.tone)}; font-weight: 700;")
+            dot.setFixedWidth(14)
+            name = label(check.name, "body", wrap=True)
+            row.addWidget(dot, 0, Qt.AlignmentFlag.AlignTop)
             row.addWidget(name, 1)
-            row.addWidget(pill, 0, Qt.AlignmentFlag.AlignTop)
             column.addLayout(row)
+            state = label(check.state, "mute", wrap=True)
+            state.setStyleSheet(f"color: {tone_color(check.tone) if check.tone in {'ok', 'warn', 'danger'} else TOKENS['text_mute']};")
+            state.setContentsMargins(22, 0, 0, 0)
+            column.addWidget(state)
             if check.reason:
-                column.addWidget(label(check.reason, "mute", wrap=True))
+                reason = label(check.reason, "mute", wrap=True)
+                reason.setContentsMargins(22, 0, 0, 2)
+                reason.setVisible(self.details.isVisibleTo(self))
+                self._reason_labels.append(reason)
+                column.addWidget(reason)
             holder.setToolTip(check.raw)
             holder.setAccessibleName(f"{check.name}: {check.state}. {check.reason}".strip())
-            self.checks_list.addWidget(holder)
+            self.inspector_checks.addWidget(holder)
         if not details.checks:
-            self.checks_list.addWidget(label(tr("No checks were reported.", self.language), "mute"))
+            self.inspector_checks.addWidget(label(tr("No checks were reported.", self.language), "mute"))
         self.about_tile.set_kind(kind, animate=False)
         _clear(self.about_grid)
         rtl = self.language == "ar"
@@ -679,6 +703,10 @@ class ResultPanel(QWidget):
         QGuiApplication.clipboard().setText(value)
         button.setText(tr("Copied", self.language))
 
+    def _sync_reasons(self, show: bool) -> None:
+        for reason in getattr(self, "_reason_labels", []):
+            reason.setVisible(show)
+
     def _toggle_all_findings(self) -> None:
         self._all_findings = not self._all_findings
         self._render_details()
@@ -688,13 +716,23 @@ class ResultPanel(QWidget):
         QGuiApplication.clipboard().setText(self.tab_texts[key].toPlainText())
         self.copy_button.setText(tr("Copied", self.language))
 
+    INSPECTOR_WIDTH = 300
+
     def resizeEvent(self, event) -> None:  # noqa: N802
         super().resizeEvent(event)
         self.summary_ambient.setGeometry(self.summary_card.rect())
-        wide = self.width() >= 860
-        if wide != self._wide:
-            self._wide = wide
-            self.columns.setDirection(QBoxLayout.Direction.LeftToRight if wide else QBoxLayout.Direction.TopToBottom)
+        side_by_side = self.width() >= 1000
+        main_width = self.width() - (self.INSPECTOR_WIDTH + 16 if side_by_side else 0)
+        state = (side_by_side, main_width >= 820)
+        if state != self._wide:
+            self._wide = state
+            self.body.setDirection(QBoxLayout.Direction.LeftToRight if side_by_side else QBoxLayout.Direction.TopToBottom)
+            if side_by_side:
+                self.inspector.setFixedWidth(self.INSPECTOR_WIDTH)
+            else:
+                self.inspector.setMinimumWidth(0)
+                self.inspector.setMaximumWidth(16777215)
+            self.columns.setDirection(QBoxLayout.Direction.LeftToRight if state[1] else QBoxLayout.Direction.TopToBottom)
 
     def showEvent(self, event) -> None:  # noqa: N802
         super().showEvent(event)

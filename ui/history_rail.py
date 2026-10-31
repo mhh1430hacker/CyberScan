@@ -31,7 +31,7 @@ from ui.copy import count_phrase, tr
 from ui.file_kind import FileKind
 from ui.icons import glyph, glyph_pixmap, icon_font
 from ui.motion import prefers_reduced_motion
-from ui.theme import TOKENS, alpha, mix, tone_color
+from ui.theme import TOKENS, alpha, mix, tone_color, ui_font
 from ui.widgets import label
 
 GROUPS = ("Today", "Yesterday", "This week", "Earlier")
@@ -117,7 +117,7 @@ class MixBar(QWidget):
 class HistoryCard(QAbstractButton):
     menuRequested = Signal(str, QPoint)
 
-    HEIGHT = 64
+    HEIGHT = 40
 
     def __init__(self, item: RailItem, parent=None):
         super().__init__(parent)
@@ -128,7 +128,7 @@ class HistoryCard(QAbstractButton):
         self.setFixedHeight(self.HEIGHT)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         self.setAccessibleName(f"{item.verdict_word}: {item.name}, {item.when}")
-        self.setToolTip(item.name)
+        self.setToolTip(f"{item.name} — {item.symbol} {item.verdict_word} · {item.when}")
         self._hover = False
         self._flash = 0.0
         self._flash_animation = QVariantAnimation(self)
@@ -165,72 +165,60 @@ class HistoryCard(QAbstractButton):
         self.menuRequested.emit(self.item.record_id, event.globalPos())
 
     def paintEvent(self, event) -> None:  # noqa: N802
+        """One line, Linear-style: kind icon, name, time, verdict mark."""
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         painter.setRenderHint(QPainter.RenderHint.TextAntialiasing)
         rtl = self.layoutDirection() == Qt.LayoutDirection.RightToLeft
-        rect = QRectF(self.rect()).adjusted(1, 2, -1, -2)
+        rect = QRectF(self.rect()).adjusted(2, 2, -2, -2)
         verdict = QColor(tone_color(self.item.tone))
         hue = QColor(self.item.kind.hue)
-        background = QColor(0, 0, 0, 0)
         if self.isChecked():
-            background = mix(TOKENS["surface_2"], verdict, 0.08)
+            painter.setBrush(QColor(255, 255, 255, 16))
         elif self._hover:
-            background = alpha(TOKENS["surface_2"], 0.75)
-        if self._flash > 0:
-            background = mix(background, hue, 0.22 * self._flash)
-        painter.setBrush(background)
-        border = (
-            alpha(verdict, 0.65)
-            if self.isChecked()
-            else QColor(TOKENS["accent"])
-            if self.hasFocus()
-            else alpha(QColor(TOKENS["line"]), 0.0 if not self._hover else 1.0)
-        )
-        painter.setPen(QPen(border, 2 if self.hasFocus() else 1))
-        painter.drawRoundedRect(rect, 12, 12)
-
-        tile_size = 38.0
-        tile_x = rect.right() - 12 - tile_size if rtl else rect.left() + 12
-        tile = QRectF(tile_x, rect.center().y() - tile_size / 2, tile_size, tile_size)
-        painter.setBrush(alpha(hue, 0.16))
-        painter.setPen(QPen(alpha(hue, 0.5), 1))
-        painter.drawRoundedRect(tile, 10, 10)
-        painter.setFont(icon_font(17))
-        painter.setPen(hue)
-        painter.drawText(tile, int(Qt.AlignmentFlag.AlignCenter), glyph(self.item.kind.icon))
-
-        text_left = rect.left() + 12 if rtl else tile.right() + 12
-        text_right = tile.left() - 12 if rtl else rect.right() - 12
-        width = max(10.0, text_right - text_left)
-        align = Qt.AlignmentFlag.AlignRight if rtl else Qt.AlignmentFlag.AlignLeft
-        name_font = QFont(self.font())
-        name_font.setPixelSize(14)
-        name_font.setWeight(QFont.Weight.DemiBold)
-        painter.setFont(name_font)
-        painter.setPen(QColor(TOKENS["text"]))
-        name = QFontMetrics(name_font).elidedText(self.item.name, Qt.TextElideMode.ElideMiddle, int(width))
-        painter.drawText(QRectF(text_left, rect.top() + 11, width, 20), int(align | Qt.AlignmentFlag.AlignVCenter), name)
-
-        meta_font = QFont(self.font())
-        meta_font.setPixelSize(12)
-        painter.setFont(meta_font)
-        metrics = QFontMetrics(meta_font)
-        verdict_text = f"{self.item.symbol} {self.item.verdict_word}"
-        verdict_width = metrics.horizontalAdvance(verdict_text) + 4
-        when_width = max(10.0, width - verdict_width - 10)
-        when = metrics.elidedText(self.item.when, Qt.TextElideMode.ElideRight, int(when_width))
-        meta_y = rect.top() + 34
-        if rtl:
-            painter.setPen(verdict)
-            painter.drawText(QRectF(text_right - verdict_width, meta_y, verdict_width, 18), int(Qt.AlignmentFlag.AlignRight), verdict_text)
-            painter.setPen(QColor(TOKENS["text_mute"]))
-            painter.drawText(QRectF(text_left, meta_y, when_width, 18), int(Qt.AlignmentFlag.AlignLeft), when)
+            painter.setBrush(QColor(255, 255, 255, 9))
         else:
-            painter.setPen(verdict)
-            painter.drawText(QRectF(text_left, meta_y, verdict_width, 18), int(Qt.AlignmentFlag.AlignLeft), verdict_text)
-            painter.setPen(QColor(TOKENS["text_mute"]))
-            painter.drawText(QRectF(text_left + verdict_width + 10, meta_y, when_width, 18), int(Qt.AlignmentFlag.AlignLeft), when)
+            painter.setBrush(Qt.BrushStyle.NoBrush)
+        if self._flash > 0:
+            painter.setBrush(alpha(hue, 0.22 * self._flash))
+        painter.setPen(QPen(QColor(TOKENS["accent"]), 1.5) if self.hasFocus() else Qt.PenStyle.NoPen)
+        painter.drawRoundedRect(rect, 7, 7)
+        if self.isChecked():
+            bar = QRectF(rect.right() - 2.5, rect.top() + 9, 2.5, rect.height() - 18) if rtl else QRectF(rect.left(), rect.top() + 9, 2.5, rect.height() - 18)
+            painter.setPen(Qt.PenStyle.NoPen)
+            painter.setBrush(verdict)
+            painter.drawRoundedRect(bar, 1.2, 1.2)
+
+        icon = QRectF(rect.right() - 30, rect.top(), 22, rect.height()) if rtl else QRectF(rect.left() + 10, rect.top(), 22, rect.height())
+        painter.setFont(icon_font(15))
+        painter.setPen(hue)
+        painter.drawText(icon, int(Qt.AlignmentFlag.AlignCenter), glyph(self.item.kind.icon))
+
+        meta_font = ui_font(11.5)
+        metrics = QFontMetrics(meta_font)
+        mark = self.item.symbol
+        mark_width = 14.0
+        when_width = min(118.0, metrics.horizontalAdvance(self.item.when) + 4.0)
+        if rtl:
+            mark_rect = QRectF(rect.left() + 8, rect.top(), mark_width, rect.height())
+            when_rect = QRectF(mark_rect.right() + 6, rect.top(), when_width, rect.height())
+            name_rect = QRectF(when_rect.right() + 8, rect.top(), icon.left() - when_rect.right() - 14, rect.height())
+        else:
+            mark_rect = QRectF(rect.right() - 8 - mark_width, rect.top(), mark_width, rect.height())
+            when_rect = QRectF(mark_rect.left() - 6 - when_width, rect.top(), when_width, rect.height())
+            name_rect = QRectF(icon.right() + 8, rect.top(), when_rect.left() - icon.right() - 14, rect.height())
+        name_font = ui_font(13.5, 500)
+        painter.setFont(name_font)
+        painter.setPen(QColor(TOKENS["text"] if self.isChecked() else TOKENS["text_dim"]))
+        name = QFontMetrics(name_font).elidedText(self.item.name, Qt.TextElideMode.ElideMiddle, int(max(10.0, name_rect.width())))
+        align = Qt.AlignmentFlag.AlignRight if rtl else Qt.AlignmentFlag.AlignLeft
+        painter.drawText(name_rect, int(align | Qt.AlignmentFlag.AlignVCenter), name)
+        painter.setFont(meta_font)
+        painter.setPen(QColor(TOKENS["text_mute"]))
+        painter.drawText(when_rect, int(Qt.AlignmentFlag.AlignCenter), metrics.elidedText(self.item.when, Qt.TextElideMode.ElideRight, int(when_width)))
+        painter.setFont(ui_font(12, 600))
+        painter.setPen(verdict)
+        painter.drawText(mark_rect, int(Qt.AlignmentFlag.AlignCenter), mark)
 
 
 class EmptyArt(QWidget):

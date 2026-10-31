@@ -30,7 +30,7 @@ from PySide6.QtWidgets import QFrame, QLabel, QSizePolicy, QWidget
 from ui.file_kind import FileKind, KINDS
 from ui.icons import glyph, icon_font
 from ui.motion import EMPHASIS_MS, VIEW_MS, prefers_reduced_motion
-from ui.theme import DISPLAY_FONT, TOKENS, alpha, mix, tone_color
+from ui.theme import TOKENS, alpha, mix, tone_color, ui_font
 
 
 class ElidedLabel(QLabel):
@@ -93,9 +93,9 @@ class Pill(QLabel):
         color = QColor(tone_color(tone))
         self.setText(text)
         self.setStyleSheet(
-            f"QLabel {{ color: {color.name()}; background: {alpha(color, 0.12).name(QColor.NameFormat.HexArgb)};"
-            f" border: 1px solid {alpha(color, 0.42).name(QColor.NameFormat.HexArgb)}; border-radius: 10px;"
-            " padding: 3px 10px; font-size: 12px; font-weight: 700; }"
+            f"QLabel {{ color: {color.name()}; background: {alpha(color, 0.10).name(QColor.NameFormat.HexArgb)};"
+            f" border: 1px solid {alpha(color, 0.30).name(QColor.NameFormat.HexArgb)}; border-radius: 10px;"
+            " padding: 2px 9px; font-size: 12px; font-weight: 600; }"
         )
 
 
@@ -190,29 +190,23 @@ class Medallion(QWidget):
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         side = min(self.width(), self.height())
         center = QPointF(self.width() / 2, self.height() / 2)
-        scale = 0.72 + 0.28 * max(0.0, self._progress)
-        outer = side / 2 * scale
-        glow = QRadialGradient(center, outer)
-        glow.setColorAt(0.0, alpha(self._color, 0.30))
-        glow.setColorAt(0.62, alpha(self._color, 0.10))
+        scale = 0.80 + 0.20 * max(0.0, self._progress)
+        ring = side / 2 * 0.70 * scale
+        glow = QRadialGradient(center, ring * 1.45)
+        glow.setColorAt(0.0, alpha(self._color, 0.22))
         glow.setColorAt(1.0, alpha(self._color, 0.0))
         painter.setPen(Qt.PenStyle.NoPen)
         painter.setBrush(glow)
-        painter.drawEllipse(center, outer, outer)
-        ring = outer * 0.66
-        painter.setBrush(mix(TOKENS["surface"], self._color, 0.16))
-        painter.setPen(QPen(self._color, max(2.0, side * 0.03)))
+        painter.drawEllipse(center, ring * 1.45, ring * 1.45)
+        painter.setBrush(mix(TOKENS["surface"], self._color, 0.12))
+        painter.setPen(QPen(alpha(self._color, 0.95), 1.6))
         painter.drawEllipse(center, ring, ring)
-        font = QFont(DISPLAY_FONT)
-        font.setPixelSize(max(1, round(ring * 0.9)))
-        font.setWeight(QFont.Weight.Bold)
-        painter.setFont(font)
+        painter.setPen(QPen(alpha(self._color, 0.25), 1))
+        painter.setBrush(Qt.BrushStyle.NoBrush)
+        painter.drawEllipse(center, ring * 1.22, ring * 1.22)
+        painter.setFont(ui_font(ring * 0.82, 600))
         painter.setPen(self._color)
-        painter.drawText(
-            QRectF(center.x() - ring, center.y() - ring, ring * 2, ring * 2),
-            int(Qt.AlignmentFlag.AlignCenter),
-            self._symbol,
-        )
+        painter.drawText(QRectF(center.x() - ring, center.y() - ring, ring * 2, ring * 2), int(Qt.AlignmentFlag.AlignCenter), self._symbol)
 
 
 class LevelMeter(QWidget):
@@ -246,19 +240,16 @@ class LevelMeter(QWidget):
         rtl = self.layoutDirection() == Qt.LayoutDirection.RightToLeft
         gap = 6.0
         width = (self.width() - gap * 2) / 3
-        font = QFont(self.font())
-        font.setPixelSize(12)
-        font.setWeight(QFont.Weight.DemiBold)
-        painter.setFont(font)
+        painter.setFont(ui_font(12, 500))
         for index in range(3):
             slot = 2 - index if rtl else index
             x = slot * (width + gap)
-            bar = QRectF(x, 6, width, 10)
+            bar = QRectF(x, 8, width, 5)
             active = self.level is not None and index < self.level
             color = QColor(self.COLORS[self.level - 1]) if active and self.level else QColor(TOKENS["line_strong"])
             painter.setPen(Qt.PenStyle.NoPen)
             painter.setBrush(color)
-            painter.drawRoundedRect(bar, 5, 5)
+            painter.drawRoundedRect(bar, 2.5, 2.5)
             current = self.level is not None and index == self.level - 1
             painter.setPen(QColor(TOKENS["text"] if current else TOKENS["text_mute"]))
             painter.drawText(
@@ -379,26 +370,29 @@ class Ambient(QWidget):
         self.update()
 
     def paintEvent(self, event) -> None:  # noqa: N802
+        """Glass panel: a faint white layer, a hairline edge, and a thin
+        signal line along the top in the current hue."""
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-        rect = QRectF(self.rect())
+        rect = QRectF(self.rect()).adjusted(0.5, 0.5, -0.5, -0.5)
+        radius = 16.0
         path = QPainterPath()
-        path.addRoundedRect(rect.adjusted(0.5, 0.5, -0.5, -0.5), 22, 22)
+        path.addRoundedRect(rect, radius, radius)
         painter.setClipPath(path)
-        # Frosted glass: a dark translucent layer over the living backdrop.
-        painter.fillRect(rect, alpha(TOKENS["surface"], 0.74))
+        painter.fillRect(rect, QColor(16, 17, 19, 205))
+        painter.fillRect(rect, QColor(255, 255, 255, 7))
         rtl = self.layoutDirection() == Qt.LayoutDirection.RightToLeft
-        anchor = QPointF(rect.width() * (0.18 if rtl else 0.82), rect.height() * 0.18)
-        glow = QRadialGradient(anchor, max(rect.width(), rect.height()) * 0.75)
-        glow.setColorAt(0.0, alpha(self._color, self._strength * 1.6))
-        glow.setColorAt(0.5, alpha(self._color, self._strength * 0.5))
+        anchor = QPointF(rect.width() * (0.15 if rtl else 0.85), 0.0)
+        glow = QRadialGradient(anchor, max(rect.width(), rect.height()) * 0.6)
+        glow.setColorAt(0.0, alpha(self._color, self._strength * 0.9))
         glow.setColorAt(1.0, alpha(self._color, 0.0))
         painter.fillRect(rect, glow)
-        sheen = QLinearGradient(rect.topLeft(), QPointF(rect.left(), rect.top() + 80))
-        sheen.setColorAt(0.0, QColor(255, 255, 255, 14))
-        sheen.setColorAt(1.0, QColor(255, 255, 255, 0))
-        painter.fillRect(rect, sheen)
+        line = QLinearGradient(rect.left(), 0, rect.right(), 0)
+        line.setColorAt(0.0, alpha(self._color, 0.0))
+        line.setColorAt(0.85 if not rtl else 0.15, alpha(self._color, 0.9))
+        line.setColorAt(1.0, alpha(self._color, 0.0))
+        painter.fillRect(QRectF(rect.left() + radius, rect.top(), rect.width() - 2 * radius, 1.2), line)
         painter.setClipping(False)
-        painter.setPen(QPen(alpha(self._color, 0.30), 1))
+        painter.setPen(QPen(QColor(255, 255, 255, 20), 1))
         painter.setBrush(Qt.BrushStyle.NoBrush)
-        painter.drawRoundedRect(rect.adjusted(0.5, 0.5, -0.5, -0.5), 22, 22)
+        painter.drawRoundedRect(rect, radius, radius)
