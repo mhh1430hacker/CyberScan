@@ -54,6 +54,10 @@ def window(tmp_path, monkeypatch, qapplication, dialogs):
     monkeypatch.setattr(qt_app, "REPORT_DIR", tmp_path / "reports")
     monkeypatch.setattr(qt_app, "ensure_directories", lambda: None)
     monkeypatch.setattr(qt_app.QApplication, "primaryScreen", lambda: None)
+    # Never reach a real local model from tests: point the AI at a closed port.
+    import ui.ai_summary as ai_summary
+
+    monkeypatch.setattr(ai_summary, "OLLAMA_URL", "http://127.0.0.1:9")
     (tmp_path / "data").mkdir()
 
     def record(kind, answer=None):

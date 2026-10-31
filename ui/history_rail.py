@@ -172,11 +172,11 @@ class HistoryCard(QAbstractButton):
         rect = QRectF(self.rect()).adjusted(1, 2, -1, -2)
         verdict = QColor(tone_color(self.item.tone))
         hue = QColor(self.item.kind.hue)
-        background = QColor(TOKENS["rail"])
+        background = QColor(0, 0, 0, 0)
         if self.isChecked():
             background = mix(TOKENS["surface_2"], verdict, 0.08)
         elif self._hover:
-            background = QColor(TOKENS["surface"])
+            background = alpha(TOKENS["surface_2"], 0.75)
         if self._flash > 0:
             background = mix(background, hue, 0.22 * self._flash)
         painter.setBrush(background)
@@ -265,7 +265,7 @@ class HistoryRail(QFrame):
         self.cards: list[HistoryCard] = []
         self.selected_id: str | None = None
         self.setStyleSheet(
-            f"QFrame#rail {{ background: {TOKENS['rail']}; border: 0; }}"
+            f"QFrame#rail {{ background: {TOKENS['glass_rail']}; border: 0; }}"
             f"QFrame#rail[rtl=\"false\"] {{ border-right: 1px solid {TOKENS['line']}; }}"
             f"QFrame#rail[rtl=\"true\"] {{ border-left: 1px solid {TOKENS['line']}; }}"
         )

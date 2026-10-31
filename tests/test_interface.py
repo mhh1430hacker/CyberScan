@@ -98,16 +98,30 @@ def test_advanced_data_is_the_engine_output_unchanged(window, qapplication, prog
     json.loads(texts["JSON"].toPlainText())
 
 
-def test_details_show_all_findings_on_request(window, qapplication, program):
-    scan(qapplication, window, str(program))
+def test_details_show_all_findings_on_request(window, qapplication, tmp_path):
+    titles = ["Header mismatch", "High entropy", "Executable extension", "Double extension", "YARA match", "Suspicious PE imports", "URL shortener domain"]
+    evidence = [Finding("heuristic", "medium", title, "explained", 10) for title in titles]
+    window.scan_history = [saved_record(window, tmp_path, "r1", engine_result("C:/x/a.exe", "REVIEW", evidence=evidence))]
+    window.refresh_history()
+    window.open_record("r1")
     panel = window.result_panel
     panel.why_button.click()
-    total = len(window._current["view"].findings)
-    assert total > 5
     assert panel.findings_list.count() == 5
-    assert panel.more_button.text() == f"Show all {total}"
+    assert panel.more_button.text() == "Show all 7"
     panel.more_button.click()
-    assert panel.findings_list.count() == total
+    assert panel.findings_list.count() == 7
+
+
+def test_repeated_findings_are_grouped_with_their_count(window, qapplication, program):
+    scan(qapplication, window, str(program))
+    window.result_panel.why_button.click()
+    from ui import plain_language
+
+    current = window._current
+    groups = plain_language.details(current["view"], current["kind"], "en").findings
+    hidden_command = next(group for group in groups if group.title == "Hidden PowerShell command")
+    assert hidden_command.count >= 2  # the YARA rule and the heuristic rule saw the same thing
+    assert sum(group.count for group in groups) == len(current["view"].findings)
 
 
 def test_export_writes_the_shown_result(window, qapplication, program, tmp_path, monkeypatch):
@@ -253,15 +267,17 @@ def test_language_switch_after_several_scans_is_complete(window, qapplication, p
     assert window.result_panel.headline.text() == "Nothing worrying found"
 
 
-def test_arabic_translates_the_interface_but_not_engine_evidence(window, qapplication, program):
+def test_arabic_translates_findings_but_keeps_engine_text_in_advanced_data(window, qapplication, program):
     window.toggle_language()
     scan(qapplication, window, str(program))
     panel = window.result_panel
     panel.why_button.click()
     assert panel.headline.text() == "انتبه لهذا الملف"
-    titles = [w.text() for w in panel.findings_card.findChildren(qt_app.QWidget) if hasattr(w, "text") and callable(w.text)]
-    assert "Double extension spoofing" in titles  # engine text shown as produced
     assert panel.findings_title.text() == "ما الذي لفت انتباهنا"
+    texts = [w.text() for w in panel.findings_card.findChildren(QLabel)]
+    assert "نوع ملف مموَّه" in texts
+    assert "Double extension spoofing" not in texts
+    assert "Double extension spoofing" in panel.tab_texts["Findings"].toPlainText()  # engine text, unchanged
 
 
 # --- layout ---------------------------------------------------------------------------------
@@ -314,3 +330,91 @@ def test_icons_fall_back_without_the_icon_font(monkeypatch):
     monkeypatch.setattr(icons, "icon_font_available", lambda: False)
     assert icons.glyph("history") == "◴"
     assert not icons.glyph_pixmap("history", "#ffffff").isNull()
+
+
+# --- reasons, keys, AI card, Arabic findings -----------------------------------------------
+
+
+def test_every_check_says_why_it_ran_as_it_did(window, qapplication, notes):
+    scan(qapplication, window, str(notes))
+    window.result_panel.why_button.click()
+    reasons = {check.name: check.reason for check in plain_details(window)}
+    assert reasons["Program structure"] == "This file isn't a Windows program, so this check doesn't apply."
+    assert reasons["Learning model"].startswith("No approved model is installed yet")
+    assert reasons["Online lookups"].startswith("Off: nothing was sent online")
+
+
+def plain_details(window):
+    from ui import plain_language
+
+    current = window._current
+    return plain_language.details(current["view"], current["kind"], "en", window._check_reasons(current)).checks
+
+
+def test_keys_are_saved_encrypted_and_handed_to_the_engine(window, qapplication, monkeypatch):
+    import os
+
+    import ui.secrets as secrets
+
+    monkeypatch.delenv("ABUSECH_AUTH_KEY", raising=False)
+    window.open_settings()
+    window.sheet.key_fields["abusech"].setText("demo-abuse-key-123")
+    assert window.sheet.saved_pill.text() == "Unsaved changes"
+    window.sheet.save_button.click()
+    stored = (Path(qt_app.DATA_DIR) / "secrets.bin").read_bytes()
+    assert b"demo-abuse-key-123" not in stored
+    assert secrets.SecretStore(Path(qt_app.DATA_DIR) / "secrets.bin").load() == {"abusech": "demo-abuse-key-123"}
+    assert os.environ.get("ABUSECH_AUTH_KEY") == "demo-abuse-key-123"
+    assert "demo-abuse-key-123" not in (Path(qt_app.DATA_DIR) / "ui_settings.json").read_text(encoding="utf-8")
+    assert window.sheet.key_fields["abusech"].text() == ""
+    window.sheet.forget_keys.click()
+    assert "ABUSECH_AUTH_KEY" not in os.environ
+    assert not (Path(qt_app.DATA_DIR) / "secrets.bin").exists()
+
+
+def test_ai_card_explains_when_the_local_model_is_not_running(window, qapplication, program):
+    scan(qapplication, window, str(program))
+    panel = window.result_panel
+    assert panel.ai_card.isVisible()
+    assert wait_for(qapplication, lambda: panel.ai_state == "no_server", 10)
+    assert panel.ai_text.text() == "The local AI isn't running. Start Ollama, then try again."
+    assert panel.ai_button.text() == "Try again"
+
+
+def test_ai_card_shows_a_streamed_summary(window, qapplication, program, monkeypatch):
+    import ui.ai_summary as ai_summary
+
+    monkeypatch.setattr(ai_summary, "runtime_status", lambda model: ai_summary.RuntimeStatus("ready", (model,)))
+
+    def fake_summarize(facts, language, model, on_text=None, should_stop=lambda: False):
+        assert facts["verdict"] == "high" and language == "en"
+        on_text("The checks found")
+        return "The checks found strong warning signs. Don't open it."
+
+    monkeypatch.setattr(ai_summary, "summarize", fake_summarize)
+    scan(qapplication, window, str(program))
+    panel = window.result_panel
+    assert wait_for(qapplication, lambda: panel.ai_state == "done", 10)
+    assert panel.ai_text.text() == "The checks found strong warning signs. Don't open it."
+    assert "the verdict above comes from the scanner" in panel.ai_note.text()
+    settle(qapplication, 0.3)  # the finished thread is released and deleted
+    window.new_scan()  # regression: touching the deleted thread used to raise
+    assert window.view == "lens"
+
+
+def test_ai_card_is_hidden_when_turned_off(window, qapplication, notes):
+    window.open_settings()
+    window.sheet.checks["ai_summary_enabled"].setChecked(False)
+    window.sheet.save_button.click()
+    window.close_settings()
+    scan(qapplication, window, str(notes))
+    assert not window.result_panel.ai_card.isVisible()
+
+
+def test_findings_read_in_arabic(window, qapplication, program):
+    window.toggle_language()
+    scan(qapplication, window, str(program))
+    window.result_panel.why_button.click()
+    texts = [w.text() for w in window.result_panel.findings_card.findChildren(QLabel)]
+    assert "نوع ملف مموَّه" in texts
+    assert "أمر PowerShell مخفي" in texts

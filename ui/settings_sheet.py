@@ -9,6 +9,7 @@ from PySide6.QtCore import QEasingCurve, QPropertyAnimation, QRect, Qt, Signal
 from PySide6.QtGui import QColor, QPainter
 from PySide6.QtWidgets import (
     QCheckBox,
+    QLabel,
     QFrame,
     QHBoxLayout,
     QLineEdit,
@@ -49,6 +50,8 @@ class SettingsSheet(QFrame):
     browseRequested = Signal()
     languageRequested = Signal()
     changed = Signal()
+    aiCheckRequested = Signal()
+    forgetKeysRequested = Signal()
 
     WIDTH = 460
 
@@ -56,7 +59,7 @@ class SettingsSheet(QFrame):
         super().__init__(parent)
         self.setObjectName("sheet")
         self.setStyleSheet(
-            f"QFrame#sheet {{ background: {TOKENS['surface']}; border: 1px solid {TOKENS['line_strong']}; border-radius: 0; }}"
+            "QFrame#sheet { background: rgba(12, 18, 32, 0.94); border: 1px solid rgba(255, 255, 255, 0.10); border-radius: 0; }"
         )
         self.language = "en"
         self._animation: QPropertyAnimation | None = None
@@ -114,7 +117,48 @@ class SettingsSheet(QFrame):
         self.keys_note = label("", "mute", wrap=True)
         online.addWidget(self.checks["osint_enabled"])
         online.addWidget(self.online_note)
-        online.addWidget(self.keys_note)
+        self.key_fields: dict[str, QLineEdit] = {}
+        self.key_captions: dict[str, QLabel] = {}
+        for key in ("abusech", "otx"):
+            caption = label("", "body")
+            field = QLineEdit()
+            field.setEchoMode(QLineEdit.EchoMode.Password)
+            field.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
+            field.textChanged.connect(lambda _text: self.changed.emit())
+            self.key_captions[key] = caption
+            self.key_fields[key] = field
+            online.addWidget(caption)
+            online.addWidget(field)
+        keys_row = QHBoxLayout()
+        keys_row.addWidget(self.keys_note, 1)
+        self.forget_keys = QPushButton()
+        self.forget_keys.setObjectName("link")
+        self.forget_keys.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.forget_keys.clicked.connect(self.forgetKeysRequested)
+        keys_row.addWidget(self.forget_keys, 0, Qt.AlignmentFlag.AlignTop)
+        online.addLayout(keys_row)
+
+        _frame, assistant = section()
+        self.ai_title = label("", "section")
+        self.checks["ai_summary_enabled"] = QCheckBox()
+        self.checks["ai_summary_enabled"].stateChanged.connect(lambda _state: self.changed.emit())
+        self.ai_note = label("", "mute", wrap=True)
+        model_row = QHBoxLayout()
+        self.ai_model_caption = label("", "body")
+        self.ai_model = QLineEdit()
+        self.ai_model.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
+        self.ai_model.textChanged.connect(lambda _text: self.changed.emit())
+        self.ai_check = QPushButton()
+        self.ai_check.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.ai_check.clicked.connect(self.aiCheckRequested)
+        model_row.addWidget(self.ai_model_caption)
+        model_row.addWidget(self.ai_model, 1)
+        model_row.addWidget(self.ai_check)
+        self.ai_status = Pill()
+        for widget in (self.ai_title, self.checks["ai_summary_enabled"], self.ai_note):
+            assistant.addWidget(widget)
+        assistant.addLayout(model_row)
+        assistant.addWidget(self.ai_status, 0, Qt.AlignmentFlag.AlignLeft)
 
         _frame, downloads = section()
         self.downloads_title = label("", "section")
@@ -147,8 +191,11 @@ class SettingsSheet(QFrame):
         self.language_button.clicked.connect(self.languageRequested)
         language_row.addWidget(self.language_caption, 1)
         language_row.addWidget(self.language_button)
+        self.checks["animated_background"] = QCheckBox()
+        self.checks["animated_background"].stateChanged.connect(lambda _state: self.changed.emit())
         display.addWidget(self.display_title)
         display.addWidget(self.checks["large_text"])
+        display.addWidget(self.checks["animated_background"])
         display.addLayout(language_row)
 
         save_row = QHBoxLayout()
@@ -194,7 +241,16 @@ class SettingsSheet(QFrame):
             self.checks[key].setText(t(text))
         self.checks["osint_enabled"].setText(t("Online lookups (off by default)"))
         self.online_note.setText(t("Sends supported links, domains, IPs or a file's SHA-256 to public services. File contents are never uploaded. A miss is not proof of safety."))
-        self.keys_note.setText(t("Keys are read from URLHAUS_API_KEY, OTX_API_KEY and THREATFOX_API_KEY."))
+        self.keys_note.setText(t("Free keys: auth.abuse.ch (one key covers URLhaus and ThreatFox) and otx.alienvault.com. They are stored encrypted for your Windows account."))
+        self.key_captions["abusech"].setText(t("abuse.ch key (URLhaus and ThreatFox)"))
+        self.key_captions["otx"].setText(t("AlienVault OTX key"))
+        self.forget_keys.setText(t("Forget saved keys"))
+        self.ai_title.setText(t("Summary in plain words"))
+        self.checks["ai_summary_enabled"].setText(t("Explain each result with a local AI model"))
+        self.ai_note.setText(t("Runs on this computer through Ollama. It only sees the scan's findings, never the file itself, and it never changes the verdict."))
+        self.ai_model_caption.setText(t("Model"))
+        self.ai_check.setText(t("Check"))
+        self.checks["animated_background"].setText(t("Animated background"))
         self.downloads_title.setText(t("Downloads"))
         self.checks["monitoring_enabled"].setText(t("Scan new downloads automatically"))
         self.downloads_note.setText(t("New files are scanned after they stop changing. Nothing is moved or deleted."))
@@ -210,6 +266,21 @@ class SettingsSheet(QFrame):
         self.about_title.setText(t("About CyberScan"))
         self.about_body.setText(t("CyberScan is a defensive research prototype. It reads files, links and indicators without running them. Its findings are leads for review, not proof of malware, and its scores are not probabilities. It never repairs, deletes or quarantines anything."))
         self.credits.setText(t("Developed by m6no5 and Ainex"))
+
+    def set_keys_saved(self, saved: dict[str, bool]) -> None:
+        for key, field in self.key_fields.items():
+            field.setPlaceholderText(tr("Saved · type to replace", self.language) if saved.get(key) else tr("Paste the key", self.language))
+        self.forget_keys.setVisible(any(saved.values()))
+
+    def set_ai_status(self, state: str, model: str) -> None:
+        words = {
+            "ready": ("Ready · {model}", "ok"),
+            "no_model": ("Not downloaded · run: ollama pull {model}", "warn"),
+            "no_server": ("Ollama isn't running", "warn"),
+            "checking": ("Checking…", "neutral"),
+        }
+        text, tone = words.get(state, words["no_server"])
+        self.ai_status.set_pill(tr(text, self.language).format(model=model), tone)
 
     def set_saved(self, saved: bool) -> None:
         self.saved_pill.set_pill(

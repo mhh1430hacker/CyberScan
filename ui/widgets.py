@@ -385,7 +385,8 @@ class Ambient(QWidget):
         path = QPainterPath()
         path.addRoundedRect(rect.adjusted(0.5, 0.5, -0.5, -0.5), 22, 22)
         painter.setClipPath(path)
-        painter.fillRect(rect, QColor(TOKENS["surface"]))
+        # Frosted glass: a dark translucent layer over the living backdrop.
+        painter.fillRect(rect, alpha(TOKENS["surface"], 0.74))
         rtl = self.layoutDirection() == Qt.LayoutDirection.RightToLeft
         anchor = QPointF(rect.width() * (0.18 if rtl else 0.82), rect.height() * 0.18)
         glow = QRadialGradient(anchor, max(rect.width(), rect.height()) * 0.75)
@@ -393,7 +394,11 @@ class Ambient(QWidget):
         glow.setColorAt(0.5, alpha(self._color, self._strength * 0.5))
         glow.setColorAt(1.0, alpha(self._color, 0.0))
         painter.fillRect(rect, glow)
+        sheen = QLinearGradient(rect.topLeft(), QPointF(rect.left(), rect.top() + 80))
+        sheen.setColorAt(0.0, QColor(255, 255, 255, 14))
+        sheen.setColorAt(1.0, QColor(255, 255, 255, 0))
+        painter.fillRect(rect, sheen)
         painter.setClipping(False)
-        painter.setPen(QPen(alpha(self._color, 0.28), 1))
+        painter.setPen(QPen(alpha(self._color, 0.30), 1))
         painter.setBrush(Qt.BrushStyle.NoBrush)
         painter.drawRoundedRect(rect.adjusted(0.5, 0.5, -0.5, -0.5), 22, 22)

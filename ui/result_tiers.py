@@ -9,6 +9,7 @@ never loses their place, and each can be closed again.
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import asdict, is_dataclass
 from typing import Any, Mapping
 
@@ -19,6 +20,7 @@ from PySide6.QtWidgets import (
     QFrame,
     QGridLayout,
     QHBoxLayout,
+    QLabel,
     QPlainTextEdit,
     QPushButton,
     QSizePolicy,
@@ -36,6 +38,7 @@ from ui.theme import TOKENS, alpha, tone_color
 from ui.widgets import Ambient, ElidedLabel, KindTile, LevelMeter, Medallion, Pill, PlaceBars, card, label
 
 FINDINGS_SHOWN = 5
+_ARABIC = re.compile(r"[؀-ۿ]")
 
 
 # --- level 3 content (plain text, engine output unchanged) --------------------
@@ -202,6 +205,8 @@ class ResultPanel(QWidget):
     exportRequested = Signal()
     detailsToggled = Signal(bool)
     advancedToggled = Signal(bool)
+    aiRequested = Signal()
+    aiStopRequested = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -268,6 +273,39 @@ class ResultPanel(QWidget):
         actions.addStretch(1)
         summary.addLayout(actions)
         layout.addWidget(self.summary_card)
+
+        # AI summary (written locally; explains, never decides) -----------------
+        self.ai_card = card()
+        ai = QVBoxLayout(self.ai_card)
+        ai.setContentsMargins(22, 16, 22, 16)
+        ai.setSpacing(8)
+        ai_head = QHBoxLayout()
+        ai_head.setSpacing(10)
+        self.ai_mark = label("")
+        self.ai_mark.setPixmap(glyph_pixmap("spark", TOKENS["accent"], 18))
+        self.ai_title = label("", "section", wrap=True)
+        self.ai_badge = Pill()
+        ai_head.addWidget(self.ai_mark, 0, Qt.AlignmentFlag.AlignVCenter)
+        ai_head.addWidget(self.ai_title, 1)
+        ai_head.addWidget(self.ai_badge, 0, Qt.AlignmentFlag.AlignVCenter)
+        ai.addLayout(ai_head)
+        self.ai_text = label("", "lead", wrap=True)
+        self.ai_text.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+        ai.addWidget(self.ai_text)
+        ai_foot = QHBoxLayout()
+        ai_foot.setSpacing(10)
+        self.ai_note = label("", "mute", wrap=True)
+        self.ai_button = QPushButton()
+        self.ai_button.setObjectName("ghost")
+        self.ai_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.ai_button.clicked.connect(self._ai_clicked)
+        ai_foot.addWidget(self.ai_note, 1)
+        ai_foot.addWidget(self.ai_button, 0, Qt.AlignmentFlag.AlignBottom)
+        ai.addLayout(ai_foot)
+        self.ai_state = "hidden"
+        self.ai_model = ""
+        self.ai_card.setVisible(False)
+        layout.addWidget(self.ai_card)
 
         # Level 2 ---------------------------------------------------------------
         self.details = QWidget()
@@ -469,6 +507,8 @@ class ResultPanel(QWidget):
         self.copy_button.setText(tr("Copy all", language))
         self.copy_button.setIcon(glyph_icon("copy", TOKENS["text_dim"], 15))
         self.again_button.setText(tr("Scan something else", language))
+        if self.ai_state != "hidden":
+            self.set_ai(self.ai_state, self.ai_text.text() if self.ai_state in {"done", "working"} else "")
         self.export_button.setText(tr("Export report", language))
         self.export_button.setIcon(glyph_icon("save", TOKENS["text_dim"], 15))
         self.findings_title.setText(tr("What caught our attention", language))
@@ -489,7 +529,7 @@ class ResultPanel(QWidget):
         if summary is None:
             return
         color = tone_color(summary.tone)
-        self.summary_ambient.set_hue(color, 0.16)
+        self.summary_ambient.set_hue(color, 0.08)
         self.summary_card.setAccessibleName(summary.headline)
         self.medallion.set_verdict(summary.symbol, color, summary.headline)
         self.headline.setText(summary.headline)
@@ -537,16 +577,21 @@ class ResultPanel(QWidget):
         self.places.set_rows(list(details.places), tr("Where we found it", self.language))
         _clear(self.checks_list)
         for check in details.checks:
+            holder = QWidget()
+            column = QVBoxLayout(holder)
+            column.setContentsMargins(0, 0, 0, 2)
+            column.setSpacing(2)
             row = QHBoxLayout()
             row.setSpacing(10)
             name = label(check.name, "body")
             pill = Pill(f"{check.symbol} {check.state}", check.tone)
-            holder = QWidget()
-            holder.setLayout(row)
-            holder.setToolTip(check.raw)
-            row.setContentsMargins(0, 0, 0, 0)
             row.addWidget(name, 1)
-            row.addWidget(pill)
+            row.addWidget(pill, 0, Qt.AlignmentFlag.AlignTop)
+            column.addLayout(row)
+            if check.reason:
+                column.addWidget(label(check.reason, "mute", wrap=True))
+            holder.setToolTip(check.raw)
+            holder.setAccessibleName(f"{check.name}: {check.state}. {check.reason}".strip())
             self.checks_list.addWidget(holder)
         if not details.checks:
             self.checks_list.addWidget(label(tr("No checks were reported.", self.language), "mute"))
@@ -582,6 +627,53 @@ class ResultPanel(QWidget):
             else:
                 self.about_grid.addWidget(text, row_index, 1)
         self.score_line.setText(details.score_line)
+
+    # -- AI summary --------------------------------------------------------------
+    AI_MESSAGES = {
+        "no_server": "The local AI isn't running. Start Ollama, then try again.",
+        "no_model": "The AI model isn't downloaded yet. In a terminal run: ollama pull {model}",
+        "unsafe": "The AI's summary claimed more certainty than the scan supports, so it was not shown.",
+        "empty": "The AI didn't write anything. Try again.",
+        "error": "The AI couldn't write a summary this time.",
+        "stopped": "Stopped.",
+    }
+
+    def set_ai(self, state: str, text: str = "", model: str = "") -> None:
+        """state: hidden | idle | working | done | <failure code>"""
+        self.ai_state = state
+        if model:
+            self.ai_model = model
+        t = lambda value: tr(value, self.language)  # noqa: E731
+        self.ai_card.setVisible(state != "hidden")
+        self.ai_title.setText(t("Summary in plain words"))
+        self.ai_badge.set_pill(t("AI · on this computer"), "accent")
+        self.ai_card.setAccessibleName(t("Summary in plain words"))
+        if state == "working":
+            self.ai_text.setText(text or t("Writing…"))
+            self.ai_button.setText(t("Stop"))
+            self.ai_note.setText("")
+        elif state == "done":
+            self.ai_text.setText(text)
+            self.ai_button.setText(t("Write it again"))
+            self.ai_note.setText(t("Written by a local AI model ({model}). It can make mistakes; the verdict above comes from the scanner.").format(model=self.ai_model))
+        elif state == "idle":
+            self.ai_text.setText(t("A local AI model can explain this result in a few plain sentences."))
+            self.ai_button.setText(t("Write a summary"))
+            self.ai_note.setText("")
+        else:
+            self.ai_text.setText(t(self.AI_MESSAGES.get(state, self.AI_MESSAGES["error"])).format(model=self.ai_model))
+            self.ai_button.setText(t("Try again"))
+            self.ai_note.setText("")
+        self.ai_text.setObjectName("lead" if state in {"done", "working"} else "body")
+        self.ai_text.style().unpolish(self.ai_text)
+        self.ai_text.style().polish(self.ai_text)
+        _direction(self.ai_text, self.language == "ar")
+
+    def _ai_clicked(self) -> None:
+        if self.ai_state == "working":
+            self.aiStopRequested.emit()
+        else:
+            self.aiRequested.emit()
 
     def _copy_value(self, value: str, button: QPushButton) -> None:
         QGuiApplication.clipboard().setText(value)
@@ -627,20 +719,28 @@ def _finding_row(finding, rtl: bool = False) -> QWidget:
     head.setSpacing(10)
     pill = Pill(finding.word, finding.tone)
     title = label(finding.title, "section", wrap=True)
-    title.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
-    title.setAlignment(_leading(rtl))
+    _direction(title, rtl)
     head.addWidget(pill, 0, Qt.AlignmentFlag.AlignTop)
     head.addWidget(title, 1)
+    if finding.count > 1:
+        head.addWidget(Pill(f"×{finding.count}", "neutral"), 0, Qt.AlignmentFlag.AlignTop)
     layout.addLayout(head)
     if finding.body and finding.body.strip().casefold() != finding.title.strip().casefold():
         body = label(finding.body, "body", wrap=True)
-        body.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
-        body.setAlignment(_leading(rtl))
+        _direction(body, rtl)
         layout.addWidget(body)
     where = label(finding.where, "mute")
     layout.addWidget(where)
-    row.setAccessibleName(f"{finding.word}: {finding.title}")
+    row.setAccessibleName(f"{finding.word}: {finding.title}" + (f" ×{finding.count}" if finding.count > 1 else ""))
     return row
+
+
+def _direction(widget: QLabel, rtl: bool) -> None:
+    """Arabic text flows right to left; untranslated engine English stays left
+    to right but starts at the reading edge."""
+    if not _ARABIC.search(widget.text()):
+        widget.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
+    widget.setAlignment(_leading(rtl))
 
 
 def _clear(layout) -> None:

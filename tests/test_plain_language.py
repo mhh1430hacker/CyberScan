@@ -100,7 +100,7 @@ def test_counts_read_naturally_in_both_languages(count, english, arabic):
 # --- level 2 ---------------------------------------------------------------
 
 
-def test_details_keep_engine_text_and_order_by_severity():
+def test_details_use_plain_words_and_order_by_severity():
     evidence = [
         Finding("heuristic", "low", "Weak hint", "low explanation", 40),
         Finding("yara", "high", "ShadowCopyDeletion", "Shadow copy deletion associated with ransomware behavior", 10),
@@ -108,9 +108,20 @@ def test_details_keep_engine_text_and_order_by_severity():
     view = build_result_view(result(evidence=evidence))
     details = plain_language.details(view, KINDS["program"], "en")
     assert [f.severity for f in details.findings] == ["high", "low"]
-    assert details.findings[0].title == "Shadow Copy Deletion"
-    assert details.findings[0].body == "Shadow copy deletion associated with ransomware behavior"
+    assert details.findings[0].title == "Can delete backup copies"
+    assert "ransomware" in details.findings[0].body
     assert details.findings[0].word == "Serious"
+    # a finding outside the catalogue keeps the engine's words
+    assert (details.findings[1].title, details.findings[1].body) == ("Weak hint", "low explanation")
+
+
+def test_identical_findings_are_shown_once_with_their_count():
+    evidence = [
+        Finding("statistical", "high", "Entropy discontinuity", f"Entropy changed by -2.{i}00 bits/byte across offsets 0x{i}0-0x{i}F.", 12)
+        for i in range(5)
+    ]
+    details = plain_language.details(build_result_view(result(evidence=evidence)), KINDS["program"], "en")
+    assert len(details.findings) == 1 and details.findings[0].count == 5
 
 
 def test_switched_off_check_is_not_reported_as_missing():
@@ -220,6 +231,7 @@ def _table_literals() -> set[str]:
     found |= set(qt_app.STAGE_TITLES) | set(qt_app.STAGE_CAPTIONS) | set(qt_app.RAIL_WORDS.values())
     found |= set(result_tiers.ADVANCED_TABS) | {text for _key, text in settings_sheet.ENGINE_OPTIONS}
     found |= set(widgets.LevelMeter.LABELS)
+    found |= set(qt_app.REASONS.values()) | set(result_tiers.ResultPanel.AI_MESSAGES.values())
     return found
 
 

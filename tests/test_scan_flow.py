@@ -217,15 +217,30 @@ def test_failure_before_the_next_report_marks_the_stage_that_was_due(qapplicatio
     assert scene.stage_states == ["complete", "failed", "waiting", "waiting"]
 
 
-def test_nothing_ticks_while_the_app_is_idle(window, qapplication, samples):
+def test_only_the_background_ticks_while_idle_and_it_can_be_turned_off(window, qapplication, samples):
     from PySide6.QtCore import QTimer
 
+    def active():
+        return [t for t in window.findChildren(QTimer) if t.isActive()]
+
     settle(qapplication, 0.3)
-    assert [t for t in window.findChildren(QTimer) if t.isActive()] == []
+    assert active() == [window.backdrop._timer]  # the animated background the user asked for
     scan(qapplication, window, str(samples["notes"]))
     settle(qapplication, 0.6)
-    assert [t for t in window.findChildren(QTimer) if t.isActive()] == []
+    assert active() == [window.backdrop._timer]
     assert window.journey.animating is False
+    window.open_settings()
+    window.sheet.checks["animated_background"].setChecked(False)
+    window.sheet.save_button.click()
+    assert active() == [] and window.backdrop.animating is False
+
+
+def test_background_stops_while_minimised(window, qapplication):
+    assert window.backdrop.animating
+    window.showMinimized()
+    assert wait_for(qapplication, lambda: not window.backdrop.animating, 3)
+    window.showNormal()
+    assert wait_for(qapplication, lambda: window.backdrop.animating, 3)
 
 
 def test_closing_stops_everything(window, qapplication, samples):

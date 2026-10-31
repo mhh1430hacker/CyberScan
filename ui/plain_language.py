@@ -117,6 +117,7 @@ class PlainFinding:
     title: str
     body: str
     where: str
+    count: int = 1  # identical findings are shown once, with how many there were
 
 
 @dataclass(frozen=True)
@@ -126,6 +127,7 @@ class PlainCheck:
     state: str
     tone: str
     raw: str
+    reason: str = ""
 
 
 @dataclass(frozen=True)
@@ -200,19 +202,28 @@ def summary(view: ResultView, kind: FileKind, elapsed: float | None, language: s
     )
 
 
-def details(view: ResultView, kind: FileKind, language: str) -> Details:
+def details(view: ResultView, kind: FileKind, language: str, reasons: dict[str, str] | None = None) -> Details:
+    """Level 2. ``reasons`` maps an engine name to an English sentence saying
+    why it ran the way it did; it is translated here."""
+    from ui.finding_text import plain
+
+    reasons = reasons or {}
+    grouped: dict[tuple[str, str], list] = {}
+    for item in sorted(view.findings, key=lambda item: (-SEVERITY_RANK[item.severity], -item.contribution)):
+        text = plain(item.title, item.explanation, language)
+        grouped.setdefault((text.title, item.severity), []).append((item, text))
     findings = tuple(
         PlainFinding(
             severity=item.severity,
             tone=SEVERITY_TONE[item.severity],
             word=tr(SEVERITY_WORDS[item.severity], language),
-            title=humanize_title(item.title),
-            body=item.explanation,
+            title=text.title,
+            body=text.body,
             where=tr(CATEGORY_WORDS.get(item.category, "Other"), language),
+            count=len(members),
         )
-        for item in sorted(
-            view.findings, key=lambda item: (-SEVERITY_RANK[item.severity], -item.contribution)
-        )
+        for members in grouped.values()
+        for item, text in members[:1]
     )
     places = tuple(
         (
@@ -229,6 +240,7 @@ def details(view: ResultView, kind: FileKind, language: str) -> Details:
             state=tr(CHECK_WORDS[engine.state][1], language),
             tone=CHECK_WORDS[engine.state][2],
             raw=engine.status,
+            reason=tr(reasons[engine.name], language) if reasons.get(engine.name) else "",
         )
         for engine in view.coverage
     )

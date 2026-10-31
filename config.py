@@ -9,6 +9,8 @@ DATA_DIR = ROOT_DIR / "data"
 MODEL_DIR = DATA_DIR / "models"
 DATASET_DIR = DATA_DIR / "datasets"
 REPORT_DIR = DATA_DIR / "reports"
+# Approved structural model (path + SHA-256), written only by ml.approve_model.
+TRUSTED_MODELS_FILE = DATA_DIR / "trusted_models.json"
 
 MAX_FILE_SIZE = 50 * 1024 * 1024
 MAX_ANALYSIS_TIME = 15.0
@@ -29,6 +31,10 @@ DEFAULT_SETTINGS = {
     "quarantine_directory": str(ROOT_DIR / "data" / "quarantine"),
     "logging_level": "INFO",
     "max_string_scan_size": MAX_STRING_SCAN_SIZE,
+    # Interface preferences (never read by the analysis engines).
+    "ai_summary_enabled": True,
+    "ai_model": "qwen3:8b",
+    "animated_background": True,
 }
 
 

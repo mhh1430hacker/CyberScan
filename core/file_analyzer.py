@@ -16,7 +16,8 @@ from core.models import Finding, ScanResult
 from core.position_aware import build_position_aware_evidence
 from core.risk_engine import finalize_result
 from core.deep_embedding import HighDimensionalEmbedding
-from ml.structural_classifier import StructuralClassifier
+# Only a model a person approved by SHA-256 can load (see ml.model_runtime).
+from ml.model_runtime import UNAPPROVED_STATUS, ApprovedStructuralClassifier as StructuralClassifier
 
 EICAR_TEST_SIGNATURE = b"X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*"
 
@@ -208,7 +209,9 @@ def analyze_file(
         pe_summary=pe_result,
     )
 
-    model_status = "No trained three-class structural model is available; static evidence only."
+    # The runtime explains itself: not approved, missing, rejected or loaded.
+    runtime_state = getattr(classifier, "state", None)
+    model_status = runtime_state.detail if runtime_state is not None else UNAPPROVED_STATUS
     limitations = (
         "The supervised model requires reviewed examples for all three classes; "
         "no infection probability or automatic repair is claimed."
@@ -222,7 +225,7 @@ def analyze_file(
             "lossless. Class scores are uncalibrated, and compressed/encrypted content "
             "cannot be semantically inspected without its key or decompression."
         )
-    elif classifier.metadata.get("load_error"):
+    elif runtime_state is None and classifier.metadata.get("load_error"):
         model_status = (
             f"Structural model rejected: {classifier.metadata['load_error']} "
             "Static evidence remains active."

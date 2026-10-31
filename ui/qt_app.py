@@ -41,8 +41,10 @@ from config import DATA_DIR, DEFAULT_SETTINGS, REPORT_DIR, ensure_directories
 from core.models import Finding, ScanResult
 from monitoring.downloads_monitor import DownloadMonitor
 from reports.exporter import export_report
-from ui import plain_language
+from ui import ai_summary, plain_language
+from ui.backdrop import Backdrop
 from ui.copy import tr
+from ui.secrets import KEY_ENV, SecretStore, SecretsUnavailable, apply_to_environment
 from ui.file_kind import KINDS, FileKind, detect_mode, display_name, kind_for_target
 from ui.history_rail import GROUPS, HistoryRail, RailItem
 from ui.icons import glyph_icon
@@ -93,6 +95,76 @@ class ScanWorker(QThread):
             self.completed.emit(payload)
         except Exception as exc:
             self.failed.emit(f"{type(exc).__name__}: {exc}")
+
+
+class AiWorker(QThread):
+    """Writes the plain-language summary with the local model, off the UI thread."""
+
+    text = Signal(int, str)
+    finished_text = Signal(int, str)
+    failed = Signal(int, str)
+
+    def __init__(self, ticket: int, facts: dict, language: str, model: str) -> None:
+        super().__init__()
+        self.ticket = ticket
+        self.facts = facts
+        self.language = language
+        self.model = model
+        self.stop_requested = False
+
+    def run(self) -> None:
+        try:
+            status = ai_summary.runtime_status(self.model)
+            if status.state != "ready":
+                self.failed.emit(self.ticket, status.state)
+                return
+            final = ai_summary.summarize(
+                self.facts,
+                self.language,
+                self.model,
+                on_text=lambda value: self.text.emit(self.ticket, value),
+                should_stop=lambda: self.stop_requested,
+            )
+            self.finished_text.emit(self.ticket, final)
+        except ai_summary.AiUnavailable as exc:
+            self.failed.emit(self.ticket, exc.code)
+        except Exception:  # noqa: BLE001 - a summary must never take the window down
+            self.failed.emit(self.ticket, "error")
+
+
+class AiProbe(QThread):
+    """Checks the local runtime (and warms the model) without blocking."""
+
+    result = Signal(str)
+
+    def __init__(self, model: str, warm: bool = False) -> None:
+        super().__init__()
+        self.model = model
+        self.warm = warm
+
+    def run(self) -> None:
+        state = ai_summary.runtime_status(self.model).state
+        if state == "ready" and self.warm:
+            ai_summary.preload(self.model)
+        self.result.emit(state)
+
+
+# Why each check ran as it did, in plain English (translated by ui.copy).
+REASONS = {
+    "pe_na": "This file isn't a Windows program, so this check doesn't apply.",
+    "archive_na": "This file isn't an archive, so there is nothing inside to list.",
+    "file_only": "This check reads files; it doesn't apply to links or text.",
+    "ml_unapproved": "No approved model is installed yet. See docs/learning_model.md to train one on reviewed samples and approve it.",
+    "ml_rejected": "The approved model failed its safety check, so it wasn't used.",
+    "ml_missing": "The approved model file is missing.",
+    "ml_disabled": "The learning model is switched off in your settings.",
+    "ml_ready": "Your approved model gave its opinion. Its scores are not probabilities.",
+    "osint_keys": "Some online sources need a free key. Add it in Settings.",
+    "osint_timeout": "Some online sources didn't answer in time.",
+    "osint_off": "Off: nothing was sent online. Turn it on in Settings to check public lists.",
+    "osint_ran": "The fingerprint or link was checked against public threat lists.",
+    "yara_missing": "The pattern-rule engine isn't installed on this computer.",
+}
 
 
 def plain_failure(message: str) -> str:
@@ -154,9 +226,16 @@ class CyberScanApp(QMainWindow):
         self._verdict_cache: dict[str, str] = {}
         self._text_scale: tuple[float, str] | None = None
         self._monitor = DownloadMonitor(self.settings["monitoring_directory"], callback=self.monitor_file_detected.emit)
+        self.secrets = SecretStore(DATA_DIR / "secrets.bin")
+        self._saved_keys = self.secrets.load()
+        apply_to_environment(self._saved_keys)
+        self._ai_ticket = 0
+        self._ai_worker: AiWorker | None = None
+        self._ai_probes: list[QThread] = []  # AI threads kept alive until they finish
         self.monitor_file_detected.connect(self._queue_monitored_file)
 
         self._build()
+        self.backdrop.set_enabled(bool(self.settings.get("animated_background", True)))
         self._install_shortcuts()
         self._apply_text_scale()
         self._append_log("CyberScan started. Static analysis only; targets are never executed.")
@@ -170,8 +249,8 @@ class CyberScanApp(QMainWindow):
 
     # ===================================================================== build
     def _build(self) -> None:
-        root = QWidget()
-        root.setObjectName("root")
+        root = Backdrop()
+        self.backdrop = root
         shell = QHBoxLayout(root)
         shell.setContentsMargins(0, 0, 0, 0)
         shell.setSpacing(0)
@@ -237,6 +316,7 @@ class CyberScanApp(QMainWindow):
         self.lens.submitted.connect(self.run_scan)
         self.lens.browseRequested.connect(self.select_file)
         self.lens.fileDropped.connect(self._file_dropped)
+        self.lens.kindChanged.connect(lambda _key: self.backdrop.set_hue(self.lens.kind.hue if self.lens.text() else TOKENS["accent"]))
         column.addWidget(self.lens)
 
         self.journey_view = QWidget()
@@ -303,6 +383,8 @@ class CyberScanApp(QMainWindow):
         self.result_panel = ResultPanel()
         self.result_panel.newScanRequested.connect(self.new_scan)
         self.result_panel.exportRequested.connect(self.export_current_report)
+        self.result_panel.aiRequested.connect(self.start_ai_summary)
+        self.result_panel.aiStopRequested.connect(self.stop_ai_summary)
         self.result_panel.detailsToggled.connect(lambda opened: opened and self._scroll_to(self.result_panel.details))
         self.result_panel.advancedToggled.connect(lambda opened: opened and self._scroll_to(self.result_panel.advanced))
         column.addWidget(self.result_panel)
@@ -318,6 +400,8 @@ class CyberScanApp(QMainWindow):
         self.sheet.browseRequested.connect(self.select_monitor_directory)
         self.sheet.languageRequested.connect(self.toggle_language)
         self.sheet.changed.connect(self._settings_dirty)
+        self.sheet.aiCheckRequested.connect(self._check_ai)
+        self.sheet.forgetKeysRequested.connect(self._forget_keys)
 
     def _icon_button(self, icon: str, callback) -> QPushButton:
         button = QPushButton()
@@ -476,6 +560,10 @@ class CyberScanApp(QMainWindow):
         self._pending_reveal = False
         self._current = None
         self.journey_ambient.set_hue(self.kind.hue, 0.12)
+        self.backdrop.set_hue(self.kind.hue)
+        self.stop_ai_summary()
+        if self.settings.get("ai_summary_enabled"):
+            self._probe_ai(warm=True)  # load the model while the scan runs
         self.journey.start(display_name(target, mode), self.kind, self._type_line(target, mode))
         self.outcome.setVisible(False)
         self.technical_text.setVisible(False)
@@ -594,7 +682,7 @@ class CyberScanApp(QMainWindow):
         view: ResultView = current["view"]
         kind: FileKind = current["kind"]
         summary = plain_language.summary(view, kind, current["elapsed"], self.language)
-        details = plain_language.details(view, kind, self.language)
+        details = plain_language.details(view, kind, self.language, self._check_reasons(current))
         texts = advanced_texts(current["result"], current["nextgen"] or {}, current["prediction"] or {}, current["intelligence"] or {})
         entropy = ((current["nextgen"] or {}).get("entropy_topography") or {}).get("trajectory", ())
         origin = ""
@@ -604,6 +692,14 @@ class CyberScanApp(QMainWindow):
             origin = self.t("The result is shown, but it wasn't added to your scans.")
         was_open = (self.result_panel.details.isVisibleTo(self.result_panel), self.result_panel.advanced.isVisibleTo(self.result_panel))
         self.result_panel.show_result(summary, details, kind, texts, tuple(entropy), origin, reveal=reveal)
+        if not self.settings.get("ai_summary_enabled"):
+            self.result_panel.set_ai("hidden")
+        elif current.get("ai_text") and current.get("ai_language") == self.language:
+            self.result_panel.set_ai("done", current["ai_text"], self._ai_model())
+        elif reveal:
+            self.start_ai_summary()
+        else:
+            self.result_panel.set_ai("idle", model=self._ai_model())
         if not reveal:
             # A language switch keeps the reader where they were.
             if was_open[0]:
@@ -676,6 +772,8 @@ class CyberScanApp(QMainWindow):
     def new_scan(self) -> None:
         if self.worker is not None and self.worker.isRunning():
             return
+        self.stop_ai_summary()
+        self.backdrop.set_hue(TOKENS["accent"])
         self.journey.reset()
         self._current = None
         self._failure = None
@@ -970,6 +1068,15 @@ class CyberScanApp(QMainWindow):
         self.sheet.folder.setText(str(self.settings.get("monitoring_directory", "")))
         self.sheet.folder.blockSignals(False)
         self.sheet.log_view.setPlainText("\n".join(self.audit_log[-400:]))
+        self.sheet.ai_model.blockSignals(True)
+        self.sheet.ai_model.setText(self._ai_model())
+        self.sheet.ai_model.blockSignals(False)
+        for field in self.sheet.key_fields.values():
+            field.blockSignals(True)
+            field.clear()
+            field.blockSignals(False)
+        self.sheet.set_keys_saved({key: bool(self._saved_keys.get(key)) for key in KEY_ENV})
+        self._check_ai()
         self._settings_saved_state()
         self.scrim.setGeometry(self.main.rect())
         self.scrim.show()
@@ -989,10 +1096,14 @@ class CyberScanApp(QMainWindow):
         for key, box in self.sheet.checks.items():
             pending[key] = box.isChecked()
         pending["monitoring_directory"] = self.sheet.folder.text().strip()
+        pending["ai_model"] = self.sheet.ai_model.text().strip() or ai_summary.DEFAULT_MODEL
         return pending
 
+    def _typed_keys(self) -> dict[str, str]:
+        return {key: field.text().strip() for key, field in self.sheet.key_fields.items() if field.text().strip()}
+
     def _settings_saved_state(self) -> None:
-        self.sheet.set_saved(self._pending_settings() == self.settings)
+        self.sheet.set_saved(self._pending_settings() == self.settings and not self._typed_keys())
 
     def _settings_dirty(self) -> None:
         self._settings_saved_state()
@@ -1009,8 +1120,24 @@ class CyberScanApp(QMainWindow):
         except (OSError, TypeError, ValueError) as exc:
             QMessageBox.critical(self, self.t("Settings couldn't be saved"), str(exc))
             return
+        typed = self._typed_keys()
+        if typed:
+            try:
+                self.secrets.save({**self._saved_keys, **typed})
+            except (OSError, SecretsUnavailable) as exc:
+                QMessageBox.critical(self, self.t("Settings couldn't be saved"), str(exc))
+                return
+            self._saved_keys = self.secrets.load()
+            apply_to_environment(self._saved_keys)
+            for field in self.sheet.key_fields.values():
+                field.clear()
+            self.sheet.set_keys_saved({key: bool(self._saved_keys.get(key)) for key in KEY_ENV})
+            self._append_log("Online lookup keys saved (encrypted for this Windows user).")
         self.settings = updated
         self._apply_text_scale()
+        self.backdrop.set_enabled(bool(self.settings.get("animated_background", True)))
+        if not self.settings.get("ai_summary_enabled"):
+            self.stop_ai_summary()
         if self.settings["monitoring_enabled"]:
             if self._monitor.directory != Path(self.settings["monitoring_directory"]) or not self._monitor_running():
                 self._monitor.stop()
@@ -1022,6 +1149,132 @@ class CyberScanApp(QMainWindow):
             self._append_log("Downloads monitoring disabled.")
         self._settings_saved_state()
         self._refresh_notice()
+
+    def _forget_keys(self) -> None:
+        self.secrets.save({})
+        self._saved_keys = {}
+        apply_to_environment({})
+        self.sheet.set_keys_saved({key: False for key in KEY_ENV})
+        self._append_log("Online lookup keys removed.")
+
+    # =========================================================== AI summary
+    def _ai_model(self) -> str:
+        return str(self.settings.get("ai_model") or ai_summary.DEFAULT_MODEL)
+
+    def _probe_ai(self, *, warm: bool = False, on_result=None) -> None:
+        probe = AiProbe(self._ai_model(), warm=warm)
+        if on_result is not None:
+            probe.result.connect(on_result)
+        self._keep_thread(probe)
+        probe.start()
+
+    def _keep_thread(self, thread: QThread) -> None:
+        """Hold a reference until the thread ends: a QThread destroyed while
+        running aborts the process."""
+        self._ai_probes.append(thread)
+
+        def release(t=thread) -> None:
+            if t in self._ai_probes:
+                self._ai_probes.remove(t)
+            if self._ai_worker is t:
+                self._ai_worker = None
+            t.deleteLater()
+
+        thread.finished.connect(release)
+
+    def _check_ai(self) -> None:
+        self.sheet.set_ai_status("checking", self._ai_model())
+        self._probe_ai(on_result=lambda state: self.sheet.set_ai_status(state, self._ai_model()))
+
+    def _ai_facts(self) -> dict | None:
+        current = self._current
+        if current is None:
+            return None
+        view: ResultView = current["view"]
+        kind: FileKind = current["kind"]
+        # English facts reason best; the model answers in the interface language.
+        summary = plain_language.summary(view, kind, current["elapsed"], "en")
+        details = plain_language.details(view, kind, "en", self._check_reasons(current))
+        return ai_summary.build_facts(summary, details, kind.label, plain_language.format_size(view.file_size), view.score)
+
+    def start_ai_summary(self) -> None:
+        facts = self._ai_facts()
+        if facts is None or not self.settings.get("ai_summary_enabled"):
+            return
+        self.stop_ai_summary()
+        self._ai_ticket += 1
+        worker = AiWorker(self._ai_ticket, facts, self.language, self._ai_model())
+        worker.text.connect(self._ai_text)
+        worker.finished_text.connect(self._ai_done)
+        worker.failed.connect(self._ai_failed)
+        self._keep_thread(worker)
+        self._ai_worker = worker
+        self.result_panel.set_ai("working", "", self._ai_model())
+        worker.start()
+
+    def stop_ai_summary(self) -> None:
+        worker = self._ai_worker
+        if worker is not None and worker.isRunning():
+            worker.stop_requested = True
+            self._ai_ticket += 1  # whatever it still sends is ignored
+            if self.result_panel.ai_state == "working":
+                self.result_panel.set_ai("idle", model=self._ai_model())
+        self._ai_worker = None
+
+    def _ai_text(self, ticket: int, text: str) -> None:
+        if ticket == self._ai_ticket:
+            self.result_panel.set_ai("working", text)
+
+    def _ai_done(self, ticket: int, text: str) -> None:
+        if ticket != self._ai_ticket or self._current is None:
+            return
+        self._current["ai_text"] = text
+        self._current["ai_language"] = self.language
+        self.result_panel.set_ai("done", text, self._ai_model())
+        self._append_log(f"AI summary written by {self._ai_model()} ({len(text)} characters).")
+
+    def _ai_failed(self, ticket: int, code: str) -> None:
+        if ticket == self._ai_ticket:
+            self.result_panel.set_ai(code, model=self._ai_model())
+
+    def _check_reasons(self, current: dict[str, Any]) -> dict[str, str]:
+        """Why each check ran as it did, from the result's own status values."""
+        view: ResultView = current["view"]
+        result = current["result"]
+        intelligence = current.get("intelligence") or {}
+        is_file = view.file_size is not None and self._record_mode(view.target) == "File"
+        states = {engine.name: engine.state for engine in view.coverage}
+        reasons: dict[str, str] = {}
+        if states.get("PE") == "not_applicable":
+            reasons["PE"] = REASONS["pe_na"] if is_file else REASONS["file_only"]
+        if states.get("Archive") == "not_applicable":
+            reasons["Archive"] = REASONS["archive_na"] if is_file else REASONS["file_only"]
+        if states.get("YARA") == "unavailable":
+            reasons["YARA"] = REASONS["yara_missing"]
+        ml = str((result.engine_status or {}).get("ML", ""))
+        if "ML" in states:
+            if ml.startswith("ML analysis disabled"):
+                reasons["ML"] = REASONS["ml_disabled"]
+            elif ml.startswith("Structural model rejected"):
+                reasons["ML"] = REASONS["ml_rejected"]
+            elif "is missing" in ml:
+                reasons["ML"] = REASONS["ml_missing"]
+            elif states["ML"] == "ran":
+                reasons["ML"] = REASONS["ml_ready"]
+            else:
+                reasons["ML"] = REASONS["ml_unapproved"]
+        if "OSINT" in states:
+            feeds = intelligence.get("feeds") or {}
+            feed_states = {str(feed.get("status", "")) for feed in feeds.values() if isinstance(feed, dict)}
+            if states["OSINT"] == "disabled":
+                reasons["OSINT"] = REASONS["osint_off"]
+            elif "authentication_required" in feed_states:
+                reasons["OSINT"] = REASONS["osint_keys"]
+            elif "timeout" in feed_states or "partial" in str(intelligence.get("status", "")):
+                reasons["OSINT"] = REASONS["osint_timeout"]
+            elif states["OSINT"] == "ran":
+                reasons["OSINT"] = REASONS["osint_ran"]
+        return reasons
 
     def select_monitor_directory(self) -> None:
         directory = QFileDialog.getExistingDirectory(self, self.t("Choose downloads folder"), self.sheet.folder.text())
@@ -1125,6 +1378,10 @@ class CyberScanApp(QMainWindow):
         if self._monitor:
             self._monitor.stop()
         self.journey.stop()
+        self.backdrop.stop()
+        self.stop_ai_summary()
+        for thread in list(self._ai_probes):
+            thread.wait(5000)
         event.accept()
 
 

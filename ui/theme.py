@@ -21,8 +21,8 @@ TOKENS = {
     "line_strong": "#2a3a52",
     "line_field": "#5b6f8c",
     "text": "#eef2f8",
-    "text_dim": "#a8b6c8",
-    "text_mute": "#8796ab",
+    "text_dim": "#b3c0d0",
+    "text_mute": "#9aa8bb",
     "accent": "#5ee0d0",
     "accent_ink": "#04110f",
     "ok": "#4ade80",
@@ -30,6 +30,12 @@ TOKENS = {
     "danger": "#f87171",
     "info": "#7cb0ff",
     "neutral": "#94a3b8",
+    # frosted glass: dark enough that text keeps its contrast over any light
+    "glass": "rgba(13, 20, 36, 0.70)",
+    "glass_quiet": "rgba(17, 26, 44, 0.55)",
+    "glass_rail": "rgba(8, 12, 21, 0.70)",
+    "glass_edge": "rgba(255, 255, 255, 0.08)",
+    "glass_field": "rgba(7, 11, 18, 0.72)",
 }
 
 TONES = {
@@ -87,7 +93,7 @@ def stylesheet(scale: float = 1.0, language: str = "en") -> str:
     check = glyph_file("check", t["accent_ink"], 14)
 
     return f"""
-QMainWindow, QWidget#root {{ background: {t['bg']}; }}
+QMainWindow {{ background: {t['bg']}; }}
 QWidget {{ color: {t['text']}; font-family: {UI_FONT}; font-size: {px(14)}; }}
 QWidget#main, QWidget#stage, QWidget#page, QScrollArea, QScrollArea > QWidget > QWidget {{
     background: transparent; border: 0;
@@ -109,13 +115,13 @@ QLabel#brand {{ font-size: {px(13)}; font-weight: 800; letter-spacing: 2.6px; }}
 QLabel#brandTag {{ font-size: {px(10)}; font-weight: 700; letter-spacing: {spacing('1.6px')}; color: {t['accent']}; }}
 
 /* ---- cards ---- */
-QFrame#card {{ background: {t['surface']}; border: 1px solid {t['line']}; border-radius: 16px; }}
-QFrame#cardQuiet {{ background: {t['surface_2']}; border: 1px solid {t['line']}; border-radius: 12px; }}
+QFrame#card {{ background: {t['glass']}; border: 1px solid {t['glass_edge']}; border-top-color: rgba(255, 255, 255, 0.14); border-radius: 18px; }}
+QFrame#cardQuiet {{ background: {t['glass_quiet']}; border: 1px solid {t['glass_edge']}; border-radius: 13px; }}
 QFrame#topbar {{ background: transparent; }}
 
 /* ---- buttons ---- */
 QPushButton {{
-    background: {t['surface_2']}; color: {t['text']};
+    background: rgba(23, 34, 53, 0.72); color: {t['text']};
     border: 1px solid {t['line_strong']}; border-radius: 10px;
     padding: 8px 16px; min-height: {px(22)}; font-weight: 600;
 }}
@@ -146,12 +152,12 @@ QLineEdit {{
     padding: 10px 14px; selection-background-color: {t['accent']}; selection-color: {t['accent_ink']};
 }}
 QLineEdit:focus {{ border: 2px solid {t['accent']}; }}
-QLineEdit#target {{ font-size: {px(15)}; padding: 13px 16px; border-radius: 14px; background: {t['bg']}; }}
+QLineEdit#target {{ font-size: {px(15)}; padding: 13px 16px; border-radius: 14px; background: {t['glass_field']}; }}
 QLineEdit#target[invalid="true"] {{ border: 2px solid {t['danger']}; }}
-QLineEdit#search {{ border-radius: 18px; padding: 8px 14px; background: {t['surface']}; border-color: {t['line_strong']}; }}
+QLineEdit#search {{ border-radius: 18px; padding: 8px 14px; background: {t['glass_field']}; border-color: {t['line_strong']}; }}
 QLineEdit#search:focus {{ border: 2px solid {t['accent']}; }}
 QPlainTextEdit {{
-    background: {t['bg']}; border: 1px solid {t['line']}; border-radius: 12px; padding: 10px;
+    background: {t['glass_field']}; border: 1px solid {t['glass_edge']}; border-radius: 12px; padding: 10px;
     selection-background-color: {t['accent']}; selection-color: {t['accent_ink']};
 }}
 QCheckBox {{ spacing: 10px; color: {t['text']}; }}
