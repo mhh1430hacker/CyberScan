@@ -41,7 +41,7 @@ from config import DATA_DIR, DEFAULT_SETTINGS, REPORT_DIR, ensure_directories
 from core.models import Finding, ScanResult
 from monitoring.downloads_monitor import DownloadMonitor
 from reports.exporter import export_report
-from ui import ai_summary, plain_language
+from ui import ai_summary, plain_language, scan_process
 from ui.backdrop import Backdrop
 from ui.copy import tr
 from ui.secrets import KEY_ENV, SecretStore, SecretsUnavailable, apply_to_environment
@@ -52,11 +52,14 @@ from ui.journey import JourneyScene
 from ui.lens import DropOverlay, Lens
 from ui.motion import fade_in
 from ui.persistence import LocalUiStore
-from ui.result_tiers import ResultPanel, advanced_texts
+from ui.result_tiers import ResultPanel, advanced_texts, region_label
 from ui.result_view import ResultView, build_result_view
 from ui.scan_service import ScanService
 from ui.settings_sheet import Scrim, SettingsSheet
-from ui.theme import FAMILIES, TOKENS, load_fonts, stylesheet, tone_color
+from ui.sonar import SonarCube
+from ui.repair import RepairView
+from ui.structure import build_structure
+from ui.theme import FAMILIES, MODE_ACCENTS, TOKENS, load_fonts, stylesheet, tone_color
 from ui.widgets import Ambient, Pill, label
 
 STAGE_TITLES = ("Reading", "Patterns", "Structure", "Lookups")
@@ -85,6 +88,9 @@ class ScanWorker(QThread):
         self.settings = settings
 
     def run(self) -> None:
+        if scan_process.enabled():
+            self._run_in_process()
+            return
         try:
             payload = ScanService().analyze(
                 self.candidate,
@@ -95,6 +101,33 @@ class ScanWorker(QThread):
             self.completed.emit(payload)
         except Exception as exc:
             self.failed.emit(f"{type(exc).__name__}: {exc}")
+
+    def _run_in_process(self) -> None:
+        """The engine runs in the worker process; this thread only relays."""
+        host = scan_process.HOST
+        try:
+            scan_id, future = host.submit(self.candidate, self.mode, self.settings)
+        except Exception as exc:  # noqa: BLE001 - the process could not start
+            host.reset()
+            self.failed.emit(f"{type(exc).__name__}: {exc}")
+            return
+        while not future.done():
+            report = host.progress(scan_id, 0.05)
+            if report is not None:
+                self.progress.emit(*report)
+        while (report := host.progress(scan_id, 0.0)) is not None:
+            self.progress.emit(*report)
+        host.forget(scan_id)
+        try:
+            payload = future.result()
+        except scan_process.BrokenProcessPool as exc:
+            host.reset()
+            self.failed.emit(f"{type(exc).__name__}: the scan process stopped unexpectedly ({exc})")
+            return
+        except Exception as exc:  # noqa: BLE001 - reported to the user, as before
+            self.failed.emit(f"{type(exc).__name__}: {exc}")
+            return
+        self.completed.emit(payload)
 
 
 class AiWorker(QThread):
@@ -130,6 +163,23 @@ class AiWorker(QThread):
             self.failed.emit(self.ticket, exc.code)
         except Exception:  # noqa: BLE001 - a summary must never take the window down
             self.failed.emit(self.ticket, "error")
+
+
+class StructureWorker(QThread):
+    """Lays the file out for the sonar cube without blocking the window."""
+
+    ready = Signal(int, object)
+
+    def __init__(self, ticket: int, raw: bytes | None, size: int | None, topography, position) -> None:
+        super().__init__()
+        self.ticket, self.raw, self.size, self.topography, self.position = ticket, raw, size, topography, position
+
+    def run(self) -> None:
+        try:
+            structure = build_structure(self.raw, self.size, self.topography, self.position)
+        except Exception:  # noqa: BLE001 - the picture is optional; the result is not
+            structure = None
+        self.ready.emit(self.ticket, structure)
 
 
 class AiProbe(QThread):
@@ -216,6 +266,7 @@ class CyberScanApp(QMainWindow):
         self._abandoned_workers: list[ScanWorker] = []
         self.pending_monitor_scans: queue.Queue[str] = queue.Queue()
         self.view = "lens"
+        self.app_mode = "scan"  # Scan or Repair (self.mode is the target kind)
         self.target = ""
         self.mode = "File"
         self.kind: FileKind = KINDS["file"]
@@ -247,6 +298,8 @@ class CyberScanApp(QMainWindow):
             self._append_log("Downloads monitoring enabled.")
         self._refresh_notice()
         QTimer.singleShot(0, self._apply_layout_mode)
+        if scan_process.enabled():
+            scan_process.HOST.warm_up()  # the first scan should not wait for imports
 
     # ===================================================================== build
     def _build(self) -> None:
@@ -275,6 +328,24 @@ class CyberScanApp(QMainWindow):
         bar.addWidget(self.rail_button)
         self.status_pill = Pill()
         bar.addWidget(self.status_pill)
+        bar.addStretch(1)
+        # Scan | Repair: switching changes the whole look and the stage.
+        self.mode_bar = QFrame()
+        self.mode_bar.setObjectName("segmentBar")
+        segments = QHBoxLayout(self.mode_bar)
+        segments.setContentsMargins(3, 3, 3, 3)
+        segments.setSpacing(2)
+        self.mode_buttons: dict[str, QPushButton] = {}
+        for key in ("scan", "repair"):
+            button = QPushButton()
+            button.setObjectName("segment")
+            button.setCheckable(True)
+            button.setCursor(Qt.CursorShape.PointingHandCursor)
+            button.clicked.connect(lambda _checked=False, k=key: self.set_mode(k))
+            segments.addWidget(button)
+            self.mode_buttons[key] = button
+        self.mode_buttons["scan"].setChecked(True)
+        bar.addWidget(self.mode_bar)
         bar.addStretch(1)
         self.language_button = QPushButton()
         self.language_button.setObjectName("ghost")
@@ -331,7 +402,11 @@ class CyberScanApp(QMainWindow):
         self.journey_promise = label("", "mute")
         head.addWidget(self.journey_promise)
         journey.addLayout(head)
-        self.journey = JourneyScene()
+        self.sonar = SonarCube()
+        self.sonar.finished.connect(self._sonar_finished)
+        self.sonar.label_for = lambda region: region_label(region, self.language)
+        journey.addWidget(self.sonar)
+        self.journey = JourneyScene(compact=True)
         self.journey.concluded.connect(self._journey_concluded)
         journey.addWidget(self.journey)
         self.journey_caption = label("", "lead")
@@ -389,6 +464,8 @@ class CyberScanApp(QMainWindow):
         self.result_panel.detailsToggled.connect(lambda opened: opened and self._scroll_to(self.result_panel.details))
         self.result_panel.advancedToggled.connect(lambda opened: opened and self._scroll_to(self.result_panel.advanced))
         column.addWidget(self.result_panel)
+        self.repair_view = RepairView()
+        column.addWidget(self.repair_view)
         column.addStretch(1)
 
         # -- settings sheet over the stage -------------------------------------
@@ -447,6 +524,9 @@ class CyberScanApp(QMainWindow):
         self.lens.retranslate(self.language)
         self.sheet.retranslate(self.language)
         self.result_panel.retranslate(self.language)
+        self.repair_view.retranslate(self.language)
+        self.mode_buttons["scan"].setText(self.t("Scan"))
+        self.mode_buttons["repair"].setText(self.t("Repair"))
         self.journey.set_stage_titles([self.t(title) for title in STAGE_TITLES])
         self.journey.setAccessibleName(self.t("Scanning {name}").format(name=display_name(self.target, self.mode)))
         self.journey_promise.setText(self.t("Read only · never run"))
@@ -473,7 +553,9 @@ class CyberScanApp(QMainWindow):
     # ================================================================ views
     def _show_view(self, name: str, *, animate: bool = True) -> None:
         self.view = name
-        widgets = {"lens": self.lens, "journey": self.journey_view, "result": self.result_panel}
+        # Any scan screen (a monitor scan, a saved result) brings the scan look back.
+        self._apply_app_mode("repair" if name == "repair" else "scan")
+        widgets = {"lens": self.lens, "journey": self.journey_view, "result": self.result_panel, "repair": self.repair_view}
         for key, widget in widgets.items():
             widget.setVisible(key == name)
         # The lens and the journey sit in the middle of the stage; a result
@@ -487,7 +569,9 @@ class CyberScanApp(QMainWindow):
         self._refresh_status()
 
     def _refresh_status(self) -> None:
-        if self.view == "journey" and self.journey.phase == "analyzing":
+        if self.view == "repair":
+            text, tone = "Repair · preview", "repair"
+        elif self.view == "journey" and self.journey.phase == "analyzing":
             text, tone = "Scanning", "info"
         elif self.view == "journey" and self.journey.phase == "failed":
             text, tone = "Stopped", "danger"
@@ -567,6 +651,8 @@ class CyberScanApp(QMainWindow):
         if self.settings.get("ai_summary_enabled"):
             self._probe_ai(warm=True)  # load the model while the scan runs
         self.journey.start(display_name(target, mode), self.kind, self._type_line(target, mode))
+        self.sonar.start(self.kind.hue)
+        self._structure_ticket = getattr(self, "_structure_ticket", 0) + 1
         self.outcome.setVisible(False)
         self.technical_text.setVisible(False)
         self.stop_button.setVisible(True)
@@ -581,6 +667,7 @@ class CyberScanApp(QMainWindow):
         self.worker.completed.connect(self._scan_completed)
         self.worker.failed.connect(self._scan_failed)
         self.worker.start()
+        self.mode_buttons["repair"].setEnabled(False)
         self._refresh_status()
         self.stop_button.setFocus()
 
@@ -637,6 +724,7 @@ class CyberScanApp(QMainWindow):
         if self._from_stale_worker():
             return
         self.worker = None
+        self.mode_buttons["repair"].setEnabled(True)
         elapsed = time.perf_counter() - self._scan_started
         self.last_payload = payload
         result, nextgen, vector, prediction, intelligence, _raw = payload
@@ -663,11 +751,37 @@ class CyberScanApp(QMainWindow):
         }
         self._pending_reveal = True
         self.stop_button.setVisible(False)
-        self.journey.conclude(view.verdict.symbol, tone_color(view.verdict.tone))
+        # Map the inside of the file (off the UI thread), then let the sonar
+        # reveal it; the scanning picture keeps moving meanwhile.
+        self._structure_ticket = getattr(self, "_structure_ticket", 0) + 1
+        builder = StructureWorker(
+            self._structure_ticket,
+            _raw if isinstance(_raw, (bytes, bytearray)) and _raw else None,
+            view.file_size,
+            (nextgen or {}).get("entropy_topography"),
+            (result.feature_summary or {}).get("position_aware_evidence"),
+        )
+        builder.ready.connect(self._structure_ready)
+        self._keep_thread(builder)
+        builder.start()
         if record_id is not None:
             self.rail.select(record_id)
             self.rail.flash(record_id)
         self._start_next_monitor_scan()
+
+    def _structure_ready(self, ticket: int, structure) -> None:
+        if ticket != self._structure_ticket or self._current is None or not self._pending_reveal:
+            return
+        self._current["structure"] = structure
+        self.journey_caption.setText(self.t("Mapping the inside of the file…"))
+        self.journey_caption.setVisible(True)
+        self.sonar.reveal(structure)
+
+    def _sonar_finished(self) -> None:
+        if not self._pending_reveal or self._current is None:
+            return
+        view = self._current["view"]
+        self.journey.conclude(view.verdict.symbol, tone_color(view.verdict.tone))
 
     def _journey_concluded(self) -> None:
         if not self._pending_reveal:
@@ -693,7 +807,9 @@ class CyberScanApp(QMainWindow):
         elif current["save_error"]:
             origin = self.t("The result is shown, but it wasn't added to your scans.")
         was_open = (self.result_panel.details.isVisibleTo(self.result_panel), self.result_panel.advanced.isVisibleTo(self.result_panel))
-        self.result_panel.show_result(summary, details, kind, texts, tuple(entropy), origin, reveal=reveal)
+        self.result_panel.show_result(
+            summary, details, kind, texts, tuple(entropy), origin, reveal=reveal, structure=current.get("structure")
+        )
         if not self.settings.get("ai_summary_enabled"):
             self.result_panel.set_ai("hidden")
         elif current.get("ai_text") and current.get("ai_language") == self.language:
@@ -708,6 +824,7 @@ class CyberScanApp(QMainWindow):
                 self.result_panel.details.setVisible(True)
                 self.result_panel._sync_reasons(True)
             if was_open[1]:
+                self.result_panel._fill_advanced()
                 self.result_panel.advanced.setVisible(True)
             self.result_panel._sync_buttons()
 
@@ -715,8 +832,10 @@ class CyberScanApp(QMainWindow):
         if self._from_stale_worker():
             return
         self.worker = None
+        self.mode_buttons["repair"].setEnabled(True)
         self._failure = ("failed", message)
         self.journey.fail(self.t("Stopped"))
+        self.sonar.fail()
         self.stop_button.setVisible(False)
         self.retry_button.setVisible(True)
         self.other_button.setVisible(True)
@@ -746,8 +865,10 @@ class CyberScanApp(QMainWindow):
         self._abandoned_workers.append(worker)
         worker.finished.connect(self._forget_abandoned_workers)
         self.worker = None
+        self.mode_buttons["repair"].setEnabled(True)
         self._failure = ("cancelled", "")
         self.journey.cancel(self.t("Cancelled"))
+        self.sonar.halt()
         self.stop_button.setVisible(False)
         self.retry_button.setVisible(False)
         self.other_button.setVisible(True)
@@ -758,6 +879,35 @@ class CyberScanApp(QMainWindow):
         self._append_log("Analysis cancelled by the user; its result will be discarded.")
         self.other_button.setFocus()
         self._start_next_monitor_scan()
+
+    def set_mode(self, mode: str) -> None:
+        """Scan or Repair. Repair is a preview: it cannot change any file."""
+        if mode == self.app_mode:
+            self.mode_buttons[mode].setChecked(True)
+            return
+        if mode == "repair" and self.worker is not None and self.worker.isRunning():
+            self.mode_buttons["scan"].setChecked(True)
+            return
+        if mode == "repair":
+            self._view_before_repair = self.view
+            self._show_view("repair")
+        else:
+            self._show_view(getattr(self, "_view_before_repair", "lens") or "lens")
+        self._append_log(f"Switched to {mode} mode.")
+
+    def _apply_app_mode(self, mode: str) -> None:
+        """The whole look follows the mode: accents, controls and the backdrop."""
+        if mode == self.app_mode:
+            return
+        self.app_mode = mode
+        for key, button in self.mode_buttons.items():
+            button.setChecked(key == mode)
+        self._apply_text_scale()
+        self.backdrop.set_palette(mode)
+        if mode == "repair":
+            self.backdrop.set_hue(MODE_ACCENTS["repair"]["accent"])
+        else:
+            self.backdrop.set_hue(self.kind.hue if self.view in {"journey", "result"} else TOKENS["accent"])
 
     def _forget_abandoned_workers(self) -> None:
         for worker in list(self._abandoned_workers):
@@ -778,6 +928,7 @@ class CyberScanApp(QMainWindow):
         self.stop_ai_summary()
         self.backdrop.set_hue(TOKENS["accent"])
         self.journey.reset()
+        self.sonar.reset()
         self._current = None
         self._failure = None
         self.rail.select(None)
@@ -920,6 +1071,13 @@ class CyberScanApp(QMainWindow):
             "kind": kind_for_target(target, mode),
             "elapsed": None,
             "origin_when": when or "—",
+            # No bytes are kept with a saved scan: rebuild from its measured windows.
+            "structure": build_structure(
+                None,
+                view.file_size,
+                (result.nextgen_analysis or {}).get("entropy_topography"),
+                (result.feature_summary or {}).get("position_aware_evidence"),
+            ),
             "record_id": record_id,
             "save_error": None,
         }
@@ -1300,10 +1458,10 @@ class CyberScanApp(QMainWindow):
 
     def _apply_text_scale(self) -> None:
         scale = 1.18 if self.settings.get("large_text") else 1.0
-        if (scale, self.language) == self._text_scale:
+        if (scale, self.language, self.app_mode) == self._text_scale:
             return
-        self._text_scale = (scale, self.language)
-        self.setStyleSheet(stylesheet(scale, self.language))
+        self._text_scale = (scale, self.language, self.app_mode)
+        self.setStyleSheet(stylesheet(scale, self.language, self.app_mode))
         font = QFont(self.font())
         font.setFamilies(FAMILIES)
         font.setPixelSize(round(14 * scale))
@@ -1391,14 +1549,19 @@ class CyberScanApp(QMainWindow):
         if self._monitor:
             self._monitor.stop()
         self.journey.stop()
+        self.sonar.stop()
         self.backdrop.stop()
         self.stop_ai_summary()
+        scan_process.HOST.shutdown()
         for thread in list(self._ai_probes):
             thread.wait(5000)
         event.accept()
 
 
 def main() -> None:
+    import multiprocessing
+
+    multiprocessing.freeze_support()
     app = QApplication.instance() or QApplication([])
     app.setApplicationName("CyberScan")
     app.setOrganizationName("CyberScan")

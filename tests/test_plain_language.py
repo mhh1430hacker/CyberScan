@@ -232,6 +232,9 @@ def _table_literals() -> set[str]:
     found |= set(result_tiers.ADVANCED_TABS) | {text for _key, text in settings_sheet.ENGINE_OPTIONS}
     found |= set(widgets.LevelMeter.LABELS)
     found |= set(qt_app.REASONS.values()) | set(result_tiers.ResultPanel.AI_MESSAGES.values())
+    from ui import repair
+
+    found |= {text for _n, title, body in repair.STEPS for text in (title, body)} | set(repair.RULES)
     return found
 
 

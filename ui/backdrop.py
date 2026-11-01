@@ -28,12 +28,21 @@ SCALE = 6
 FRAME_MS = 100  # 10 frames a second: the drift is slow, so this is enough
 
 # (colour, radius as share of the long side, x loop seconds, y loop seconds, phase)
-_FIELDS = [
+_SCAN_FIELDS = [
     ("#1b5f5a", 0.55, 97.0, 71.0, 0.0),
     ("#26357a", 0.60, 83.0, 113.0, 1.7),
     ("#4a2a6a", 0.48, 127.0, 89.0, 3.1),
     (None, 0.45, 109.0, 79.0, 4.4),  # the kind hue
 ]
+
+# Repair mode: the same slow light, in indigo and rose.
+_REPAIR_FIELDS = [
+    ("#3a2f8a", 0.55, 97.0, 71.0, 0.0),
+    ("#5a2a6a", 0.60, 83.0, 113.0, 1.7),
+    ("#26357a", 0.48, 127.0, 89.0, 3.1),
+    (None, 0.45, 109.0, 79.0, 4.4),
+]
+PALETTES = {"scan": _SCAN_FIELDS, "repair": _REPAIR_FIELDS}
 
 
 class Backdrop(QWidget):
@@ -44,6 +53,7 @@ class Backdrop(QWidget):
         self._hue = QColor(TOKENS["accent"])
         self._target_hue = QColor(self._hue)
         self._enabled = True
+        self._fields = PALETTES["scan"]
         self._start = time.monotonic()
         self._frozen_at = 0.0
         self._image: QImage | None = None
@@ -60,6 +70,10 @@ class Backdrop(QWidget):
     def set_enabled(self, enabled: bool) -> None:
         self._enabled = enabled
         self._sync()
+        self.update()
+
+    def set_palette(self, mode: str) -> None:
+        self._fields = PALETTES.get(mode, PALETTES["scan"])
         self.update()
 
     def set_hue(self, color: str) -> None:
@@ -124,7 +138,7 @@ class Backdrop(QWidget):
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         painter.setCompositionMode(QPainter.CompositionMode.CompositionMode_Plus)
         side = max(width, height)
-        for color, radius_share, period_x, period_y, phase in _FIELDS:
+        for color, radius_share, period_x, period_y, phase in self._fields:
             base = QColor(color) if color else self._hue
             x = width * (0.5 + 0.42 * math.sin(2 * math.pi * now / period_x + phase))
             # Light stays mostly in the upper half, like a hero glow.

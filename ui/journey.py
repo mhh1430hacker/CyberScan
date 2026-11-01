@@ -39,10 +39,12 @@ class JourneyScene(QWidget):
     FRAME_MS = 33
     CONNECT_MS = 320
 
-    def __init__(self, parent=None, *, reduced_motion: bool | None = None):
+    def __init__(self, parent=None, *, reduced_motion: bool | None = None, compact: bool = False):
         super().__init__(parent)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-        self.setFixedHeight(300)
+        # Compact: the stations only (the sonar cube shows the target above them).
+        self.compact = compact
+        self.setFixedHeight(96 if compact else 300)
         self.reduced_motion = prefers_reduced_motion() if reduced_motion is None else reduced_motion
         self.phase = "idle"
         self.kind: FileKind = KINDS["file"]
@@ -254,7 +256,7 @@ class JourneyScene(QWidget):
     def _station_centers(self) -> list[QPointF]:
         margin = max(60.0, self.width() * 0.12)
         span = self.width() - margin * 2
-        y = 214.0
+        y = 30.0 if self.compact else 214.0
         xs = [margin + span * index / (STAGE_COUNT - 1) for index in range(STAGE_COUNT)]
         if self.layoutDirection() == Qt.LayoutDirection.RightToLeft:
             xs.reverse()
@@ -269,7 +271,8 @@ class JourneyScene(QWidget):
         self._paint_links(painter, centers, hue)
         for index, center in enumerate(centers):
             self._paint_station(painter, index, center, hue)
-        self._paint_tile(painter, hue)
+        if not self.compact:
+            self._paint_tile(painter, hue)
 
     def _paint_tile(self, painter: QPainter, hue: QColor) -> None:
         size = 96.0

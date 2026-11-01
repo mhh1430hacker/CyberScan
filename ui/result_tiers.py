@@ -33,7 +33,9 @@ from ui.copy import tr
 from ui.file_kind import FileKind
 from ui.icons import glyph_icon, glyph_pixmap
 from ui.motion import VIEW_MS, prefers_reduced_motion, stagger
-from ui.plain_language import Details, Summary
+from ui.plain_language import SEVERITY_WORDS, Details, Summary
+from ui.sonar import SonarCube
+from ui.structure import Structure
 from ui.theme import TOKENS, alpha, tone_color
 from ui.widgets import Ambient, ElidedLabel, KindTile, LevelMeter, Medallion, Pill, PlaceBars, card, label
 
@@ -200,6 +202,21 @@ def unfold(widget: QWidget, show: bool) -> None:
 # --- the panel ---------------------------------------------------------------------
 
 
+def severity_word(severity: str) -> str:
+    """The plain word for a located region's severity ("critical" reads as serious)."""
+    return SEVERITY_WORDS.get("high" if severity == "critical" else severity, "Moderate")
+
+
+def hex_offset(value: int) -> str:
+    """A byte offset that reads left to right even inside Arabic text."""
+    return f"⁦0x{value:X}⁩"
+
+
+def region_label(region, language: str) -> str:
+    """Callout text for a region in the sonar cube: its severity and byte range."""
+    return f"{tr(severity_word(region.severity), language)} · {hex_offset(region.offset_start)} – {hex_offset(region.offset_end)}"
+
+
 class ResultPanel(QWidget):
     newScanRequested = Signal()
     exportRequested = Signal()
@@ -215,6 +232,7 @@ class ResultPanel(QWidget):
         self._details: Details | None = None
         self._kind: FileKind | None = None
         self._texts: dict[str, str] = {}
+        self._texts_shown = True  # the raw tabs are filled when Advanced first opens
         self._all_findings = False
         # A main column and, beside it, a properties inspector (Linear-style).
         self.body = QBoxLayout(QBoxLayout.Direction.LeftToRight, self)
@@ -298,6 +316,30 @@ class ResultPanel(QWidget):
         self.ai_model = ""
         self.ai_card.setVisible(False)
         layout.addWidget(self.ai_card)
+
+        # Inside the file: the sonar cube, explorable by hand ----------------------
+        self.inside_card = card()
+        inside = QVBoxLayout(self.inside_card)
+        inside.setContentsMargins(22, 16, 22, 16)
+        inside.setSpacing(8)
+        inside_head = QHBoxLayout()
+        self.inside_title = label("", "section")
+        self.inside_hint = label("", "mute")
+        inside_head.addWidget(self.inside_title, 1)
+        inside_head.addWidget(self.inside_hint)
+        inside.addLayout(inside_head)
+        self.inside_note = label("", "mute", wrap=True)
+        inside.addWidget(self.inside_note)
+        self.cube = SonarCube(interactive=True)
+        self.cube.describe = self._describe_cell
+        self.cube.label_for = lambda region: region_label(region, self.language)
+        inside.addWidget(self.cube)
+        self.regions_list = QVBoxLayout()
+        self.regions_list.setSpacing(4)
+        inside.addLayout(self.regions_list)
+        self.structure: Structure | None = None
+        self.inside_card.setVisible(False)
+        layout.addWidget(self.inside_card)
 
         # Level 2 ---------------------------------------------------------------
         self.details = QWidget()
@@ -472,6 +514,8 @@ class ResultPanel(QWidget):
 
     def toggle_advanced(self) -> None:
         opening = not self.advanced.isVisibleTo(self)
+        if opening:
+            self._fill_advanced()
         unfold(self.advanced, opening)
         self._sync_buttons(advanced=opening)
         self.advancedToggled.emit(opening)
@@ -495,6 +539,7 @@ class ResultPanel(QWidget):
         origin: str = "",
         *,
         reveal: bool = True,
+        structure: Structure | None = None,
     ) -> None:
         self._summary, self._details, self._kind, self._texts = summary, details, kind, texts
         self.collapse_all()
@@ -502,9 +547,11 @@ class ResultPanel(QWidget):
         self.origin.setVisible(bool(origin))
         self._render_summary()
         self._render_details()
-        for key, text in texts.items():
-            self.tab_texts[key].setPlainText(text)
+        # Laying out the raw engine text takes ~0.1 s; doing it here would
+        # stall the reveal, so it waits until someone opens Advanced.
+        self._texts_shown = False
         self.entropy_chart.set_values(entropy, kind.hue, tr("Entropy", self.language))
+        self._render_inside(structure)
         self._sync_buttons(details=False, advanced=False)
         if reveal:
             self.medallion.reveal()
@@ -699,6 +746,55 @@ class ResultPanel(QWidget):
         else:
             self.aiRequested.emit()
 
+    # -- inside the file ---------------------------------------------------------------
+    def _render_inside(self, structure: Structure | None) -> None:
+        self.structure = structure
+        self.inside_card.setVisible(structure is not None)
+        _clear(self.regions_list)
+        if structure is None:
+            return
+        t = lambda text: tr(text, self.language)  # noqa: E731
+        self.inside_title.setText(t("Inside the file"))
+        self.inside_hint.setText(t("Drag to turn · scroll to zoom"))
+        note = t("Each point is a slice of the file, placed so that neighbouring bytes stay together. Brighter points hold more random content. Glowing points are places the scan flagged.")
+        if structure.source == "windows":
+            note += " " + t("Rebuilt from the measurements saved with this scan.")
+        self.inside_note.setText(note)
+        hue = self._kind.hue if self._kind else TOKENS["accent"]
+        self.cube.show_structure(structure, hue)
+        self.cube.highlight(())
+        for index, region in enumerate(structure.regions[:8]):
+            text = t("{severity}: sudden change in the content · bytes {start} to {end}").format(
+                severity=tr(severity_word(region.severity), self.language), start=hex_offset(region.offset_start), end=hex_offset(region.offset_end)
+            )
+            button = QPushButton(text)
+            button.setObjectName("ghost")
+            button.setCursor(Qt.CursorShape.PointingHandCursor)
+            button.setCheckable(True)
+            button.clicked.connect(lambda checked=False, r=region, b=button: self._show_region(r, b))
+            self.regions_list.addWidget(button, 0, Qt.AlignmentFlag.AlignLeft)
+        if not structure.regions:
+            self.regions_list.addWidget(label(t("The scan didn't flag any particular place inside this file."), "mute", wrap=True))
+
+    def _show_region(self, region, button: QPushButton) -> None:
+        for index in range(self.regions_list.count()):
+            other = self.regions_list.itemAt(index).widget()
+            if isinstance(other, QPushButton) and other is not button:
+                other.setChecked(False)
+        self.cube.highlight(region.cells if button.isChecked() else ())
+
+    def _describe_cell(self, index: int) -> str:
+        structure = self.structure
+        if structure is None:
+            return ""
+        start, end = (int(v) for v in structure.offsets[index])
+        text = tr("Bytes {start} to {end} · randomness {value} of 8", self.language).format(
+            start=hex_offset(start), end=hex_offset(end), value=f"{float(structure.entropy[index]):.1f}"
+        )
+        if structure.flags[index] > 0:
+            text += " · " + tr("Flagged by the scan", self.language)
+        return text
+
     def _copy_value(self, value: str, button: QPushButton) -> None:
         QGuiApplication.clipboard().setText(value)
         button.setText(tr("Copied", self.language))
@@ -711,7 +807,15 @@ class ResultPanel(QWidget):
         self._all_findings = not self._all_findings
         self._render_details()
 
+    def _fill_advanced(self) -> None:
+        if self._texts_shown:
+            return
+        self._texts_shown = True
+        for key, text in self._texts.items():
+            self.tab_texts[key].setPlainText(text)
+
     def _copy_tab(self) -> None:
+        self._fill_advanced()
         key = ADVANCED_TABS[self.tabs.currentIndex()]
         QGuiApplication.clipboard().setText(self.tab_texts[key].toPlainText())
         self.copy_button.setText(tr("Copied", self.language))

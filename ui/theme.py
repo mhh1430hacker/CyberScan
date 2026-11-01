@@ -63,6 +63,15 @@ TONES = {
     "info": TOKENS["info"],
     "neutral": TOKENS["neutral"],
     "accent": TOKENS["accent"],
+    "repair": "#a594ff",
+}
+
+# The primary-action colour of each mode: Scan (teal) and Repair (indigo).
+MODE_ACCENTS = {
+    "scan": {"accent": "#5ee0d0", "ink": "#03110f", "hover": "#7ee9dc", "top": "#8ff0e4", "bottom": "#3fbfb0",
+             "strong": "#e6fffb", "ring": "rgba(94, 224, 208, 0.55)"},
+    "repair": {"accent": "#a594ff", "ink": "#0c0820", "hover": "#b9acff", "top": "#d3cbff", "bottom": "#7b69e6",
+               "strong": "#f1eeff", "ring": "rgba(165, 148, 255, 0.55)"},
 }
 
 FAMILIES = ["Inter", "IBM Plex Sans Arabic", "Segoe UI", "Tahoma"]
@@ -116,8 +125,9 @@ def alpha(color: str | QColor, value: float) -> QColor:
     return result
 
 
-def stylesheet(scale: float = 1.0, language: str = "en") -> str:
+def stylesheet(scale: float = 1.0, language: str = "en", mode: str = "scan") -> str:
     t = TOKENS
+    p = MODE_ACCENTS.get(mode, MODE_ACCENTS["scan"])
     arabic = language == "ar"
 
     def px(value: float) -> str:
@@ -129,7 +139,7 @@ def stylesheet(scale: float = 1.0, language: str = "en") -> str:
 
     from ui.icons import glyph_file
 
-    check = glyph_file("check", t["accent_ink"], 14)
+    check = glyph_file("check", p["ink"], 14)
     return f"""
 QMainWindow {{ background: {t['bg']}; }}
 QWidget {{ color: {t['text']}; font-family: {UI_FONT}; font-size: {px(14)}; }}
@@ -172,8 +182,14 @@ QFrame#command {{
     background: rgba(20, 21, 23, 0.92); border: 1px solid {t['glass_edge_top']};
     border-radius: 14px;
 }}
-QFrame#command[focused="true"] {{ border: 1px solid rgba(94, 224, 208, 0.55); }}
+QFrame#command[focused="true"] {{ border: 1px solid {p['ring']}; }}
 QFrame#command[invalid="true"] {{ border: 1px solid {t['danger']}; }}
+QFrame#segmentBar {{ background: rgba(255, 255, 255, 0.035); border: 1px solid {t['glass_edge']}; border-radius: 10px; }}
+QPushButton#segment {{ background: transparent; border: 1px solid transparent; border-radius: 7px; padding: 5px 16px; color: {t['text_mute']}; font-weight: 500; min-height: 0; }}
+QPushButton#segment:hover {{ color: {t['text']}; }}
+QPushButton#segment:checked {{ background: {alpha(p['accent'], 0.16).name(QColor.NameFormat.HexArgb)}; color: {p['strong']}; border-color: {alpha(p['accent'], 0.45).name(QColor.NameFormat.HexArgb)}; }}
+QPushButton#segment:focus {{ border: 1px solid {p['accent']}; }}
+QPushButton#segment:disabled {{ color: {t['line_field']}; }}
 QFrame#topbar {{ background: transparent; border-bottom: 1px solid {t['glass_edge']}; }}
 
 /* ---- buttons ---- */
@@ -184,41 +200,41 @@ QPushButton {{
 }}
 QPushButton:hover {{ background: rgba(255, 255, 255, 0.07); }}
 QPushButton:pressed {{ background: rgba(255, 255, 255, 0.10); }}
-QPushButton:focus {{ border: 1px solid {t['accent']}; }}
+QPushButton:focus {{ border: 1px solid {p['accent']}; }}
 QPushButton:disabled {{ color: {t['text_mute']}; background: transparent; }}
 QPushButton#primary {{
-    background: {t['accent']}; color: {t['accent_ink']}; border: 1px solid #8ff0e4;
-    border-bottom-color: #3fbfb0; padding: 7px 16px; font-weight: 600;
+    background: {p['accent']}; color: {p['ink']}; border: 1px solid {p['top']};
+    border-bottom-color: {p['bottom']}; padding: 7px 16px; font-weight: 600;
 }}
-QPushButton#primary:hover {{ background: #7ee9dc; }}
-QPushButton#primary:focus {{ border: 2px solid #e6fffb; }}
+QPushButton#primary:hover {{ background: {p['hover']}; }}
+QPushButton#primary:focus {{ border: 2px solid {p['strong']}; }}
 QPushButton#primary:disabled {{ background: {t['surface_3']}; color: {t['text_mute']}; border-color: {t['glass_edge']}; }}
 QPushButton#ghost {{ background: transparent; border: 1px solid transparent; color: {t['text_dim']}; padding: 6px 10px; }}
 QPushButton#ghost:hover {{ background: {t['glass_hover']}; color: {t['text']}; }}
-QPushButton#ghost:focus {{ border: 1px solid {t['accent']}; }}
-QPushButton#link {{ background: transparent; border: 0; color: {t['accent']}; padding: 4px 2px; font-weight: 500; }}
-QPushButton#link:hover {{ color: #a3f5ec; }}
-QPushButton#link:focus {{ border: 1px solid {t['accent']}; border-radius: 4px; }}
+QPushButton#ghost:focus {{ border: 1px solid {p['accent']}; }}
+QPushButton#link {{ background: transparent; border: 0; color: {p['accent']}; padding: 4px 2px; font-weight: 500; }}
+QPushButton#link:hover {{ color: {p['hover']}; }}
+QPushButton#link:focus {{ border: 1px solid {p['accent']}; border-radius: 4px; }}
 QPushButton#icon {{ background: transparent; border: 1px solid transparent; border-radius: 8px; padding: 6px; min-height: 0; }}
 QPushButton#icon:hover {{ background: {t['glass_hover']}; border-color: {t['glass_edge']}; }}
-QPushButton#icon:focus {{ border: 1px solid {t['accent']}; }}
+QPushButton#icon:focus {{ border: 1px solid {p['accent']}; }}
 
 /* ---- fields ---- */
 QLineEdit {{
     background: {t['glass_field']}; border: 1px solid {t['glass_edge_top']}; border-radius: 8px;
-    padding: 8px 12px; selection-background-color: {t['accent']}; selection-color: {t['accent_ink']};
+    padding: 8px 12px; selection-background-color: {p['accent']}; selection-color: {p['ink']};
 }}
-QLineEdit:focus {{ border: 1px solid {t['accent']}; }}
+QLineEdit:focus {{ border: 1px solid {p['accent']}; }}
 QLineEdit#target {{ background: transparent; border: 0; font-size: {px(17)}; padding: 6px 4px; }}
 QLineEdit#search {{ border-radius: 8px; padding: 7px 10px; }}
 QPlainTextEdit {{
     background: rgba(0, 0, 0, 0.35); border: 1px solid {t['glass_edge']}; border-radius: 10px; padding: 10px;
-    selection-background-color: {t['accent']}; selection-color: {t['accent_ink']};
+    selection-background-color: {p['accent']}; selection-color: {p['ink']};
 }}
 QCheckBox {{ spacing: 10px; color: {t['text']}; }}
 QCheckBox::indicator {{ width: 18px; height: 18px; border-radius: 5px; border: 1px solid {t['line_field']}; background: rgba(255,255,255,0.03); }}
-QCheckBox::indicator:checked {{ background: {t['accent']}; border-color: {t['accent']}; image: url({check}); }}
-QCheckBox:focus {{ color: {t['accent']}; }}
+QCheckBox::indicator:checked {{ background: {p['accent']}; border-color: {p['accent']}; image: url({check}); }}
+QCheckBox:focus {{ color: {p['accent']}; }}
 
 /* ---- tabs ---- */
 QTabWidget::pane {{ border: 0; }}

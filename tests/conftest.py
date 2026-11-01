@@ -11,6 +11,9 @@ import time
 import pytest
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+# Most window tests pause the engine mid-stage by patching it, which only
+# works in-process; test_scan_process covers the worker process itself.
+os.environ.setdefault("CYBERSCAN_SCAN_IN_PROCESS", "0")
 
 
 @pytest.fixture(scope="session")

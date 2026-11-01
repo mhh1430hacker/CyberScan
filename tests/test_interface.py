@@ -88,6 +88,8 @@ def test_levels_unfold_in_order(window, qapplication, program):
 def test_advanced_data_is_the_engine_output_unchanged(window, qapplication, program):
     scan(qapplication, window, str(program))
     result = window._current["result"]
+    window.result_panel.why_button.click()
+    window.result_panel.advanced_button.click()
     texts = window.result_panel.tab_texts
     for finding in result.evidence:
         assert finding.evidence in texts["Findings"].toPlainText()
@@ -277,6 +279,7 @@ def test_arabic_translates_findings_but_keeps_engine_text_in_advanced_data(windo
     texts = [w.text() for w in panel.findings_card.findChildren(QLabel)]
     assert "نوع ملف مموَّه" in texts
     assert "Double extension spoofing" not in texts
+    panel.advanced_button.click()
     assert "Double extension spoofing" in panel.tab_texts["Findings"].toPlainText()  # engine text, unchanged
 
 
