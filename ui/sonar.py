@@ -26,13 +26,13 @@ import time
 import numpy as np
 from PySide6.QtCore import QPointF, QRectF, QSize, Qt, QTimer, Signal
 from PySide6.QtGui import (
-    QBrush, QColor, QFont, QFontMetricsF, QImage, QLinearGradient, QPainter, QPen, QPolygonF, QRadialGradient,
+    QBrush, QColor, QFontMetricsF, QImage, QLinearGradient, QPainter, QPen, QPolygonF, QRadialGradient,
 )
 from PySide6.QtWidgets import QSizePolicy, QToolTip, QWidget
 
 from ui.motion import prefers_reduced_motion
 from ui.structure import SEVERITY_RANK, Structure
-from ui.theme import TOKENS, alpha, mix
+from ui.theme import TOKENS, alpha, mix, ui_font
 
 FRAME_MS = 33
 DRAW_SECONDS = 0.9
@@ -489,9 +489,7 @@ class SonarCube(QWidget):
         points = self._project(self.structure.positions)
         corners = self._project(_CORNERS)
         left_edge, right_edge = float(corners[:, 0].min()), float(corners[:, 0].max())
-        font = QFont(self.font())
-        font.setPixelSize(11)
-        font.setWeight(QFont.Weight.Medium)
+        font = ui_font(11.5, 500)  # follows the reader's text size
         painter.setFont(font)
         metrics = QFontMetricsF(font)
         sides: dict[bool, list] = {True: [], False: []}

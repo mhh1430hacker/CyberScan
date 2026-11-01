@@ -37,7 +37,7 @@ from ui.plain_language import SEVERITY_WORDS, Details, Summary
 from ui.sonar import SonarCube
 from ui.structure import Structure
 from ui.theme import TOKENS, alpha, tone_color
-from ui.widgets import Ambient, ElidedLabel, KindTile, LevelMeter, Medallion, Pill, PlaceBars, card, label
+from ui.widgets import Ambient, ElidedLabel, FlowLayout, KindTile, LevelMeter, Medallion, Pill, PlaceBars, card, label
 
 FINDINGS_SHOWN = 5
 _ARABIC = re.compile(r"[؀-ۿ]")
@@ -212,9 +212,29 @@ def hex_offset(value: int) -> str:
     return f"⁦0x{value:X}⁩"
 
 
+def _where(start: int, end: int, size: int) -> str:
+    middle = (start + end) / 2 / max(1, size)
+    return "near the start" if middle < 0.2 else "near the end" if middle > 0.8 else "in the middle"
+
+
+def region_sentence(region, size: int, language: str) -> str:
+    """One unusual place in plain words: how serious, where, how big."""
+    from ui.plain_language import format_size, isolate
+
+    length = isolate(format_size(region.offset_end - region.offset_start), language)
+    return " · ".join((
+        tr(severity_word(region.severity), language),
+        tr(_where(region.offset_start, region.offset_end, size), language),
+        length,
+    ))
+
+
 def region_label(region, language: str) -> str:
-    """Callout text for a region in the sonar cube: its severity and byte range."""
-    return f"{tr(severity_word(region.severity), language)} · {hex_offset(region.offset_start)} – {hex_offset(region.offset_end)}"
+    """Callout text for a region in the sonar cube: how serious and how big
+    (the exact byte range is in the list's tooltip)."""
+    from ui.plain_language import format_size, isolate
+
+    return f"{tr(severity_word(region.severity), language)} · {isolate(format_size(region.offset_end - region.offset_start), language)}"
 
 
 class ResultPanel(QWidget):
@@ -224,6 +244,9 @@ class ResultPanel(QWidget):
     advancedToggled = Signal(bool)
     aiRequested = Signal()
     aiStopRequested = Signal()
+    quarantineRequested = Signal()
+    revealRequested = Signal()
+    onlineRequested = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -269,19 +292,56 @@ class ResultPanel(QWidget):
         words.addStretch(1)
         top.addLayout(words, 1)
         summary.addLayout(top)
-        actions = QHBoxLayout()
-        actions.setSpacing(10)
+        # A fact the reader must not miss (a disguised name, a lookalike link).
+        self.notice_box = QFrame()
+        self.notice_box.setObjectName("notice")
+        notice = QHBoxLayout(self.notice_box)
+        notice.setContentsMargins(14, 10, 14, 10)
+        notice.setSpacing(10)
+        self.notice_mark = label("⚠")
+        self.notice_mark.setStyleSheet(f"color: {TOKENS['danger']}; font-size: 18px; font-weight: 700;")
+        self.notice_text = label("", "noticeText", wrap=True)
+        notice.addWidget(self.notice_mark, 0, Qt.AlignmentFlag.AlignTop)
+        notice.addWidget(self.notice_text, 1)
+        self.notice_box.setVisible(False)
+        summary.addWidget(self.notice_box)
+        # The main reasons, so "why" is answered without scrolling.
+        self.reasons_host = QWidget()
+        self.reasons_list = QVBoxLayout(self.reasons_host)
+        self.reasons_list.setContentsMargins(0, 0, 0, 0)
+        self.reasons_list.setSpacing(4)
+        self.reasons_host.setVisible(False)
+        summary.addWidget(self.reasons_host)
+        actions_host = QWidget()
+        actions = FlowLayout(actions_host, spacing=10)
         self.why_button = QPushButton()
         self.why_button.setObjectName("primary")
         self.why_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.why_button.clicked.connect(self.toggle_details)
+        self.quarantine_button = QPushButton()
+        self.quarantine_button.setObjectName("danger")
+        self.quarantine_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.quarantine_button.clicked.connect(self.quarantineRequested)
+        self.online_button = QPushButton()
+        self.online_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.online_button.clicked.connect(self.onlineRequested)
+        self.reveal_button = QPushButton()
+        self.reveal_button.setObjectName("ghost")
+        self.reveal_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.reveal_button.clicked.connect(self.revealRequested)
+        self.copy_hash_button = QPushButton()
+        self.copy_hash_button.setObjectName("ghost")
+        self.copy_hash_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.copy_hash_button.clicked.connect(self._copy_fingerprint)
         self.again_button = QPushButton()
+        self.again_button.setObjectName("ghost")
         self.again_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.again_button.clicked.connect(self.newScanRequested)
-        actions.addWidget(self.why_button)
-        actions.addWidget(self.again_button)
-        actions.addStretch(1)
-        summary.addLayout(actions)
+        for button in (self.why_button, self.quarantine_button, self.online_button, self.reveal_button, self.copy_hash_button, self.again_button):
+            actions.addWidget(button)
+        summary.addWidget(actions_host)
+        self.fingerprint = ""
+        self.quarantined = False
         layout.addWidget(self.summary_card)
 
         # AI summary (written locally; explains, never decides) -----------------
@@ -315,7 +375,6 @@ class ResultPanel(QWidget):
         self.ai_state = "hidden"
         self.ai_model = ""
         self.ai_card.setVisible(False)
-        layout.addWidget(self.ai_card)
 
         # Inside the file: the sonar cube, explorable by hand ----------------------
         self.inside_card = card()
@@ -324,22 +383,36 @@ class ResultPanel(QWidget):
         inside.setSpacing(8)
         inside_head = QHBoxLayout()
         self.inside_title = label("", "section")
-        self.inside_hint = label("", "mute")
+        self.map_button = QPushButton()
+        self.map_button.setObjectName("link")
+        self.map_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.map_button.clicked.connect(self._toggle_map)
         inside_head.addWidget(self.inside_title, 1)
-        inside_head.addWidget(self.inside_hint)
+        inside_head.addWidget(self.map_button)
         inside.addLayout(inside_head)
-        self.inside_note = label("", "mute", wrap=True)
-        inside.addWidget(self.inside_note)
-        self.cube = SonarCube(interactive=True)
-        self.cube.describe = self._describe_cell
-        self.cube.label_for = lambda region: region_label(region, self.language)
-        inside.addWidget(self.cube)
         self.regions_list = QVBoxLayout()
         self.regions_list.setSpacing(4)
         inside.addLayout(self.regions_list)
+        # The 3D map is there for whoever wants it, folded by default.
+        self.map_host = QWidget()
+        map_layout = QVBoxLayout(self.map_host)
+        map_layout.setContentsMargins(0, 6, 0, 0)
+        map_layout.setSpacing(6)
+        self.inside_hint = label("", "mute")
+        self.inside_note = label("", "mute", wrap=True)
+        map_layout.addWidget(self.inside_note)
+        map_layout.addWidget(self.inside_hint)
+        self.cube = SonarCube(interactive=True)
+        self.cube.describe = self._describe_cell
+        self.cube.label_for = lambda region: region_label(region, self.language)
+        self.cube.setAccessibleDescription("")
+        map_layout.addWidget(self.cube)
+        self.map_host.setVisible(False)
+        inside.addWidget(self.map_host)
         self.structure: Structure | None = None
         self.inside_card.setVisible(False)
         layout.addWidget(self.inside_card)
+        layout.addWidget(self.ai_card)
 
         # Level 2 ---------------------------------------------------------------
         self.details = QWidget()
@@ -540,8 +613,11 @@ class ResultPanel(QWidget):
         *,
         reveal: bool = True,
         structure: Structure | None = None,
+        fingerprint: str = "",
     ) -> None:
         self._summary, self._details, self._kind, self._texts = summary, details, kind, texts
+        self.fingerprint = fingerprint
+        self.quarantined = False
         self.collapse_all()
         self.origin.setText(origin)
         self.origin.setVisible(bool(origin))
@@ -567,6 +643,13 @@ class ResultPanel(QWidget):
         self.copy_button.setText(tr("Copy all", language))
         self.copy_button.setIcon(glyph_icon("copy", TOKENS["text_dim"], 15))
         self.again_button.setText(tr("Scan something else", language))
+        self.again_button.setToolTip("Ctrl+N")
+        self.quarantine_button.setText(tr("Move to quarantine", language))
+        self.quarantine_button.setToolTip(tr("Encrypts the file and moves it out of the way. Nothing is deleted; you can restore it from your scans.", language))
+        self.reveal_button.setText(tr("Show in folder", language))
+        self.copy_hash_button.setText(tr("Copy fingerprint", language))
+        self.copy_hash_button.setToolTip(tr("Copies the file's SHA-256 fingerprint, to look it up elsewhere.", language) + " · Ctrl+Shift+C")
+        self.online_button.setText(tr("Turn on online lookups", language))
         if self.ai_state != "hidden":
             self.set_ai(self.ai_state, self.ai_text.text() if self.ai_state in {"done", "working"} else "")
         self.export_button.setText(tr("Export report", language))
@@ -598,6 +681,30 @@ class ResultPanel(QWidget):
         self.advice.setText(summary.advice)
         self.limit.setText(summary.limit)
         self.limit.setVisible(bool(summary.limit))
+        self.notice_text.setText(summary.notice)
+        self.notice_box.setVisible(bool(summary.notice))
+        self.notice_box.setProperty("tone", summary.notice_tone)
+        self.notice_mark.setStyleSheet(f"color: {tone_color(summary.notice_tone)}; font-size: 18px; font-weight: 700;")
+        self.notice_box.style().unpolish(self.notice_box)
+        self.notice_box.style().polish(self.notice_box)
+        self.notice_box.setAccessibleName(summary.notice)
+        _clear(self.reasons_list)
+        if summary.reasons:
+            caption = label(tr("Mainly because:", self.language), "eyebrow")
+            self.reasons_list.addWidget(caption)
+            for reason in summary.reasons:
+                row = label(f"•  {reason}", "body", wrap=True)
+                self.reasons_list.addWidget(row)
+        self.reasons_host.setVisible(bool(summary.reasons))
+        self.quarantine_button.setVisible("quarantine" in summary.actions and not self.quarantined)
+        self.reveal_button.setVisible("reveal" in summary.actions)
+        self.copy_hash_button.setVisible("copy" in summary.actions and bool(self.fingerprint))
+        self.online_button.setVisible("online" in summary.actions)
+        self.online_button.setObjectName("primary" if "online" in summary.actions else "")
+        self.why_button.setObjectName("" if "online" in summary.actions else "primary")
+        for button in (self.online_button, self.why_button):
+            button.style().unpolish(button)
+            button.style().polish(button)
         labels = [tr(word, self.language) for word in LevelMeter.LABELS]
         self.meter.set_level(summary.meter, labels, tr("Unknown", self.language), tr("Warning level", self.language))
         _clear(self.facts_row)
@@ -675,7 +782,8 @@ class ResultPanel(QWidget):
             if row_index == 0 or fingerprint:
                 # Names and hashes have no break points: one elided line, full
                 # text in the tooltip (and the hash one click from the clipboard).
-                text = ElidedLabel(value, mode=Qt.TextElideMode.ElideMiddle)
+                # A name keeps its ending (".pdf.exe"); a hash is shortened in the middle.
+                text = ElidedLabel(value, mode=Qt.TextElideMode.ElideMiddle, file_name=not fingerprint)
                 text.setObjectName("mono" if fingerprint else "body")
                 text.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
                 text.setToolTip(value)
@@ -701,8 +809,8 @@ class ResultPanel(QWidget):
 
     # -- AI summary --------------------------------------------------------------
     AI_MESSAGES = {
-        "no_server": "The local AI isn't running. Start Ollama, then try again.",
-        "no_model": "The AI model isn't downloaded yet. In a terminal run: ollama pull {model}",
+        "no_server": "A summary in plain words isn't available: the local AI helper isn't running on this computer.",
+        "no_model": "A summary in plain words isn't available: the AI model isn't installed yet.",
         "unsafe": "The AI's summary claimed more certainty than the scan supports, so it was not shown.",
         "empty": "The AI didn't write anything. Try again.",
         "error": "The AI couldn't write a summary this time.",
@@ -735,6 +843,13 @@ class ResultPanel(QWidget):
             self.ai_text.setText(t(self.AI_MESSAGES.get(state, self.AI_MESSAGES["error"])).format(model=self.ai_model))
             self.ai_button.setText(t("Try again"))
             self.ai_note.setText("")
+            # For whoever runs it: the exact fix, out of the way of everyone else.
+            hint = {"no_server": "Start Ollama, then try again.", "no_model": f"In a terminal run: ollama pull {self.ai_model}"}.get(state, "")
+            self.ai_text.setToolTip(hint)
+        failed = state not in {"done", "working", "idle"}
+        self.ai_badge.setVisible(not failed)
+        self.ai_title.setVisible(not failed)
+        self.ai_mark.setVisible(not failed)
         self.ai_text.setObjectName("lead" if state in {"done", "working"} else "body")
         self.ai_text.style().unpolish(self.ai_text)
         self.ai_text.style().polish(self.ai_text)
@@ -755,28 +870,47 @@ class ResultPanel(QWidget):
             return
         t = lambda text: tr(text, self.language)  # noqa: E731
         self.inside_title.setText(t("Inside the file"))
-        self.inside_hint.setText(t("Drag to turn · scroll to zoom"))
-        note = t("Each point is a slice of the file, placed so that neighbouring bytes stay together. Brighter points hold more random content. Glowing points are places the scan flagged.")
+        self.inside_hint.setText(t("Drag to turn · scroll to zoom · point at a dot to read it"))
+        note = t("Each dot is a small slice of the file, placed so that neighbouring bytes stay together. Brighter dots hold more scrambled content; glowing dots are the places listed above.")
         if structure.source == "windows":
             note += " " + t("Rebuilt from the measurements saved with this scan.")
         self.inside_note.setText(note)
         hue = self._kind.hue if self._kind else TOKENS["accent"]
         self.cube.show_structure(structure, hue)
         self.cube.highlight(())
-        for index, region in enumerate(structure.regions[:8]):
-            text = t("{severity}: sudden change in the content · bytes {start} to {end}").format(
-                severity=tr(severity_word(region.severity), self.language), start=hex_offset(region.offset_start), end=hex_offset(region.offset_end)
-            )
+        self.cube.setAccessibleName(t("3D map of the file"))
+        self._sync_map_button()
+        if not structure.regions:
+            self.regions_list.addWidget(label(t("No particular place inside this file stood out."), "body", wrap=True))
+            return
+        intro = (
+            t("The content changes suddenly in {count} places:").format(count=len(structure.regions))
+            if len(structure.regions) > 1
+            else t("The content changes suddenly in one place:")
+        )
+        self.regions_list.addWidget(label(intro, "body", wrap=True))
+        for region in structure.regions[:6]:
+            text = region_sentence(region, structure.file_size, self.language)
             button = QPushButton(text)
             button.setObjectName("ghost")
             button.setCursor(Qt.CursorShape.PointingHandCursor)
             button.setCheckable(True)
+            button.setToolTip(t("Bytes {start} to {end}").format(start=hex_offset(region.offset_start), end=hex_offset(region.offset_end)))
+            button.setAccessibleName(text)
             button.clicked.connect(lambda checked=False, r=region, b=button: self._show_region(r, b))
-            self.regions_list.addWidget(button, 0, Qt.AlignmentFlag.AlignLeft)
-        if not structure.regions:
-            self.regions_list.addWidget(label(t("The scan didn't flag any particular place inside this file."), "mute", wrap=True))
+            self.regions_list.addWidget(button, 0, Qt.AlignmentFlag.AlignLeft if self.language != "ar" else Qt.AlignmentFlag.AlignRight)
+
+    def _sync_map_button(self) -> None:
+        shown = self.map_host.isVisibleTo(self)
+        self.map_button.setText(tr("Hide the 3D map" if shown else "Show the 3D map", self.language))
+
+    def _toggle_map(self) -> None:
+        self.map_host.setVisible(not self.map_host.isVisibleTo(self))
+        self._sync_map_button()
 
     def _show_region(self, region, button: QPushButton) -> None:
+        if button.isChecked() and not self.map_host.isVisibleTo(self):
+            self._toggle_map()  # pointing at a place shows where it is
         for index in range(self.regions_list.count()):
             other = self.regions_list.itemAt(index).widget()
             if isinstance(other, QPushButton) and other is not button:
@@ -794,6 +928,22 @@ class ResultPanel(QWidget):
         if structure.flags[index] > 0:
             text += " · " + tr("Flagged by the scan", self.language)
         return text
+
+    def _copy_fingerprint(self) -> None:
+        if self.fingerprint:
+            QGuiApplication.clipboard().setText(self.fingerprint)
+            self.copy_hash_button.setText(tr("Copied", self.language))
+
+    def mark_quarantined(self, where: str) -> None:
+        self.quarantined = True
+        self.quarantine_button.setVisible(False)
+        self.reveal_button.setVisible(False)
+        self.notice_text.setText(tr("Moved to quarantine. It's encrypted and can't be opened by accident. You can restore it from your scans.", self.language))
+        self.notice_box.setProperty("tone", "warn")
+        self.notice_box.style().unpolish(self.notice_box)
+        self.notice_box.style().polish(self.notice_box)
+        self.notice_box.setVisible(True)
+        self.notice_box.setToolTip(where)
 
     def _copy_value(self, value: str, button: QPushButton) -> None:
         QGuiApplication.clipboard().setText(value)

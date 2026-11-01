@@ -31,6 +31,7 @@ from ui.copy import count_phrase, tr
 from ui.file_kind import FileKind
 from ui.icons import glyph, glyph_pixmap, icon_font
 from ui.motion import prefers_reduced_motion
+from ui.names import elide_to_width
 from ui.theme import TOKENS, alpha, mix, tone_color, ui_font
 from ui.widgets import label
 
@@ -49,6 +50,7 @@ class RailItem:
     symbol: str
     tone: str
     search_text: str
+    repeat: int = 1  # the same target scanned again with the same verdict on the same day
 
 
 class BrandMark(QWidget):
@@ -127,8 +129,9 @@ class HistoryCard(QAbstractButton):
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.setFixedHeight(self.HEIGHT)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-        self.setAccessibleName(f"{item.verdict_word}: {item.name}, {item.when}")
-        self.setToolTip(f"{item.name} — {item.symbol} {item.verdict_word} · {item.when}")
+        times = f" · ×{item.repeat}" if item.repeat > 1 else ""
+        self.setAccessibleName(f"{item.verdict_word}: {item.name}, {item.when}{times}")
+        self.setToolTip(f"{item.name} — {item.symbol} {item.verdict_word} · {item.when}{times}")
         self._hover = False
         self._flash = 0.0
         self._flash_animation = QVariantAnimation(self)
@@ -198,7 +201,8 @@ class HistoryCard(QAbstractButton):
         metrics = QFontMetrics(meta_font)
         mark = self.item.symbol
         mark_width = 14.0
-        when_width = min(118.0, metrics.horizontalAdvance(self.item.when) + 4.0)
+        when_text = f"×{self.item.repeat}  {self.item.when}" if self.item.repeat > 1 else self.item.when
+        when_width = min(132.0, metrics.horizontalAdvance(when_text) + 4.0)
         if rtl:
             mark_rect = QRectF(rect.left() + 8, rect.top(), mark_width, rect.height())
             when_rect = QRectF(mark_rect.right() + 6, rect.top(), when_width, rect.height())
@@ -210,12 +214,18 @@ class HistoryCard(QAbstractButton):
         name_font = ui_font(13.5, 500)
         painter.setFont(name_font)
         painter.setPen(QColor(TOKENS["text"] if self.isChecked() else TOKENS["text_dim"]))
-        name = QFontMetrics(name_font).elidedText(self.item.name, Qt.TextElideMode.ElideMiddle, int(max(10.0, name_rect.width())))
+        # Shorten the start of the name, never its ending: ".pdf.exe" must stay readable.
+        name_metrics = QFontMetrics(name_font)
+        if self.item.kind.key == "url":
+            # A link's owner is at the end of its host name: keep the end.
+            name = name_metrics.elidedText(self.item.name, Qt.TextElideMode.ElideLeft, int(max(10.0, name_rect.width())))
+        else:
+            name = elide_to_width(self.item.name, max(10.0, name_rect.width()), name_metrics.horizontalAdvance)
         align = Qt.AlignmentFlag.AlignRight if rtl else Qt.AlignmentFlag.AlignLeft
         painter.drawText(name_rect, int(align | Qt.AlignmentFlag.AlignVCenter), name)
         painter.setFont(meta_font)
         painter.setPen(QColor(TOKENS["text_mute"]))
-        painter.drawText(when_rect, int(Qt.AlignmentFlag.AlignCenter), metrics.elidedText(self.item.when, Qt.TextElideMode.ElideRight, int(when_width)))
+        painter.drawText(when_rect, int(Qt.AlignmentFlag.AlignCenter), metrics.elidedText(when_text, Qt.TextElideMode.ElideRight, int(when_width)))
         painter.setFont(ui_font(12, 600))
         painter.setPen(verdict)
         painter.drawText(mark_rect, int(Qt.AlignmentFlag.AlignCenter), mark)
@@ -283,6 +293,10 @@ class HistoryRail(QFrame):
         layout.addLayout(head)
         self.mix = MixBar()
         layout.addWidget(self.mix)
+        # What the marks mean, said once (colour is never the only cue).
+        self.legend = label("", "mute", wrap=True)
+        self.legend.setTextFormat(Qt.TextFormat.RichText)  # measures Arabic widths correctly when wrapping
+        layout.addWidget(self.legend)
         self.search = QLineEdit()
         self.search.setObjectName("search")
         self.search.setClearButtonEnabled(True)
@@ -332,7 +346,12 @@ class HistoryRail(QFrame):
         self.tagline.setText(tr("LOCAL SECURITY LAB", language))
         self.title.setText(tr("Your scans", language))
         self.search.setPlaceholderText(tr("Search your scans", language))
+        self.search.setToolTip("Ctrl+F")
         self.footer.setText(tr("Kept on this device only", language))
+        # Non-breaking spaces keep each mark with its word when the line wraps.
+        self.legend.setText("   ".join(f"{mark} {tr(word, language)}".replace(" ", " ") for mark, word in (
+            ("▲", "High risk"), ("◆", "Needs review"), ("●", "Nothing found"), ("–", "Not checked"),
+        )))
         self._rebuild()
 
     def set_items(self, items: list[RailItem], mix: list[tuple[int, str]]) -> None:
@@ -384,6 +403,7 @@ class HistoryRail(QFrame):
         self.scroll.setVisible(bool(shown))
         self.empty.setVisible(not shown)
         self.mix.setVisible(has_items)
+        self.legend.setVisible(has_items)
         self.search.setVisible(has_items)
         if has_items and not shown:
             self.empty_title.setText(tr("No scan matches your search", self.language))

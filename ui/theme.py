@@ -92,11 +92,16 @@ def load_fonts() -> None:
     _fonts_loaded = True
 
 
+# Painted text follows the reader's text size too (set by ``stylesheet``),
+# not only styled labels.
+TEXT_SCALE = 1.0
+
+
 def ui_font(pixels: float, weight: int = 400, tracking: float = 0.0) -> QFont:
     """The interface face for painted text: Inter, Arabic through IBM Plex."""
     font = QFont()
     font.setFamilies(FAMILIES)
-    font.setPixelSize(max(1, round(pixels)))
+    font.setPixelSize(max(1, round(pixels * TEXT_SCALE)))
     font.setWeight(QFont.Weight(weight))
     if tracking:
         font.setLetterSpacing(QFont.SpacingType.AbsoluteSpacing, tracking)
@@ -126,12 +131,16 @@ def alpha(color: str | QColor, value: float) -> QColor:
 
 
 def stylesheet(scale: float = 1.0, language: str = "en", mode: str = "scan") -> str:
+    global TEXT_SCALE
     t = TOKENS
     p = MODE_ACCENTS.get(mode, MODE_ACCENTS["scan"])
     arabic = language == "ar"
+    # Arabic letters sit smaller than Latin ones at the same pixel size.
+    script = 1.08 if arabic else 1.0
+    TEXT_SCALE = scale
 
     def px(value: float) -> str:
-        return f"{round(value * scale)}px"
+        return f"{round(value * scale * script)}px"
 
     def track(value: str) -> str:
         # Letter spacing breaks Arabic's joined script; it is Latin-only.
@@ -209,6 +218,21 @@ QPushButton#primary {{
 QPushButton#primary:hover {{ background: {p['hover']}; }}
 QPushButton#primary:focus {{ border: 2px solid {p['strong']}; }}
 QPushButton#primary:disabled {{ background: {t['surface_3']}; color: {t['text_mute']}; border-color: {t['glass_edge']}; }}
+QPushButton#danger {{
+    background: {alpha(t['danger'], 0.14).name(QColor.NameFormat.HexArgb)}; color: #ffd7d8;
+    border: 1px solid {alpha(t['danger'], 0.55).name(QColor.NameFormat.HexArgb)}; padding: 7px 14px; font-weight: 600;
+}}
+QPushButton#danger:hover {{ background: {alpha(t['danger'], 0.24).name(QColor.NameFormat.HexArgb)}; }}
+QPushButton#danger:focus {{ border: 2px solid {t['danger']}; }}
+QFrame#notice {{
+    background: {alpha(t['danger'], 0.10).name(QColor.NameFormat.HexArgb)};
+    border: 1px solid {alpha(t['danger'], 0.40).name(QColor.NameFormat.HexArgb)}; border-radius: 10px;
+}}
+QFrame#notice[tone="warn"] {{
+    background: {alpha(t['warn'], 0.10).name(QColor.NameFormat.HexArgb)};
+    border: 1px solid {alpha(t['warn'], 0.40).name(QColor.NameFormat.HexArgb)};
+}}
+QLabel#noticeText {{ color: {t['text']}; font-size: {px(14)}; font-weight: 600; }}
 QPushButton#ghost {{ background: transparent; border: 1px solid transparent; color: {t['text_dim']}; padding: 6px 10px; }}
 QPushButton#ghost:hover {{ background: {t['glass_hover']}; color: {t['text']}; }}
 QPushButton#ghost:focus {{ border: 1px solid {p['accent']}; }}

@@ -11,16 +11,19 @@ only what is shown, in which words and in which order.
 from __future__ import annotations
 
 import json
+import os
 import queue
+import re
 import shutil
 import time
 import uuid
+from dataclasses import replace
 from datetime import datetime
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlsplit
 
-from PySide6.QtCore import Qt, QThread, QTimer, QUrl, Signal
+from PySide6.QtCore import QProcess, Qt, QThread, QTimer, QUrl, Signal
 from PySide6.QtGui import QDesktopServices, QFont, QKeySequence, QShortcut
 from PySide6.QtWidgets import (
     QApplication,
@@ -69,9 +72,17 @@ STAGE_CAPTIONS = (
     "Mapping how it's built…",
     "Finishing the last checks…",
 )
-RAIL_WORDS = {"high": "High risk", "review": "Needs review", "low": "Nothing found", "inconclusive": "Not sure"}
-RAIL_SYMBOLS = {"high": "▲", "review": "◆", "low": "●", "inconclusive": "?"}
-RAIL_TONES = {"high": "danger", "review": "warn", "low": "ok", "inconclusive": "neutral"}
+RAIL_WORDS = {
+    "high": "High risk", "review": "Needs review", "low": "Nothing found", "inconclusive": "Not sure",
+    "unchecked_link": "Not checked online", "unchecked_indicator": "Not checked online", "empty": "Empty file",
+}
+RAIL_SYMBOLS = {"high": "▲", "review": "◆", "low": "●", "inconclusive": "?", "unchecked_link": "–", "unchecked_indicator": "–", "empty": "○"}
+RAIL_TONES = {
+    "high": "danger", "review": "warn", "low": "ok", "inconclusive": "neutral",
+    "unchecked_link": "neutral", "unchecked_indicator": "neutral", "empty": "neutral",
+}
+# "htp://", "http:/x", "https//", "www.x.com": almost-links that would otherwise be scanned as text.
+_BROKEN_LINK = re.compile(r"^(?:h+t+p+s?:/?(?!/)|https?//|www\.)", re.IGNORECASE)
 CLASSIFICATION_KEYS = {"SUSPICIOUS": "high", "REVIEW": "review", "NO_INDICATORS_OBSERVED": "low"}
 CONTENT_MAX_WIDTH = 1000
 
@@ -186,6 +197,7 @@ class AiProbe(QThread):
     """Checks the local runtime (and warms the model) without blocking."""
 
     result = Signal(str)
+    installed = Signal(tuple)
 
     def __init__(self, model: str, warm: bool = False) -> None:
         super().__init__()
@@ -193,18 +205,20 @@ class AiProbe(QThread):
         self.warm = warm
 
     def run(self) -> None:
-        state = ai_summary.runtime_status(self.model).state
-        if state == "ready" and self.warm:
+        status = ai_summary.runtime_status(self.model)
+        if status.state == "ready" and self.warm:
             ai_summary.preload(self.model)
-        self.result.emit(state)
+        self.installed.emit(tuple(status.models))
+        self.result.emit(status.state)
 
 
 # Why each check ran as it did, in plain English (translated by ui.copy).
 REASONS = {
     "pe_na": "This file isn't a Windows program, so this check doesn't apply.",
+    "pe_named_program": "It's named like a program but isn't built like a Windows program, so this check couldn't look inside it.",
     "archive_na": "This file isn't an archive, so there is nothing inside to list.",
     "file_only": "This check reads files; it doesn't apply to links or text.",
-    "ml_unapproved": "No approved model is installed yet. See docs/learning_model.md to train one on reviewed samples and approve it.",
+    "ml_unapproved": "No learning model is installed. The other checks still ran.",
     "ml_rejected": "The approved model failed its safety check, so it wasn't used.",
     "ml_missing": "The approved model file is missing.",
     "ml_disabled": "The learning model is switched off in your settings.",
@@ -266,6 +280,7 @@ class CyberScanApp(QMainWindow):
         self._abandoned_workers: list[ScanWorker] = []
         self.pending_monitor_scans: queue.Queue[str] = queue.Queue()
         self.view = "lens"
+        self._confirmed_text = ""  # text the user chose to scan despite the typo warning
         self.app_mode = "scan"  # Scan or Repair (self.mode is the target kind)
         self.target = ""
         self.mode = "File"
@@ -412,6 +427,13 @@ class CyberScanApp(QMainWindow):
         self.journey_caption = label("", "lead")
         self.journey_caption.setAlignment(Qt.AlignmentFlag.AlignCenter)
         journey.addWidget(self.journey_caption)
+        # The scan is already done while the map draws: never trap the reader in it.
+        self.skip_button = QPushButton()
+        self.skip_button.setObjectName("ghost")
+        self.skip_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.skip_button.clicked.connect(self.sonar.skip)
+        self.skip_button.setVisible(False)
+        journey.addWidget(self.skip_button, 0, Qt.AlignmentFlag.AlignHCenter)
         self.outcome = QWidget()
         outcome = QVBoxLayout(self.outcome)
         outcome.setContentsMargins(0, 8, 0, 0)
@@ -461,6 +483,9 @@ class CyberScanApp(QMainWindow):
         self.result_panel.exportRequested.connect(self.export_current_report)
         self.result_panel.aiRequested.connect(self.start_ai_summary)
         self.result_panel.aiStopRequested.connect(self.stop_ai_summary)
+        self.result_panel.quarantineRequested.connect(self.quarantine_current)
+        self.result_panel.revealRequested.connect(self.reveal_current)
+        self.result_panel.onlineRequested.connect(self._open_online_settings)
         self.result_panel.detailsToggled.connect(lambda opened: opened and self._scroll_to(self.result_panel.details))
         self.result_panel.advancedToggled.connect(lambda opened: opened and self._scroll_to(self.result_panel.advanced))
         column.addWidget(self.result_panel)
@@ -500,6 +525,7 @@ class CyberScanApp(QMainWindow):
             ("Ctrl+N", self.new_scan),
             ("Ctrl+F", self._focus_search),
             ("Ctrl+,", self.open_settings),
+            ("Ctrl+Shift+C", lambda: self.view == "result" and self.result_panel._copy_fingerprint()),
             ("Escape", self.close_settings),
         ):
             shortcut = QShortcut(QKeySequence(sequence), self)
@@ -526,7 +552,10 @@ class CyberScanApp(QMainWindow):
         self.result_panel.retranslate(self.language)
         self.repair_view.retranslate(self.language)
         self.mode_buttons["scan"].setText(self.t("Scan"))
-        self.mode_buttons["repair"].setText(self.t("Repair"))
+        # Repair isn't available yet: the switch says so before anyone clicks it.
+        self.mode_buttons["repair"].setText(self.t("Repair") + " · " + self.t("soon"))
+        self.mode_buttons["repair"].setToolTip(self.t("Coming soon · preview"))
+        self.skip_button.setText(self.t("Skip the animation"))
         self.journey.set_stage_titles([self.t(title) for title in STAGE_TITLES])
         self.journey.setAccessibleName(self.t("Scanning {name}").format(name=display_name(self.target, self.mode)))
         self.journey_promise.setText(self.t("Read only · never run"))
@@ -561,8 +590,10 @@ class CyberScanApp(QMainWindow):
         # The lens and the journey sit in the middle of the stage; a result
         # starts at the top and grows downward as levels open.
         centred = name in {"lens", "journey"}
-        self.column_layout.setStretch(0, 1 if centred else 0)
-        self.column_layout.setStretch(self.column_layout.count() - 1, 1)
+        # Optical centre, not the exact middle: the lens sits a little high,
+        # so the space above it doesn't read as an empty band.
+        self.column_layout.setStretch(0, 2 if centred else 0)
+        self.column_layout.setStretch(self.column_layout.count() - 1, 3 if centred else 1)
         if animate:
             fade_in(widgets[name])
         self.scroll.verticalScrollBar().setValue(0)
@@ -583,6 +614,8 @@ class CyberScanApp(QMainWindow):
             text, tone = "Ready", "accent"
         self.status_pill.set_pill(f"● {self.t(text)}", tone)
         self.status_pill.setAccessibleName(self.t(text))
+        # Only where it tells something the screen doesn't already show.
+        self.status_pill.setVisible(self.view in {"journey", "repair"})
 
     def _scroll_to(self, widget: QWidget) -> None:
         QTimer.singleShot(60, lambda: self.scroll.ensureWidgetVisible(widget, 0, 40))
@@ -622,6 +655,10 @@ class CyberScanApp(QMainWindow):
             self.lens.show_error(self.t("Add something to scan first."))
             return
         mode = detect_mode(value)
+        if mode == "Indicator / text" and _BROKEN_LINK.match(value) and value != self._confirmed_text:
+            self._confirmed_text = value
+            self.lens.show_error(self.t("This looks like a link with a typo. Fix it to check it as a link, or press Scan again to check it as plain text."))
+            return
         if mode == "File":
             try:
                 resolved = Path(value).expanduser().resolve(strict=True)
@@ -650,8 +687,13 @@ class CyberScanApp(QMainWindow):
         self.stop_ai_summary()
         if self.settings.get("ai_summary_enabled"):
             self._probe_ai(warm=True)  # load the model while the scan runs
+        is_file = mode == "File"
+        self.journey.set_compact(is_file)
+        self.sonar.setVisible(is_file)
+        self.skip_button.setVisible(False)
         self.journey.start(display_name(target, mode), self.kind, self._type_line(target, mode))
-        self.sonar.start(self.kind.hue)
+        if is_file:
+            self.sonar.start(self.kind.hue)
         self._structure_ticket = getattr(self, "_structure_ticket", 0) + 1
         self.outcome.setVisible(False)
         self.technical_text.setVisible(False)
@@ -690,6 +732,7 @@ class CyberScanApp(QMainWindow):
             running = next((i for i, s in enumerate(self._stage_states) if s == "running"), None)
             index = running if running is not None else min(3, self._stage_states.count("complete"))
             self.journey_caption.setText(self.t(STAGE_CAPTIONS[index]))
+            self._announce(self.journey_caption.text(), self.journey_caption)
         else:
             self.journey_caption.setText("")
         self.journey_caption.setVisible(bool(self.journey_caption.text()))
@@ -744,6 +787,8 @@ class CyberScanApp(QMainWindow):
             "prediction": prediction,
             "intelligence": intelligence,
             "kind": self.kind,
+            "mode": self.mode,
+            "target": self.target,
             "elapsed": elapsed,
             "origin_when": None,
             "record_id": record_id,
@@ -751,6 +796,16 @@ class CyberScanApp(QMainWindow):
         }
         self._pending_reveal = True
         self.stop_button.setVisible(False)
+        self._announce(self.t("Scan finished."))
+        if self.mode != "File" or not view.file_size:
+            # A link, text or an empty file has no inside to map.
+            self._current["structure"] = None
+            self._sonar_finished()
+            if record_id is not None:
+                self.rail.select(record_id)
+                self.rail.flash(record_id)
+            self._start_next_monitor_scan()
+            return
         # Map the inside of the file (off the UI thread), then let the sonar
         # reveal it; the scanning picture keeps moving meanwhile.
         self._structure_ticket = getattr(self, "_structure_ticket", 0) + 1
@@ -773,15 +828,18 @@ class CyberScanApp(QMainWindow):
         if ticket != self._structure_ticket or self._current is None or not self._pending_reveal:
             return
         self._current["structure"] = structure
-        self.journey_caption.setText(self.t("Mapping the inside of the file…"))
+        self.journey_caption.setText(self.t("The scan is done. Mapping the inside of the file…"))
         self.journey_caption.setVisible(True)
+        self.skip_button.setVisible(self.sonar.isVisible() and not self.sonar.reduced_motion)
         self.sonar.reveal(structure)
 
     def _sonar_finished(self) -> None:
         if not self._pending_reveal or self._current is None:
             return
-        view = self._current["view"]
-        self.journey.conclude(view.verdict.symbol, tone_color(view.verdict.tone))
+        current = self._current
+        self.skip_button.setVisible(False)
+        summary = plain_language.summary(current["view"], current["kind"], None, self.language, mode=current.get("mode", "File"), target=current.get("target", ""))
+        self.journey.conclude(summary.symbol, tone_color(summary.tone))
 
     def _journey_concluded(self) -> None:
         if not self._pending_reveal:
@@ -790,6 +848,9 @@ class CyberScanApp(QMainWindow):
         self._render_current(reveal=True)
         self._show_view("result")
         self.result_panel.why_button.setFocus()
+        if self.result_panel._summary is not None:
+            summary = self.result_panel._summary
+            self._announce(" ".join(part for part in (summary.headline, summary.notice, summary.sentence, summary.advice) if part))
 
     def _render_current(self, *, reveal: bool) -> None:
         current = self._current
@@ -797,7 +858,9 @@ class CyberScanApp(QMainWindow):
             return
         view: ResultView = current["view"]
         kind: FileKind = current["kind"]
-        summary = plain_language.summary(view, kind, current["elapsed"], self.language)
+        summary = plain_language.summary(
+            view, kind, current["elapsed"], self.language, mode=current.get("mode", "File"), target=current.get("target", view.target)
+        )
         details = plain_language.details(view, kind, self.language, self._check_reasons(current))
         texts = advanced_texts(current["result"], current["nextgen"] or {}, current["prediction"] or {}, current["intelligence"] or {})
         entropy = ((current["nextgen"] or {}).get("entropy_topography") or {}).get("trajectory", ())
@@ -808,8 +871,12 @@ class CyberScanApp(QMainWindow):
             origin = self.t("The result is shown, but it wasn't added to your scans.")
         was_open = (self.result_panel.details.isVisibleTo(self.result_panel), self.result_panel.advanced.isVisibleTo(self.result_panel))
         self.result_panel.show_result(
-            summary, details, kind, texts, tuple(entropy), origin, reveal=reveal, structure=current.get("structure")
+            summary, details, kind, texts, tuple(entropy), origin, reveal=reveal, structure=current.get("structure"),
+            fingerprint=view.sha256 or "",
         )
+        record = self._record(current.get("record_id") or "")
+        if record and record.get("quarantined"):
+            self.result_panel.mark_quarantined(str(record["quarantined"]))
         if not self.settings.get("ai_summary_enabled"):
             self.result_panel.set_ai("hidden")
         elif current.get("ai_text") and current.get("ai_language") == self.language:
@@ -909,6 +976,93 @@ class CyberScanApp(QMainWindow):
         else:
             self.backdrop.set_hue(self.kind.hue if self.view in {"journey", "result"} else TOKENS["accent"])
 
+    # ======================================================= acting on a result
+    def _announce(self, text: str, widget: QWidget | None = None) -> None:
+        """Tell assistive technology about a change it cannot see (a stage, a verdict)."""
+        target = widget or (self.result_panel.summary_card if self.view == "result" else self.journey_caption)
+        try:
+            from PySide6.QtGui import QAccessible, QAccessibleEvent
+
+            target.setAccessibleDescription(text)
+            QAccessible.updateAccessibility(QAccessibleEvent(target, QAccessible.Event.DescriptionChanged))
+            QAccessible.updateAccessibility(QAccessibleEvent(target, QAccessible.Event.Alert))
+        except (ImportError, AttributeError, RuntimeError):
+            pass
+
+    def _current_file(self) -> Path | None:
+        current = self._current
+        if not current or current.get("mode") != "File":
+            return None
+        return Path(str(current.get("target", "")))
+
+    def quarantine_current(self) -> None:
+        path = self._current_file()
+        if path is None:
+            return
+        if not path.is_file():
+            QMessageBox.information(self, self.t("Move to quarantine"), self.t("The file isn't there any more, so there is nothing to move."))
+            return
+        answer = QMessageBox.question(
+            self,
+            self.t("Move to quarantine?"),
+            self.t("CyberScan will encrypt “{name}” and move it to its quarantine folder, so it can't be opened by accident. Nothing is deleted: you can restore it later from your scans.").format(
+                name=display_name(str(path), "File")
+            ),
+        )
+        if answer != QMessageBox.StandardButton.Yes:
+            return
+        from ui import vault
+
+        try:
+            sealed = vault.quarantine(path, Path(DATA_DIR), Path(DATA_DIR) / "quarantine")
+        except Exception as exc:  # noqa: BLE001 - reported; the file stays where it was
+            QMessageBox.warning(self, self.t("Couldn't move it to quarantine"), self.t("The file was left where it was.") + f"\n\n{type(exc).__name__}: {exc}")
+            return
+        record = self._record(self._current.get("record_id") or "")
+        if record is not None:
+            record["quarantined"] = str(sealed)
+            try:
+                self.ui_store.save_history(self.scan_history)
+            except (OSError, TypeError, ValueError) as exc:
+                self._append_log(f"Quarantine noted only for this session: {exc}")
+        self.result_panel.mark_quarantined(str(sealed))
+        self._announce(self.t("Moved to quarantine."))
+        self._append_log(f"Moved to quarantine: {path} -> {sealed}")
+
+    def restore_record(self, record_id: str) -> None:
+        record = self._record(record_id)
+        if not record or not record.get("quarantined"):
+            return
+        from ui import vault
+
+        try:
+            restored = vault.restore(record["quarantined"], record.get("target", ""), Path(DATA_DIR))
+            Path(record["quarantined"]).unlink(missing_ok=True)
+        except FileExistsError:
+            QMessageBox.warning(self, self.t("Restore from quarantine"), self.t("A file with that name is already there, so nothing was restored."))
+            return
+        except Exception as exc:  # noqa: BLE001
+            QMessageBox.warning(self, self.t("Restore from quarantine"), f"{type(exc).__name__}: {exc}")
+            return
+        record.pop("quarantined", None)
+        self.ui_store.save_history(self.scan_history)
+        self._append_log(f"Restored from quarantine: {restored}")
+        QMessageBox.information(self, self.t("Restore from quarantine"), self.t("The file is back where it was."))
+
+    def reveal_current(self) -> None:
+        path = self._current_file()
+        if path is None:
+            return
+        if path.is_file() and os.name == "nt":
+            # Selects the file in Explorer; it is not opened or run.
+            QProcess.startDetached("explorer.exe", [f"/select,{path}"])
+        else:
+            QDesktopServices.openUrl(QUrl.fromLocalFile(str(path.parent)))
+
+    def _open_online_settings(self) -> None:
+        self.open_settings()
+        self.sheet.checks["osint_enabled"].setFocus()
+
     def _forget_abandoned_workers(self) -> None:
         for worker in list(self._abandoned_workers):
             if not worker.isRunning():
@@ -933,8 +1087,9 @@ class CyberScanApp(QMainWindow):
         self._failure = None
         self.rail.select(None)
         self._show_view("lens", animate=self.view != "lens")
+        self.lens.set_target("")  # "something else" starts empty: Enter must not re-scan the last file
+        self._confirmed_text = ""
         self.lens.field.setFocus()
-        self.lens.field.selectAll()
 
     # ============================================================== history
     def _record_scan_history(self, result, view: ResultView) -> str:
@@ -960,7 +1115,7 @@ class CyberScanApp(QMainWindow):
             report_path.unlink(missing_ok=True)
             raise
         self.scan_history = updated
-        self._verdict_cache[record_id] = view.verdict.key
+        self._verdict_cache[record_id] = plain_language.presentation_key(view, self.mode, self.target)
         for expired in candidate[:-200]:
             try:
                 self._validated_history_report(expired).unlink()
@@ -983,7 +1138,8 @@ class CyberScanApp(QMainWindow):
             return self._verdict_cache[record_id]
         try:
             payload = json.loads(self._validated_history_report(record).read_text(encoding="utf-8"))
-            key = build_result_view(self._result_from_report(payload)).verdict.key
+            target = str(record.get("target", ""))
+            key = plain_language.presentation_key(build_result_view(self._result_from_report(payload)), self._record_mode(target), target)
         except (OSError, ValueError, TypeError, KeyError):
             key = CLASSIFICATION_KEYS.get(str(record.get("classification", "")), "inconclusive")
         self._verdict_cache[record_id] = key
@@ -1021,7 +1177,14 @@ class CyberScanApp(QMainWindow):
             key = self._record_verdict(record)
             counts[key] = counts.get(key, 0) + 1
             when, group = self._record_when(record)
-            name = display_name(target, mode)
+            if group in {"Today", "Yesterday"}:
+                when = when.split()[-1]  # the day is already the group's heading: room for the name
+            name = display_name(target, mode) if mode != "URL" else (urlsplit(target).hostname or target)
+            previous = items[-1] if items else None
+            if previous is not None and previous.search_text.startswith(target.casefold() + " ") and previous.verdict_key == key and previous.group == group:
+                # The same target, same verdict, same day: one row with a count, newest first.
+                items[-1] = replace(previous, repeat=previous.repeat + 1)
+                continue
             items.append(
                 RailItem(
                     record_id=str(record.get("id", "")),
@@ -1036,7 +1199,8 @@ class CyberScanApp(QMainWindow):
                     search_text=" ".join((target, name, str(record.get("sha256", "")), self.t(RAIL_WORDS[key]), RAIL_WORDS[key])).casefold(),
                 )
             )
-        mix = [(counts[key], tone_color(RAIL_TONES[key])) for key in ("high", "review", "low", "inconclusive")]
+        neutral = counts.get("inconclusive", 0) + counts.get("unchecked_link", 0) + counts.get("unchecked_indicator", 0) + counts.get("empty", 0)
+        mix = [(counts["high"], tone_color("danger")), (counts["review"], tone_color("warn")), (counts["low"], tone_color("ok")), (neutral, tone_color("neutral"))]
         self.rail.set_items(items, mix)
         if self._current is not None:
             self.rail.select(self._current.get("record_id"))
@@ -1069,6 +1233,8 @@ class CyberScanApp(QMainWindow):
             "prediction": result.structural_prediction or {},
             "intelligence": result.osint_summary or {},
             "kind": kind_for_target(target, mode),
+            "mode": mode,
+            "target": target,
             "elapsed": None,
             "origin_when": when or "—",
             # No bytes are kept with a saved scan: rebuild from its measured windows.
@@ -1090,6 +1256,9 @@ class CyberScanApp(QMainWindow):
         menu = QMenu(self)
         menu.addAction(glyph_icon("open", TOKENS["text_dim"], 16), self.t("Open the saved report"), lambda: self.open_history_report(record_id))
         menu.addAction(glyph_icon("save", TOKENS["text_dim"], 16), self.t("Export the report…"), lambda: self.export_history_report(record_id))
+        record = self._record(record_id)
+        if record and record.get("quarantined"):
+            menu.addAction(glyph_icon("open", TOKENS["text_dim"], 16), self.t("Restore from quarantine"), lambda: self.restore_record(record_id))
         menu.addSeparator()
         menu.addAction(glyph_icon("delete", TOKENS["danger"], 16), self.t("Remove from your scans"), lambda: self.remove_history_record(record_id))
         menu.exec(position)
@@ -1324,6 +1493,7 @@ class CyberScanApp(QMainWindow):
 
     def _probe_ai(self, *, warm: bool = False, on_result=None) -> None:
         probe = AiProbe(self._ai_model(), warm=warm)
+        probe.installed.connect(self.sheet.set_installed_models)
         if on_result is not None:
             probe.result.connect(on_result)
         self._keep_thread(probe)
@@ -1407,7 +1577,8 @@ class CyberScanApp(QMainWindow):
         states = {engine.name: engine.state for engine in view.coverage}
         reasons: dict[str, str] = {}
         if states.get("PE") == "not_applicable":
-            reasons["PE"] = REASONS["pe_na"] if is_file else REASONS["file_only"]
+            named_program = getattr(current.get("kind"), "key", "") == "program"
+            reasons["PE"] = (REASONS["pe_named_program"] if named_program else REASONS["pe_na"]) if is_file else REASONS["file_only"]
         if states.get("Archive") == "not_applicable":
             reasons["Archive"] = REASONS["archive_na"] if is_file else REASONS["file_only"]
         if states.get("YARA") == "unavailable":
@@ -1457,7 +1628,7 @@ class CyberScanApp(QMainWindow):
         self.lens.set_notice("\n".join(lines))
 
     def _apply_text_scale(self) -> None:
-        scale = 1.18 if self.settings.get("large_text") else 1.0
+        scale = 1.3 if self.settings.get("large_text") else 1.0
         if (scale, self.language, self.app_mode) == self._text_scale:
             return
         self._text_scale = (scale, self.language, self.app_mode)

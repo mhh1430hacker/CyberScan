@@ -185,6 +185,22 @@ def _located_regions(position: Mapping[str, Any], topography: Mapping[str, Any])
     ]
 
 
+def _merge(regions: list[Region]) -> list[Region]:
+    """Overlapping or touching ranges are one place to a reader: the engine
+    reports sliding windows (0x0-0x1400, 0x400-0x1800 ...), not distinct parts."""
+    merged: list[Region] = []
+    for region in sorted(regions, key=lambda r: r.offset_start):
+        if merged and region.offset_start <= merged[-1].offset_end:
+            last = merged[-1]
+            worse = region.severity if SEVERITY_RANK.get(region.severity, 2) > SEVERITY_RANK.get(last.severity, 2) else last.severity
+            deltas = [d for d in (last.delta, region.delta) if d is not None]
+            merged[-1] = Region(last.offset_start, max(last.offset_end, region.offset_end), worse,
+                                max(deltas) if deltas else None, tuple(sorted(set(last.cells) | set(region.cells))))
+        else:
+            merged.append(region)
+    return merged
+
+
 def build_structure(
     raw: bytes | None,
     file_size: int | None,
@@ -234,7 +250,7 @@ def build_structure(
         entropy=entropy,
         offsets=offsets,
         flags=flags,
-        regions=tuple(sorted(regions, key=lambda r: (-SEVERITY_RANK.get(r.severity, 2), r.offset_start))),
+        regions=tuple(sorted(_merge(regions), key=lambda r: (-SEVERITY_RANK.get(r.severity, 2), r.offset_start))),
         walls=_walls(offsets.shape[0], entropy),
         sections=sections,
         source=source,

@@ -45,6 +45,34 @@ HEADLINES = {
         "Scan it again, and don't rely on this result.",
     ),
 }
+# What the screen may honestly say when the engine found nothing but could
+# not really look: an empty file, or a link / fingerprint / address checked
+# offline. These never come from the engine; they stop a green "nothing
+# worrying" from being shown for something that was never examined.
+HONEST = {
+    "empty": (
+        "This file is empty",
+        "It has 0 bytes, so there's nothing inside it to check.",
+        "If you expected content, the file may be broken or still downloading.",
+    ),
+    "unchecked_link": (
+        "We only checked how the link looks",
+        "Nothing in the address itself looked wrong, but we didn't check where it really leads.",
+        "Don't sign in or pay through a link you didn't expect. Turn on online lookups to check it against public lists.",
+    ),
+    "unchecked_indicator": (
+        "We can't judge this offline",
+        "A fingerprint, address or domain only names something. With online lookups off, there's nothing to compare it with.",
+        "Turn on online lookups to check it against public lists, or scan the file itself.",
+    ),
+}
+HONEST_SYMBOLS = {"empty": "○", "unchecked_link": "–", "unchecked_indicator": "–"}
+_SINGLE_TOKEN = re.compile(
+    r"^(?:[A-Fa-f0-9]{32}|[A-Fa-f0-9]{40}|[A-Fa-f0-9]{64}"  # MD5 / SHA-1 / SHA-256
+    r"|\d{1,3}(?:\.\d{1,3}){3}"  # IPv4
+    r"|[A-Fa-f0-9:]*:[A-Fa-f0-9:]+"  # IPv6
+    r"|(?:[A-Za-z0-9-]+\.)+[A-Za-z]{2,})$"  # domain
+)
 UNRECOGNIZED = (
     "We couldn't be sure",
     "The engine gave an answer this screen doesn't recognise.",
@@ -107,6 +135,34 @@ class Summary:
     limit: str  # "" unless the result could be misread as a guarantee
     meter: int | None  # 1..3, or None when the level is unknown
     facts: tuple[str, ...]
+    notice: str = ""  # a fact the reader must not miss (a disguised name, a lookalike link)
+    notice_tone: str = "warn"
+    reasons: tuple[str, ...] = ()  # the top findings, in plain words, for the summary card
+    actions: tuple[str, ...] = ()  # which next steps make sense: quarantine, reveal, copy, online
+
+
+def presentation_key(view: ResultView, mode: str = "File", target: str = "") -> str:
+    """The verdict key the screen uses: the engine's, unless the engine found
+    nothing in something it could not really examine (see ``HONEST``)."""
+    key = view.verdict.key
+    if key != "low":
+        return key
+    if mode == "File" and view.file_size == 0:
+        return "empty"
+    online = next((engine.state for engine in view.coverage if engine.name == "OSINT"), "unknown")
+    if online == "ran":
+        return key
+    if mode == "URL":
+        return "unchecked_link"
+    if mode not in {"File", "URL"} and _SINGLE_TOKEN.match(target.strip()):
+        return "unchecked_indicator"
+    return key
+
+
+def _seconds(elapsed: float, language: str) -> str:
+    if elapsed < 1.0:
+        return tr("Checked in under a second", language)
+    return tr("Checked in {seconds} seconds", language).format(seconds=f"{elapsed:.1f}")
 
 
 @dataclass(frozen=True)
@@ -170,14 +226,37 @@ def format_size(size: int | None) -> str:
     return f"{size} B"
 
 
-def summary(view: ResultView, kind: FileKind, elapsed: float | None, language: str) -> Summary:
+def summary(
+    view: ResultView,
+    kind: FileKind,
+    elapsed: float | None,
+    language: str,
+    *,
+    mode: str = "File",
+    target: str = "",
+) -> Summary:
+    from ui.finding_text import plain
+    from ui.link_hints import hints
+    from ui.names import inspect
+
     verdict = view.verdict
-    headline, sentence, advice = (
-        HEADLINES.get(verdict.key, UNRECOGNIZED)
-        if view.classification in {"SUSPICIOUS", "REVIEW", "NO_INDICATORS_OBSERVED"}
-        else UNRECOGNIZED
-    )
-    count = len(view.findings)
+    key = presentation_key(view, mode, target)
+    if key in HONEST:
+        headline, sentence, advice = HONEST[key]
+    else:
+        headline, sentence, advice = (
+            HEADLINES.get(verdict.key, UNRECOGNIZED)
+            if view.classification in {"SUSPICIOUS", "REVIEW", "NO_INDICATORS_OBSERVED"}
+            else UNRECOGNIZED
+        )
+    # Reasons: the distinct findings, most serious first, in plain words.
+    ordered = sorted(view.findings, key=lambda item: (-SEVERITY_RANK[item.severity], -item.contribution))
+    titles: list[str] = []
+    for item in ordered:
+        title = plain(item.title, item.explanation, language).title
+        if title not in titles:
+            titles.append(title)
+    count = len(titles)
     facts = [
         count_phrase("finding", count, language)
         if count
@@ -188,17 +267,54 @@ def summary(view: ResultView, kind: FileKind, elapsed: float | None, language: s
         kind_line = f"{kind_line} · {isolate(format_size(view.file_size), language)}"
     facts.append(kind_line)
     if elapsed is not None:
-        facts.append(tr("Checked in {seconds} s", language).format(seconds=f"{elapsed:.1f}"))
+        facts.append(_seconds(elapsed, language))
+    notice = ""
+    notice_tone = "warn"
+    if mode == "File":
+        truth = inspect(target)
+        if truth.hidden:
+            notice = tr("This file's name is disguised with hidden characters. It's really a {ext} file.", language).format(
+                ext=isolate("." + (truth.real_extension.upper() or "?"), language)
+            )
+        elif truth.decoy_extension and truth.runs:
+            notice = tr("The name ends in {both}: it looks like a {decoy} but it's really a {real} that can run.", language).format(
+                both=isolate(f".{truth.decoy_extension}.{truth.real_extension}", language),
+                decoy=isolate("." + truth.decoy_extension, language),
+                real=isolate("." + truth.real_extension, language),
+            )
+        if notice and truth.runs:
+            advice = "Don't open it. A real document or picture never needs to hide what it is."
+            notice_tone = "danger"
+    elif mode == "URL":
+        found = hints(target)
+        if found:
+            notice = " ".join(tr(text, language).format(**values) for text, values in found)
+    actions: list[str] = []
+    if mode == "File" and key not in {"empty"}:
+        actions.append("reveal")
+        if key in {"high", "review"} or notice:
+            actions.insert(0, "quarantine")
+    if view.sha256 and key != "empty":  # an empty file's fingerprint names nothing
+        actions.append("copy")
+    if key in {"unchecked_link", "unchecked_indicator"}:
+        actions.insert(0, "online")
+    tone = "neutral" if key in HONEST else verdict.tone
+    if notice and tone in {"ok", "neutral"} and mode == "File":
+        tone = "warn"
     return Summary(
-        key=verdict.key,
-        tone=verdict.tone,
-        symbol=verdict.symbol,
+        key=key,
+        tone=tone,
+        symbol=HONEST_SYMBOLS.get(key, verdict.symbol),
         headline=tr(headline, language),
         sentence=tr(sentence, language),
         advice=tr(advice, language),
-        limit=tr(NOT_A_GUARANTEE, language) if verdict.key == "low" else "",
-        meter=METER_LEVEL.get(verdict.key) if verdict.key != "inconclusive" else None,
+        limit=tr(NOT_A_GUARANTEE, language) if key == "low" else "",
+        meter=METER_LEVEL.get(verdict.key) if key not in HONEST and verdict.key != "inconclusive" else None,
         facts=tuple(facts),
+        notice=notice,
+        notice_tone=notice_tone,
+        reasons=tuple(titles[:3]),
+        actions=tuple(actions),
     )
 
 

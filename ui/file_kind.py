@@ -95,8 +95,13 @@ def detect_mode(text: str) -> str:
 
 
 def display_name(target: str, mode: str) -> str:
+    """How a target is named on screen. File names pass through
+    ``ui.names.visible``: a hidden direction character never gets to reorder
+    the name the user reads."""
+    from ui.names import visible
+
     if mode == "File":
-        return PureWindowsPath(target).name or target
+        return visible(PureWindowsPath(target).name or target)
     if mode == "URL":
         parts = urlsplit(target)
         return (parts.hostname or target) + (parts.path if parts.path not in {"", "/"} else "")

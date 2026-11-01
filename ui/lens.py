@@ -3,7 +3,7 @@
 One centred field takes anything: a path, a link, a hash or text. Its kind
 is detected as you type (``ui.file_kind.detect_mode``); a chip inside the
 bar names it in its hue, and the button says what it will scan. Keyboard
-hints are drawn as key caps. A file can be dropped anywhere in the window
+hints sit in tooltips. A file can be dropped anywhere in the window
 (the window shows ``DropOverlay``); validation messages appear under the bar
 and clear on the next edit.
 
@@ -21,16 +21,10 @@ from PySide6.QtWidgets import QFrame, QHBoxLayout, QLineEdit, QPushButton, QSize
 from ui.copy import tr
 from ui.file_kind import KINDS, detect_mode, display_name, kind_for_target
 from ui.icons import glyph, glyph_icon, glyph_pixmap, icon_font
+from ui.names import inspect as inspect_name
 from ui.plain_language import format_size, isolate
 from ui.theme import TOKENS, alpha, ui_font
 from ui.widgets import ElidedLabel, KindTile, label
-
-
-def keycap(text: str) -> QWidget:
-    cap = label(text, "key")
-    cap.setAlignment(Qt.AlignmentFlag.AlignCenter)
-    cap.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
-    return cap
 
 
 class DropOverlay(QWidget):
@@ -139,8 +133,6 @@ class Lens(QWidget):
         chip.addWidget(self.kind_label)
         self.kind_chip.setVisible(False)
         bar.addWidget(self.kind_chip)
-        self.enter_cap = keycap("↵")
-        bar.addWidget(self.enter_cap)
         self.scan_button = QPushButton()
         self.scan_button.setObjectName("primary")
         self.scan_button.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -163,17 +155,21 @@ class Lens(QWidget):
         preview_row.addWidget(self.preview_tile)
         preview_text = QVBoxLayout()
         preview_text.setSpacing(1)
-        self.preview_name = ElidedLabel(mode=Qt.TextElideMode.ElideMiddle)
+        self.preview_name = ElidedLabel(file_name=True)
         self.preview_name.setObjectName("section")
         self.preview_meta = label("", "mute")
+        # Said before the scan: a disguised name is visible in the name itself.
+        self.preview_warning = label("", "error", wrap=True)
+        self.preview_warning.setVisible(False)
         preview_text.addWidget(self.preview_name)
         preview_text.addWidget(self.preview_meta)
+        preview_text.addWidget(self.preview_warning)
         preview_row.addLayout(preview_text, 1)
         self.preview.setVisible(False)
         column.addWidget(self.preview)
         column.addSpacing(16)
 
-        # Hints as key caps ------------------------------------------------------------
+        # Choosing a file; the shortcut is in the tooltip --------------------------------
         hints = QHBoxLayout()
         hints.setSpacing(6)
         hints.addStretch(1)
@@ -182,9 +178,7 @@ class Lens(QWidget):
         self.choose_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.choose_button.clicked.connect(self.browseRequested)
         hints.addWidget(self.choose_button)
-        hints.addWidget(keycap("Ctrl"))
-        hints.addWidget(keycap("O"))
-        hints.addSpacing(14)
+        hints.addSpacing(10)
         self.drop_hint = label("", "mute")
         hints.addWidget(self.drop_hint)
         hints.addStretch(1)
@@ -211,7 +205,9 @@ class Lens(QWidget):
         self.choose_button.setText(t("Choose a file"))
         self.choose_button.setIcon(glyph_icon("folder", TOKENS["text_dim"], 15))
         self.drop_hint.setText(t("or drop a file anywhere"))
+        self.choose_button.setToolTip(t("Choose a file") + " · Ctrl+O")
         self.field.setPlaceholderText(t("Paste a path, a link, a hash or text…"))
+        self.field.setToolTip("Ctrl+L")
         edge = Qt.AlignmentFlag.AlignRight if language == "ar" else Qt.AlignmentFlag.AlignLeft
         for widget in (self.preview_name, self.preview_meta):
             widget.setAlignment(edge | Qt.AlignmentFlag.AlignAbsolute | Qt.AlignmentFlag.AlignVCenter)
@@ -290,13 +286,27 @@ class Lens(QWidget):
             self.preview_tile.set_kind(self.kind)
             self.preview_name.setText(display_name(value, self.mode))
             meta = tr("Will be scanned as: {kind}", self.language).format(kind=kind_word)
+            exists = False
             if self.mode == "File":
                 try:
                     meta += " · " + isolate(format_size(Path(value).stat().st_size), self.language)
+                    exists = True
                 except OSError:
                     pass
             self.preview_meta.setText(meta)
-            self.preview.setVisible(self.mode == "File")
+            warning = ""
+            if self.mode == "File":
+                truth = inspect_name(value)
+                if truth.hidden:
+                    warning = t("Careful: this name hides characters that change how it reads. It's really a {ext} file.").format(
+                        ext=isolate("." + (truth.real_extension.upper() or "?"), self.language))
+                elif truth.decoy_extension and truth.runs:
+                    warning = t("Careful: it looks like a {decoy}, but it's really a {real} that can run.").format(
+                        decoy=isolate("." + truth.decoy_extension, self.language), real=isolate("." + truth.real_extension, self.language))
+            self.preview_warning.setText(warning)
+            self.preview_warning.setVisible(bool(warning))
+            # No preview for a path that isn't there: it would contradict the error.
+            self.preview.setVisible(self.mode == "File" and exists)
             self.scan_button.setText(t("Scan this {kind}").format(kind=kind_word.lower() if self.language == "en" else kind_word))
         self.kindChanged.emit(self.kind.key)
 

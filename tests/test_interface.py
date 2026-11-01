@@ -343,7 +343,7 @@ def test_every_check_says_why_it_ran_as_it_did(window, qapplication, notes):
     window.result_panel.why_button.click()
     reasons = {check.name: check.reason for check in plain_details(window)}
     assert reasons["Program structure"] == "This file isn't a Windows program, so this check doesn't apply."
-    assert reasons["Learning model"].startswith("No approved model is installed yet")
+    assert reasons["Learning model"] == "No learning model is installed. The other checks still ran."  # no developer paths for users
     assert reasons["Online lookups"].startswith("Off: nothing was sent online")
 
 
@@ -380,7 +380,8 @@ def test_ai_card_explains_when_the_local_model_is_not_running(window, qapplicati
     panel = window.result_panel
     assert panel.ai_card.isVisible()
     assert wait_for(qapplication, lambda: panel.ai_state == "no_server", 10)
-    assert panel.ai_text.text() == "The local AI isn't running. Start Ollama, then try again."
+    assert panel.ai_text.text() == "A summary in plain words isn't available: the local AI helper isn't running on this computer."
+    assert panel.ai_text.toolTip() == "Start Ollama, then try again."  # the exact fix, for whoever runs it
     assert panel.ai_button.text() == "Try again"
 
 

@@ -9,7 +9,9 @@ from __future__ import annotations
 from PySide6.QtCore import (
     QEasingCurve,
     QEvent,
+    QPoint,
     QPointF,
+    QRect,
     QRectF,
     QSize,
     Qt,
@@ -25,7 +27,7 @@ from PySide6.QtGui import (
     QPen,
     QRadialGradient,
 )
-from PySide6.QtWidgets import QFrame, QLabel, QSizePolicy, QWidget
+from PySide6.QtWidgets import QFrame, QLabel, QLayout, QSizePolicy, QWidget
 
 from ui.file_kind import FileKind, KINDS
 from ui.icons import glyph, icon_font
@@ -36,10 +38,11 @@ from ui.theme import TOKENS, alpha, mix, tone_color, ui_font
 class ElidedLabel(QLabel):
     """One line that shortens with an ellipsis instead of widening its parent."""
 
-    def __init__(self, text: str = "", parent=None, *, mode=Qt.TextElideMode.ElideRight):
+    def __init__(self, text: str = "", parent=None, *, mode=Qt.TextElideMode.ElideRight, file_name: bool = False):
         super().__init__(parent)
         self._full = ""
         self._mode = mode
+        self._file_name = file_name  # shorten without ever hiding the extension (ui.names)
         self.setMinimumWidth(24)
         self.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
         self.setText(text)
@@ -54,7 +57,13 @@ class ElidedLabel(QLabel):
 
     def _elide(self) -> None:
         width = max(10, self.contentsRect().width())
-        super().setText(QFontMetrics(self.font()).elidedText(self._full, self._mode, width))
+        metrics = QFontMetrics(self.font())
+        if self._file_name:
+            from ui.names import elide_to_width
+
+            super().setText(elide_to_width(self._full, width, metrics.horizontalAdvance))
+        else:
+            super().setText(metrics.elidedText(self._full, self._mode, width))
 
     def resizeEvent(self, event) -> None:  # noqa: N802
         super().resizeEvent(event)
@@ -66,6 +75,72 @@ class ElidedLabel(QLabel):
 
     def minimumSizeHint(self) -> QSize:  # noqa: N802
         return QSize(24, super().minimumSizeHint().height())
+
+
+class FlowLayout(QLayout):
+    """Buttons in a row that wraps to the next line instead of widening the page."""
+
+    def __init__(self, parent=None, spacing: int = 10):
+        super().__init__(parent)
+        self._items = []
+        self._spacing = spacing
+        self.setContentsMargins(0, 0, 0, 0)
+
+    def addItem(self, item) -> None:  # noqa: N802
+        self._items.append(item)
+
+    def count(self) -> int:
+        return len(self._items)
+
+    def itemAt(self, index):  # noqa: N802
+        return self._items[index] if 0 <= index < len(self._items) else None
+
+    def takeAt(self, index):  # noqa: N802
+        return self._items.pop(index) if 0 <= index < len(self._items) else None
+
+    def expandingDirections(self):  # noqa: N802
+        return Qt.Orientation(0)
+
+    def hasHeightForWidth(self) -> bool:  # noqa: N802
+        return True
+
+    def heightForWidth(self, width: int) -> int:  # noqa: N802
+        return self._arrange(QRect(0, 0, width, 0), apply=False)
+
+    def setGeometry(self, rect) -> None:  # noqa: N802
+        super().setGeometry(rect)
+        self._arrange(rect, apply=True)
+
+    def sizeHint(self) -> QSize:  # noqa: N802
+        return self.minimumSize()
+
+    def minimumSize(self) -> QSize:  # noqa: N802
+        size = QSize()
+        for item in self._items:
+            size = size.expandedTo(item.minimumSize())
+        return size
+
+    def _arrange(self, rect: QRect, *, apply: bool) -> int:
+        rtl = self.parentWidget() is not None and self.parentWidget().layoutDirection() == Qt.LayoutDirection.RightToLeft
+        x, y, line = 0, rect.y(), 0
+        rows: list[list[tuple]] = [[]]
+        for item in self._items:
+            if item.widget() is not None and item.widget().isHidden():
+                continue
+            hint = item.sizeHint()
+            if x and x + hint.width() > rect.width():
+                y += line + self._spacing
+                x, line = 0, 0
+                rows.append([])
+            rows[-1].append((item, x, y, hint))
+            x += hint.width() + self._spacing
+            line = max(line, hint.height())
+        if apply:
+            for row in rows:
+                for item, ix, iy, hint in row:
+                    left = rect.right() - ix - hint.width() + 1 if rtl else rect.x() + ix
+                    item.setGeometry(QRect(QPoint(left, iy), hint))
+        return y + line - rect.y()
 
 
 def card(object_name: str = "card") -> QFrame:

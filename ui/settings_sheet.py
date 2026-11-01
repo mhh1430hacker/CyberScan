@@ -9,6 +9,7 @@ from PySide6.QtCore import QEasingCurve, QPropertyAnimation, QRect, Qt, Signal
 from PySide6.QtGui import QColor, QPainter
 from PySide6.QtWidgets import (
     QCheckBox,
+    QCompleter,
     QLabel,
     QFrame,
     QHBoxLayout,
@@ -26,11 +27,13 @@ from ui.motion import VIEW_MS, prefers_reduced_motion
 from ui.theme import TOKENS
 from ui.widgets import Pill, card, label
 
+# Plain words on the box; the technical name in its tooltip, for whoever wants it.
 ENGINE_OPTIONS = (
-    ("entropy_analysis", "Content randomness (entropy)"),
-    ("heuristic_rules", "Warning-sign rules (heuristics)"),
-    ("ml_analysis", "Learning model (structural classifier)"),
+    ("entropy_analysis", "Check how scrambled the content is"),
+    ("heuristic_rules", "Look for common warning signs"),
+    ("ml_analysis", "Use the learning model, if one is installed"),
 )
+ENGINE_TECH = {"entropy_analysis": "Entropy analysis", "heuristic_rules": "Heuristic rules", "ml_analysis": "Structural classifier"}
 
 
 class Scrim(QWidget):
@@ -113,6 +116,7 @@ class SettingsSheet(QFrame):
         _frame, online = section()
         self.checks["osint_enabled"] = QCheckBox()
         self.checks["osint_enabled"].stateChanged.connect(lambda _state: self.changed.emit())
+        self.checks["osint_enabled"].stateChanged.connect(lambda _state: self._sync_online())
         self.online_note = label("", "mute", wrap=True)
         self.keys_note = label("", "mute", wrap=True)
         online.addWidget(self.checks["osint_enabled"])
@@ -137,6 +141,8 @@ class SettingsSheet(QFrame):
         self.forget_keys.clicked.connect(self.forgetKeysRequested)
         keys_row.addWidget(self.forget_keys, 0, Qt.AlignmentFlag.AlignTop)
         online.addLayout(keys_row)
+        self._online_extras = [*self.key_captions.values(), *self.key_fields.values(), self.keys_note, self.forget_keys]
+        self._sync_online()
 
         _frame, assistant = section()
         self.ai_title = label("", "section")
@@ -239,7 +245,8 @@ class SettingsSheet(QFrame):
         self.engines_note.setText(t("Disabling a check reduces coverage. Every result says which checks ran."))
         for key, text in ENGINE_OPTIONS:
             self.checks[key].setText(t(text))
-        self.checks["osint_enabled"].setText(t("Online lookups (off by default)"))
+            self.checks[key].setToolTip(ENGINE_TECH[key])
+        self.checks["osint_enabled"].setText(t("Check links and fingerprints against public lists (online)"))
         self.online_note.setText(t("Sends supported links, domains, IPs or a file's SHA-256 to public services. File contents are never uploaded. A miss is not proof of safety."))
         self.keys_note.setText(t("Free keys: auth.abuse.ch (one key covers URLhaus and ThreatFox) and otx.alienvault.com. They are stored encrypted for your Windows account."))
         self.key_captions["abusech"].setText(t("abuse.ch key (URLhaus and ThreatFox)"))
@@ -264,13 +271,32 @@ class SettingsSheet(QFrame):
         self.save_button.setText(t("Save settings"))
         self.log_title.setText(t("Session log"))
         self.about_title.setText(t("About CyberScan"))
-        self.about_body.setText(t("CyberScan is a defensive research prototype. It reads files, links and indicators without running them. Its findings are leads for review, not proof of malware, and its scores are not probabilities. It never repairs, deletes or quarantines anything."))
+        self.about_body.setText(t("CyberScan is a defensive research prototype. It reads files, links and indicators without running them. Its findings are leads for review, not proof of malware, and its scores are not probabilities. It never deletes anything; it moves a file to its encrypted quarantine only when you ask."))
         self.credits.setText(t("Developed by m6no5 and Ainex"))
+
+    def _sync_online(self) -> None:
+        """Keys matter only once online lookups are on; until then they're noise."""
+        on = self.checks["osint_enabled"].isChecked()
+        for widget in getattr(self, "_online_extras", []):
+            if widget is self.forget_keys:
+                widget.setVisible(on and getattr(self, "_keys_saved", False))
+            else:
+                widget.setVisible(on)
+
+    def set_installed_models(self, names: tuple) -> None:
+        """Offer the models that are really installed, instead of a blank box to guess in."""
+        names = [str(name) for name in names if name]
+        completer = QCompleter(names, self.ai_model)
+        completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+        completer.setFilterMode(Qt.MatchFlag.MatchContains)
+        self.ai_model.setCompleter(completer)
+        self.ai_model.setToolTip(tr("Installed: {names}", self.language).format(names=", ".join(names)) if names else "")
 
     def set_keys_saved(self, saved: dict[str, bool]) -> None:
         for key, field in self.key_fields.items():
             field.setPlaceholderText(tr("Saved · type to replace", self.language) if saved.get(key) else tr("Paste the key", self.language))
-        self.forget_keys.setVisible(any(saved.values()))
+        self._keys_saved = any(saved.values())
+        self._sync_online()
 
     def set_ai_status(self, state: str, model: str) -> None:
         words = {

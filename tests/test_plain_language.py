@@ -78,7 +78,7 @@ def test_facts_use_real_counts_and_the_measured_time():
     _view, summary = summary_for(result(evidence=findings), elapsed=2.25)
     assert summary.facts[0] == "3 things caught our attention"
     assert summary.facts[1] == "Program · 2.0 KB"
-    assert summary.facts[2] == "Checked in 2.2 s" or summary.facts[2] == "Checked in 2.3 s"
+    assert summary.facts[2] in {"Checked in 2.2 seconds", "Checked in 2.3 seconds"}
     _view, no_time = summary_for(result(evidence=findings), elapsed=None)
     assert len(no_time.facts) == 2
 

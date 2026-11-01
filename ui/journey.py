@@ -74,6 +74,13 @@ class JourneyScene(QWidget):
         self._describe()
 
     # -- public API (called from real scan events) -------------------------
+    def set_compact(self, compact: bool) -> None:
+        """Compact: stations only, under the file cube. Full: stations and the
+        target's tile, for links and text, which have no inside to map."""
+        self.compact = compact
+        self.setFixedHeight(96 if compact else 300)
+        self.update()
+
     def set_stage_titles(self, titles: list[str]) -> None:
         self.stage_titles = list(titles)[:STAGE_COUNT]
         self.update()
