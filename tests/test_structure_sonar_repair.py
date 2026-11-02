@@ -1,7 +1,8 @@
-"""The file structure cube, out-of-process scanning, and the repair preview."""
+"""The file structure cube, out-of-process scanning, and the Repair screen."""
 from __future__ import annotations
 
 import os
+import re
 import time
 
 import numpy as np
@@ -190,23 +191,109 @@ def test_a_real_scan_runs_in_the_worker_process(qapplication, tmp_path, monkeypa
     assert stages[0] == (0, "running") and (3, "complete") in stages
 
 
-# --- repair preview ------------------------------------------------------------------------------------
+# --- repair ------------------------------------------------------------------------------------------
 
 
-def test_repair_mode_changes_the_look_and_cannot_change_files(window, qapplication):
+def test_repair_mode_changes_the_look_and_starts_empty(window, qapplication):
     from PySide6.QtWidgets import QPushButton
 
     assert "#5ee0d0" in window.styleSheet()
     window.mode_buttons["repair"].click()
     assert window.app_mode == "repair" and window.view == "repair"
     assert "#a594ff" in window.styleSheet()
-    assert window.status_pill.text().endswith("Repair · preview")
-    assert "isn't available in this version" in window.repair_view.lead.text()
-    enabled = [b for b in window.repair_view.findChildren(QPushButton) if b.isEnabled()]
-    assert enabled == []  # nothing on the repair screen can act
+    assert window.status_pill.text().endswith("Repair")
+    assert not window.repair_view.review.isVisible() and not window.repair_view.outcome.isVisible()
+    window.repair_view.analyze_field()  # nothing chosen: a clear message, no work
+    assert "Choose a file" in window.repair_view.error.text()
     window.mode_buttons["scan"].click()
     assert window.app_mode == "scan" and window.view == "lens"
     assert "#5ee0d0" in window.styleSheet()
+
+
+def _repair_round(window, qapplication, path):
+    view = window.repair_view
+    window._file_dropped(str(path))  # in repair mode a dropped file goes to repair
+    assert wait_for(qapplication, lambda: view.report is not None and view.analyze_button.isEnabled(), 30)
+    return view
+
+
+def test_repair_cuts_an_appended_program_out_of_a_copy(window, qapplication, tmp_path):
+    from repair_fixtures import build_png
+
+    original = build_png()[0] + b"MZ" + bytes(range(256)) * 8
+    path = tmp_path / "holiday.png"
+    path.write_bytes(original)
+    window.set_mode("repair")
+    view = _repair_round(window, qapplication, path)
+    assert [f.kind for f in view.selected()] == ["after_eof"]  # pre-selected: it starts like a program
+    assert view.cube.structure is not None and view.cube.structure.flags.any()
+    view.repair_button.click()
+    assert wait_for(qapplication, lambda: view.output is not None or view.outcome_title.text().startswith("✕"), 30)
+    view.wait()
+    assert view.output == tmp_path / "holiday (repaired).png"
+    assert view.output.read_bytes() == build_png()[0]
+    assert path.read_bytes() == original  # the original is untouched
+    assert "0 after" in view.outcome_body.text() and "1 before" in view.outcome_body.text()
+    assert list((tmp_path / "data" / "quarantine" / "repair").iterdir())  # the cut bytes are sealed
+    assert any("Repaired copy written" in line for line in window.audit_log)
+    # a second repair never overwrites the first copy
+    view.repair_button.click()
+    assert wait_for(qapplication, lambda: view.output == tmp_path / "holiday (repaired 2).png", 30)
+    view.wait()
+
+
+def test_repair_removes_macros_from_a_document_cleanly(window, qapplication, tmp_path):
+    import io
+    import zipfile
+
+    from repair_fixtures import build_zip
+
+    content_types = (b'<Types><Default Extension="xml" ContentType="application/xml"/>'
+                     b'<Override PartName="/word/document.xml" ContentType="doc"/>'
+                     b'<Override PartName="/word/vbaProject.bin" ContentType="application/vnd.ms-office.vbaProject"/></Types>')
+    rels = (b'<Relationships><Relationship Id="rId1" Type="http://schemas.microsoft.com/office/2006/relationships/vbaProject" Target="vbaProject.bin"/>'
+            b'<Relationship Id="rId2" Type="http://x/styles" Target="styles.xml"/></Relationships>')
+    data, _ = build_zip(members={"[Content_Types].xml": content_types, "_rels/.rels": b"<Relationships/>",
+                                 "word/document.xml": b"<w:document/>", "word/styles.xml": b"<w:styles/>",
+                                 "word/_rels/document.xml.rels": rels, "word/vbaProject.bin": bytes(range(256)) * 4})
+    path = tmp_path / "report.docx"  # a .docx isn't supposed to hold macros
+    path.write_bytes(data)
+    window.set_mode("repair")
+    view = _repair_round(window, qapplication, path)
+    macro = [f for f in view.report.findings if f.kind == "ooxml_vba_project"]
+    assert macro and macro[0].severity == "high" and macro[0] in view.selected()
+    view.repair_button.click()
+    assert wait_for(qapplication, lambda: view.output is not None, 30)
+    view.wait()
+    with zipfile.ZipFile(io.BytesIO(view.output.read_bytes())) as package:
+        assert package.testzip() is None
+        assert "word/vbaProject.bin" not in package.namelist()
+        assert b"vbaProject" not in package.read("[Content_Types].xml")
+        remaining = package.read("word/_rels/document.xml.rels")
+        assert b"vbaProject" not in remaining and b"styles.xml" in remaining
+
+
+def test_repair_renames_a_disguised_program_and_reports_what_it_cannot_fix(window, qapplication, tmp_path):
+    from repair_fixtures import build_pdf
+
+    path = tmp_path / "invoice.pdf.exe"
+    path.write_bytes(build_pdf()[0])
+    window.set_mode("repair")
+    view = _repair_round(window, qapplication, path)
+    keys = [f.key for f in view.selected()]
+    assert "name_double" in keys
+    view.language = "ar"
+    view._render()  # Arabic rows read a translated sentence, not the engine's English
+    assert re.search("[؀-ۿ]", view.summary.text()) and not re.search("[A-Za-z]{3,}", view.summary.text())
+
+
+def test_a_clean_file_has_nothing_to_repair(window, qapplication, tmp_path):
+    path = tmp_path / "notes.txt"
+    path.write_text("Agenda for Thursday.\n" * 40, encoding="utf-8")
+    window.set_mode("repair")
+    view = _repair_round(window, qapplication, path)
+    assert view.report.findings == [] and not view.repair_button.isVisible()
+    assert "doesn't prove the file is safe" in view.summary.text()
 
 
 def test_repair_cannot_be_entered_while_a_scan_runs(window, qapplication, tmp_path, monkeypatch):

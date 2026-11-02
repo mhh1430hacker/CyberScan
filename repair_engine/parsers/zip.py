@@ -21,6 +21,7 @@ _MAX_MEMBERS = 20_000
 _MAX_RELS_BYTES = 2 * 1024 * 1024
 _EXTERNAL = re.compile(rb"<Relationship\b[^>]*?TargetMode=\"External\"[^>]*>", re.IGNORECASE)
 _TARGET = re.compile(rb"Target=\"([^\"]*)\"")
+_TYPE = re.compile(rb"Type=\"[^\"]*/([^\"/]+)\"")
 
 
 def parse_zip(data: bytes, regions: RegionMap) -> None:
@@ -104,11 +105,13 @@ def _external_links(archive: zipfile.ZipFile, info: zipfile.ZipInfo, regions: Re
         text = archive.read(info)
     except (zipfile.BadZipFile, RuntimeError, OSError, EOFError, ValueError):
         return
-    targets = []
+    targets, kinds = [], []
     for match in _EXTERNAL.finditer(text):
         target = _TARGET.search(match.group(0))
+        kind = _TYPE.search(match.group(0))
         if target:
             targets.append(target.group(1).decode("utf-8", "replace"))
+            kinds.append(kind.group(1).decode("utf-8", "replace") if kind else "")
     if targets:
         region = regions.regions[member]
-        regions.add(region.start, region.end, "ooxml_external_link", parent=member, part=info.filename, targets=targets)
+        regions.add(region.start, region.end, "ooxml_external_link", parent=member, part=info.filename, targets=targets, types=kinds)

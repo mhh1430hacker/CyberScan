@@ -18,13 +18,13 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-from repair_engine.executor import pdf, pe, zip as zip_actions
+from repair_engine.executor import ooxml, pdf, pe, zip as zip_actions
 from repair_engine.executor.common import Refused, Removed, truncate_at
 from repair_engine.parsers import parse
 
 ACTIONS = (
     "strip_overlay", "truncate_after_eof", "remove_section_and_fix_headers", "restore_entry_point",
-    "remove_zip_member", "remove_ole_stream", "remove_pdf_object_and_refs", "quarantine_whole_file", "report_only",
+    "remove_zip_member", "remove_ooxml_parts", "remove_ole_stream", "remove_pdf_object_and_refs", "quarantine_whole_file", "report_only",
 )
 
 
@@ -66,6 +66,8 @@ def _single(data: bytes, plan: Plan) -> tuple[bytes, list[Removed]]:
         return pe.restore_entry_point(data, plan.params.get("reference_entry"))
     if plan.action == "remove_zip_member":
         return zip_actions.remove_member(data, plan.params.get("member"), plan.start)
+    if plan.action == "remove_ooxml_parts":
+        return ooxml.remove_parts(data, list(plan.params.get("parts") or []))
     if plan.action == "remove_pdf_object_and_refs":
         return pdf.remove_last_update(data, plan.params.get("objects") or [])
     if plan.action == "remove_ole_stream":

@@ -15,6 +15,7 @@ import os
 import queue
 import re
 import shutil
+import sys
 import time
 import uuid
 from dataclasses import replace
@@ -490,6 +491,8 @@ class CyberScanApp(QMainWindow):
         self.result_panel.advancedToggled.connect(lambda opened: opened and self._scroll_to(self.result_panel.advanced))
         column.addWidget(self.result_panel)
         self.repair_view = RepairView()
+        self.repair_view.data_dir = Path(DATA_DIR)
+        self.repair_view.logged.connect(self._append_log)
         column.addWidget(self.repair_view)
         column.addStretch(1)
 
@@ -526,11 +529,22 @@ class CyberScanApp(QMainWindow):
             ("Ctrl+F", self._focus_search),
             ("Ctrl+,", self.open_settings),
             ("Ctrl+Shift+C", lambda: self.view == "result" and self.result_panel._copy_fingerprint()),
+            ("Ctrl+Shift+E", self.open_exhibit),
             ("Escape", self.close_settings),
         ):
             shortcut = QShortcut(QKeySequence(sequence), self)
             shortcut.activated.connect(callback)
             self.shortcuts.append(shortcut)
+
+    def open_exhibit(self) -> None:
+        """Live file surgery, full screen, for a stand at an exhibition."""
+        if self.worker is not None and self.worker.isRunning():
+            return
+        from ui.exhibit import ExhibitWindow
+
+        self.exhibit = ExhibitWindow(self.language, Path(DATA_DIR))
+        self.exhibit.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
+        self.exhibit.showFullScreen()
 
     # ============================================================== language
     def t(self, text: str) -> str:
@@ -553,8 +567,8 @@ class CyberScanApp(QMainWindow):
         self.repair_view.retranslate(self.language)
         self.mode_buttons["scan"].setText(self.t("Scan"))
         # Repair isn't available yet: the switch says so before anyone clicks it.
-        self.mode_buttons["repair"].setText(self.t("Repair") + " · " + self.t("soon"))
-        self.mode_buttons["repair"].setToolTip(self.t("Coming soon · preview"))
+        self.mode_buttons["repair"].setText(self.t("Repair"))
+        self.mode_buttons["repair"].setToolTip(self.t("Works on a copy · the original is never changed"))
         self.skip_button.setText(self.t("Skip the animation"))
         self.journey.set_stage_titles([self.t(title) for title in STAGE_TITLES])
         self.journey.setAccessibleName(self.t("Scanning {name}").format(name=display_name(self.target, self.mode)))
@@ -601,7 +615,7 @@ class CyberScanApp(QMainWindow):
 
     def _refresh_status(self) -> None:
         if self.view == "repair":
-            text, tone = "Repair · preview", "repair"
+            text, tone = "Repair", "repair"
         elif self.view == "journey" and self.journey.phase == "analyzing":
             text, tone = "Scanning", "info"
         elif self.view == "journey" and self.journey.phase == "failed":
@@ -640,6 +654,9 @@ class CyberScanApp(QMainWindow):
 
     def _file_dropped(self, path: str) -> None:
         if self.worker is not None:
+            return
+        if self.app_mode == "repair":
+            self.repair_view.load(path)
             return
         self._show_view("lens", animate=self.view != "lens")
         self.lens.set_target(path)
@@ -1215,6 +1232,12 @@ class CyberScanApp(QMainWindow):
         record = self._record(record_id)
         if record is None:
             return
+        if self.app_mode == "repair":
+            # In repair mode a scan from the rail is a file to repair, not a result to reread.
+            target = str(record.get("target", ""))
+            if self._record_mode(target) == "File":
+                self.repair_view.load(target)
+            return
         try:
             payload = json.loads(self._validated_history_report(record).read_text(encoding="utf-8"))
             result = self._result_from_report(payload)
@@ -1717,6 +1740,7 @@ class CyberScanApp(QMainWindow):
             event.ignore()
             QMessageBox.information(self, self.t("Analysis in progress"), self.t("Wait for the current scan to finish, then close CyberScan."))
             return
+        self.repair_view.wait()
         if self._monitor:
             self._monitor.stop()
         self.journey.stop()
@@ -1740,6 +1764,13 @@ def main() -> None:
     from ui.brand import app_icon
 
     app.setWindowIcon(app_icon())  # title bar, taskbar and Alt+Tab
+    if "--exhibit" in sys.argv:
+        from ui.exhibit import ExhibitWindow
+
+        exhibit = ExhibitWindow("ar" if "--ar" in sys.argv else "en", Path(DATA_DIR))
+        exhibit.showFullScreen()
+        app.exec()
+        return
     window = CyberScanApp()
     window.show()
     app.exec()

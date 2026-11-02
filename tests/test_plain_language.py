@@ -234,7 +234,10 @@ def _table_literals() -> set[str]:
     found |= set(qt_app.REASONS.values()) | set(result_tiers.ResultPanel.AI_MESSAGES.values())
     from ui import repair
 
-    found |= {text for _n, title, body in repair.STEPS for text in (title, body)} | set(repair.RULES)
+    found |= set(repair.RULES) | set(repair.PHRASES) | set(repair.SUMMARIES.values())
+    from ui import exhibit
+
+    found |= set(exhibit.STEPS) | {s.title for s in exhibit.SAMPLES} | set(exhibit.FAMILY_WORDS.values()) | set(exhibit.TRICKS.values())
     return found
 
 

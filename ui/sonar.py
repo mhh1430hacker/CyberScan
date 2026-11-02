@@ -103,6 +103,7 @@ class SonarCube(QWidget):
         self.highlighted: set[int] = set()
         self.failed = False
         self._hold = False  # after drawing, stay still instead of scanning
+        self.turntable = False  # keep turning slowly when settled (the exhibit screen)
         self.yaw = -0.62
         self.pitch = -0.42
         self.zoom = 1.0
@@ -191,7 +192,7 @@ class SonarCube(QWidget):
         return (
             not self.reduced_motion
             and self.isVisible()
-            and self.phase in {"drawing", "scanning", "echo", "flag"}
+            and (self.phase in {"drawing", "scanning", "echo", "flag"} or (self.turntable and self.phase in {"explore", "stopped"}))
         )
 
     def _sync_timer(self) -> None:
@@ -204,7 +205,7 @@ class SonarCube(QWidget):
 
     def _finish(self) -> None:
         self.phase = "explore"
-        self._timer.stop()
+        self._sync_timer()
         self.update()
         self.finished.emit()
 
@@ -214,6 +215,8 @@ class SonarCube(QWidget):
         self._last = now
         if self.phase in {"drawing", "scanning", "echo", "flag"}:
             self.yaw += dt * 0.22
+        elif self.turntable and self._drag is None:
+            self.yaw += dt * 0.12
         elapsed = self._elapsed()
         if self.phase == "drawing" and elapsed >= DRAW_SECONDS:
             self._set_phase("stopped" if self._hold else "scanning")
