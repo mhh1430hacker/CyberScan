@@ -218,6 +218,12 @@ QPushButton#primary {{
 QPushButton#primary:hover {{ background: {p['hover']}; }}
 QPushButton#primary:focus {{ border: 2px solid {p['strong']}; }}
 QPushButton#primary:disabled {{ background: {t['surface_3']}; color: {t['text_mute']}; border-color: {t['glass_edge']}; }}
+QPushButton#repairCta {{
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #7b69e6, stop:1 #a594ff); color: #0c0820;
+    border: 1px solid #d3cbff; border-bottom-color: #5b4bc4; padding: 7px 16px; font-weight: 700;
+}}
+QPushButton#repairCta:hover {{ background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #8f7ef0, stop:1 #b9acff); }}
+QPushButton#repairCta:focus {{ border: 2px solid #ece8ff; }}
 QPushButton#danger {{
     background: {alpha(t['danger'], 0.14).name(QColor.NameFormat.HexArgb)}; color: #ffd7d8;
     border: 1px solid {alpha(t['danger'], 0.55).name(QColor.NameFormat.HexArgb)}; padding: 7px 14px; font-weight: 600;

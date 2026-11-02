@@ -341,3 +341,42 @@ def test_a_scan_still_works_after_visiting_repair(window, qapplication, tmp_path
     sample.write_text("Agenda for Thursday.\n" * 40, encoding="utf-8")
     scan(qapplication, window, str(sample))
     assert window.view == "result" and window._failure is None
+
+
+# --- scan -> repair ------------------------------------------------------------------------------------
+
+
+def test_a_scan_result_offers_repair_and_hands_over_with_the_sonar_wave(window, qapplication, tmp_path):
+    from repair_fixtures import build_png
+
+    clean = build_png()[0]
+    path = tmp_path / "beach.png"
+    path.write_bytes(clean + b"MZ" + bytes(range(256)) * 16)
+    scan(qapplication, window, str(path))
+    panel = window.result_panel
+    assert wait_for(qapplication, lambda: panel.repair_button.isVisible(), 30)
+    assert panel.repair_count == 1 and "1 can be fixed" in panel.repair_button.text()
+    panel.repair_button.click()
+    assert window.view == "repair" and window.app_mode == "repair"
+    assert window._transition is not None  # the wave is playing over the switch
+    assert wait_for(qapplication, lambda: window._transition is None, 10)
+    view = window.repair_view
+    assert view.path == path and [f.kind for f in view.selected()] == ["after_eof"]
+    assert wait_for(qapplication, lambda: view.cube.structure is not None and view.cube.structure.flags.any(), 10)
+    view.repair_button.click()
+    assert wait_for(qapplication, lambda: view.output is not None, 30)
+    view.wait()
+    assert view.output.read_bytes() == clean and path.read_bytes() != clean  # a repaired copy; the original kept
+    window.set_mode("scan")
+    assert window.view == "result"  # back where the visitor came from
+
+
+def test_a_clean_scan_offers_no_repair(window, qapplication, tmp_path):
+    path = tmp_path / "notes.txt"
+    path.write_text("Agenda for Thursday.\n" * 40, encoding="utf-8")
+    scan(qapplication, window, str(path))
+    qapplication.processEvents()
+    assert wait_for(qapplication, lambda: (window._current or {}).get("repair_probe") is not None, 20)
+    assert not window.result_panel.repair_button.isVisible()
+    window.repair_current()  # nothing to hand over: nothing happens
+    assert window.view == "result"

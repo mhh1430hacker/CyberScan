@@ -462,6 +462,9 @@ AR: dict[str, str] = {
     '{size} cut out. The fingerprint matches the original byte for byte.': 'اقتُطع {size}. البصمة تطابق الأصل بايتًا ببايت.',
     "{what}. It's harmless filler for the demo, placed the way real tampering is. The name hasn't changed; the size grew by {size}.": '{what}. إنها حشوة غير ضارة للعرض، وُضعت كما يُوضع العبث الحقيقي. لم يتغير الاسم، وزاد الحجم بمقدار {size}.',
     'Press any number to continue': 'اضغط أي رقم للمتابعة',
+    'Repair this file · {count} can be fixed': 'أصلح هذا الملف · يمكن إصلاح {count}',
+    "Opens Repair on a copy of this file. The original isn't changed.": 'يفتح الإصلاح على نسخة من هذا الملف. لا يتغير الأصل.',
+    'Repair mode': 'وضع الإصلاح',
 }
 
 _COUNT_FORMS = {

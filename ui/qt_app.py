@@ -24,7 +24,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlsplit
 
-from PySide6.QtCore import QProcess, Qt, QThread, QTimer, QUrl, Signal
+from PySide6.QtCore import QPointF, QProcess, Qt, QThread, QTimer, QUrl, Signal
 from PySide6.QtGui import QDesktopServices, QFont, QKeySequence, QShortcut
 from PySide6.QtWidgets import (
     QApplication,
@@ -55,6 +55,7 @@ from ui.icons import glyph_icon
 from ui.journey import JourneyScene
 from ui.lens import DropOverlay, Lens
 from ui.motion import fade_in
+from ui.names import visible
 from ui.persistence import LocalUiStore
 from ui.result_tiers import ResultPanel, advanced_texts, region_label
 from ui.result_view import ResultView, build_result_view
@@ -485,6 +486,9 @@ class CyberScanApp(QMainWindow):
         self.result_panel.aiRequested.connect(self.start_ai_summary)
         self.result_panel.aiStopRequested.connect(self.stop_ai_summary)
         self.result_panel.quarantineRequested.connect(self.quarantine_current)
+        self.result_panel.repairRequested.connect(self.repair_current)
+        self._repair_probes: list[QThread] = []
+        self._transition = None
         self.result_panel.revealRequested.connect(self.reveal_current)
         self.result_panel.onlineRequested.connect(self._open_online_settings)
         self.result_panel.detailsToggled.connect(lambda opened: opened and self._scroll_to(self.result_panel.details))
@@ -911,6 +915,68 @@ class CyberScanApp(QMainWindow):
                 self.result_panel._fill_advanced()
                 self.result_panel.advanced.setVisible(True)
             self.result_panel._sync_buttons()
+        self._probe_repair()
+        self._offer_repair()
+
+    # ============================================================ scan -> repair
+    def _probe_repair(self) -> None:
+        """Quietly ask the repair engine about a scanned file (off the UI thread)."""
+        current, path = self._current, self._current_file()
+        if current is None or path is None or "repair_probe" in current or self.result_panel.quarantined:
+            return
+        if not path.is_file():
+            return
+        from ui.repair import _Analyze
+
+        current["repair_probe"] = None
+        probe = _Analyze(str(path))
+        probe.done.connect(lambda payload, error, c=current: self._repair_probed(c, payload, error))
+        self._repair_probes.append(probe)
+        probe.finished.connect(lambda p=probe: p in self._repair_probes and self._repair_probes.remove(p))
+        probe.start()
+
+    def _repair_probed(self, current: dict, payload, error) -> None:
+        if error is not None or payload is None:
+            return
+        current["repair_probe"] = payload
+        if current is self._current:
+            self._offer_repair()
+
+    def _offer_repair(self) -> None:
+        payload = (self._current or {}).get("repair_probe")
+        self.result_panel.offer_repair(sum(f.repairable for f in payload[0].findings) if payload else 0)
+
+    def repair_current(self) -> None:
+        """Carry the scanned file into Repair, with the sonar wave between them."""
+        payload = (self._current or {}).get("repair_probe")
+        path = self._current_file()
+        if not payload or path is None or self._transition is not None or (self.worker is not None and self.worker.isRunning()):
+            return
+        if not any(f.repairable for f in payload[0].findings):
+            return
+        report, data = payload
+        button = self.result_panel.repair_button
+        origin = QPointF(button.mapTo(self, button.rect().center())) if button.isVisible() else QPointF(self.width() / 2, self.height() / 2)
+        before = self.grab()
+        self._view_before_repair = "result"
+        self.repair_view.present(str(path), report, data, held=True)
+        self._show_view("repair", animate=False)
+        QApplication.processEvents()
+        after = self.grab()
+        from ui.transition import RepairTransition
+
+        self._transition = RepairTransition(
+            self, before, after, origin, self.t("Repair mode"), visible(path.name),
+            self.t("Works on a copy · the original is never changed"), self.language,
+        )
+        self._transition.finished.connect(self._repair_transition_done)
+        self._append_log(f"Scan result handed to Repair: {path}")
+        self._transition.play()
+
+    def _repair_transition_done(self) -> None:
+        self._transition = None
+        self.repair_view.sonar()
+        self.repair_view.repair_button.setFocus()
 
     def _scan_failed(self, message: str) -> None:
         if self._from_stale_worker():
@@ -1741,6 +1807,8 @@ class CyberScanApp(QMainWindow):
             QMessageBox.information(self, self.t("Analysis in progress"), self.t("Wait for the current scan to finish, then close CyberScan."))
             return
         self.repair_view.wait()
+        for probe in list(self._repair_probes):
+            probe.wait(30000)
         if self._monitor:
             self._monitor.stop()
         self.journey.stop()

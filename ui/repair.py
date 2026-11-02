@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from PySide6.QtCore import QThread, QUrl, Qt, Signal
+from PySide6.QtCore import QThread, QTimer, QUrl, Qt, Signal
 from PySide6.QtGui import QDesktopServices
 from PySide6.QtWidgets import (
     QCheckBox,
@@ -316,6 +316,29 @@ class RepairView(QWidget):
         self.field.setText(path)
         self.analyze_field()
 
+    def present(self, path: str, report, data: bytes, *, held: bool = False) -> None:
+        """Open an analysis already made (a scan result handing over to Repair).
+
+        With ``held`` the cube waits, empty, for ``sonar()``: the transition
+        plays first, then the sonar runs on the file in front of the visitor.
+        """
+        self.field.setText(path)
+        self._show_error("")
+        self.outcome.setVisible(False)
+        self.path, self.report, self.data, self.output = Path(path), report, data, None
+        self._render(cube=not held)
+        if held:
+            self.cube.show_empty(TONES["repair"])
+        self.logged.emit(f"Repair opened from a scan: {path} · {len(report.findings)} finding(s)")
+
+    def sonar(self) -> None:
+        """Send the sonar through the file, then light up what will be repaired."""
+        structure = self._structure()
+        if structure is None:
+            return
+        self.cube.start(TONES["repair"])
+        QTimer.singleShot(900, lambda s=structure: self.cube.structure is None and self.cube.reveal(s))
+
     def _choose(self) -> None:
         path, _filter = QFileDialog.getOpenFileName(self, self.t("Choose a file"))
         if path:
@@ -363,7 +386,7 @@ class RepairView(QWidget):
         self.logged.emit(f"Repair check: {self.path} · {len(self.report.findings)} finding(s)")
 
     # -- step 2 -------------------------------------------------------------------------------
-    def _render(self) -> None:
+    def _render(self, *, cube: bool = True) -> None:
         report, t = self.report, self.t
         self.file_name.setText(visible(report.name))
         self.file_meta.setText(" · ".join((
@@ -387,14 +410,20 @@ class RepairView(QWidget):
         self.repair_button.setVisible(bool(repairable))
         self._sync_repair_button()
         self.review.setVisible(True)
-        # The cube: the file's real structure, with each finding's place glowing.
+        if cube:
+            structure = self._structure()
+            if structure is not None:
+                self.cube.show_structure(structure, TONES["repair"])
+
+    def _structure(self):
+        """The file's real structure, with each finding's place flagged."""
+        if not self.data or self.report is None:
+            return None
         position = {"entropy_boundaries": [
             {"offset_start": f.start, "offset_end": max(f.end or 0, (f.start or 0) + 1), "severity": f.severity}
-            for f in report.findings if f.start is not None and f.end is not None
+            for f in self.report.findings if f.start is not None and f.end is not None
         ]}
-        structure = build_structure(self.data, None, {}, position) if self.data else None
-        if structure is not None:
-            self.cube.show_structure(structure, TONES["repair"])
+        return build_structure(self.data, None, {}, position)
 
     def _finding_row(self, finding) -> QWidget:
         t = self.t

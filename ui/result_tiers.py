@@ -247,6 +247,7 @@ class ResultPanel(QWidget):
     quarantineRequested = Signal()
     revealRequested = Signal()
     onlineRequested = Signal()
+    repairRequested = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -333,11 +334,18 @@ class ResultPanel(QWidget):
         self.copy_hash_button.setObjectName("ghost")
         self.copy_hash_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.copy_hash_button.clicked.connect(self._copy_fingerprint)
+        # Offered only once the repair engine has found something it can cut out exactly.
+        self.repair_button = QPushButton()
+        self.repair_button.setObjectName("repairCta")
+        self.repair_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.repair_button.clicked.connect(self.repairRequested)
+        self.repair_button.setVisible(False)
+        self.repair_count = 0
         self.again_button = QPushButton()
         self.again_button.setObjectName("ghost")
         self.again_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.again_button.clicked.connect(self.newScanRequested)
-        for button in (self.why_button, self.quarantine_button, self.online_button, self.reveal_button, self.copy_hash_button, self.again_button):
+        for button in (self.why_button, self.repair_button, self.quarantine_button, self.online_button, self.reveal_button, self.copy_hash_button, self.again_button):
             actions.addWidget(button)
         summary.addWidget(actions_host)
         self.fingerprint = ""
@@ -618,6 +626,8 @@ class ResultPanel(QWidget):
         self._summary, self._details, self._kind, self._texts = summary, details, kind, texts
         self.fingerprint = fingerprint
         self.quarantined = False
+        self.repair_count = 0
+        self.repair_button.setVisible(False)
         self.collapse_all()
         self.origin.setText(origin)
         self.origin.setVisible(bool(origin))
@@ -647,6 +657,7 @@ class ResultPanel(QWidget):
         self.quarantine_button.setText(tr("Move to quarantine", language))
         self.quarantine_button.setToolTip(tr("Encrypts the file and moves it out of the way. Nothing is deleted; you can restore it from your scans.", language))
         self.reveal_button.setText(tr("Show in folder", language))
+        self._label_repair()
         self.copy_hash_button.setText(tr("Copy fingerprint", language))
         self.copy_hash_button.setToolTip(tr("Copies the file's SHA-256 fingerprint, to look it up elsewhere.", language) + " · Ctrl+Shift+C")
         self.online_button.setText(tr("Turn on online lookups", language))
@@ -934,8 +945,20 @@ class ResultPanel(QWidget):
             QGuiApplication.clipboard().setText(self.fingerprint)
             self.copy_hash_button.setText(tr("Copied", self.language))
 
+    def offer_repair(self, count: int) -> None:
+        """Show "Repair this file" when ``count`` parts can be cut out exactly."""
+        self.repair_count = count
+        self._label_repair()
+        self.repair_button.setVisible(count > 0 and not self.quarantined)
+
+    def _label_repair(self) -> None:
+        if self.repair_count:
+            self.repair_button.setText("✦  " + tr("Repair this file · {count} can be fixed", self.language).format(count=self.repair_count))
+            self.repair_button.setToolTip(tr("Opens Repair on a copy of this file. The original isn't changed.", self.language))
+
     def mark_quarantined(self, where: str) -> None:
         self.quarantined = True
+        self.repair_button.setVisible(False)
         self.quarantine_button.setVisible(False)
         self.reveal_button.setVisible(False)
         self.notice_text.setText(tr("Moved to quarantine. It's encrypted and can't be opened by accident. You can restore it from your scans.", self.language))
