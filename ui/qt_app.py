@@ -1737,6 +1737,9 @@ def main() -> None:
     app.setApplicationName("CyberScan")
     app.setOrganizationName("CyberScan")
     app.setStyle("Fusion")
+    from ui.brand import app_icon
+
+    app.setWindowIcon(app_icon())  # title bar, taskbar and Alt+Tab
     window = CyberScanApp()
     window.show()
     app.exec()

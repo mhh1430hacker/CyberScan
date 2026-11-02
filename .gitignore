@@ -13,6 +13,7 @@ data/scan_history.json
 data/ui_settings.json
 data/reports/history/
 data/quarantine/
+data/quarantine.key
 data/trusted_models.json
 data/secrets.bin
 

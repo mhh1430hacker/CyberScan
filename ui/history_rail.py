@@ -27,6 +27,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from ui.brand import SonarMark, name as brand_name
 from ui.copy import count_phrase, tr
 from ui.file_kind import FileKind
 from ui.icons import glyph, glyph_pixmap, icon_font
@@ -51,36 +52,6 @@ class RailItem:
     tone: str
     search_text: str
     repeat: int = 1  # the same target scanned again with the same verdict on the same day
-
-
-class BrandMark(QWidget):
-    def __init__(self, size: int = 36, parent=None):
-        super().__init__(parent)
-        self.setFixedSize(size, size)
-
-    def paintEvent(self, event) -> None:  # noqa: N802
-        painter = QPainter(self)
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-        side = float(self.width())
-        gradient = QLinearGradient(0, 0, side, side)
-        gradient.setColorAt(0.0, QColor("#1f5c55"))
-        gradient.setColorAt(1.0, QColor("#0e1d26"))
-        painter.setBrush(gradient)
-        painter.setPen(QPen(QColor("#3b8277"), 1))
-        painter.drawRoundedRect(QRectF(0.5, 0.5, side - 1, side - 1), side * 0.3, side * 0.3)
-        s = side / 42.0
-        shield = QPainterPath()
-        shield.moveTo(21 * s, 8 * s)
-        shield.lineTo(31 * s, 12 * s)
-        shield.lineTo(30 * s, 23 * s)
-        shield.cubicTo(29 * s, 29 * s, 25 * s, 32 * s, 21 * s, 34 * s)
-        shield.cubicTo(17 * s, 32 * s, 13 * s, 29 * s, 12 * s, 23 * s)
-        shield.lineTo(11 * s, 12 * s)
-        shield.closeSubpath()
-        painter.setBrush(Qt.BrushStyle.NoBrush)
-        painter.setPen(QPen(QColor(TOKENS["accent"]), 1.8 * s, Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap, Qt.PenJoinStyle.RoundJoin))
-        painter.drawPath(shield)
-        painter.drawEllipse(QRectF(18 * s, 17 * s, 6 * s, 6 * s))
 
 
 class MixBar(QWidget):
@@ -273,10 +244,10 @@ class HistoryRail(QFrame):
 
         brand = QHBoxLayout()
         brand.setSpacing(10)
-        brand.addWidget(BrandMark(36))
+        brand.addWidget(SonarMark(38))
         names = QVBoxLayout()
         names.setSpacing(0)
-        self.brand = label("CYBERSCAN", "brand")
+        self.brand = label(brand_name("en"), "brand")
         self.tagline = label("", "brandTag")
         names.addWidget(self.brand)
         names.addWidget(self.tagline)
@@ -343,6 +314,8 @@ class HistoryRail(QFrame):
         self.setProperty("rtl", language == "ar")
         self.style().unpolish(self)
         self.style().polish(self)
+        self.brand.setText(brand_name(language))
+        self.brand.setAccessibleName(brand_name(language))
         self.tagline.setText(tr("LOCAL SECURITY LAB", language))
         self.title.setText(tr("Your scans", language))
         self.search.setPlaceholderText(tr("Search your scans", language))

@@ -168,7 +168,7 @@ QLabel#mute {{ font-size: {px(13)}; color: {t['text_mute']}; }}
 QLabel#eyebrow {{ font-size: {px(11)}; font-weight: 600; letter-spacing: {track('0.7px')}; color: {t['text_mute']}; }}
 QLabel#mono, QPlainTextEdit#mono {{ font-family: "{MONO_FONT}", "Consolas", monospace; font-size: {px(12)}; color: {t['text_dim']}; }}
 QLabel#error {{ color: {t['danger']}; font-size: {px(13)}; }}
-QLabel#brand {{ font-size: {px(13)}; font-weight: 700; letter-spacing: 2.2px; }}
+QLabel#brand {{ font-family: "{'Reem Kufi' if arabic else 'Space Grotesk'}"; font-size: {round(20 * scale)}px; font-weight: 600; letter-spacing: {track('-0.4px')}; }}
 QLabel#brandTag {{ font-size: {px(10)}; font-weight: 600; letter-spacing: {track('1.2px')}; color: {t['text_mute']}; }}
 QLabel#key {{
     font-size: {px(11)}; font-weight: 600; color: {t['text_dim']};

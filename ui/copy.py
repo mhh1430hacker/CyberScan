@@ -9,7 +9,7 @@ from __future__ import annotations
 
 AR: dict[str, str] = {
     # --- shell ---------------------------------------------------------------
-    "CyberScan · Local threat analysis": "CyberScan · التحليل المحلي للمخاطر",
+    "CyberScan · Local threat analysis": "المسبار السيبراني · التحليل المحلي للمخاطر",
     "LOCAL SECURITY LAB": "مختبر أمني محلي",
     "Your scans": "فحوصاتك",
     "Search your scans": "ابحث في فحوصاتك",
@@ -234,10 +234,10 @@ AR: dict[str, str] = {
     "Choose a folder that exists.": "اختر مجلدًا موجودًا.",
     "Settings couldn't be saved": "تعذّر حفظ الإعدادات",
     "Session log": "سجل الجلسة",
-    "About CyberScan": "عن CyberScan",
+    "About CyberScan": "عن المسبار السيبراني",
     "Developed by m6no5 and Ainex": "تطوير m6no5 وAinex",
     "Analysis in progress": "الفحص جارٍ",
-    "Wait for the current scan to finish, then close CyberScan.": "انتظر حتى ينتهي الفحص الحالي، ثم أغلق CyberScan.",
+    "Wait for the current scan to finish, then close CyberScan.": "انتظر حتى ينتهي الفحص الحالي، ثم أغلق المسبار السيبراني.",
     "Remove this scan from your list and delete its saved report? The scanned file itself is not touched.": "إزالة هذا الفحص من قائمتك وحذف تقريره المحفوظ؟ الملف المفحوص نفسه لن يُمس.",
     "Remove scan": "إزالة الفحص",
     "Report unavailable": "التقرير غير متاح",
@@ -329,7 +329,7 @@ AR: dict[str, str] = {
     "Mainly because:": "والسبب أساسًا:",
     "The file isn't there any more, so there is nothing to move.": "الملف لم يعد موجودًا، فلا يوجد ما يُنقل.",
     "Move to quarantine?": "نقله إلى العزل؟",
-    "CyberScan will encrypt “{name}” and move it to its quarantine folder, so it can't be opened by accident. Nothing is deleted: you can restore it later from your scans.": "سيشفّر CyberScan الملف «{name}» وينقله إلى مجلد العزل، فلا يُفتح بالخطأ. لن يُحذف شيء: يمكنك استعادته لاحقًا من فحوصاتك.",
+    "CyberScan will encrypt “{name}” and move it to its quarantine folder, so it can't be opened by accident. Nothing is deleted: you can restore it later from your scans.": "سيشفّر المسبار السيبراني الملف «{name}» وينقله إلى مجلد العزل، فلا يُفتح بالخطأ. لن يُحذف شيء: يمكنك استعادته لاحقًا من فحوصاتك.",
     "Couldn't move it to quarantine": "تعذّر نقله إلى العزل",
     "The file was left where it was.": "بقي الملف في مكانه.",
     "Moved to quarantine.": "نُقل إلى العزل.",
@@ -357,7 +357,7 @@ AR: dict[str, str] = {
     "Use the learning model, if one is installed": "استخدم نموذج التعلّم إن كان مثبتًا",
     "Installed: {names}": "المثبتة: {names}",
     "Check links and fingerprints against public lists (online)": "تحقق من الروابط والبصمات في القوائم العامة (عبر الإنترنت)",
-    "CyberScan is a defensive research prototype. It reads files, links and indicators without running them. Its findings are leads for review, not proof of malware, and its scores are not probabilities. It never deletes anything; it moves a file to its encrypted quarantine only when you ask.": "CyberScan نموذج بحثي دفاعي. يقرأ الملفات والروابط والمؤشرات دون تشغيلها. نتائجه خيوط للمراجعة وليست دليلًا على وجود برمجيات خبيثة، ومؤشراته ليست احتمالات. لا يحذف أي شيء؛ ولا ينقل ملفًا إلى عزله المشفّر إلا بطلبك.",
+    "CyberScan is a defensive research prototype. It reads files, links and indicators without running them. Its findings are leads for review, not proof of malware, and its scores are not probabilities. It never deletes anything; it moves a file to its encrypted quarantine only when you ask.": "المسبار السيبراني نموذج بحثي دفاعي. يقرأ الملفات والروابط والمؤشرات دون تشغيلها. نتائجه خيوط للمراجعة وليست دليلًا على وجود برمجيات خبيثة، ومؤشراته ليست احتمالات. لا يحذف أي شيء؛ ولا ينقل ملفًا إلى عزله المشفّر إلا بطلبك.",
 }
 
 _COUNT_FORMS = {
