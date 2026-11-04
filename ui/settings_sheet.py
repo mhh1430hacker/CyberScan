@@ -85,6 +85,7 @@ class SettingsSheet(QFrame):
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QFrame.Shape.NoFrame)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        scroll.setFocusPolicy(Qt.FocusPolicy.NoFocus)  # not a stop of its own: Tab goes to the settings in it
         body = QWidget()
         layout = QVBoxLayout(body)
         layout.setContentsMargins(24, 4, 24, 24)
@@ -213,7 +214,14 @@ class SettingsSheet(QFrame):
         save_row.addWidget(self.saved_pill, 0, Qt.AlignmentFlag.AlignVCenter)
         save_row.addStretch(1)
         save_row.addWidget(self.save_button)
-        layout.addLayout(save_row)
+        # Pinned under the scrolling settings, so Save is always in reach.
+        self._save_row = save_row
+        save_bar = QFrame()
+        save_bar.setObjectName("saveBar")
+        save_bar.setStyleSheet("QFrame#saveBar { border-top: 1px solid rgba(255, 255, 255, 0.07); }")
+        save_bar.setLayout(self._save_row)
+        self._save_row.setContentsMargins(24, 12, 24, 16)
+        outer.addWidget(save_bar)
 
         _frame, log = section()
         self.log_title = label("", "section")

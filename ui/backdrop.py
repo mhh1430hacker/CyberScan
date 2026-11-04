@@ -8,8 +8,9 @@ Cost is kept small on purpose:
 * the light is painted into an image at 1/6 of the window size and scaled up
   smoothly (soft light loses nothing at low resolution);
 * it advances 10 times a second, and only while CyberScan is the active
-  window: not when another app has focus, the window is hidden or
-  minimised, reduced motion is on, or the user turns it off;
+  window and in use: not when another app has focus, the window is hidden or
+  minimised, nobody has touched it for 10 seconds (it rests, and wakes on
+  the next pointer move or key), reduced motion is on, or the user turns it off;
 * turned off, it is one still frame.
 """
 from __future__ import annotations
@@ -26,6 +27,7 @@ from ui.theme import TOKENS, alpha, mix
 
 SCALE = 6
 FRAME_MS = 100  # 10 frames a second: the drift is slow, so this is enough
+IDLE_SECONDS = 10.0  # every frame repaints the window above it, so it rests when nobody is there
 
 # (colour, radius as share of the long side, x loop seconds, y loop seconds, phase)
 _SCAN_FIELDS = [
@@ -61,6 +63,8 @@ class Backdrop(QWidget):
         self._timer.setInterval(FRAME_MS)
         self._timer.timeout.connect(self.update)
         self.frames = 0
+        self._last_input = time.monotonic()
+        self._resting = False
 
     # -- control -------------------------------------------------------------
     @property
@@ -71,6 +75,13 @@ class Backdrop(QWidget):
         self._enabled = enabled
         self._sync()
         self.update()
+
+    def wake(self) -> None:
+        """Someone is using the window (a pointer move, a key): drift again."""
+        self._last_input = time.monotonic()
+        if self._resting:
+            self._resting = False
+            self._sync()
 
     def set_palette(self, mode: str) -> None:
         self._fields = PALETTES.get(mode, PALETTES["scan"])
@@ -86,6 +97,7 @@ class Backdrop(QWidget):
         window = self.window()
         return (
             self._enabled
+            and not self._resting
             and not prefers_reduced_motion()
             and self.isVisible()
             and not window.isMinimized()
@@ -170,3 +182,6 @@ class Backdrop(QWidget):
         painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
         painter.drawImage(QRectF(self.rect()), image)
         self.frames += 1
+        if self._timer.isActive() and time.monotonic() - self._last_input > IDLE_SECONDS:
+            self._resting = True
+            QTimer.singleShot(0, self._sync)

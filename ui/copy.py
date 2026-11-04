@@ -481,6 +481,9 @@ AR: dict[str, str] = {
     'Saving…': 'جارٍ الحفظ…',
     "The wallpaper couldn't be saved.": 'تعذّر حفظ الخلفية.',
     'Wallpaper saved in Pictures › CyberScan galaxies': 'حُفظت الخلفية في الصور › CyberScan galaxies',
+    "That's a folder. Choose a file inside it, or drop the file here.": 'هذا مجلد. اختر ملفًا داخله، أو أفلت الملف هنا.',
+    "This is a program. Repair can only show its true name; it can't make it safe. If you don't trust it, move it to quarantine from its scan result.": 'هذا برنامج. الإصلاح يستطيع فقط إظهار اسمه الحقيقي، ولا يستطيع أن يجعله آمنًا. إن لم تكن تثق به فانقله إلى العزل من نتيجة فحصه.',
+    'Clear the field': 'امسح الحقل',
 }
 
 _COUNT_FORMS = {

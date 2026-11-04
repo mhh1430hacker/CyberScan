@@ -108,23 +108,28 @@ def _size(count: int) -> str:
     return f"{count} B"
 
 
+CAUTION = " Renaming shows what it really is; it doesn't make it safe."
+
+
 def _names(name: str, regions: RegionMap) -> list[RepairFinding]:
     found: list[RepairFinding] = []
     base = PureWindowsPath(name).name or name
     clean = "".join(c for c in base if c not in HIDDEN)
+    # A program stays a program under its true name: show it, but never pre-select it.
+    runnable = clean.rsplit(".", 1)[-1].lower() in RUNS or regions.format in {"pe", "elf"}
     if clean != base:
         found.append(RepairFinding(
             "name_hidden", "name", "high", "Hidden characters disguise the name",
-            "The name contains invisible direction characters that make it read as something else.",
-            rename_to=clean, recommended=True,
+            "The name contains invisible direction characters that make it read as something else." + (CAUTION if runnable else ""),
+            rename_to=clean, recommended=not runnable,
         ))
     pieces = clean.split(".")
     if len(pieces) > 2 and pieces[-1].lower() in RUNS and pieces[-2].lower().strip() in LOOKS_HARMLESS:
         true_name = ".".join(pieces[:-2] + [pieces[-1]])
         found.append(RepairFinding(
             "name_double", "name", "high", "A double extension hides the real type",
-            f"It's named like a .{pieces[-2].lower()} but is really a .{pieces[-1].lower()} that can run.",
-            rename_to=true_name, recommended=True,
+            f"It's named like a .{pieces[-2].lower()} but is really a .{pieces[-1].lower()} that can run." + CAUTION,
+            rename_to=true_name, recommended=False,
         ))
     mismatch = regions.of_kind("magic_mismatch")
     true_extension = TRUE_EXTENSION.get(regions.format)
@@ -135,8 +140,8 @@ def _names(name: str, regions: RegionMap) -> list[RepairFinding]:
         found.append(RepairFinding(
             "name_mismatch", "name", "high" if regions.format in {"pe", "elf"} else "medium",
             "The extension doesn't match the content",
-            f"The name says {PureWindowsPath(clean).suffix or 'nothing'}, but the content is {regions.format.upper()}.",
-            rename_to=f"{stem}.{true_extension}", recommended=regions.format in {"pe", "elf"},
+            f"The name says {PureWindowsPath(clean).suffix or 'nothing'}, but the content is {regions.format.upper()}." + (CAUTION if runnable else ""),
+            rename_to=f"{stem}.{true_extension}", recommended=False,
         ))
     return found
 

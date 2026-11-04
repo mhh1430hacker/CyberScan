@@ -16,6 +16,7 @@ import io
 import posixpath
 import re
 import zipfile
+import zlib
 
 from repair_engine.executor.common import Refused, Removed
 
@@ -60,7 +61,10 @@ def remove_parts(data: bytes, parts: list[str]) -> tuple[bytes, list[Removed]]:
         output = io.BytesIO()
         with zipfile.ZipFile(output, "w") as package:
             for info in infos:
-                content = source.read(info)
+                try:
+                    content = source.read(info)
+                except (zipfile.BadZipFile, ValueError, EOFError, OSError, zlib.error, NotImplementedError) as exc:
+                    raise Refused(f"the package is damaged ({info.filename}): {exc}") from exc
                 if info.filename in targets:
                     removed.append(Removed(info.header_offset, info.header_offset + info.compress_size, f"ooxml_part:{info.filename}", content))
                     continue

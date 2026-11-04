@@ -130,7 +130,52 @@ def alpha(color: str | QColor, value: float) -> QColor:
     return result
 
 
+def _accent_rules(mode: str, check: str) -> str:
+    """Every rule that takes the mode's accent, scoped to the window's ``appMode``.
+
+    Both modes live in one stylesheet, so switching modes sets one property and
+    re-polishes the few widgets these rules touch, instead of restyling the
+    whole window (which froze it for about 0.7 s).
+    """
+    t, p = TOKENS, MODE_ACCENTS[mode]
+    scope = f'QMainWindow[appMode="{mode}"] '
+    hover = alpha(p["accent"], 0.45).name(QColor.NameFormat.HexArgb)
+    rules = [
+        ('QFrame#command[focused="true"]', f"border: 1px solid {p['ring']};"),
+        ("QPushButton#segment:checked", f"background: transparent; color: {p['strong']}; border-color: transparent;"),
+        ("QPushButton#segment:focus", f"border: 1px solid {p['accent']};"),
+        ("QPushButton:focus", f"border: 1px solid {p['accent']};"),
+        ("QPushButton#primary", f"background: {p['accent']}; color: {p['ink']}; border: 1px solid {p['top']}; border-bottom-color: {p['bottom']}; padding: 7px 16px; font-weight: 600;"),
+        ("QPushButton#primary:hover", f"background: {p['hover']};"),
+        ("QPushButton#primary:focus", f"border: 2px solid {p['strong']};"),
+        ("QPushButton#primary:disabled", f"background: {t['surface_3']}; color: {t['text_mute']}; border-color: {t['glass_edge']};"),
+        ("QPushButton#ghost:focus", f"border: 1px solid {p['accent']};"),
+        ("QPushButton#link", f"color: {p['accent']};"),
+        ("QPushButton#link:hover", f"color: {p['hover']};"),
+        ("QPushButton#link:focus", f"border: 1px solid {p['accent']}; border-radius: 4px;"),
+        ("QPushButton#icon:focus", f"border: 1px solid {p['accent']};"),
+        ("QPushButton#galaxyLink:focus", "border: 2px solid #ffe2b8;"),
+        ("QLineEdit", f"selection-background-color: {p['accent']}; selection-color: {p['ink']};"),
+        ("QLineEdit:focus", f"border: 1px solid {p['accent']};"),
+        ("QPlainTextEdit", f"selection-background-color: {p['accent']}; selection-color: {p['ink']};"),
+        ("QPlainTextEdit:focus", f"border: 1px solid {p['accent']};"),
+        ("QCheckBox::indicator:checked", f"background: {p['accent']}; border-color: {p['accent']}; image: url({check});"),
+        ("QCheckBox:focus", f"color: {p['accent']};"),
+        ("QCheckBox::indicator:focus", f"border: 2px solid {p['accent']};"),
+        ("QScrollBar::handle:vertical:hover", f"background: {hover};"),
+        ("QScrollBar::handle:vertical:pressed", f"background: {p['accent']};"),
+        ("QScrollBar::handle:horizontal:hover", f"background: {hover};"),
+    ]
+    return chr(10).join(f"{scope}{selector} {{ {body} }}" for selector, body in rules)
+
+
+# The widgets the accent rules above can touch; only these are re-polished on a mode switch.
+ACCENT_WIDGETS = ("QPushButton", "QLineEdit", "QPlainTextEdit", "QCheckBox", "QScrollBar", "QFrame")
+
+
 def stylesheet(scale: float = 1.0, language: str = "en", mode: str = "scan") -> str:
+    """The whole sheet for one text size and language; both modes' accents are inside
+    (``mode`` is kept for callers, and only colours the tooltips, which live outside the window)."""
     global TEXT_SCALE
     t = TOKENS
     p = MODE_ACCENTS.get(mode, MODE_ACCENTS["scan"])
@@ -191,13 +236,10 @@ QFrame#command {{
     background: rgba(20, 21, 23, 0.92); border: 1px solid {t['glass_edge_top']};
     border-radius: 14px;
 }}
-QFrame#command[focused="true"] {{ border: 1px solid {p['ring']}; }}
 QFrame#command[invalid="true"] {{ border: 1px solid {t['danger']}; }}
 QFrame#segmentBar {{ background: rgba(255, 255, 255, 0.035); border: 1px solid {t['glass_edge']}; border-radius: 10px; }}
 QPushButton#segment {{ background: transparent; border: 1px solid transparent; border-radius: 7px; padding: 5px 16px; color: {t['text_mute']}; font-weight: 500; min-height: 0; }}
 QPushButton#segment:hover {{ color: {t['text']}; }}
-QPushButton#segment:checked {{ background: transparent; color: {p['strong']}; border-color: transparent; }}  /* the pill is the SegmentGlider */
-QPushButton#segment:focus {{ border: 1px solid {p['accent']}; }}
 QPushButton#segment:disabled {{ color: {t['line_field']}; }}
 QFrame#topbar {{ background: transparent; border-bottom: 1px solid {t['glass_edge']}; }}
 
@@ -209,15 +251,7 @@ QPushButton {{
 }}
 QPushButton:hover {{ background: rgba(255, 255, 255, 0.07); }}
 QPushButton:pressed {{ background: rgba(255, 255, 255, 0.10); }}
-QPushButton:focus {{ border: 1px solid {p['accent']}; }}
 QPushButton:disabled {{ color: {t['text_mute']}; background: transparent; }}
-QPushButton#primary {{
-    background: {p['accent']}; color: {p['ink']}; border: 1px solid {p['top']};
-    border-bottom-color: {p['bottom']}; padding: 7px 16px; font-weight: 600;
-}}
-QPushButton#primary:hover {{ background: {p['hover']}; }}
-QPushButton#primary:focus {{ border: 2px solid {p['strong']}; }}
-QPushButton#primary:disabled {{ background: {t['surface_3']}; color: {t['text_mute']}; border-color: {t['glass_edge']}; }}
 QPushButton#galaxyLink {{
     background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 rgba(255, 196, 120, 0.10), stop:1 rgba(165, 148, 255, 0.14));
     color: #ffe2b8; border: 1px solid rgba(255, 210, 150, 0.35); border-radius: 13px; padding: 4px 12px; font-weight: 600;
@@ -246,30 +280,22 @@ QFrame#notice[tone="warn"] {{
 QLabel#noticeText {{ color: {t['text']}; font-size: {px(14)}; font-weight: 600; }}
 QPushButton#ghost {{ background: transparent; border: 1px solid transparent; color: {t['text_dim']}; padding: 6px 10px; }}
 QPushButton#ghost:hover {{ background: {t['glass_hover']}; color: {t['text']}; }}
-QPushButton#ghost:focus {{ border: 1px solid {p['accent']}; }}
-QPushButton#link {{ background: transparent; border: 0; color: {p['accent']}; padding: 4px 2px; font-weight: 500; }}
-QPushButton#link:hover {{ color: {p['hover']}; }}
-QPushButton#link:focus {{ border: 1px solid {p['accent']}; border-radius: 4px; }}
+QPushButton#link {{ background: transparent; border: 0; padding: 4px 2px; font-weight: 500; }}
 QPushButton#icon {{ background: transparent; border: 1px solid transparent; border-radius: 8px; padding: 6px; min-height: 0; }}
 QPushButton#icon:hover {{ background: {t['glass_hover']}; border-color: {t['glass_edge']}; }}
-QPushButton#icon:focus {{ border: 1px solid {p['accent']}; }}
 
 /* ---- fields ---- */
 QLineEdit {{
     background: {t['glass_field']}; border: 1px solid {t['glass_edge_top']}; border-radius: 8px;
-    padding: 8px 12px; selection-background-color: {p['accent']}; selection-color: {p['ink']};
+    padding: 8px 12px;
 }}
-QLineEdit:focus {{ border: 1px solid {p['accent']}; }}
 QLineEdit#target {{ background: transparent; border: 0; font-size: {px(17)}; padding: 6px 4px; }}
 QLineEdit#search {{ border-radius: 8px; padding: 7px 10px; }}
 QPlainTextEdit {{
     background: rgba(0, 0, 0, 0.35); border: 1px solid {t['glass_edge']}; border-radius: 10px; padding: 10px;
-    selection-background-color: {p['accent']}; selection-color: {p['ink']};
 }}
 QCheckBox {{ spacing: 10px; color: {t['text']}; }}
 QCheckBox::indicator {{ width: 18px; height: 18px; border-radius: 5px; border: 1px solid {t['line_field']}; background: rgba(255,255,255,0.03); }}
-QCheckBox::indicator:checked {{ background: {p['accent']}; border-color: {p['accent']}; image: url({check}); }}
-QCheckBox:focus {{ color: {p['accent']}; }}
 
 /* ---- tabs ---- */
 QTabWidget::pane {{ border: 0; }}
@@ -283,11 +309,8 @@ QTabBar::tab:hover {{ color: {t['text']}; }}
 /* ---- scrollbars ---- */
 QScrollBar:vertical {{ background: transparent; width: 9px; margin: 2px; }}
 QScrollBar::handle:vertical {{ background: rgba(255,255,255,0.10); border-radius: 4px; min-height: 36px; }}
-QScrollBar::handle:vertical:hover {{ background: {alpha(p['accent'], 0.45).name(QColor.NameFormat.HexArgb)}; }}
-QScrollBar::handle:vertical:pressed {{ background: {p['accent']}; }}
 QScrollBar:horizontal {{ background: transparent; height: 9px; margin: 2px; }}
 QScrollBar::handle:horizontal {{ background: rgba(255,255,255,0.10); border-radius: 4px; min-width: 36px; }}
-QScrollBar::handle:horizontal:hover {{ background: {alpha(p['accent'], 0.45).name(QColor.NameFormat.HexArgb)}; }}
 QScrollBar::add-line, QScrollBar::sub-line, QScrollBar::add-page, QScrollBar::sub-page {{ background: none; border: 0; width: 0; height: 0; }}
 
 QMessageBox, QDialog {{ background: {t['surface_2']}; }}
@@ -295,4 +318,4 @@ QMenu {{ background: {t['surface_3']}; border: 1px solid {t['glass_edge_top']}; 
 QMenu::item {{ padding: 7px 16px; border-radius: 6px; }}
 QMenu::item:selected {{ background: {t['glass_hover']}; }}
 QMenu::separator {{ height: 1px; background: {t['glass_edge']}; margin: 4px 8px; }}
-"""
+""" + _accent_rules("scan", check) + chr(10) + _accent_rules("repair", check)

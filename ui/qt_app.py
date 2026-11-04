@@ -31,12 +31,14 @@ from PySide6.QtWidgets import (
     QFileDialog,
     QFrame,
     QHBoxLayout,
+    QLineEdit,
     QMainWindow,
     QMenu,
     QMessageBox,
     QPushButton,
     QScrollArea,
     QSizePolicy,
+    QToolButton,
     QVBoxLayout,
     QWidget,
 )
@@ -55,7 +57,7 @@ from ui.icons import glyph_icon
 from ui.journey import JourneyScene
 from ui.lens import Lens
 from ui.motion import fade_in
-from ui.names import visible
+from ui.names import inspect as inspect_name, visible
 from ui.polish import CursorLight, SegmentGlider, SonarDrop, fade_in_window, toast, window_chrome
 from ui.persistence import LocalUiStore
 from ui.result_tiers import ResultPanel, advanced_texts, region_label
@@ -65,7 +67,7 @@ from ui.settings_sheet import Scrim, SettingsSheet
 from ui.sonar import SonarCube
 from ui.repair import RepairView
 from ui.structure import build_structure
-from ui.theme import FAMILIES, MODE_ACCENTS, TOKENS, load_fonts, stylesheet, tone_color
+from ui.theme import ACCENT_WIDGETS, FAMILIES, MODE_ACCENTS, TOKENS, load_fonts, stylesheet, tone_color
 from ui.widgets import Ambient, Pill, label
 
 STAGE_TITLES = ("Reading", "Patterns", "Structure", "Lookups")
@@ -562,6 +564,10 @@ class CyberScanApp(QMainWindow):
         rtl = self.language == "ar"
         self.setLayoutDirection(Qt.LayoutDirection.RightToLeft if rtl else Qt.LayoutDirection.LeftToRight)
         self.setWindowTitle(self.t("CyberScan · Local threat analysis"))
+        # The small × inside search and path fields is a button too: give it a name screen readers can say.
+        for field in self.findChildren(QLineEdit):
+            for button in field.findChildren(QToolButton):
+                button.setAccessibleName(self.t("Clear the field"))
         self.language_button.setText("English" if rtl else "العربية")
         self.language_button.setAccessibleName(self.t("Switch to English") if rtl else self.t("Switch to Arabic"))
         self.settings_button.setToolTip(self.t("Settings"))
@@ -693,6 +699,9 @@ class CyberScanApp(QMainWindow):
                 resolved = Path(value).expanduser().resolve(strict=True)
             except (OSError, RuntimeError):
                 resolved = None
+            if resolved is not None and resolved.is_dir():
+                self.lens.show_error(self.t("That's a folder. Choose a file inside it, or drop the file here."))
+                return
             if resolved is None or not resolved.is_file():
                 self.lens.show_error(self.t("That file doesn't exist. Check the path, or choose the file again."))
                 return
@@ -950,9 +959,21 @@ class CyberScanApp(QMainWindow):
         if current is self._current:
             self._offer_repair()
 
+    def _repair_fits(self, report) -> bool:
+        """Repair is offered only where it helps: never for a file judged dangerous, a
+        disguised program or a program. Repairing those would write another copy of a
+        program and call it "repaired"; quarantine is the right next step for them."""
+        summary = getattr(self.result_panel, "_summary", None)
+        if summary is not None and (summary.key == "high" or summary.notice_tone == "danger"):
+            return False
+        if report.format in {"pe", "elf"} or inspect_name(report.name).runs:
+            return False
+        return any(f.repairable for f in report.findings)
+
     def _offer_repair(self) -> None:
         payload = (self._current or {}).get("repair_probe")
-        self.result_panel.offer_repair(sum(f.repairable for f in payload[0].findings) if payload else 0)
+        fits = bool(payload) and self._repair_fits(payload[0])
+        self.result_panel.offer_repair(sum(f.repairable for f in payload[0].findings) if fits else 0)
 
     def repair_current(self) -> None:
         """Carry the scanned file into Repair, with the sonar wave between them."""
@@ -960,7 +981,7 @@ class CyberScanApp(QMainWindow):
         path = self._current_file()
         if not payload or path is None or self._transition is not None or (self.worker is not None and self.worker.isRunning()):
             return
-        if not any(f.repairable for f in payload[0].findings):
+        if not self._repair_fits(payload[0]):
             return
         report, data = payload
         button = self.result_panel.repair_button
@@ -1749,9 +1770,20 @@ class CyberScanApp(QMainWindow):
 
     def _apply_text_scale(self) -> None:
         scale = 1.3 if self.settings.get("large_text") else 1.0
-        if (scale, self.language, self.app_mode) == self._text_scale:
+        if self.property("appMode") != self.app_mode:
+            # Both modes' accents are in the one stylesheet, scoped by this property:
+            # only the widgets those rules can touch need polishing again.
+            self.setProperty("appMode", self.app_mode)
+            if self._text_scale is not None and self._text_scale[:2] == (scale, self.language):
+                for widget in self.findChildren(QWidget):
+                    if widget.inherits("QAbstractButton") or type(widget).__name__ in ACCENT_WIDGETS:
+                        widget.style().unpolish(widget)
+                        widget.style().polish(widget)
+                self.style().unpolish(self)
+                self.style().polish(self)
+        if (scale, self.language) == (self._text_scale or (None, None))[:2]:
             return
-        self._text_scale = (scale, self.language, self.app_mode)
+        self._text_scale = (scale, self.language)
         self.setStyleSheet(stylesheet(scale, self.language, self.app_mode))
         font = QFont(self.font())
         font.setFamilies(FAMILIES)
@@ -1808,6 +1840,7 @@ class CyberScanApp(QMainWindow):
         self.rail_button.setVisible(narrow)
         self.scrim.setGeometry(self.main.rect())
         self.sheet.place(self.main.rect())
+        self.sonar.setFixedHeight(max(170, min(380, self.height() - 470)))
 
     def resizeEvent(self, event) -> None:  # noqa: N802
         super().resizeEvent(event)
@@ -1830,6 +1863,8 @@ class CyberScanApp(QMainWindow):
 
     def eventFilter(self, watched, event) -> bool:  # noqa: N802
         kind = event.type()
+        if kind in (QEvent.Type.MouseMove, QEvent.Type.KeyPress, QEvent.Type.MouseButtonPress, QEvent.Type.Wheel):
+            self.backdrop.wake()
         if kind == QEvent.Type.MouseMove and self.view == "lens" and self.isActiveWindow():
             self.lens.look_at(QCursor.pos())
         elif kind == QEvent.Type.DragMove and self.drop_overlay.isVisible():

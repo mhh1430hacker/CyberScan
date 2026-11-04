@@ -32,7 +32,7 @@ from PySide6.QtWidgets import (
 )
 
 from ui.copy import tr
-from ui.names import visible
+from ui.names import inspect as inspect_name, visible
 from ui.plain_language import format_size, isolate
 from ui.polish import SuccessMark, toast
 from ui.sonar import SonarCube
@@ -226,6 +226,10 @@ class RepairView(QWidget):
         review.addWidget(self.file_name)
         review.addWidget(self.file_meta)
         review.addWidget(self.summary)
+        # A program stays dangerous whatever its name: say so where the choice is made.
+        self.caution = label("", "error", wrap=True)
+        self.caution.setVisible(False)
+        review.addWidget(self.caution)
         self.findings = QVBoxLayout()
         self.findings.setSpacing(8)
         review.addLayout(self.findings)
@@ -402,6 +406,9 @@ class RepairView(QWidget):
             "SHA-256 " + isolate(report.sha256[:16] + "…", self.language),
         )))
         repairable = [f for f in report.findings if f.repairable]
+        program = report.format in {"pe", "elf"} or inspect_name(report.name).runs
+        self.caution.setText("⚠  " + t("This is a program. Repair can only show its true name; it can't make it safe. If you don't trust it, move it to quarantine from its scan result."))
+        self.caution.setVisible(program)
         reported = [f for f in report.findings if not f.repairable]
         if not report.findings:
             self.summary.setText(t("Nothing to repair: no added parts were found. This checks structure only; it doesn't prove the file is safe."))

@@ -273,15 +273,17 @@ def test_repair_removes_macros_from_a_document_cleanly(window, qapplication, tmp
         assert b"vbaProject" not in remaining and b"styles.xml" in remaining
 
 
-def test_repair_renames_a_disguised_program_and_reports_what_it_cannot_fix(window, qapplication, tmp_path):
+def test_a_disguised_program_is_offered_its_true_name_but_never_preselected(window, qapplication, tmp_path):
     from repair_fixtures import build_pdf
 
     path = tmp_path / "invoice.pdf.exe"
     path.write_bytes(build_pdf()[0])
     window.set_mode("repair")
     view = _repair_round(window, qapplication, path)
-    keys = [f.key for f in view.selected()]
-    assert "name_double" in keys
+    rename = [f for f in view.report.findings if f.key == "name_double"]
+    assert rename and rename[0].repairable and not rename[0].recommended
+    assert "name_double" not in [f.key for f in view.selected()]  # renaming a program doesn't make it safe
+    assert view.caution.isVisible() and "quarantine" in view.caution.text()
     view.language = "ar"
     view._render()  # Arabic rows read a translated sentence, not the engine's English
     assert re.search("[؀-ۿ]", view.summary.text()) and not re.search("[A-Za-z]{3,}", view.summary.text())
@@ -380,3 +382,47 @@ def test_a_clean_scan_offers_no_repair(window, qapplication, tmp_path):
     assert not window.result_panel.repair_button.isVisible()
     window.repair_current()  # nothing to hand over: nothing happens
     assert window.view == "result"
+
+
+def test_a_dangerous_scan_result_never_offers_repair(window, qapplication, tmp_path):
+    """Repairing a disguised program would write another copy of it and call it repaired."""
+    path = tmp_path / "invoice.pdf.exe"
+    path.write_bytes(b"MZ" + bytes(200) + b"powershell -nop -w hidden -enc SQBFAFgA\x00VirtualAlloc\x00CreateRemoteThread\x00")
+    scan(qapplication, window, str(path))
+    assert wait_for(qapplication, lambda: (window._current or {}).get("repair_probe") is not None, 20)
+    report = window._current["repair_probe"][0]
+    assert any(f.repairable for f in report.findings)  # the engine could rename it...
+    assert not window.result_panel.repair_button.isVisible()  # ...but the result doesn't offer it
+    window.repair_current()
+    assert window.view == "result"
+    assert window.result_panel.quarantine_button.isVisible()
+
+
+def test_a_folder_is_named_a_folder(window, qapplication, tmp_path):
+    window.lens.set_target(str(tmp_path))
+    window.lens.scan_button.click()
+    assert "folder" in window.lens.error.text()
+
+
+def test_mode_switch_restyles_only_what_the_accent_touches(window, qapplication):
+    import time
+
+    sheet = window.styleSheet()
+    started = time.perf_counter()
+    window.set_mode("repair")
+    qapplication.processEvents()
+    elapsed = time.perf_counter() - started
+    assert window.styleSheet() == sheet  # the stylesheet itself isn't rebuilt
+    assert window.property("appMode") == "repair"
+    assert elapsed < 0.5
+    window.set_mode("scan")
+
+
+def test_the_background_rests_when_nobody_uses_the_window(window, qapplication, monkeypatch):
+    import ui.backdrop as backdrop
+
+    window.backdrop._last_input -= backdrop.IDLE_SECONDS + 1
+    window.backdrop.update()
+    assert wait_for(qapplication, lambda: not window.backdrop.animating, 3)
+    window.backdrop.wake()
+    assert window.backdrop._resting is False

@@ -348,7 +348,13 @@ class ResultPanel(QWidget):
         self.again_button.setObjectName("ghost")
         self.again_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.again_button.clicked.connect(self.newScanRequested)
-        for button in (self.why_button, self.repair_button, self.quarantine_button, self.online_button, self.reveal_button, self.copy_hash_button, self.again_button):
+        # Export used to appear only inside the details; it belongs with the other next steps.
+        self.export_top_button = QPushButton()
+        self.export_top_button.setObjectName("ghost")
+        self.export_top_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.export_top_button.clicked.connect(self.exportRequested)
+        for button in (self.why_button, self.repair_button, self.quarantine_button, self.online_button, self.reveal_button,
+                       self.copy_hash_button, self.export_top_button, self.again_button):
             actions.addWidget(button)
         summary.addWidget(actions_host)
         self.fingerprint = ""
@@ -675,6 +681,7 @@ class ResultPanel(QWidget):
         if self.ai_state != "hidden":
             self.set_ai(self.ai_state, self.ai_text.text() if self.ai_state in {"done", "working"} else "")
         self.export_button.setText(tr("Export report", language))
+        self.export_top_button.setText(tr("Export report", language))
         self.export_button.setIcon(glyph_icon("save", TOKENS["text_dim"], 15))
         self.findings_title.setText(tr("What caught our attention", language))
         self.places_title.setText(tr("Where we found it", language))

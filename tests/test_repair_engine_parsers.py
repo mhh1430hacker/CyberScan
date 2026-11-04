@@ -200,3 +200,28 @@ def test_engine_code_cannot_run_or_load_anything():
     hits = [f"{path.name}:{n}" for path in root.rglob("*.py")
             for n, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1) if forbidden.search(line)]
     assert hits == []
+
+
+def test_damaged_office_packages_are_refused_never_raised():
+    """Found by fuzzing: a damaged member made the analyzer raise instead of refusing."""
+    import io
+    import random
+    import zipfile
+
+    from repair_engine.analyze import analyze
+
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as package:
+        package.writestr("[Content_Types].xml", "<Types/>")
+        package.writestr("word/document.xml", "<w:document>" + "text " * 2000 + "</w:document>")
+        package.writestr("word/vbaProject.bin", bytes(range(256)) * 40)
+    base = buffer.getvalue()
+    rng = random.Random(5)
+    for round_ in range(200):
+        data = bytearray(base)
+        if round_ % 2:
+            data[:64] = bytes(64)
+        else:
+            cut = rng.randrange(len(data))
+            data = data[:cut] + base[rng.randrange(len(base)):]
+        analyze(bytes(data), "report.docx")  # must not raise

@@ -15,12 +15,17 @@ refuses, so the outcome falls back to a report.
 """
 from __future__ import annotations
 
+import struct
+import zipfile
+import zlib
 from dataclasses import dataclass, field
 from typing import Any
 
 from repair_engine.executor import ooxml, pdf, pe, zip as zip_actions
 from repair_engine.executor.common import Refused, Removed, truncate_at
 from repair_engine.parsers import parse
+
+_DAMAGED = (zipfile.BadZipFile, ValueError, struct.error, EOFError, OSError, IndexError, KeyError, zlib.error)
 
 ACTIONS = (
     "strip_overlay", "truncate_after_eof", "remove_section_and_fix_headers", "restore_entry_point",
@@ -96,6 +101,10 @@ def apply(data: bytes, plans: list[Plan]) -> Outcome:
             current, cut = _single(current, plan)
         except Refused as reason:
             return Outcome(None, [], steps + [{"action": plan.action, "refused": str(reason)}], refused=str(reason))
+        except _DAMAGED as exc:
+            # Damaged input is a refusal, never an escaping exception (found by fuzzing).
+            reason = f"the file is damaged where this repair needs to read it ({type(exc).__name__})"
+            return Outcome(None, [], steps + [{"action": plan.action, "refused": reason}], refused=reason)
         removed += cut
         steps.append({"action": plan.action, "removed": [(r.start, r.end, r.label) for r in cut]})
     changed = current != data
