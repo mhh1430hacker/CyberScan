@@ -160,3 +160,16 @@ tags and resume commands: `docs/repair_engine_downloads.md`.
   minimal PE fixture once written to disk (`ERROR_VIRUS_INFECTED`, Errno 22).
   So synthetic PE variants must be generated in memory or stored compressed,
   and the benign pipeline drops files that become unreadable after writing.
+
+### Blind repair (no clean copy): done (2026-11-04)
+
+- `repair_engine/blind/`: witness-constrained reconstruction. Infection
+  patterns are undone into candidate originals, and the file's own integrity
+  witnesses (PE checksum and size fields, Authenticode digest, zip/PNG CRCs,
+  PDF xref offsets) plus the infector's jump back and the host's code shape
+  choose between them. It refuses unless there are 16 bits net, two
+  independent sources and an 8-bit margin. New executor action
+  `blind_reconstruct`. `pe_entry_redirect` is now repairable when the
+  infector left the checksum: 184/185 real PEs rebuilt byte-identical,
+  0 wrong, 0 false repairs on the clean set. Details and limits:
+  `docs/blind_repair.md`.

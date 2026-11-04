@@ -9,7 +9,10 @@ reference passed in by the caller.
 Actions (the planner's fixed set, plus ``remove_zip_member`` for OOXML):
   strip_overlay, truncate_after_eof, remove_section_and_fix_headers,
   restore_entry_point, remove_zip_member, remove_pdf_object_and_refs,
-  quarantine_whole_file, report_only.
+  quarantine_whole_file, report_only, blind_reconstruct.
+``blind_reconstruct`` is the one action that infers: it rebuilds the original
+from the file's own integrity witnesses (``repair_engine.blind``) and refuses
+unless they confirm a single reconstruction by a wide margin.
 ``remove_ole_stream`` is part of the set but not implemented yet; it
 refuses, so the outcome falls back to a report.
 """
@@ -30,6 +33,7 @@ _DAMAGED = (zipfile.BadZipFile, ValueError, struct.error, EOFError, OSError, Ind
 ACTIONS = (
     "strip_overlay", "truncate_after_eof", "remove_section_and_fix_headers", "restore_entry_point",
     "remove_zip_member", "remove_ooxml_parts", "remove_ole_stream", "remove_pdf_object_and_refs", "quarantine_whole_file", "report_only",
+    "blind_reconstruct",
 )
 
 
@@ -75,6 +79,13 @@ def _single(data: bytes, plan: Plan) -> tuple[bytes, list[Removed]]:
         return ooxml.remove_parts(data, list(plan.params.get("parts") or []))
     if plan.action == "remove_pdf_object_and_refs":
         return pdf.remove_last_update(data, plan.params.get("objects") or [])
+    if plan.action == "blind_reconstruct":
+        from repair_engine.blind import reconstruct  # late: the blind package imports executor.common
+
+        result = reconstruct(data, front_is_infector=bool(plan.params.get("front_is_infector")))
+        if result.decision != "repair" or result.best is None:
+            raise Refused(f"blind reconstruction: {result.reason}")
+        return result.best.data, result.best.removed
     if plan.action == "remove_ole_stream":
         raise Refused("remove_ole_stream is not implemented yet")
     raise Refused(f"unknown action {plan.action!r}")

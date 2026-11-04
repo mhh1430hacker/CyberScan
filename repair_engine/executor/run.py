@@ -38,7 +38,8 @@ def repair_file(source: Path, plans: list[Plan], *, output: Path, key: bytes, va
         return RepairResult("refused", None, [], outcome, None, {"reason": outcome.refused})
     if outcome.repaired is None:
         return RepairResult("report_only", None, [], outcome, None)
-    validation = validate(data, outcome.repaired, scorers)
+    carved = any(plan.action == "blind_reconstruct" for plan in plans)
+    validation = validate(data, outcome.repaired, scorers, allow_format_change=carved)
     if not validation.passed:
         return RepairResult("rolled_back", None, [], outcome, validation, {"failures": validation.failures})
     if output.resolve() == source.resolve():

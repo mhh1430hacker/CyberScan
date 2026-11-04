@@ -81,11 +81,15 @@ def _pdf(data: bytes) -> str:
 _STRUCTURE = {"pe": _pe, "zip": _zip, "ooxml": _zip, "pdf": _pdf}
 
 
-def validate(infected: bytes, repaired: bytes, scorers: tuple[Scorer, ...] = ()) -> Validation:
+def validate(infected: bytes, repaired: bytes, scorers: tuple[Scorer, ...] = (), *,
+             allow_format_change: bool = False) -> Validation:
+    """``allow_format_change``: a host carved from behind a prepender may be another format than its wrapper."""
     before, after = parse(infected), parse(repaired)
     checks: dict[str, str] = {}
-    new_errors = [e for e in after.errors if e not in before.errors]
-    checks["parse"] = "ok" if after.format == before.format and not new_errors else \
+    changed = after.format != before.format
+    new_errors = after.errors if changed else [e for e in after.errors if e not in before.errors]
+    same_format = not changed or (allow_format_change and after.format != "unknown")
+    checks["parse"] = "ok" if same_format and not new_errors else \
         f"format {before.format}->{after.format}, new errors {new_errors[:3]}"
     structure = _STRUCTURE.get(after.format)
     checks["structure"] = structure(repaired) if structure else "ok (no format-specific checks)"
