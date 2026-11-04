@@ -467,6 +467,20 @@ AR: dict[str, str] = {
     'Repair mode': 'وضع الإصلاح',
     'Fingerprint copied to the clipboard': 'نُسخت البصمة إلى الحافظة',
     'Moved to quarantine': 'نُقل إلى الحجر',
+    # --- galaxy -------------------------------------------------------------
+    'See its galaxy': 'شاهد مجرّته',
+    'Every file has its own galaxy, made from its real bytes.': 'لكل ملف مجرّته الخاصة، مصنوعة من بايتاته الحقيقية.',
+    'The galaxy of {name}': 'مجرّة {name}',
+    "No other file has this galaxy: its shape comes from the file's SHA-256 fingerprint, and every star is a real slice of its bytes.": 'لا يملك أي ملف آخر هذه المجرّة: شكلها مأخوذ من بصمة SHA-256 للملف، وكل نجم فيها شريحة حقيقية من بايتاته.',
+    'Save as wallpaper': 'احفظها خلفية للشاشة',
+    'Forming its galaxy…': 'تتشكّل مجرّته…',
+    'The core is the start of the file; the rim is its end.': 'النواة بداية الملف، والحافة نهايته.',
+    'Blue: quiet content · white: structured · gold: scrambled or compressed.': 'الأزرق: محتوى هادئ · الأبيض: منظَّم · الذهبي: مبعثر أو مضغوط.',
+    'Red and amber stars: the places the scan flagged.': 'النجوم الحمراء والكهرمانية: المواضع التي نبّه إليها الفحص.',
+    'Drag to orbit · scroll to zoom · point at a star to read it': 'اسحب للدوران · مرّر للتكبير · أشر إلى نجم لتقرأه',
+    'Saving…': 'جارٍ الحفظ…',
+    "The wallpaper couldn't be saved.": 'تعذّر حفظ الخلفية.',
+    'Wallpaper saved in Pictures › CyberScan galaxies': 'حُفظت الخلفية في الصور › CyberScan galaxies',
 }
 
 _COUNT_FORMS = {

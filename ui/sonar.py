@@ -17,6 +17,11 @@ The sequence follows the scan:
 On the result screen the cube is explored by hand: drag to turn it, scroll
 to zoom, hover a point to read its byte range and value. Nothing moves on
 its own there. Reduced motion and hidden widgets skip straight to the end.
+
+On the home screen the empty cube is a sonar chamber: ``look`` tilts it
+toward the pointer (eased, and only while the pointer moves) and ``ping``
+sends one sonar pulse out of it, in a hue, when something happens (a
+target recognised, a file brought in, a scan starting).
 """
 from __future__ import annotations
 
@@ -39,6 +44,7 @@ DRAW_SECONDS = 0.9
 SWEEP_SECONDS = 1.5  # one pass of the scanning plane along one axis
 ECHO_SECONDS = 2.2
 FLAG_SECONDS = 1.8
+PING_SECONDS = 1.3
 DISTANCE = 2.7  # camera distance, in cube sides
 MAX_CALLOUTS = 4
 SEVERITY_COLORS = {1: TOKENS["info"], 2: TOKENS["warn"], 3: TOKENS["danger"]}
@@ -112,6 +118,12 @@ class SonarCube(QWidget):
         self._drag: QPointF | None = None
         self._timer = QTimer(self)
         self._timer.timeout.connect(self._tick)
+        # Pointer tilt and pings run on their own short-lived timer: it stops when they settle.
+        self._base = (self.yaw, self.pitch)
+        self._look_target: tuple[float, float] | None = None
+        self._pings: list[tuple[float, QColor, float]] = []  # (started, hue, strength)
+        self._fx = QTimer(self)
+        self._fx.timeout.connect(self._fx_tick)
         self.setMouseTracking(interactive)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         self.setFixedHeight(height)
@@ -169,10 +181,89 @@ class SonarCube(QWidget):
 
     def stop(self) -> None:
         self._timer.stop()
+        self._fx.stop()
 
     def highlight(self, cells) -> None:
         self.highlighted = set(int(c) for c in cells)
         self.update()
+
+    def look(self, nx: float, ny: float) -> None:
+        """Tilt toward a pointer at (nx, ny), each in -1 .. 1 from the centre."""
+        nx, ny = max(-1.0, min(1.0, nx)), max(-1.0, min(1.0, ny))
+        self._look_target = (self._base[0] + nx * 0.42, self._base[1] - ny * 0.26)
+        if prefers_reduced_motion():
+            self.yaw, self.pitch = self._look_target
+            self._look_target = None
+            self.update()
+            return
+        if not self._fx.isActive():
+            self._fx.start(16)
+
+    def ping(self, hue: str | QColor | None = None, strength: float = 1.0) -> None:
+        """One sonar pulse out of the cube (nothing under reduced motion)."""
+        if prefers_reduced_motion() or not self.isVisible():
+            return
+        self._pings = [p for p in self._pings if time.monotonic() - p[0] < PING_SECONDS][-3:]
+        self._pings.append((time.monotonic(), QColor(hue) if hue is not None else QColor(self.hue), strength))
+        if not self._fx.isActive():
+            self._fx.start(16)
+
+    def set_hue(self, hue: str) -> None:
+        self.hue = QColor(hue)
+        self.update()
+
+    def _fx_tick(self) -> None:
+        busy = False
+        if self._look_target is not None and self._drag is None:
+            yaw, pitch = self._look_target
+            self.yaw += (yaw - self.yaw) * 0.12
+            self.pitch += (pitch - self.pitch) * 0.12
+            if abs(yaw - self.yaw) < 0.0015 and abs(pitch - self.pitch) < 0.0015:
+                self.yaw, self.pitch, self._look_target = yaw, pitch, None
+            else:
+                busy = True
+        now = time.monotonic()
+        self._pings = [p for p in self._pings if now - p[0] < PING_SECONDS]
+        busy = busy or bool(self._pings)
+        self.update()
+        if not busy:
+            self._fx.stop()
+
+    def _paint_pulses(self, painter: QPainter, corners: np.ndarray) -> None:
+        """Each ping: the cube's edges flare, a ring leaves its centre, another runs along the floor."""
+        now = time.monotonic()
+        center = QPointF(self.width() / 2, self.height() / 2)
+        floor = self._project(np.array([[0.0, 0.78, 0.0]], dtype=np.float32))[0]
+        floor_center = QPointF(floor[0], floor[1])
+        scale = self._scale()
+        painter.setBrush(Qt.BrushStyle.NoBrush)
+        for started, hue, strength in self._pings:
+            t = (now - started) / PING_SECONDS
+            if not 0.0 <= t < 1.0:
+                continue
+            fade = (1.0 - t) ** 1.6 * strength
+            if t < 0.3:  # the edges flare as the pulse leaves
+                flare = (1.0 - t / 0.3) * strength
+                for a, b in _EDGES:
+                    painter.setPen(QPen(alpha(mix(hue, "#ffffff", 0.4), 0.55 * flare), 1.6))
+                    painter.drawLine(QPointF(corners[a, 0], corners[a, 1]), QPointF(corners[b, 0], corners[b, 1]))
+            for lag, width in ((0.0, 2.0), (0.12, 1.2)):
+                spread = max(0.0, t - lag) / (1.0 - lag)
+                if spread <= 0:
+                    continue
+                grown = 1 - (1 - spread) ** 2.2
+                # The sphere stays inside the widget (it would be cut at the edges); the floor ring runs wide.
+                cap = self.height() / 2 - 3
+                radius = min(cap, scale * 0.45 + (cap - scale * 0.45) * grown)
+                painter.setPen(QPen(alpha(hue, 0.5 * fade * (1 - grown * 0.6)), width))
+                painter.drawEllipse(center, radius, radius)
+                radius = scale * (0.45 + 1.7 * grown)
+                painter.save()
+                painter.translate(floor_center)
+                painter.scale(1.0, 0.2)
+                painter.setPen(QPen(alpha(hue, 0.65 * fade), width * 3))
+                painter.drawEllipse(QPointF(0, 0), radius * 1.1, radius * 1.1)
+                painter.restore()
 
     @property
     def animating(self) -> bool:
@@ -235,6 +326,8 @@ class SonarCube(QWidget):
 
     def hideEvent(self, event) -> None:  # noqa: N802
         self._timer.stop()
+        self._fx.stop()
+        self._pings = []
         if self.phase in {"echo", "flag"}:
             self._finish()
         super().hideEvent(event)
@@ -277,6 +370,8 @@ class SonarCube(QWidget):
         elif self.structure is not None and self.phase != "stopped":
             self._paint_points(painter, hue, elapsed)
         self._paint_edges(painter, corners, hue, draw, front=True)
+        if self._pings:
+            self._paint_pulses(painter, corners)
         if self.structure is not None and self.phase in {"flag", "explore"}:
             self._paint_callouts(painter, elapsed)
 

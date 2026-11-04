@@ -218,6 +218,11 @@ QPushButton#primary {{
 QPushButton#primary:hover {{ background: {p['hover']}; }}
 QPushButton#primary:focus {{ border: 2px solid {p['strong']}; }}
 QPushButton#primary:disabled {{ background: {t['surface_3']}; color: {t['text_mute']}; border-color: {t['glass_edge']}; }}
+QPushButton#galaxyLink {{
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 rgba(255, 196, 120, 0.10), stop:1 rgba(165, 148, 255, 0.14));
+    color: #ffe2b8; border: 1px solid rgba(255, 210, 150, 0.35); border-radius: 13px; padding: 4px 12px; font-weight: 600;
+}}
+QPushButton#galaxyLink:hover {{ color: #fff3df; border-color: rgba(255, 220, 170, 0.7); }}
 QPushButton#repairCta {{
     background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #7b69e6, stop:1 #a594ff); color: #0c0820;
     border: 1px solid #d3cbff; border-bottom-color: #5b4bc4; padding: 7px 16px; font-weight: 700;

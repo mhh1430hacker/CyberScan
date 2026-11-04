@@ -223,8 +223,9 @@ def test_only_the_background_ticks_while_idle_and_it_can_be_turned_off(window, q
     def active():
         return [t for t in window.findChildren(QTimer) if t.isActive()]
 
-    settle(qapplication, 0.3)
+    settle(qapplication, 1.3)  # the home chamber draws itself in once (0.9 s), then is still
     assert active() == [window.backdrop._timer]  # the animated background the user asked for
+    assert not window.lens.chamber.animating and not window.lens.chamber._fx.isActive()
     scan(qapplication, window, str(samples["notes"]))
     settle(qapplication, 0.6)
     assert active() == [window.backdrop._timer]

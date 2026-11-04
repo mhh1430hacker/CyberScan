@@ -25,7 +25,7 @@ import ctypes
 import sys
 
 from PySide6.QtCore import QEasingCurve, QEvent, QObject, QPointF, QPropertyAnimation, QRect, QRectF, Qt, QTimer, QVariantAnimation
-from PySide6.QtGui import QColor, QPainter, QPainterPath, QPen, QRadialGradient
+from PySide6.QtGui import QBrush, QColor, QLinearGradient, QPainter, QPainterPath, QPen, QRadialGradient
 from PySide6.QtWidgets import QApplication, QLabel, QPushButton, QWidget
 
 from ui.motion import EMPHASIS_MS, FEEDBACK_MS, VIEW_MS, prefers_reduced_motion
@@ -432,3 +432,152 @@ class SuccessMark(QWidget):
             if tick > 0.4:
                 path.lineTo(b + (c - b) * ((tick - 0.4) / 0.6))
             painter.drawPath(path)
+
+
+# -- the headline -------------------------------------------------------------------------------
+
+
+class SheenTitle(QLabel):
+    """A display headline lit from one side, with a band of light that crosses it once on ``sweep``."""
+
+    def __init__(self, text: str = "", parent=None):
+        super().__init__(text, parent)
+        self.accent = QColor(TOKENS["accent"])
+        self.sheen = -1.0  # band position 0 .. 1 while sweeping
+        self._animation = QVariantAnimation(self)
+        self._animation.setDuration(1500)
+        self._animation.setStartValue(-0.2)
+        self._animation.setEndValue(1.2)
+        self._animation.setEasingCurve(QEasingCurve.Type.InOutCubic)
+        self._animation.valueChanged.connect(self._step)
+        self._animation.finished.connect(lambda: self._step(-1.0))
+
+    def _step(self, value) -> None:
+        self.sheen = float(value)
+        self.update()
+
+    def set_accent(self, color: str) -> None:
+        self.accent = QColor(color)
+        self.update()
+
+    def sweep(self) -> None:
+        if prefers_reduced_motion():
+            return
+        self._animation.stop()
+        self._animation.start()
+
+    def paintEvent(self, event) -> None:  # noqa: N802
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.TextAntialiasing)
+        rect = QRectF(self.contentsRect())
+        text = QColor(TOKENS["text"])
+        tint = QColor(
+            round(text.red() * 0.55 + self.accent.red() * 0.45),
+            round(text.green() * 0.55 + self.accent.green() * 0.45),
+            round(text.blue() * 0.55 + self.accent.blue() * 0.45),
+        )
+        rtl = self.layoutDirection() == Qt.LayoutDirection.RightToLeft
+        start, end = (rect.topRight(), rect.topLeft()) if rtl else (rect.topLeft(), rect.topRight())
+        gradient = QLinearGradient(start, end)
+        stops = [(0.0, text), (0.55, text), (1.0, tint)]
+        if -0.2 < self.sheen < 1.2:
+            band = 0.09
+            stops = [(p, c) for p, c in stops if abs(p - self.sheen) > band]
+            for offset, color in ((-band, None), (0.0, QColor("#ffffff")), (band, None)):
+                position = self.sheen + offset
+                if 0.0 <= position <= 1.0:
+                    stops.append((position, color or (tint if position > 0.55 else text)))
+        for position, color in sorted(stops, key=lambda s: s[0]):
+            gradient.setColorAt(position, color)
+        painter.setPen(QPen(QBrush(gradient), 1))
+        painter.setFont(self.font())
+        painter.setLayoutDirection(self.layoutDirection())  # Arabic keeps its full stop at the end
+        flags = int(self.alignment()) | int(Qt.TextFlag.TextWordWrap)
+        painter.drawText(rect, flags, self.text())
+
+
+# -- dragging a file in ---------------------------------------------------------------------------
+
+
+class SonarDrop(QWidget):
+    """Over the whole stage while a file is dragged in: sonar rings answer the pointer."""
+
+    PERIOD = 1.6
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.text, self.hint = "", ""
+        self.point: QPointF | None = None
+        self.color = QColor(TOKENS["accent"])
+        self.started = 0.0
+        self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+        self._timer = QTimer(self)
+        self._timer.timeout.connect(self.update)
+        self.hide()
+
+    def set_text(self, text: str, hint: str) -> None:
+        self.text, self.hint = text, hint
+        self.update()
+
+    def follow(self, point: QPointF) -> None:
+        self.point = QPointF(point)
+        self.update()
+
+    def showEvent(self, event) -> None:  # noqa: N802
+        super().showEvent(event)
+        import time
+
+        self.started = time.monotonic()
+        if not prefers_reduced_motion():
+            self._timer.start(16)  # only while a file is actually being dragged in
+
+    def hideEvent(self, event) -> None:  # noqa: N802
+        self._timer.stop()
+        super().hideEvent(event)
+
+    def paintEvent(self, event) -> None:  # noqa: N802
+        import time
+
+        from ui.icons import glyph, icon_font
+        from ui.theme import ui_font
+
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        rect = QRectF(self.rect())
+        point = self.point or rect.center()
+        shade = QRadialGradient(point, max(rect.width(), rect.height()) * 0.9)
+        shade.setColorAt(0.0, QColor(5, 7, 9, 215))
+        shade.setColorAt(1.0, QColor(3, 4, 6, 248))
+        painter.fillRect(rect, shade)
+        elapsed = time.monotonic() - self.started
+        painter.setBrush(Qt.BrushStyle.NoBrush)
+        reach = max(rect.width(), rect.height()) * 0.55
+        for index in range(4):  # rings leave the pointer one after another
+            phase = ((elapsed / self.PERIOD) + index / 4) % 1.0
+            if prefers_reduced_motion():
+                phase = 0.18 + index * 0.18
+            radius = 18 + reach * phase
+            ring = QColor(self.color)
+            ring.setAlphaF(0.55 * (1 - phase) ** 1.4)
+            painter.setPen(QPen(ring, 1.6))
+            painter.drawEllipse(point, radius, radius)
+        core = QRadialGradient(point, 46)
+        glow = QColor(self.color)
+        glow.setAlphaF(0.35)
+        clear = QColor(self.color)
+        clear.setAlphaF(0.0)
+        core.setColorAt(0.0, glow)
+        core.setColorAt(1.0, clear)
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.setBrush(core)
+        painter.drawEllipse(point, 46, 46)
+        painter.setFont(icon_font(30))
+        painter.setPen(self.color)
+        painter.drawText(QRectF(point.x() - 30, point.y() - 30, 60, 60), int(Qt.AlignmentFlag.AlignCenter), glyph("drop"))
+        band = QRectF(0, rect.height() * 0.70, rect.width(), 90)
+        painter.setFont(ui_font(30, 600, -0.6))
+        painter.setPen(QColor(TOKENS["text"]))
+        painter.drawText(band.adjusted(0, 0, 0, -44), int(Qt.AlignmentFlag.AlignCenter), self.text)
+        painter.setFont(ui_font(14))
+        painter.setPen(QColor(TOKENS["text_mute"]))
+        painter.drawText(band.adjusted(0, 48, 0, 0), int(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop), self.hint)

@@ -4,7 +4,7 @@ One centred field takes anything: a path, a link, a hash or text. Its kind
 is detected as you type (``ui.file_kind.detect_mode``); a chip inside the
 bar names it in its hue, and the button says what it will scan. Keyboard
 hints sit in tooltips. A file can be dropped anywhere in the window
-(the window shows ``DropOverlay``); validation messages appear under the bar
+(the window shows ``ui.polish.SonarDrop``); validation messages appear under the bar
 and clear on the next edit.
 
 The lens never runs a scan: it emits ``submitted`` / ``browseRequested`` /
@@ -14,54 +14,20 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from PySide6.QtCore import QEvent, QRectF, Qt, QTimer, Signal
-from PySide6.QtGui import QColor, QPainter, QPen
+from PySide6.QtCore import QEvent, Qt, QTimer, Signal
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLineEdit, QPushButton, QSizePolicy, QVBoxLayout, QWidget
 
 from ui.copy import tr
 from ui.file_kind import KINDS, detect_mode, display_name, kind_for_target
-from ui.icons import glyph, glyph_icon, glyph_pixmap, icon_font
+from ui.icons import glyph_icon, glyph_pixmap
 from ui.names import inspect as inspect_name
 from ui.plain_language import format_size, isolate
-from ui.theme import TOKENS, alpha, ui_font
+from ui.theme import TOKENS
+from ui.polish import SheenTitle
+from ui.sonar import SonarCube
 from ui.widgets import ElidedLabel, KindTile, label
 
-
-class DropOverlay(QWidget):
-    """Shown over the whole stage while a file is dragged over the window."""
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.text = ""
-        self.hint = ""
-        self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
-        self.hide()
-
-    def set_text(self, text: str, hint: str) -> None:
-        self.text, self.hint = text, hint
-        self.update()
-
-    def paintEvent(self, event) -> None:  # noqa: N802
-        painter = QPainter(self)
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-        painter.fillRect(self.rect(), QColor(5, 6, 7, 205))
-        frame = QRectF(self.rect()).adjusted(28, 28, -28, -28)
-        pen = QPen(alpha(TOKENS["accent"], 0.85), 1.5)
-        pen.setStyle(Qt.PenStyle.CustomDashLine)
-        pen.setDashPattern([6, 5])
-        painter.setPen(pen)
-        painter.setBrush(alpha(TOKENS["accent"], 0.04))
-        painter.drawRoundedRect(frame, 20, 20)
-        center = frame.center()
-        painter.setFont(icon_font(40))
-        painter.setPen(QColor(TOKENS["accent"]))
-        painter.drawText(QRectF(frame.left(), center.y() - 70, frame.width(), 50), int(Qt.AlignmentFlag.AlignCenter), glyph("drop"))
-        painter.setFont(ui_font(26, 600, -0.4))
-        painter.setPen(QColor(TOKENS["text"]))
-        painter.drawText(QRectF(frame.left(), center.y() - 10, frame.width(), 36), int(Qt.AlignmentFlag.AlignCenter), self.text)
-        painter.setFont(ui_font(14))
-        painter.setPen(QColor(TOKENS["text_mute"]))
-        painter.drawText(QRectF(frame.left(), center.y() + 32, frame.width(), 24), int(Qt.AlignmentFlag.AlignCenter), self.hint)
+CHAMBER_HEIGHT = 280
 
 
 class Lens(QWidget):
@@ -93,10 +59,18 @@ class Lens(QWidget):
         outer.addWidget(column_host, 100)
         outer.addStretch(1)
 
+        # The sonar chamber: the empty glass cube the file will be mapped into.
+        # It leans toward the pointer and answers what happens with a ping.
+        self.chamber = SonarCube(interactive=False, height=CHAMBER_HEIGHT)
+        self.chamber.setAccessibleName("Sonar chamber")
+        column.addWidget(self.chamber)
+        column.addSpacing(6)
         self.privacy = label("", "chip")
         column.addWidget(self.privacy, 0, Qt.AlignmentFlag.AlignHCenter)
         column.addSpacing(22)
-        self.title = label("", "display", wrap=True)
+        self.title = SheenTitle()
+        self.title.setObjectName("display")
+        self.title.setWordWrap(True)
         self.title.setAlignment(Qt.AlignmentFlag.AlignHCenter)
         column.addWidget(self.title)
         column.addSpacing(10)
@@ -246,7 +220,33 @@ class Lens(QWidget):
     def set_armed(self, armed: bool) -> None:
         if armed != self.armed:
             self.armed = armed
+            if armed:
+                self.chamber.ping(TOKENS["accent"], 1.2)
             self.armedChanged.emit(armed)
+
+    # -- the chamber ---------------------------------------------------------
+    def wake(self) -> None:
+        """The home screen came into view: draw the chamber and light the headline."""
+        if self.chamber.phase == "idle" or self.chamber.structure is not None:
+            self.chamber.show_empty(self.kind.hue if self.text() else TOKENS["accent"])
+        self.title.sweep()
+
+    def look_at(self, global_point) -> None:
+        """Lean the chamber toward the pointer, wherever it is in the window."""
+        if not self.chamber.isVisible():
+            return
+        window = self.window()
+        local = self.chamber.mapFromGlobal(global_point)
+        nx = (local.x() - self.chamber.width() / 2) / max(1.0, window.width() / 2)
+        ny = (local.y() - self.chamber.height() / 2) / max(1.0, window.height() / 2)
+        self.chamber.look(nx, ny)
+
+    def fit(self, window_height: int) -> None:
+        """The chamber gives up its room first when the window is short."""
+        height = max(0, min(CHAMBER_HEIGHT, window_height - 600))
+        self.chamber.setVisible(height >= 150)
+        if height >= 150:
+            self.chamber.setFixedHeight(height)
 
     # -- internals -------------------------------------------------------------
     @staticmethod
@@ -266,6 +266,8 @@ class Lens(QWidget):
 
     def _submit(self) -> None:
         self._refresh_preview()
+        if self.text():
+            self.chamber.ping(self.kind.hue, 1.5)
         self.submitted.emit(self.text())
 
     def _refresh_preview(self) -> None:
@@ -308,6 +310,14 @@ class Lens(QWidget):
             # No preview for a path that isn't there: it would contradict the error.
             self.preview.setVisible(self.mode == "File" and exists)
             self.scan_button.setText(t("Scan this {kind}").format(kind=kind_word.lower() if self.language == "en" else kind_word))
+        if self.kind.key != getattr(self, "_pinged_kind", None):
+            # A new kind recognised: the chamber takes its hue and pings once.
+            self._pinged_kind = self.kind.key
+            hue = self.kind.hue if value else TOKENS["accent"]
+            self.chamber.set_hue(hue)
+            self.title.set_accent(hue)
+            if value:
+                self.chamber.ping(hue)
         self.kindChanged.emit(self.kind.key)
 
     def dragEnterEvent(self, event) -> None:  # noqa: N802

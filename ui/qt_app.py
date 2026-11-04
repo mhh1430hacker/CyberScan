@@ -24,8 +24,8 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlsplit
 
-from PySide6.QtCore import QPointF, QProcess, Qt, QThread, QTimer, QUrl, Signal
-from PySide6.QtGui import QDesktopServices, QFont, QKeySequence, QShortcut
+from PySide6.QtCore import QEvent, QPointF, QProcess, Qt, QThread, QTimer, QUrl, Signal
+from PySide6.QtGui import QColor, QCursor, QDesktopServices, QFont, QKeySequence, QShortcut
 from PySide6.QtWidgets import (
     QApplication,
     QFileDialog,
@@ -53,10 +53,10 @@ from ui.file_kind import KINDS, FileKind, detect_mode, display_name, kind_for_ta
 from ui.history_rail import GROUPS, HistoryRail, RailItem
 from ui.icons import glyph_icon
 from ui.journey import JourneyScene
-from ui.lens import DropOverlay, Lens
+from ui.lens import Lens
 from ui.motion import fade_in
 from ui.names import visible
-from ui.polish import CursorLight, SegmentGlider, fade_in_window, toast, window_chrome
+from ui.polish import CursorLight, SegmentGlider, SonarDrop, fade_in_window, toast, window_chrome
 from ui.persistence import LocalUiStore
 from ui.result_tiers import ResultPanel, advanced_texts, region_label
 from ui.result_view import ResultView, build_result_view
@@ -489,6 +489,8 @@ class CyberScanApp(QMainWindow):
         self.result_panel.aiStopRequested.connect(self.stop_ai_summary)
         self.result_panel.quarantineRequested.connect(self.quarantine_current)
         self.result_panel.repairRequested.connect(self.repair_current)
+        self.result_panel.galaxyRequested.connect(self.open_galaxy)
+        self.observatory = None
         self._repair_probes: list[QThread] = []
         self._transition = None
         self.result_panel.revealRequested.connect(self.reveal_current)
@@ -503,7 +505,7 @@ class CyberScanApp(QMainWindow):
         column.addStretch(1)
 
         # -- settings sheet over the stage -------------------------------------
-        self.drop_overlay = DropOverlay(self.main)
+        self.drop_overlay = SonarDrop(self.main)
         self.scrim = Scrim(self.main)
         self.scrim.hide()
         self.scrim.clicked.connect(self.close_settings)
@@ -616,6 +618,8 @@ class CyberScanApp(QMainWindow):
         self.column_layout.setStretch(self.column_layout.count() - 1, 3 if centred else 1)
         if animate:
             fade_in(widgets[name])
+        if name == "lens":
+            self.lens.wake()
         if getattr(self, "cursor_light", None) is not None:
             self.cursor_light.attach()
         self.scroll.verticalScrollBar().setValue(0)
@@ -976,6 +980,23 @@ class CyberScanApp(QMainWindow):
         self._transition.finished.connect(self._repair_transition_done)
         self._append_log(f"Scan result handed to Repair: {path}")
         self._transition.play()
+
+    def open_galaxy(self) -> None:
+        """The scanned file's own galaxy, over the whole window."""
+        structure = self.result_panel.structure
+        if structure is None or self.observatory is not None:
+            return
+        from ui.galaxy import build_galaxy
+        from ui.observatory import Observatory
+
+        current = self._current or {}
+        view = current.get("view")
+        name = visible(Path(str(current.get("target", ""))).name) or "file"
+        galaxy = build_galaxy(structure, getattr(view, "sha256", None))
+        self.observatory = Observatory(self, galaxy, name, self.language, self.result_panel._describe_cell)
+        self.observatory.logged.connect(self._append_log)
+        self.observatory.closed.connect(lambda: setattr(self, "observatory", None))
+        self.observatory.open()
 
     def _repair_transition_done(self) -> None:
         self._transition = None
@@ -1766,6 +1787,8 @@ class CyberScanApp(QMainWindow):
     def _show_drop_overlay(self, armed: bool) -> None:
         if armed and self.worker is None:
             self.drop_overlay.set_text(*self.lens.overlay_text())
+            self.drop_overlay.color = QColor(MODE_ACCENTS.get(self.app_mode, MODE_ACCENTS["scan"])["accent"])
+            self.drop_overlay.follow(QPointF(self.drop_overlay.mapFromGlobal(QCursor.pos())))
             self.drop_overlay.setGeometry(self.main.rect())
             self.drop_overlay.show()
             self.drop_overlay.raise_()
@@ -1789,6 +1812,9 @@ class CyberScanApp(QMainWindow):
     def resizeEvent(self, event) -> None:  # noqa: N802
         super().resizeEvent(event)
         self._apply_layout_mode()
+        if self.observatory is not None:
+            self.observatory.setGeometry(self.rect())
+        self.lens.fit(self.height())
 
     def showEvent(self, event) -> None:  # noqa: N802
         super().showEvent(event)
@@ -1798,6 +1824,17 @@ class CyberScanApp(QMainWindow):
             self.cursor_light.set_color(MODE_ACCENTS.get(self.app_mode, MODE_ACCENTS["scan"])["accent"])
             window_chrome(self, self.app_mode)
             fade_in_window(self)
+            QApplication.instance().installEventFilter(self)  # the pointer leans the home chamber
+            if self.view == "lens":
+                self.lens.wake()
+
+    def eventFilter(self, watched, event) -> bool:  # noqa: N802
+        kind = event.type()
+        if kind == QEvent.Type.MouseMove and self.view == "lens" and self.isActiveWindow():
+            self.lens.look_at(QCursor.pos())
+        elif kind == QEvent.Type.DragMove and self.drop_overlay.isVisible():
+            self.drop_overlay.follow(QPointF(self.drop_overlay.mapFromGlobal(QCursor.pos())))
+        return super().eventFilter(watched, event)
 
     def dragEnterEvent(self, event) -> None:  # noqa: N802
         if self.worker is None and event.mimeData().hasUrls():
@@ -1837,6 +1874,10 @@ class CyberScanApp(QMainWindow):
         scan_process.HOST.shutdown()
         for thread in list(self._ai_probes):
             thread.wait(5000)
+        if self.observatory is not None:
+            self.observatory.wait()
+        QApplication.instance().removeEventFilter(self)  # the home chamber's pointer watch
+        self.lens.chamber.stop()
         event.accept()
 
 

@@ -235,7 +235,9 @@ def _table_literals() -> set[str]:
     from ui import repair
 
     found |= set(repair.RULES) | set(repair.PHRASES) | set(repair.SUMMARIES.values())
-    from ui import exhibit
+    from ui import exhibit, observatory
+
+    found |= set(observatory.LEGEND)
 
     found |= set(exhibit.STEPS) | {s.title for s in exhibit.SAMPLES} | set(exhibit.FAMILY_WORDS.values()) | set(exhibit.TRICKS.values())
     return found

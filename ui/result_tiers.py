@@ -249,6 +249,7 @@ class ResultPanel(QWidget):
     revealRequested = Signal()
     onlineRequested = Signal()
     repairRequested = Signal()
+    galaxyRequested = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -397,7 +398,14 @@ class ResultPanel(QWidget):
         self.map_button.setObjectName("link")
         self.map_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.map_button.clicked.connect(self._toggle_map)
+        # Every file's own galaxy, in the observatory (ui/observatory.py).
+        self.galaxy_button = QPushButton()
+        self.galaxy_button.setObjectName("galaxyLink")
+        self.galaxy_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.galaxy_button.clicked.connect(self.galaxyRequested)
         inside_head.addWidget(self.inside_title, 1)
+        inside_head.addWidget(self.galaxy_button)
+        inside_head.addSpacing(14)
         inside_head.addWidget(self.map_button)
         inside.addLayout(inside_head)
         self.regions_list = QVBoxLayout()
@@ -884,6 +892,8 @@ class ResultPanel(QWidget):
             return
         t = lambda text: tr(text, self.language)  # noqa: E731
         self.inside_title.setText(t("Inside the file"))
+        self.galaxy_button.setText("✦  " + t("See its galaxy"))
+        self.galaxy_button.setToolTip(t("Every file has its own galaxy, made from its real bytes."))
         self.inside_hint.setText(t("Drag to turn · scroll to zoom · point at a dot to read it"))
         note = t("Each dot is a small slice of the file, placed so that neighbouring bytes stay together. Brighter dots hold more scrambled content; glowing dots are the places listed above.")
         if structure.source == "windows":

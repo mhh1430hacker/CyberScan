@@ -100,3 +100,52 @@ def test_reduced_motion_makes_every_touch_immediate(qapplication, monkeypatch):
     mark = SuccessMark()
     mark.play()
     assert meter._fill == 1.0 and mark.progress == 1.0
+
+
+# --- the sonar chamber on the home screen ------------------------------------------------------
+
+
+def test_the_chamber_leans_toward_the_pointer_then_rests(window, qapplication):
+    window.show()
+    settle(qapplication, 0.3)
+    chamber = window.lens.chamber
+    assert chamber.isVisible() and chamber.phase in {"drawing", "stopped"}
+    base = chamber._base
+    chamber.look(1.0, 0.0)
+    assert chamber._fx.isActive()
+    assert wait_for(qapplication, lambda: not chamber._fx.isActive(), 5)  # it settles, then stops working
+    assert chamber.yaw > base[0] + 0.3
+
+
+def test_the_chamber_pings_when_it_recognises_a_target(window, qapplication):
+    from ui.file_kind import KINDS
+
+    window.show()
+    settle(qapplication, 0.3)
+    chamber = window.lens.chamber
+    window.lens.set_target("https://example.com/login")
+    assert len(chamber._pings) == 1 and chamber.hue.name() == KINDS["url"].hue.lower()
+    window.lens.set_target("https://example.com/other")  # the same kind again: no new ping
+    assert len(chamber._pings) == 1
+    assert wait_for(qapplication, lambda: not chamber._pings and not chamber._fx.isActive(), 5)
+
+
+def test_the_chamber_makes_room_on_a_short_window(window, qapplication):
+    window.show()
+    window.lens.fit(700)
+    assert not window.lens.chamber.isVisible()
+    window.lens.fit(1000)
+    assert window.lens.chamber.isVisible() and window.lens.chamber.height() == 280
+
+
+def test_dragging_a_file_in_shows_rings_at_the_pointer(window, qapplication):
+    from PySide6.QtCore import QPointF
+
+    window.show()
+    window.lens.set_armed(True)
+    overlay = window.drop_overlay
+    assert overlay.isVisible() and overlay._timer.isActive()
+    overlay.follow(QPointF(100, 120))
+    assert overlay.point == QPointF(100, 120)
+    window.lens.set_armed(False)
+    assert not overlay.isVisible() and not overlay._timer.isActive()  # nothing runs once the drag is over
