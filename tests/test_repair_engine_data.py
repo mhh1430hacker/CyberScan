@@ -176,3 +176,19 @@ def test_manifest_lists_raw_files_and_feature_rows(store):
     rows = pq.read_table(store.root / "manifest.parquet").to_pylist()
     assert counts == {"govdocs1:benign:" + manifest.hash_split(sha256): 1}
     assert rows[0]["path"] == str(path.relative_to(store.root)) and rows[0]["label"] == "benign"
+
+
+def test_shrink_keeps_exactly_the_written_rows(tmp_path):
+    """Found when vectorising EMBER PDF_train: the last chunk overran the trimmed array."""
+    import numpy as np
+
+    from repair_engine.data.ember import _shrink
+
+    path = tmp_path / "vectors.npy"
+    full = np.lib.format.open_memmap(path, mode="w+", dtype=np.float32, shape=(6096, 8))
+    full[:] = np.arange(6096, dtype=np.float32)[:, None]
+    full.flush()
+    del full
+    _shrink(path, 4000, 8)
+    kept = np.load(path)
+    assert kept.shape == (4000, 8) and kept[-1, 0] == 3999

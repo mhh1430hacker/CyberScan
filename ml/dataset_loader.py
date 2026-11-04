@@ -153,18 +153,14 @@ def compute_embeddings(
 
     for i, entry in enumerate(entries):
         file_path = dataset_root / entry.path
+        # An unreadable sample must stop training: a zero vector carrying its label
+        # would teach the model that "nothing" looks like that label.
         try:
             with file_path.open("rb") as f:
                 data = f.read()
-        except OSError:
-            embeddings[i] = 0.0
-            continue
-
-        try:
-            vec = embedder.embed(data)
-            embeddings[i] = np.array(vec, dtype=np.float32)
-        except Exception:
-            embeddings[i] = 0.0
+        except OSError as exc:
+            raise ValueError(f"Cannot read training sample {entry.path}: {exc}") from exc
+        embeddings[i] = np.array(embedder.embed(data), dtype=np.float32)
 
         if show_progress and (i + 1) % 50 == 0:
             print(f"  Computed {i + 1}/{len(entries)} embeddings")

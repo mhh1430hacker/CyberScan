@@ -4,6 +4,7 @@ import hashlib
 import math
 import os
 import time
+from pathlib import Path
 
 from config import DEFAULT_SETTINGS
 from core.archive_inspector import inspect_zip
@@ -12,12 +13,128 @@ from core.mitre_mapper import map_findings_to_mitre
 from core.pe_decompiler import analyze_pe_file
 from core.yara_engine import scan_file_for_yara
 from core.heuristic_engine import evaluate_heuristics
+from core.magic_bytes import naturally_compressed
+from core.authenticode import verify as verify_signature
 from core.models import Finding, ScanResult
 from core.position_aware import build_position_aware_evidence
 from core.risk_engine import finalize_result
 from core.deep_embedding import HighDimensionalEmbedding
+from core import dissonance
+from core import surprise_map
+from ml import counterfactual
 # Only a model a person approved by SHA-256 can load (see ml.model_runtime).
 from ml.model_runtime import UNAPPROVED_STATUS, ApprovedStructuralClassifier as StructuralClassifier
+
+# Compiler padding (0xCC between functions) reads as "anti-disassembly" to a naive check.
+PADDING_PATTERNS = {"ANTI_DISASSEMBLY_TRAP_PADDING", "ANTI_DISASSEMBLY_GAP"}
+
+
+def meaningful_patterns(patterns) -> list[str]:
+    return [p for p in (patterns or []) if p not in PADDING_PATTERNS]
+
+
+def injection_chain(imports) -> bool:
+    """Imports that only mean something together: write into another process, then run code there."""
+    names = {str(name).casefold() for name in imports}
+    writes = "writeprocessmemory" in names
+    starts = bool(names & {"createremotethread", "queueuserapc", "ntcreatethreadex", "setthreadcontext"})
+    return writes and starts
+
+
+HIDDEN_TAIL_SIGNATURES = (b"MZ", b"PK\x03\x04", b"%PDF", b"\x7fELF", b"Rar!", b"7z\xbc\xaf", b"<script", b"<html", b"#!", b"powershell")
+
+
+def hidden_tail_findings(data: bytes, name: str) -> list[Finding]:
+    """Data stored after a format's logical end (a picture or PDF with an archive glued on).
+
+    Uses the repair engine's parsers, which know where each format ends. A phone's
+    "motion photo" keeps a video after the picture; that is reported, not scored.
+    """
+    try:
+        from repair_engine.parsers import parse
+
+        regions = parse(data, name)
+    except Exception:  # noqa: BLE001 - a parser problem must never stop a scan
+        return []
+    if regions.format in {"pe", "elf"}:
+        return []  # a program's overlay is judged by the program checks
+    findings = []
+    for region in regions.of_kind("after_eof"):
+        tail = data[region.start:region.end]
+        if not tail.strip(b"\x00\t\r\n "):
+            continue
+        size = len(tail)
+        where = f"0x{region.start:X}"
+        if regions.format == "jpeg" and b"ftyp" in tail[:64]:
+            findings.append(Finding("structural", "info", "Video after the picture",
+                                    f"{size} bytes after the picture ends (from {where}) look like a phone's motion photo.", 0))
+        elif any(sig.lower() in tail[:4096].lower() for sig in HIDDEN_TAIL_SIGNATURES):
+            findings.append(Finding("structural", "high", "Hidden data after the end of the file",
+                                    f"{size} bytes stored after the {regions.format.upper()} ends (from {where}), starting like a program, an archive or a script.", 45))
+        else:
+            findings.append(Finding("structural", "medium", "Data after the end of the file",
+                                    f"{size} bytes stored after the {regions.format.upper()} ends (from {where}). Readers ignore them; other programs can use them.", 15))
+    return findings
+
+
+DISSONANCE_TEXT_BYTES = 2_000_000
+_profiles: dict[tuple[str, str, str], object] = {}
+
+
+def _profile(kind: str, settings: dict):
+    """The approved dissonance/surprise profile (cached), or None when absent or rejected."""
+    if kind == "surprise":
+        path = settings.get("surprise_profile") or str(surprise_map.DEFAULT_PROFILE)
+        digest = settings.get("surprise_profile_sha256") or surprise_map.DEFAULT_PROFILE_SHA256
+        loader = surprise_map.load_profile
+    else:
+        path, digest = settings.get("dissonance_profile"), settings.get("dissonance_profile_sha256")
+        if not path:
+            return None  # the expert prior
+        loader = dissonance.load_profile
+    key = (kind, str(path), str(digest))
+    if key not in _profiles:
+        try:
+            _profiles[key] = loader(Path(path), str(digest))
+        except (OSError, ValueError, KeyError, TypeError):
+            _profiles[key] = None
+    return _profiles[key]
+
+
+def dissonance_findings(assessment: dict, signed: bool) -> list[Finding]:
+    """A program whose claimed role and capabilities disagree (see core.dissonance)."""
+    if assessment.get("status") != "ok" or assessment["level"] == "low":
+        return []
+    text = dissonance.describe(assessment)
+    if signed:
+        # A valid signature names who answers for the program; keep the observation, not the score.
+        return [Finding("dissonance", "info", "Claim and capabilities differ (signed program)", text, 0)]
+    if assessment["level"] == "high":
+        return [Finding("dissonance", "high", "Claim and capabilities disagree", text, 35)]
+    return [Finding("dissonance", "medium", "Claim and capabilities disagree", text, 20)]
+
+
+def surprise_findings(result: dict, signed: bool) -> list[Finding]:
+    """Code-section bytes that honest code never looks like (see core.surprise_map)."""
+    if result.get("status") != "ok" or signed:
+        return []
+    code = [region for region in result["regions"] if region["role"] == "code"]
+    if not code:
+        return []
+    region = code[0]
+    return [Finding(
+        "statistical",
+        "medium",
+        "Foreign content in program code",
+        (
+            f"{len(code)} stretch(es) of the code section {region['part']!r} do not look like program code "
+            f"(from 0x{region['offset_start']:X}: {region['surprise_bits_per_byte']:.2f} bits/byte away from "
+            f"honest code, where 99.9% of honest code stays within {region['benign_p999']:.2f}). "
+            "Packed, encrypted or injected content looks like this."
+        ),
+        15,
+    )]
+
 
 EICAR_TEST_SIGNATURE = b"X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*"
 
@@ -103,6 +220,15 @@ def analyze_file(
     check_deadline()
 
     findings: list[Finding] = []
+    # A program whose signature checks out (static WinVerifyTrust, no network) is judged on
+    # strong evidence only: packing, entropy and code shape are normal in signed software.
+    signature = verify_signature(str(path)) if file_data[:2] == b"MZ" and os.path.isfile(str(path)) else "not a program"
+    features["authenticode"] = signature
+    signed = signature.startswith("valid")
+    if signed:
+        findings.append(Finding("signature", "info", "Signed program", "The program's digital signature is intact and trusted on this computer.", 0))
+    elif signature == "unsigned or invalid":
+        findings.append(Finding("signature", "info", "Unsigned program", "The program has no valid digital signature, so its publisher can't be confirmed.", 0))
     if archive_inspection.status != "not_zip":
         findings.append(Finding(
             "archive",
@@ -134,10 +260,13 @@ def analyze_file(
     if features.get("magic_mismatch"):
         findings.append(Finding("structural", "high", "Header mismatch", "The file extension does not match the observed magic bytes.", 25))
     peak_entropy = float(topography.get("peak_entropy", entropy))
-    if peak_entropy > 7.0:
+    # Pictures, sound, video, PDF and ZIP-based documents are compressed by design:
+    # their high entropy and the jump from header to compressed body are normal.
+    compressed = naturally_compressed(file_data[:16])
+    if peak_entropy > 7.0 and not compressed and not signed:
         findings.append(Finding("statistical", "medium", "High entropy", "The content deviates from typical low-entropy file data and may indicate packing or obfuscation.", 18))
     for anomaly in topography.get("anomalies", []):
-        if anomaly.get("high_entropy_boundary"):
+        if anomaly.get("high_entropy_boundary") and not compressed and not signed:
             findings.append(Finding(
                 "statistical",
                 str(anomaly["severity"]),
@@ -152,12 +281,34 @@ def analyze_file(
     if features.get("double_extension"):
         findings.append(Finding("structural", "high", "Double extension", "A misleading file name attempts to hide an executable payload behind a benign extension.", 35))
     if features.get("is_executable"):
-        findings.append(Finding("structural", "medium", "Executable extension", "The file extension is associated with executable content.", 12))
-    if pe_result.get("status") == "ok" and pe_result.get("suspicious_imports"):
+        # A fact, not a warning: a program is judged by what is in it, not by being one.
+        findings.append(Finding("structural", "info", "Executable extension", "The file extension is associated with executable content.", 0))
+    findings += hidden_tail_findings(file_data, os.path.basename(path))
+    if settings.get("dissonance_analysis", True):
+        claim_check = dissonance.assess(
+            os.path.basename(path),
+            pe_result,
+            file_data[:DISSONANCE_TEXT_BYTES].decode("latin-1").lower(),
+            signed=signed,
+            profile=_profile("dissonance", settings),
+        )
+        if claim_check.get("status") == "ok":
+            features["dissonance"] = claim_check
+            findings += dissonance_findings(claim_check, signed)
+    surprise_profile = _profile("surprise", settings) if settings.get("surprise_analysis", True) else None
+    if surprise_profile is not None:
+        surprise = surprise_map.surprise_map(file_data, pe_result, surprise_profile)
+        if surprise.get("status") == "ok":
+            features["surprise_map"] = surprise
+            # Located, so the structure view and galaxy can show where they are.
+            position_aware_evidence["surprise_regions"] = surprise["regions"]
+            findings += surprise_findings(surprise, signed)
+    check_deadline()
+    if pe_result.get("status") == "ok" and injection_chain(pe_result.get("suspicious_imports") or []):
         findings.append(Finding("pe", "high", "Suspicious PE imports", "The binary imports APIs commonly associated with memory manipulation and process injection.", 35))
     cfg_topology = pe_result.get("cfg_topology", {})
-    if pe_result.get("status") == "ok" and cfg_topology.get("detected_patterns"):
-        patterns = ", ".join(cfg_topology["detected_patterns"])
+    if pe_result.get("status") == "ok" and meaningful_patterns(cfg_topology.get("detected_patterns")) and not signed:
+        patterns = ", ".join(meaningful_patterns(cfg_topology.get("detected_patterns")))
         findings.append(Finding(
             "pe",
             "medium",
@@ -172,12 +323,14 @@ def analyze_file(
         findings.append(Finding("heuristic", item["severity"], item["label"], item["label"], item["contribution"]))
 
     if contains_eicar:
+        # Every antivirus reports the EICAR file as a detection: that is what it is for
+        # (checking that protection works). It is harmless, and the explanation says so.
         findings.append(Finding(
             "test_marker",
-            "info",
-            "EICAR test marker",
-            "The standard EICAR anti-malware test string is present. It is a benign test marker, not a virus.",
-            0,
+            "high",
+            "EICAR anti-malware test file",
+            "The standard EICAR test file. It is harmless by design: it exists so people can check that antivirus protection reacts. CyberScan reports it the way antivirus products do.",
+            60,
         ))
 
     score = max(
@@ -201,6 +354,26 @@ def analyze_file(
         structural_prediction = classifier.predict(structural_embedding)
         ml_score = structural_prediction["infection_score"]
         features["structural_classifier"] = structural_prediction
+        if structural_prediction.get("label") not in (None, "clean") and not structural_prediction.get("abstained"):
+            # What does the verdict rest on? Regions are blanked in memory only.
+            audit = counterfactual.audit(
+                file_data,
+                classifier.labels_and_scores,
+                HighDimensionalEmbedding().embed_bytes,
+                ("clean", "suspicious", "malware"),
+                max_regions=int(settings.get("counterfactual_regions", 6)),
+                deadline=started_at + timeout * 0.9,
+            )
+            structural_prediction["counterfactual"] = audit
+            if audit.get("verdict_basis") == "incidental":
+                flip = audit["flip"]
+                findings.append(Finding(
+                    "model", "info", "Model verdict rests on an ignored part",
+                    f"The model's {structural_prediction['label']!r} verdict disappears when the {flip['region']} "
+                    f"({flip['bytes']} bytes, a part Windows ignores when running the program) is removed, "
+                    "so the verdict is weak evidence on its own.",
+                    0,
+                ))
     check_deadline()
 
     mitre_techniques = map_findings_to_mitre(
@@ -216,7 +389,13 @@ def analyze_file(
         "The supervised model requires reviewed examples for all three classes; "
         "no infection probability or automatic repair is claimed."
     )
-    if model_available:
+    if model_available and structural_prediction.get("abstained"):
+        model_status = (
+            "4096-D structural classifier loaded, but not sure about this file: "
+            f"{len(structural_prediction.get('prediction_set', []))} classes remain possible at "
+            f"{structural_prediction.get('conformal_coverage_target', 0.9):.0%} coverage, so the verdict rests on static evidence."
+        )
+    elif model_available:
         model_status = (
             "4096-D supervised structural classifier loaded; class scores are uncalibrated."
         )
@@ -256,6 +435,16 @@ def analyze_file(
             "YARA": yara_status,
             "PE": str(pe_result.get("status", "unknown")),
             "ML": model_status,
+            "Dissonance": (
+                f"{features['dissonance']['level']} ({features['dissonance']['dissonance_bits']:.1f} bits; profile: "
+                f"{features['dissonance']['profile']})" if "dissonance" in features else "not a program"
+            ),
+            "Surprise map": (
+                f"{len(features['surprise_map']['regions'])} foreign region(s); profile: {features['surprise_map']['profile']}"
+                if "surprise_map" in features
+                else "profile unavailable" if surprise_profile is None and settings.get("surprise_analysis", True)
+                else "not a program"
+            ),
             "Archive": (
                 f"bounded structure inspection; {archive_inspection.status}; "
                 f"{len(archive_inspection.entries)} member(s); member contents not malware-scanned"

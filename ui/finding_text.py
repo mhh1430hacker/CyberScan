@@ -70,6 +70,26 @@ _add(
     ("يطلب قدرات خطرة", "يستخدم البرنامج دوال Windows تُستخدم كثيرًا للكتابة في ذاكرة برامج أخرى."),
 )
 _add(
+    ("Claim and capabilities disagree",),
+    ("It can do things its kind of program never needs", "What the program says it is does not fit what it is able to do, or its name is a disguise."),
+    ("يقدر على أشياء لا يحتاجها برنامج من نوعه", "ما يدّعيه البرنامج عن نفسه لا يتّسق مع ما يستطيع فعله، أو أن اسمه تمويه."),
+)
+_add(
+    ("Claim and capabilities differ (signed program)",),
+    ("Unusual abilities for its kind, but signed", "It can do more than programs of its kind usually do. Its publisher signed it, so this is only a note."),
+    ("قدرات غير معتادة لنوعه لكنه موقَّع", "يستطيع أكثر مما تفعله البرامج من نوعه عادة. ناشره وقّعه، لذا هذه ملاحظة فقط."),
+)
+_add(
+    ("Foreign content in program code",),
+    ("Part of the code doesn't look like code", "A stretch of the program's code section looks unlike the code of honest programs. Packed, encrypted or injected content looks like this."),
+    ("جزء من الشيفرة لا يشبه الشيفرة", "مقطع من قسم الشيفرة في البرنامج لا يشبه شيفرة البرامج السليمة. المحتوى المضغوط أو المشفّر أو المزروع يبدو هكذا."),
+)
+_add(
+    ("Model verdict rests on an ignored part",),
+    ("The model's verdict is weak here", "The learning model's verdict depends on a part of the file Windows ignores, so it is weak evidence on its own."),
+    ("حكم النموذج ضعيف هنا", "حكم نموذج التعلّم يعتمد على جزء من الملف يتجاهله Windows، لذا فهو دليل ضعيف وحده."),
+)
+_add(
     ("YARA match",),
     ("Matches a known risky pattern", "One of the known-pattern rules matched this file."),
     ("يطابق نمطًا خطرًا معروفًا", "طابقت إحدى قواعد الأنماط المعروفة هذا الملف."),

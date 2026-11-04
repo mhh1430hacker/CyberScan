@@ -40,7 +40,7 @@ class ScanResult:
             f"Target: {self.target}",
             f"Heuristic Risk: {self.heuristic_score}/100",
             f"ML Structural Risk Score (uncalibrated): {self.ml_risk_score if self.ml_risk_score is not None else 'not available'}",
-            f"Structural model class: {self.structural_prediction.get('label', 'not available')}",
+            f"Structural model class: {'not sure (abstained)' if self.structural_prediction.get('abstained') else self.structural_prediction.get('label', 'not available')}",
             f"Structural class scores (uncalibrated): {self.structural_prediction.get('class_scores', 'not available')}",
             f"Combined Risk: {self.combined_score}/100",
             f"Classification: {self.classification}",

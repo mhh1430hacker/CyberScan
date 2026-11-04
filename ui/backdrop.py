@@ -116,6 +116,9 @@ class Backdrop(QWidget):
     def showEvent(self, event) -> None:  # noqa: N802
         super().showEvent(event)
         self.window().installEventFilter(self)
+        # Appearing counts as activity: building the window can itself take longer than the rest delay.
+        self._last_input = time.monotonic()
+        self._resting = False
         self._sync()
 
     def hideEvent(self, event) -> None:  # noqa: N802

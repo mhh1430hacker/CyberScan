@@ -24,6 +24,7 @@ import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import LabelEncoder
 
+from ml.conformal import DEFAULT_ALPHA, ConformalCalibration, calibrate, prediction_set
 from ml.feature_schema import FEATURE_SCHEMA_VERSION
 from ml.forest_export import export_random_forest, write_model_artifact
 from ml.forest_format import FORMAT_NAME, ForestModel, ModelFormatError, load_model
@@ -62,73 +63,24 @@ _LOAD_ERROR_PREFIXES = {
 
 
 def _extract_features_from_bytes(data: bytes) -> np.ndarray:
-    """Extract 4096-dim structural embedding from bytes."""
-    features = np.zeros(LATENT_DIMENSION, dtype=np.float32)
+    """Extract the 4096-dim structural embedding from bytes.
 
-    if len(data) == 0:
-        return features
+    The same ``HighDimensionalEmbedding`` that ``ml.dataset_loader`` trains on and
+    ``core.file_analyzer`` scans with: a model only means something on the
+    coordinates it was trained on.
+    """
+    from core.deep_embedding import HighDimensionalEmbedding
 
-    # Byte histogram (256 dims)
-    byte_counts = np.bincount(np.frombuffer(data, dtype=np.uint8), minlength=256)
-    features[:256] = byte_counts / max(len(data), 1)
-
-    # Windowed entropy histogram (16 dims)
-    window_size = 256
-    n_windows = max(1, len(data) // window_size)
-    entropies = []
-    for i in range(n_windows):
-        window = data[i * window_size:(i + 1) * window_size]
-        if len(window) > 0:
-            counts = np.bincount(np.frombuffer(window, dtype=np.uint8), minlength=256)
-            probs = counts / len(window)
-            probs = probs[probs > 0]
-            entropy = -np.sum(probs * np.log2(probs))
-            entropies.append(entropy)
-    if entropies:
-        features[256:272] = np.histogram(entropies, bins=16, range=(0, 8))[0] / max(len(entropies), 1)
-
-    # Bigram histogram (256 dims, downsampled from 65536)
-    if len(data) >= 2:
-        # Ensure even length for uint16 view
-        if len(data) % 2 == 0:
-            bigram_data = data
-        else:
-            bigram_data = data[:-1]
-        if len(bigram_data) >= 2:
-            bigrams = np.frombuffer(bigram_data, dtype=np.uint16)
-            bigram_counts = np.bincount(bigrams, minlength=65536)
-            step = 65536 // 256
-            features[272:528] = (bigram_counts[::step] / max(len(bigrams), 1)).astype(np.float32)
-
-    # File size features
-    features[528] = min(len(data) / 1024 / 1024, 100)  # Size in MB, capped
-    features[529] = np.log1p(len(data)) / 20  # Log size
-
-    # Printable ratio
-    printable = sum(1 for b in data if 32 <= b <= 126 or b in (9, 10, 13))
-    features[530] = printable / max(len(data), 1)
-
-    # Null byte ratio
-    null_ratio = np.sum(np.frombuffer(data, dtype=np.uint8) == 0) / max(len(data), 1)
-    features[531] = null_ratio
-
-    # High entropy regions
-    high_entropy_regions = sum(1 for e in entropies if e > 7) if entropies else 0
-    features[532] = high_entropy_regions / max(n_windows, 1)
-
-    # Magic bytes
-    features[533] = 1.0 if data[:2] == b"MZ" else 0.0
-    features[534] = 1.0 if data[:4] == b"\x7fELF" else 0.0
-
-    return features
+    return np.asarray(HighDimensionalEmbedding().embed_bytes(data), dtype=np.float32)
 
 
 class StructuralClassifier:
     """
     RandomForest-based structural classifier for binary files.
 
-    Uses deterministic 4096-dimensional embeddings extracted from byte statistics,
-    entropy patterns, and structural features. No neural network dependencies.
+    Uses the deterministic 4096-dimensional ``HighDimensionalEmbedding`` (byte and
+    n-gram statistics, entropy topography, code-graph topology, PE headers). No
+    neural network dependencies.
 
     A classifier holds either an in-memory scikit-learn forest produced by
     ``train`` or a validated ``ForestModel`` produced by ``load``. Constructing
@@ -142,6 +94,7 @@ class StructuralClassifier:
         self.label_encoder: LabelEncoder | None = None
         self.forest: ForestModel | None = None
         self.artifact_sha256: str | None = None
+        self.conformal: ConformalCalibration | None = None
         self.metadata: dict[str, Any] = {
             "format": MODEL_FORMAT,
             "schema_version": 1,
@@ -178,13 +131,26 @@ class StructuralClassifier:
         if not np.all(np.isfinite(X)):
             raise ValueError("Input contains non-finite values (NaN or Inf)")
 
-    def train(self, X: np.ndarray, y: list[str]) -> dict:
+    def train(
+        self,
+        X: np.ndarray,
+        y: list[str],
+        *,
+        n_estimators: int = 200,
+        max_depth: int | None = 20,
+        min_samples_split: int = 5,
+        min_samples_leaf: int = 2,
+        random_state: int = 42,
+        sample_weight: np.ndarray | None = None,
+    ) -> dict:
         """
         Train the classifier on embeddings and labels.
 
         Args:
             X: Training embeddings, shape (n_samples, 4096)
             y: Labels as strings (must match CLASS_LABELS)
+            sample_weight: Optional per-sample weights (the self-audit up-weights
+                samples whose verdict rested on a meaningless region)
 
         Returns:
             Training metadata dict
@@ -209,18 +175,19 @@ class StructuralClassifier:
 
         # Train RandomForest
         self.model = RandomForestClassifier(
-            n_estimators=200,
-            max_depth=20,
-            min_samples_split=5,
-            min_samples_leaf=2,
+            n_estimators=n_estimators,
+            max_depth=max_depth,
+            min_samples_split=min_samples_split,
+            min_samples_leaf=min_samples_leaf,
             max_features="sqrt",
             class_weight="balanced",
-            random_state=42,
+            random_state=random_state,
             n_jobs=-1,
         )
-        self.model.fit(X, y_encoded)
+        self.model.fit(X, y_encoded, sample_weight=sample_weight)
         self.forest = None
         self.artifact_sha256 = None
+        self.conformal = None
 
         # Update metadata
         self.metadata["training_samples"] = int(X.shape[0])
@@ -236,6 +203,14 @@ class StructuralClassifier:
         """Label names for each entry of the in-memory forest's ``classes_``."""
         assert self.model is not None and self.label_encoder is not None
         return [str(name) for name in self.label_encoder.inverse_transform(self.model.classes_)]
+
+    def calibrate_conformal(self, X: np.ndarray, y: list[str], alpha: float = DEFAULT_ALPHA) -> ConformalCalibration:
+        """Fit the abstention threshold on examples the forest was not trained on."""
+        if not self.is_ready:
+            raise RuntimeError("Train or load a model before calibrating it.")
+        true_index = [CLASS_LABELS.index(str(label)) for label in y]
+        self.conformal = calibrate(self.predict_proba(X), true_index, alpha)
+        return self.conformal
 
     def predict(self, X: np.ndarray) -> dict:
         """
@@ -276,7 +251,7 @@ class StructuralClassifier:
             if class_name in present
         }
 
-        return {
+        result = {
             "status": "classified",
             "label": labels[0] if len(labels) == 1 else labels,
             "infection_score": None,
@@ -284,6 +259,16 @@ class StructuralClassifier:
             "scores_are_calibrated": False,
             "repair_review_candidate": None,
         }
+        if self.conformal is not None and X.shape[0] == 1:
+            # The model commits only when calibration rules out every other class.
+            candidates = prediction_set(proba[0], self.conformal, CLASS_LABELS)
+            result.update({
+                "prediction_set": candidates,
+                "abstained": len(candidates) != 1,
+                "conformal_coverage_target": round(1.0 - self.conformal.alpha, 4),
+                "conformal_calibration_size": self.conformal.calibration_size,
+            })
+        return result
 
     def predict_proba(self, X: np.ndarray) -> np.ndarray:
         """Return raw class scores, shape (n_samples, 3), columns in CLASS_LABELS order.
@@ -306,6 +291,11 @@ class StructuralClassifier:
         for column, class_name in enumerate(self._trained_class_labels()):
             ordered[:, CLASS_LABELS.index(class_name)] = raw[:, column]
         return ordered
+
+    def labels_and_scores(self, X: np.ndarray) -> tuple[list[str], np.ndarray]:
+        """Labels and CLASS_LABELS-ordered scores for a batch (used by ml.orbit and ml.counterfactual)."""
+        proba = self.predict_proba(X)
+        return [CLASS_LABELS[index] for index in np.argmax(proba, axis=1)], proba
 
     def predict_with_scores(self, X: np.ndarray) -> dict:
         """Predict with detailed class scores. Returns dict matching test expectations."""
@@ -330,6 +320,8 @@ class StructuralClassifier:
                     f"Model metadata {key!r} must be a string, number, boolean, or None."
                 )
             provenance[str(key)] = value
+        if self.conformal is not None:
+            provenance.update(self.conformal.as_provenance())
 
         document = export_random_forest(
             self.model,
@@ -353,6 +345,7 @@ class StructuralClassifier:
         self.model_path = load_path
         self.forest = None
         self.artifact_sha256 = None
+        self.conformal = None
 
         try:
             forest = load_model(
@@ -370,6 +363,7 @@ class StructuralClassifier:
 
         self.forest = forest
         self.artifact_sha256 = forest.sha256
+        self.conformal = ConformalCalibration.from_provenance(forest.provenance)
         self.metadata = {
             "format": MODEL_FORMAT,
             "schema_version": 1,

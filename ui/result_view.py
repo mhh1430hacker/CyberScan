@@ -108,6 +108,8 @@ CATEGORY_LABELS = {
     "archive": "Archive",
     "test_marker": "Test marker",
     "osint": "Threat intelligence",
+    "dissonance": "Claim-capability dissonance",
+    "model": "Learning model",
 }
 
 ENGINE_LABELS = {
@@ -117,6 +119,8 @@ ENGINE_LABELS = {
     "Archive": "Archive inspection",
     "OSINT": "Threat intelligence",
     "Heuristics": "Heuristic rules",
+    "Dissonance": "Claim-capability dissonance",
+    "Surprise map": "Compression surprise map",
 }
 
 COVERAGE_LABELS = {

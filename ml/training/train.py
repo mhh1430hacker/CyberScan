@@ -21,6 +21,9 @@ from sklearn.metrics import (
 )
 from sklearn.model_selection import GroupKFold, StratifiedKFold, train_test_split
 
+from core.deep_embedding import HighDimensionalEmbedding
+from ml import counterfactual, orbit
+from ml.conformal import DEFAULT_ALPHA, evaluate as conformal_evaluate
 from ml.dataset_loader import compute_embeddings
 from ml.dataset_manifest import ManifestEntry, load_manifest
 from ml.feature_schema import LATENT_DIMENSION
@@ -150,6 +153,14 @@ def _classification_metrics(
     return metrics
 
 
+def _read_samples(entries: List[ManifestEntry], dataset_root: Path) -> List[bytes]:
+    return [(dataset_root / entry.path).read_bytes() for entry in entries]
+
+
+def _embed(data: bytes) -> np.ndarray:
+    return np.asarray(HighDimensionalEmbedding().embed_bytes(data), dtype=np.float32)
+
+
 def train_from_manifest(
     manifest_path: Path,
     model_output_path: Path,
@@ -157,11 +168,21 @@ def train_from_manifest(
     split_method: str = "random",
     test_size: float = 0.25,
     n_estimators: int = 200,
-    max_depth: Optional[int] = None,
-    min_samples_leaf: int = 1,
+    max_depth: Optional[int] = 20,
+    min_samples_leaf: int = 2,
     random_state: int = 42,
+    orbit_augment: int = 0,
+    self_audit: bool = False,
+    conformal_alpha: float = DEFAULT_ALPHA,
 ) -> Dict[str, Any]:
-    """Train a structural classifier from a manifest file."""
+    """Train a structural classifier from a manifest file.
+
+    ``orbit_augment`` adds that many loader-equivalent variants of each training
+    PE file (``ml.orbit``) with the original label. ``self_audit`` retrains once
+    after up-weighting training samples whose verdict rested on a part the loader
+    ignores (``ml.counterfactual``). The validation split calibrates the
+    abstention threshold (``ml.conformal``) and measures orbit stability.
+    """
     if dataset_root is None:
         dataset_root = manifest_path.parent
 
@@ -184,10 +205,46 @@ def train_from_manifest(
     y_val = np.array([label_to_int[e.label] for e in val_entries], dtype=np.int64)
     y_val_str = np.array([e.label for e in val_entries], dtype=object)
 
+    forest_options = {
+        "n_estimators": n_estimators,
+        "max_depth": max_depth,
+        "min_samples_leaf": min_samples_leaf,
+        "random_state": random_state,
+    }
+    needs_bytes = orbit_augment > 0 or self_audit
+    train_bytes = _read_samples(train_entries, dataset_root) if needs_bytes else []
+    val_bytes = _read_samples(val_entries, dataset_root)
+    train_labels = [str(label) for label in y_train_str]
+    X_fit, y_fit = X_train, list(train_labels)
+    if orbit_augment > 0:
+        X_orbit, y_orbit = orbit.augment(train_bytes, train_labels, _embed, per_sample=orbit_augment)
+        if len(y_orbit):
+            X_fit, y_fit = np.vstack([X_train, X_orbit]), y_fit + y_orbit
+
     # Train the structural classifier
     clf = StructuralClassifier()
-    train_result = clf.train(X_train, y_train_str)
+    train_result = clf.train(X_fit, y_fit, **forest_options)
     print(f"Training result: {train_result}")
+
+    audit_summary: Dict[str, Any] = {}
+    if self_audit:
+        flagged = counterfactual.incidental_indices(train_bytes, train_labels, clf.labels_and_scores, _embed, CLASS_LABELS)
+        audit_summary = {"incidental_before": len(flagged)}
+        if flagged:
+            # Show the forest the same samples without the part it leaned on, and
+            # count them double: the label has to come from somewhere else.
+            X_fix, y_fix = orbit.augment(
+                [train_bytes[i] for i in flagged], [train_labels[i] for i in flagged], _embed,
+                per_sample=len(orbit.TRANSFORMS),
+            )
+            weights = np.ones(len(y_fit) + len(y_fix))
+            weights[len(y_fit):] = 2.0
+            if len(y_fix):
+                X_fit, y_fit = np.vstack([X_fit, X_fix]), y_fit + y_fix
+                clf.train(X_fit, y_fit, sample_weight=weights[:len(y_fit)], **forest_options)
+            audit_summary["incidental_after"] = len(
+                counterfactual.incidental_indices(train_bytes, train_labels, clf.labels_and_scores, _embed, CLASS_LABELS)
+            )
 
     # Get predictions - predict() now returns dict with labels in "label" field
     pred_result = clf.predict(X_val)
@@ -202,6 +259,20 @@ def train_from_manifest(
     metrics["training_examples"] = len(train_entries)
     metrics["validation_examples"] = len(val_entries)
     metrics["sample_count"] = len(val_entries)
+    metrics["training_rows_after_augmentation"] = len(y_fit)
+
+    # Abstention threshold, from examples the forest did not see.
+    val_index = [CLASS_LABELS.index(str(label)) for label in y_val_str]
+    calibration = clf.calibrate_conformal(X_val, list(y_val_str), alpha=conformal_alpha)
+    metrics["conformal"] = {
+        **calibration.as_provenance(),
+        "sufficient": calibration.sufficient,
+        # Measured on the calibration set itself; ml.training.evaluate measures it on a holdout.
+        "in_sample": conformal_evaluate(y_proba, val_index, calibration),
+    }
+    metrics["orbit_stability"] = orbit.stability(val_bytes, clf.labels_and_scores, _embed)
+    if audit_summary:
+        metrics["self_audit"] = audit_summary
 
     # Save the trained model with metadata
     metadata = {
@@ -219,6 +290,9 @@ def train_from_manifest(
         "training_examples": len(train_entries),
         "validation_examples": len(val_entries),
         "split_method": split_method,
+        "orbit_augment": orbit_augment,
+        "self_audit": self_audit,
+        "orbit_label_agreement": metrics["orbit_stability"]["label_agreement"],
     }
     saved_path = clf.save(model_output_path, metadata=provenance)
     return {"model_path": str(saved_path), "sha256": clf.artifact_sha256, **metadata}
@@ -237,8 +311,11 @@ def _parse_args():
     parser.add_argument("--test-ratio", type=float, default=0.15, help="Test ratio")
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
     parser.add_argument("--n-estimators", type=int, default=200, help="Number of trees in RandomForest")
-    parser.add_argument("--max-depth", type=int, default=None, help="Max depth of trees")
-    parser.add_argument("--min-samples-leaf", type=int, default=1, help="Min samples per leaf")
+    parser.add_argument("--max-depth", type=int, default=20, help="Max depth of trees")
+    parser.add_argument("--min-samples-leaf", type=int, default=2, help="Min samples per leaf")
+    parser.add_argument("--orbit-augment", type=int, default=0, help="Loader-equivalent variants added per training PE file")
+    parser.add_argument("--self-audit", action="store_true", help="Retrain after up-weighting verdicts that rested on ignored parts")
+    parser.add_argument("--conformal-alpha", type=float, default=DEFAULT_ALPHA, help="Allowed error rate of the abstention sets")
     return parser.parse_args()
 
 
@@ -259,6 +336,9 @@ def main():
         max_depth=args.max_depth,
         min_samples_leaf=args.min_samples_leaf,
         random_state=args.seed,
+        orbit_augment=args.orbit_augment,
+        self_audit=args.self_audit,
+        conformal_alpha=args.conformal_alpha,
     )
     print(f"Training complete. Model saved to: {result['model_path']}")
     print(f"Validation metrics: {result['validation_metrics']}")

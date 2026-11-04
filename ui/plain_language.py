@@ -101,11 +101,15 @@ CATEGORY_WORDS = {
     "archive": "What's inside the archive",
     "test_marker": "Test marker",
     "osint": "Online reports",
+    "dissonance": "What it claims versus what it can do",
+    "model": "Learning model",
 }
 ENGINE_WORDS = {
     "YARA": "Known-pattern rules",
     "PE": "Program structure",
     "ML": "Learning model",
+    "Dissonance": "Claim versus abilities",
+    "Surprise map": "Out-of-place content",
     "Archive": "Archive contents",
     "OSINT": "Online lookups",
     "Heuristics": "Warning-sign rules",

@@ -47,6 +47,25 @@ def normalize_import_name(value: Any) -> str:
     return str(value)
 
 
+VERSION_INFO_KEYS = ("FileDescription", "ProductName", "CompanyName", "InternalName", "OriginalFilename")
+
+
+def read_version_info(pe: Any) -> dict[str, str]:
+    """What the program says it is: the StringFileInfo fields of its version resource."""
+    claims: dict[str, str] = {}
+    for file_info in getattr(pe, "FileInfo", None) or []:
+        for entry in file_info if isinstance(file_info, list) else [file_info]:
+            for table in getattr(entry, "StringTable", None) or []:
+                for key, value in (getattr(table, "entries", None) or {}).items():
+                    name = normalize_import_name(key)
+                    if name in VERSION_INFO_KEYS and name not in claims:
+                        raw = value if isinstance(value, bytes) else str(value).encode("utf-8", "replace")
+                        text = raw.decode("utf-8", errors="replace").strip("\x00 ")[:256]
+                        if text:
+                            claims[name] = text
+    return claims
+
+
 def analyze_pe_file(file_path: str | Path, data: bytes | None = None) -> dict[str, Any]:
     path = Path(file_path)
     if data is None and not path.exists():
@@ -195,6 +214,8 @@ def analyze_pe_file(file_path: str | Path, data: bytes | None = None) -> dict[st
             "machine": getattr(getattr(pe, "FILE_HEADER", None), "Machine", None),
             "number_of_sections": getattr(getattr(pe, "FILE_HEADER", None), "NumberOfSections", None),
             "timestamp": getattr(getattr(pe, "FILE_HEADER", None), "TimeDateStamp", None),
+            "subsystem": getattr(getattr(pe, "OPTIONAL_HEADER", None), "Subsystem", None),
         },
+        "version_info": read_version_info(pe),
         "error": None,
     }

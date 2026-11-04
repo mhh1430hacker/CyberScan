@@ -8,6 +8,8 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
+from core.file_analyzer import meaningful_patterns
+from core.magic_bytes import naturally_compressed
 from config import DEFAULT_SETTINGS
 from core.deep_embedding import HighDimensionalEmbedding
 from core.global_intelligence import GlobalIntelligenceEngine
@@ -180,10 +182,13 @@ class ScanService:
             )
         check_deadline()
         text_input = looks_like_text(raw_data)
+        # Instruction patterns mean something only in a program; read as x86, a picture or a
+        # PDF yields nonsense "patterns" (false warnings) and can take tens of seconds.
+        program = raw_data[:2] == b"MZ" or raw_data[:4] == b"\x7fELF"
         cfg = (
-            text_cfg_summary()
-            if text_input
-            else NextGenCyberEngine.extract_cfg_topology(raw_data)
+            NextGenCyberEngine.extract_cfg_topology(raw_data)
+            if program and not text_input
+            else text_cfg_summary()
         )
         score = score_artifacts(entropy, cfg)
         nextgen = {
@@ -244,7 +249,8 @@ class ScanService:
         )
 
         scan_result.osint_summary = intelligence
-        for anomaly in entropy.get("anomalies", []):
+        quiet = naturally_compressed(raw_data[:16]) or str(scan_result.feature_summary.get("authenticode", "")).startswith("valid")
+        for anomaly in ([] if quiet else entropy.get("anomalies", [])):
             scan_result.evidence.append(
                 Finding(
                     "statistical",
@@ -259,13 +265,14 @@ class ScanService:
                     12,
                 )
             )
-        if cfg.get("detected_patterns"):
+        signed = str(scan_result.feature_summary.get("authenticode", "")).startswith("valid")
+        if meaningful_patterns(cfg.get("detected_patterns")) and not signed:
             scan_result.evidence.append(
                 Finding(
                     "structural",
                     "medium",
                     "Static decoding indicator",
-                    ", ".join(str(pattern) for pattern in cfg["detected_patterns"]),
+                    ", ".join(str(pattern) for pattern in meaningful_patterns(cfg.get("detected_patterns"))),
                     15,
                 )
             )

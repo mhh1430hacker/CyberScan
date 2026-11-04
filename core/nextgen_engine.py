@@ -13,7 +13,7 @@ class NextGenCyberEngine:
     DEFAULT_STEP = 32
     ENTROPY_DISCONTINUITY_THRESHOLD = 1.5
     MAX_TOPOGRAPHY_WINDOWS = 4096
-    MAX_DISASSEMBLY_BYTES = 1_048_576
+    MAX_DISASSEMBLY_BYTES = 262_144  # enough to see a program's code shape; 1 MB took ~20 s
 
     @staticmethod
     def _entropy_contribution(count: int) -> float:

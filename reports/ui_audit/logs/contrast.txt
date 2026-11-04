@@ -1,0 +1,14 @@
+WCAG 2.x contrast ratio (AA body >=4.5, large/UI >=3.0)
+text        bg=16.91 surface=16.06 surface_2=15.28 surface_3=14.20 accent_wash=13.73
+text_dim    bg= 8.49 surface= 8.07 surface_2= 7.67 surface_3= 7.13 accent_wash= 6.89
+text_mute   bg= 4.67 surface= 4.43 surface_2= 4.22 surface_3= 3.92 accent_wash= 3.79
+accent      bg=12.25 surface=11.63 surface_2=11.07 surface_3=10.29 accent_wash= 9.94
+ok          bg=11.31 surface=10.74 surface_2=10.22 surface_3= 9.50 accent_wash= 9.18
+warn        bg=10.86 surface=10.32 surface_2= 9.82 surface_3= 9.13 accent_wash= 8.82
+danger      bg= 6.28 surface= 5.97 surface_2= 5.68 surface_3= 5.28 accent_wash= 5.10
+info        bg= 8.18 surface= 7.78 surface_2= 7.40 surface_3= 6.88 accent_wash= 6.64
+sev_info    bg= 5.75 surface= 5.46 surface_2= 5.19 surface_3= 4.83 accent_wash= 4.66
+accent_dim  bg= 5.07 surface= 4.81 surface_2= 4.58 surface_3= 4.26 accent_wash= 4.11
+primary button text #071413 on accent: 11.67
+line #1a2637 on surface (borders): 1.23
+line_strong #26364b on surface: 1.53

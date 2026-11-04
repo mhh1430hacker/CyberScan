@@ -1,0 +1,6477 @@
+{
+ "facts": {
+  "window_title": "CyberScan · Local threat analysis",
+  "minimum_size": [
+   880,
+   600
+  ],
+  "reduced_motion_effective": false,
+  "repro": {
+   "no_findings": {
+    "phase_after_8s_more": "evidence",
+    "results_visible": false,
+    "classification": "NO_INDICATORS_OBSERVED",
+    "markers": 0,
+    "pill": "●  ANALYSIS COMPLETE",
+    "caption": "ANALYSIS COMPLETE",
+    "new_scan_button_visible": true
+   },
+   "text_bindings_before": 66,
+   "text_bindings_after_2_scans": 74,
+   "dead_bindings": 16,
+   "toggle": "RuntimeError: libshiboken: Internal C++ object (PySide6.QtWidgets.QLabel) already deleted.",
+   "after_toggle": {
+    "language": "ar",
+    "direction_rtl": true,
+    "hero_title": "Inspect before you trust.",
+    "page_title": "New analysis",
+    "language_button": "English"
+   }
+  },
+  "painter_warnings": {
+   "idle_3s_no_grab": 0,
+   "two_page_switches": 0,
+   "one_window_grab": 0,
+   "one_leaf_grab": 0,
+   "sample": []
+  },
+  "en_failure_dialogs": [
+   {
+    "kind": "critical",
+    "title": "تعذر إكمال التحليل",
+    "text": "ValueError: File size 1880 exceeds the configured limit of 16 bytes",
+    "t": 168372.915
+   }
+  ]
+ },
+ "measurements": {
+  "startup": {
+   "import_qt_app_ms": 8288.4,
+   "construct_window_ms": 2816.1,
+   "construct_to_first_events_ms": 491.2,
+   "note": "in-process; excludes Python interpreter start. See startup_subprocess for cold runs."
+  },
+  "memory_after_start": {
+   "working_set_mb": 374.2,
+   "private_mb": 1241.2
+  },
+  "paint_cost_idle_4s": {
+   "cpu": 0.292,
+   "per_class": {}
+  },
+  "paint_cost_settings_4s": {
+   "cpu": 0.231,
+   "per_class": {}
+  },
+  "paint_cost_journey_4s": {
+   "cpu": 1.166,
+   "per_class": {}
+  },
+  "memory_series": {
+   "before": {
+    "working_set_mb": 408.7,
+    "private_mb": 1271.7
+   },
+   "after_8_scans": {
+    "working_set_mb": 418.7,
+    "private_mb": 1280.9
+   },
+   "text_bindings": 110
+  }
+ },
+ "layout": {
+  "en_idle_1440": {
+   "clipped": [],
+   "horizontal_scroll": [],
+   "beyond_window": []
+  },
+  "en_result_pe": {
+   "clipped": [],
+   "horizontal_scroll": [],
+   "beyond_window": []
+  },
+  "en_result_blob": {
+   "clipped": [],
+   "horizontal_scroll": [],
+   "beyond_window": []
+  },
+  "en_result_arname": {
+   "clipped": [],
+   "horizontal_scroll": [],
+   "beyond_window": []
+  },
+  "en_result_mixed": {
+   "clipped": [],
+   "horizontal_scroll": [],
+   "beyond_window": []
+  },
+  "en_page_history": {
+   "clipped": [],
+   "horizontal_scroll": [],
+   "beyond_window": []
+  },
+  "en_page_yara": {
+   "clipped": [],
+   "horizontal_scroll": [],
+   "beyond_window": []
+  },
+  "en_page_mitre": {
+   "clipped": [],
+   "horizontal_scroll": [],
+   "beyond_window": []
+  },
+  "en_page_model": {
+   "clipped": [],
+   "horizontal_scroll": [],
+   "beyond_window": []
+  },
+  "en_page_logs": {
+   "clipped": [],
+   "horizontal_scroll": [],
+   "beyond_window": []
+  },
+  "en_page_settings": {
+   "clipped": [],
+   "horizontal_scroll": [],
+   "beyond_window": []
+  },
+  "en_page_about": {
+   "clipped": [],
+   "horizontal_scroll": [],
+   "beyond_window": []
+  },
+  "en_widths": {
+   "idle_880": {
+    "clipped": [],
+    "horizontal_scroll": [],
+    "beyond_window": []
+   },
+   "idle_960": {
+    "clipped": [],
+    "horizontal_scroll": [],
+    "beyond_window": []
+   },
+   "idle_1000": {
+    "clipped": [],
+    "horizontal_scroll": [],
+    "beyond_window": []
+   },
+   "idle_1080": {
+    "clipped": [],
+    "horizontal_scroll": [],
+    "beyond_window": []
+   },
+   "idle_1200": {
+    "clipped": [],
+    "horizontal_scroll": [],
+    "beyond_window": []
+   },
+   "idle_1440": {
+    "clipped": [],
+    "horizontal_scroll": [],
+    "beyond_window": []
+   },
+   "idle_1920": {
+    "clipped": [],
+    "horizontal_scroll": [],
+    "beyond_window": []
+   },
+   "idle_880x600": {
+    "clipped": [],
+    "horizontal_scroll": [],
+    "beyond_window": []
+   },
+   "result_880": {
+    "clipped": [],
+    "horizontal_scroll": [
+     {
+      "area": "scroll",
+      "overflow_px": 74
+     }
+    ],
+    "beyond_window": []
+   },
+   "continuous_resize": {
+    "steps": 102,
+    "total_ms": 4671.8
+   }
+  },
+  "en_large_text_1000": {
+   "clipped": [],
+   "horizontal_scroll": [],
+   "beyond_window": []
+  },
+  "en_large_text_result": {
+   "clipped": [],
+   "horizontal_scroll": [],
+   "beyond_window": []
+  }
+ },
+ "text": {
+  "en_idle": [
+   [
+    "QLabel",
+    "CYBERSCAN"
+   ],
+   [
+    "QLabel",
+    "مختبر أمني محلي"
+   ],
+   [
+    "QPushButton",
+    "تحليل جديد"
+   ],
+   [
+    "QPushButton.tooltip",
+    "Start a new scan (Ctrl+1)"
+   ],
+   [
+    "QLabel",
+    "التحليل"
+   ],
+   [
+    "IconRailButton",
+    "  سجل الفحوص"
+   ],
+   [
+    "IconRailButton.tooltip",
+    "Open Scan history"
+   ],
+   [
+    "QLabel",
+    "الأدلة"
+   ],
+   [
+    "IconRailButton",
+    "  YARA وPE"
+   ],
+   [
+    "IconRailButton.tooltip",
+    "Open YARA & PE"
+   ],
+   [
+    "IconRailButton",
+    "  MITRE ATT&&CK"
+   ],
+   [
+    "IconRailButton.tooltip",
+    "Open MITRE ATT&CK"
+   ],
+   [
+    "IconRailButton",
+    "  النموذج البنيوي"
+   ],
+   [
+    "IconRailButton.tooltip",
+    "Open Structural model"
+   ],
+   [
+    "QLabel",
+    "النظام"
+   ],
+   [
+    "IconRailButton",
+    "  السجل الزمني"
+   ],
+   [
+    "IconRailButton.tooltip",
+    "Open Audit timeline"
+   ],
+   [
+    "IconRailButton",
+    "  الإعدادات"
+   ],
+   [
+    "IconRailButton.tooltip",
+    "Open Settings"
+   ],
+   [
+    "IconRailButton",
+    "  حول المشروع"
+   ],
+   [
+    "IconRailButton.tooltip",
+    "Open About"
+   ],
+   [
+    "QLabel",
+    "تحليل محلي · تُقرأ الأهداف ولا تُشغَّل أبدًا"
+   ],
+   [
+    "QLabel",
+    "اللغة"
+   ],
+   [
+    "QPushButton",
+    "English"
+   ],
+   [
+    "QLabel",
+    "جاهز"
+   ],
+   [
+    "QLabel.tooltip",
+    "The local analysis engines are idle and ready for a new target."
+   ],
+   [
+    "Chip",
+    "خصوصية افتراضية"
+   ],
+   [
+    "QLabel",
+    "افحص قبل أن تثق."
+   ],
+   [
+    "QLabel",
+    "افحص ملفًا أو رابطًا أو مؤشرًا بمحركات ساكنة محلية. تُقرأ الأهداف ولا تُشغَّل أبدًا."
+   ],
+   [
+    "QPushButton",
+    "ملف"
+   ],
+   [
+    "QPushButton",
+    "رابط"
+   ],
+   [
+    "QPushButton",
+    "مؤشر / نص"
+   ],
+   [
+    "ScanCore.accessibleName",
+    "Analysis status"
+   ],
+   [
+    "QLineEdit.placeholder",
+    "الصق مسار ملف أو اختر ملفًا محليًا…"
+   ],
+   [
+    "QLineEdit.tooltip",
+    "Paste a target, or drag a file here. Enter starts the analysis."
+   ],
+   [
+    "QPushButton",
+    "اختر ملفًا…"
+   ],
+   [
+    "QPushButton.tooltip",
+    "Pick a local file with the system file dialog (Ctrl+O)"
+   ],
+   [
+    "PrimaryButton",
+    "حلّل الهدف"
+   ],
+   [
+    "PrimaryButton.tooltip",
+    "Start the static analysis (Ctrl+Enter)"
+   ],
+   [
+    "QLabel",
+    "اسحب ملفًا إلى هذه النافذة، أو الصق مساره."
+   ],
+   [
+    "QLabel",
+    "Enter للتحليل · Ctrl+O لاختيار ملف"
+   ],
+   [
+    "QLabel",
+    "مفعّل في الإعدادات: الإنتروبيا · القواعد الاستدلالية · النموذج البنيوي"
+   ],
+   [
+    "QLabel",
+    "الاستعلامات العامة متوقفة · لا يُرسل شيء من هذا الجهاز"
+   ],
+   [
+    "QLabel",
+    "مراقبة التنزيلات متوقفة"
+   ],
+   [
+    "QLabel",
+    "النشاط الأخير"
+   ],
+   [
+    "QLabel",
+    "3 فحوص محفوظة · على هذا الجهاز فقط"
+   ],
+   [
+    "QPushButton",
+    "فتح سجل الفحوص"
+   ],
+   [
+    "QLabel",
+    "▲ خطر مرتفع 1   ·   ◆ يحتاج إلى مراجعة 1   ·   ● منخفض المخاطر 1"
+   ],
+   [
+    "ActivityRow.accessibleName",
+    "<ui.home.ElidedLabel(0x1e2a714e190, name=\"subtle\") at 0x000001E29ED17CC0>: sample_2.bin"
+   ],
+   [
+    "QLabel",
+    "● منخفض المخاطر"
+   ],
+   [
+    "ElidedLabel",
+    "sample_2.bin"
+   ],
+   [
+    "ElidedLabel.tooltip",
+    "sample_2.bin"
+   ],
+   [
+    "ElidedLabel",
+    "ملف · 2026-10-03 10:02"
+   ],
+   [
+    "ElidedLabel.tooltip",
+    "ملف · 2026-10-03 10:02"
+   ],
+   [
+    "QLabel",
+    "14/100"
+   ],
+   [
+    "ActivityRow.accessibleName",
+    "<ui.home.ElidedLabel(0x1e2a714e340, name=\"subtle\") at 0x000001E29ECF3600>: sample_1.bin"
+   ],
+   [
+    "QLabel",
+    "◆ يحتاج إلى مراجعة"
+   ],
+   [
+    "ElidedLabel",
+    "sample_1.bin"
+   ],
+   [
+    "ElidedLabel.tooltip",
+    "sample_1.bin"
+   ],
+   [
+    "ElidedLabel",
+    "ملف · 2026-10-02 10:01"
+   ],
+   [
+    "ElidedLabel.tooltip",
+    "ملف · 2026-10-02 10:01"
+   ],
+   [
+    "QLabel",
+    "7/100"
+   ],
+   [
+    "ActivityRow.accessibleName",
+    "<ui.home.ElidedLabel(0x1e2a714be20, name=\"subtle\") at 0x000001E29ED10F80>: sample_0.bin"
+   ],
+   [
+    "QLabel",
+    "▲ خطر مرتفع"
+   ],
+   [
+    "ElidedLabel",
+    "sample_0.bin"
+   ],
+   [
+    "ElidedLabel.tooltip",
+    "sample_0.bin"
+   ],
+   [
+    "ElidedLabel",
+    "ملف · 2026-10-01 10:00"
+   ],
+   [
+    "ElidedLabel.tooltip",
+    "ملف · 2026-10-01 10:00"
+   ],
+   [
+    "QLabel",
+    "0/100"
+   ]
+  ],
+  "en_result_pe": [
+   [
+    "VerdictBadge.accessibleName",
+    "خطر مرتفع"
+   ],
+   [
+    "QLabel",
+    "C:\\Users\\mahdi\\AppData\\Local\\Temp\\claude\\c--Users-mahdi-Desktop-dist\\8b009106-27fa-4dc1-a7c2-da8cd64de35b\\scratchpad\\cs_audit_ixh9iq5u\\samples\\invoice.pdf.exe"
+   ],
+   [
+    "QLabel",
+    "محركات غير متاحة: النموذج البنيوي"
+   ],
+   [
+    "QLabel",
+    "The supervised model requires reviewed examples for all three classes; no infection probability or automatic repair is claimed."
+   ],
+   [
+    "QLabel",
+    "100/100"
+   ],
+   [
+    "QLabel",
+    "مؤشر المخاطر · لا يمثل احتمالًا لوجود برمجية خبيثة"
+   ],
+   [
+    "QLabel",
+    "الأدلة"
+   ],
+   [
+    "QLabel",
+    "12"
+   ],
+   [
+    "QLabel",
+    "11 بخطورة متوسطة أو أعلى"
+   ],
+   [
+    "QLabel",
+    "أعلى خطورة"
+   ],
+   [
+    "QLabel",
+    "▲ مرتفعة"
+   ],
+   [
+    "QLabel",
+    "تقنيات ATT&CK"
+   ],
+   [
+    "QLabel",
+    "3"
+   ],
+   [
+    "QLabel",
+    "المحركات التي عملت"
+   ],
+   [
+    "QLabel",
+    "1 من 2"
+   ],
+   [
+    "QLabel",
+    "2 غير منطبق · 1 متوقف"
+   ],
+   [
+    "QLabel",
+    "أهم الأدلة"
+   ],
+   [
+    "QLabel",
+    "الأقوى أولًا"
+   ],
+   [
+    "QPushButton",
+    "عرض جميع الأدلة (12)"
+   ],
+   [
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: Double extension spoofing"
+   ],
+   [
+    "Chip",
+    "▲ مرتفعة"
+   ],
+   [
+    "QLabel",
+    "القواعد الاستدلالية"
+   ],
+   [
+    "QLabel",
+    "الوزن 55/100"
+   ],
+   [
+    "QLabel",
+    "Double extension spoofing"
+   ],
+   [
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: EncodedPowerShell"
+   ],
+   [
+    "Chip",
+    "▲ مرتفعة"
+   ],
+   [
+    "QLabel",
+    "قواعد التواقيع (YARA)"
+   ],
+   [
+    "QLabel",
+    "الوزن 50/100"
+   ],
+   [
+    "QLabel",
+    "EncodedPowerShell"
+   ],
+   [
+    "QLabel",
+    "Encoded PowerShell execution pattern"
+   ],
+   [
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: ShadowCopyDeletion"
+   ],
+   [
+    "Chip",
+    "▲ مرتفعة"
+   ],
+   [
+    "QLabel",
+    "قواعد التواقيع (YARA)"
+   ],
+   [
+    "QLabel",
+    "الوزن 50/100"
+   ],
+   [
+    "QLabel",
+    "ShadowCopyDeletion"
+   ],
+   [
+    "QLabel",
+    "Shadow copy deletion associated with ransomware behavior"
+   ],
+   [
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: SuspiciousProcessInjection"
+   ],
+   [
+    "Chip",
+    "▲ مرتفعة"
+   ],
+   [
+    "QLabel",
+    "قواعد التواقيع (YARA)"
+   ],
+   [
+    "QLabel",
+    "الوزن 50/100"
+   ],
+   [
+    "QLabel",
+    "SuspiciousProcessInjection"
+   ],
+   [
+    "QLabel",
+    "Memory and remote thread APIs associated with process injection"
+   ],
+   [
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: Encoded PowerShell execution"
+   ],
+   [
+    "Chip",
+    "▲ مرتفعة"
+   ],
+   [
+    "QLabel",
+    "القواعد الاستدلالية"
+   ],
+   [
+    "QLabel",
+    "الوزن 48/100"
+   ],
+   [
+    "QLabel",
+    "Encoded PowerShell execution"
+   ],
+   [
+    "QLabel",
+    "invoice.pdf.exe"
+   ],
+   [
+    "QLabel",
+    "ملف ⁨EXE⁩ · 59.2 KiB"
+   ],
+   [
+    "QLabel",
+    "SHA-256 6ccf20376d107a18…"
+   ],
+   [
+    "QLabel",
+    "المؤشرات حسب الفئة"
+   ],
+   [
+    "QLabel",
+    "عدد الأدلة"
+   ],
+   [
+    "QLabel",
+    "القواعد الاستدلالية"
+   ],
+   [
+    "QLabel",
+    "6"
+   ],
+   [
+    "QLabel",
+    "بنية الملف"
+   ],
+   [
+    "QLabel",
+    "3"
+   ],
+   [
+    "QLabel",
+    "قواعد التواقيع (YARA)"
+   ],
+   [
+    "QLabel",
+    "3"
+   ],
+   [
+    "QLabel",
+    "تغطية الفحص"
+   ],
+   [
+    "QWidget.tooltip",
+    "available; 1 rule(s) loaded"
+   ],
+   [
+    "QLabel",
+    "قواعد التواقيع (YARA)"
+   ],
+   [
+    "Chip",
+    "✓ نُفّذ"
+   ],
+   [
+    "QWidget.tooltip",
+    "not_pe"
+   ],
+   [
+    "QLabel",
+    "بنية الملف التنفيذي (PE)"
+   ],
+   [
+    "Chip",
+    "– غير منطبق"
+   ],
+   [
+    "QWidget.tooltip",
+    "Structural model rejected: Model not approved: No valid approved SHA-256 digest was supplied for this model. Static evidence remains active."
+   ],
+   [
+    "QLabel",
+    "النموذج البنيوي"
+   ],
+   [
+    "Chip",
+    "! غير متاح"
+   ],
+   [
+    "QWidget.tooltip",
+    "not a ZIP container"
+   ],
+   [
+    "QLabel",
+    "فحص الأرشيف"
+   ],
+   [
+    "Chip",
+    "– غير منطبق"
+   ],
+   [
+    "QWidget.tooltip",
+    "disabled"
+   ],
+   [
+    "QLabel",
+    "استخبارات التهديدات"
+   ],
+   [
+    "Chip",
+    "○ متوقف"
+   ],
+   [
+    "QPushButton",
+    "◂  معلومات الملف"
+   ],
+   [
+    "QPushButton.accessibleName",
+    "معلومات الملف"
+   ],
+   [
+    "QPushButton",
+    "◂  التفاصيل التقنية"
+   ],
+   [
+    "QPushButton.accessibleName",
+    "التفاصيل التقنية"
+   ],
+   [
+    "QPushButton",
+    "عرض التفاصيل التقنية"
+   ],
+   [
+    "QPushButton",
+    "تصدير التقرير"
+   ],
+   [
+    "QPushButton.tooltip",
+    "Save this result as a text or JSON report"
+   ],
+   [
+    "QPushButton",
+    "فحص جديد"
+   ]
+  ],
+  "en_technical": [
+   [
+    "VerdictBadge.accessibleName",
+    "خطر مرتفع"
+   ],
+   [
+    "QLabel",
+    "C:\\Users\\mahdi\\AppData\\Local\\Temp\\claude\\c--Users-mahdi-Desktop-dist\\8b009106-27fa-4dc1-a7c2-da8cd64de35b\\scratchpad\\cs_audit_ixh9iq5u\\samples\\invoice.pdf.exe"
+   ],
+   [
+    "QLabel",
+    "محركات غير متاحة: النموذج البنيوي"
+   ],
+   [
+    "QLabel",
+    "The supervised model requires reviewed examples for all three classes; no infection probability or automatic repair is claimed."
+   ],
+   [
+    "QLabel",
+    "100/100"
+   ],
+   [
+    "QLabel",
+    "مؤشر المخاطر · لا يمثل احتمالًا لوجود برمجية خبيثة"
+   ],
+   [
+    "QLabel",
+    "الأدلة"
+   ],
+   [
+    "QLabel",
+    "12"
+   ],
+   [
+    "QLabel",
+    "11 بخطورة متوسطة أو أعلى"
+   ],
+   [
+    "QLabel",
+    "أعلى خطورة"
+   ],
+   [
+    "QLabel",
+    "▲ مرتفعة"
+   ],
+   [
+    "QLabel",
+    "تقنيات ATT&CK"
+   ],
+   [
+    "QLabel",
+    "3"
+   ],
+   [
+    "QLabel",
+    "المحركات التي عملت"
+   ],
+   [
+    "QLabel",
+    "1 من 2"
+   ],
+   [
+    "QLabel",
+    "2 غير منطبق · 1 متوقف"
+   ],
+   [
+    "QLabel",
+    "أهم الأدلة"
+   ],
+   [
+    "QLabel",
+    "الأقوى أولًا"
+   ],
+   [
+    "QPushButton",
+    "عرض جميع الأدلة (12)"
+   ],
+   [
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: Double extension spoofing"
+   ],
+   [
+    "Chip",
+    "▲ مرتفعة"
+   ],
+   [
+    "QLabel",
+    "القواعد الاستدلالية"
+   ],
+   [
+    "QLabel",
+    "الوزن 55/100"
+   ],
+   [
+    "QLabel",
+    "Double extension spoofing"
+   ],
+   [
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: EncodedPowerShell"
+   ],
+   [
+    "Chip",
+    "▲ مرتفعة"
+   ],
+   [
+    "QLabel",
+    "قواعد التواقيع (YARA)"
+   ],
+   [
+    "QLabel",
+    "الوزن 50/100"
+   ],
+   [
+    "QLabel",
+    "EncodedPowerShell"
+   ],
+   [
+    "QLabel",
+    "Encoded PowerShell execution pattern"
+   ],
+   [
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: ShadowCopyDeletion"
+   ],
+   [
+    "Chip",
+    "▲ مرتفعة"
+   ],
+   [
+    "QLabel",
+    "قواعد التواقيع (YARA)"
+   ],
+   [
+    "QLabel",
+    "الوزن 50/100"
+   ],
+   [
+    "QLabel",
+    "ShadowCopyDeletion"
+   ],
+   [
+    "QLabel",
+    "Shadow copy deletion associated with ransomware behavior"
+   ],
+   [
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: SuspiciousProcessInjection"
+   ],
+   [
+    "Chip",
+    "▲ مرتفعة"
+   ],
+   [
+    "QLabel",
+    "قواعد التواقيع (YARA)"
+   ],
+   [
+    "QLabel",
+    "الوزن 50/100"
+   ],
+   [
+    "QLabel",
+    "SuspiciousProcessInjection"
+   ],
+   [
+    "QLabel",
+    "Memory and remote thread APIs associated with process injection"
+   ],
+   [
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: Encoded PowerShell execution"
+   ],
+   [
+    "Chip",
+    "▲ مرتفعة"
+   ],
+   [
+    "QLabel",
+    "القواعد الاستدلالية"
+   ],
+   [
+    "QLabel",
+    "الوزن 48/100"
+   ],
+   [
+    "QLabel",
+    "Encoded PowerShell execution"
+   ],
+   [
+    "QLabel",
+    "invoice.pdf.exe"
+   ],
+   [
+    "QLabel",
+    "ملف ⁨EXE⁩ · 59.2 KiB"
+   ],
+   [
+    "QLabel",
+    "SHA-256 6ccf20376d107a18…"
+   ],
+   [
+    "QLabel",
+    "المؤشرات حسب الفئة"
+   ],
+   [
+    "QLabel",
+    "عدد الأدلة"
+   ],
+   [
+    "QLabel",
+    "القواعد الاستدلالية"
+   ],
+   [
+    "QLabel",
+    "6"
+   ],
+   [
+    "QLabel",
+    "بنية الملف"
+   ],
+   [
+    "QLabel",
+    "3"
+   ],
+   [
+    "QLabel",
+    "قواعد التواقيع (YARA)"
+   ],
+   [
+    "QLabel",
+    "3"
+   ],
+   [
+    "QLabel",
+    "تغطية الفحص"
+   ],
+   [
+    "QWidget.tooltip",
+    "available; 1 rule(s) loaded"
+   ],
+   [
+    "QLabel",
+    "قواعد التواقيع (YARA)"
+   ],
+   [
+    "Chip",
+    "✓ نُفّذ"
+   ],
+   [
+    "QWidget.tooltip",
+    "not_pe"
+   ],
+   [
+    "QLabel",
+    "بنية الملف التنفيذي (PE)"
+   ],
+   [
+    "Chip",
+    "– غير منطبق"
+   ],
+   [
+    "QWidget.tooltip",
+    "Structural model rejected: Model not approved: No valid approved SHA-256 digest was supplied for this model. Static evidence remains active."
+   ],
+   [
+    "QLabel",
+    "النموذج البنيوي"
+   ],
+   [
+    "Chip",
+    "! غير متاح"
+   ],
+   [
+    "QWidget.tooltip",
+    "not a ZIP container"
+   ],
+   [
+    "QLabel",
+    "فحص الأرشيف"
+   ],
+   [
+    "Chip",
+    "– غير منطبق"
+   ],
+   [
+    "QWidget.tooltip",
+    "disabled"
+   ],
+   [
+    "QLabel",
+    "استخبارات التهديدات"
+   ],
+   [
+    "Chip",
+    "○ متوقف"
+   ],
+   [
+    "QPushButton",
+    "◂  معلومات الملف"
+   ],
+   [
+    "QPushButton.accessibleName",
+    "معلومات الملف"
+   ],
+   [
+    "QPushButton",
+    "▾  التفاصيل التقنية"
+   ],
+   [
+    "QPushButton.accessibleName",
+    "التفاصيل التقنية"
+   ],
+   [
+    "QTab",
+    "الأدلة"
+   ],
+   [
+    "QTab",
+    "البنية"
+   ],
+   [
+    "QTab",
+    "النتائج"
+   ],
+   [
+    "QTab",
+    "المحركات"
+   ],
+   [
+    "QTab",
+    "الاستخبارات"
+   ],
+   [
+    "QTab",
+    "التقرير"
+   ],
+   [
+    "QPlainTextEdit",
+    "[HIGH] Double extension\nA misleading file name attempts to hide an executable payload behind a benign extension.\n\n[MEDIUM] Executable extension\nThe file extension is associated with executable content.\n\n[HIGH] EncodedPowerShell\nEncoded PowerShell execution pattern\n\n[HIGH] SuspiciousProcessInjection\n"
+   ],
+   [
+    "QLabel",
+    "Phase 1: Byte-stream baseline for invoice.pdf.exe covered 60617 bytes across 57 entropy windows; mean entropy was 0.020/8 and peak entropy was 1.165/8.\nPhase 2: The measured byte stream is predominantly low-entropy; no sharp entropy boundary met the discontinuity threshold.\nPhase 3: Static x86-32 decoding yielded 60315 instructions, 54 basic blocks, and cyclomatic complexity 21.\nPhase 4: Structural heuristics identified NOP_SLED. These are indicators for review, not proof of malicious behavior.\nPhase 5: The deterministic composite analysis score is 24.29/100 (lower indicator level); it is a static-analysis heuristic, not a probability of malware."
+   ],
+   [
+    "QLabel",
+    "Risk index"
+   ],
+   [
+    "QLabel",
+    "100/100"
+   ],
+   [
+    "QLabel",
+    "File size"
+   ],
+   [
+    "QLabel",
+    "59.2 KiB"
+   ],
+   [
+    "QLabel",
+    "Mean entropy"
+   ],
+   [
+    "QLabel",
+    "0.02/8"
+   ],
+   [
+    "QLabel",
+    "CFG complexity"
+   ],
+   [
+    "QLabel",
+    "21"
+   ],
+   [
+    "QPushButton",
+    "إخفاء التفاصيل التقنية"
+   ],
+   [
+    "QPushButton",
+    "تصدير التقرير"
+   ],
+   [
+    "QPushButton.tooltip",
+    "Save this result as a text or JSON report"
+   ],
+   [
+    "QPushButton",
+    "فحص جديد"
+   ]
+  ],
+  "en_result_blob": [
+   [
+    "VerdictBadge.accessibleName",
+    "يحتاج إلى مراجعة"
+   ],
+   [
+    "QLabel",
+    "C:\\Users\\mahdi\\AppData\\Local\\Temp\\claude\\c--Users-mahdi-Desktop-dist\\8b009106-27fa-4dc1-a7c2-da8cd64de35b\\scratchpad\\cs_audit_ixh9iq5u\\samples\\archive_blob.bin"
+   ],
+   [
+    "QLabel",
+    "محركات غير متاحة: النموذج البنيوي"
+   ],
+   [
+    "QLabel",
+    "The supervised model requires reviewed examples for all three classes; no infection probability or automatic repair is claimed."
+   ],
+   [
+    "QLabel",
+    "18/100"
+   ],
+   [
+    "QLabel",
+    "مؤشر المخاطر · لا يمثل احتمالًا لوجود برمجية خبيثة"
+   ],
+   [
+    "QLabel",
+    "الأدلة"
+   ],
+   [
+    "QLabel",
+    "2"
+   ],
+   [
+    "QLabel",
+    "2 بخطورة متوسطة أو أعلى"
+   ],
+   [
+    "QLabel",
+    "أعلى خطورة"
+   ],
+   [
+    "QLabel",
+    "◆ متوسطة"
+   ],
+   [
+    "QLabel",
+    "تقنيات ATT&CK"
+   ],
+   [
+    "QLabel",
+    "1"
+   ],
+   [
+    "QLabel",
+    "المحركات التي عملت"
+   ],
+   [
+    "QLabel",
+    "1 من 2"
+   ],
+   [
+    "QLabel",
+    "2 غير منطبق · 1 متوقف"
+   ],
+   [
+    "QLabel",
+    "أهم الأدلة"
+   ],
+   [
+    "QLabel",
+    "الأقوى أولًا"
+   ],
+   [
+    "FindingCard.accessibleName",
+    "◆ متوسطة: High entropy"
+   ],
+   [
+    "Chip",
+    "◆ متوسطة"
+   ],
+   [
+    "QLabel",
+    "الإنتروبيا والإحصاءات"
+   ],
+   [
+    "QLabel",
+    "الوزن 18/100"
+   ],
+   [
+    "QLabel",
+    "High entropy"
+   ],
+   [
+    "QLabel",
+    "The content deviates from typical low-entropy file data and may indicate packing or obfuscation."
+   ],
+   [
+    "FindingCard.accessibleName",
+    "◆ متوسطة: Static decoding indicator"
+   ],
+   [
+    "Chip",
+    "◆ متوسطة"
+   ],
+   [
+    "QLabel",
+    "بنية الملف"
+   ],
+   [
+    "QLabel",
+    "الوزن 15/100"
+   ],
+   [
+    "QLabel",
+    "Static decoding indicator"
+   ],
+   [
+    "QLabel",
+    "ANTI_DISASSEMBLY_GAP"
+   ],
+   [
+    "QLabel",
+    "archive_blob.bin"
+   ],
+   [
+    "QLabel",
+    "ملف ⁨BIN⁩ · 390.6 KiB"
+   ],
+   [
+    "QLabel",
+    "SHA-256 0e14df39e171c55d…"
+   ],
+   [
+    "QLabel",
+    "المؤشرات حسب الفئة"
+   ],
+   [
+    "QLabel",
+    "عدد الأدلة"
+   ],
+   [
+    "QLabel",
+    "الإنتروبيا والإحصاءات"
+   ],
+   [
+    "QLabel",
+    "1"
+   ],
+   [
+    "QLabel",
+    "بنية الملف"
+   ],
+   [
+    "QLabel",
+    "1"
+   ],
+   [
+    "QLabel",
+    "تغطية الفحص"
+   ],
+   [
+    "QWidget.tooltip",
+    "available; 1 rule(s) loaded"
+   ],
+   [
+    "QLabel",
+    "قواعد التواقيع (YARA)"
+   ],
+   [
+    "Chip",
+    "✓ نُفّذ"
+   ],
+   [
+    "QWidget.tooltip",
+    "not_pe"
+   ],
+   [
+    "QLabel",
+    "بنية الملف التنفيذي (PE)"
+   ],
+   [
+    "Chip",
+    "– غير منطبق"
+   ],
+   [
+    "QWidget.tooltip",
+    "Structural model rejected: Model not approved: No valid approved SHA-256 digest was supplied for this model. Static evidence remains active."
+   ],
+   [
+    "QLabel",
+    "النموذج البنيوي"
+   ],
+   [
+    "Chip",
+    "! غير متاح"
+   ],
+   [
+    "QWidget.tooltip",
+    "not a ZIP container"
+   ],
+   [
+    "QLabel",
+    "فحص الأرشيف"
+   ],
+   [
+    "Chip",
+    "– غير منطبق"
+   ],
+   [
+    "QWidget.tooltip",
+    "disabled"
+   ],
+   [
+    "QLabel",
+    "استخبارات التهديدات"
+   ],
+   [
+    "Chip",
+    "○ متوقف"
+   ],
+   [
+    "QPushButton",
+    "◂  معلومات الملف"
+   ],
+   [
+    "QPushButton.accessibleName",
+    "معلومات الملف"
+   ],
+   [
+    "QPushButton",
+    "◂  التفاصيل التقنية"
+   ],
+   [
+    "QPushButton.accessibleName",
+    "التفاصيل التقنية"
+   ],
+   [
+    "QPushButton",
+    "عرض التفاصيل التقنية"
+   ],
+   [
+    "QPushButton",
+    "تصدير التقرير"
+   ],
+   [
+    "QPushButton.tooltip",
+    "Save this result as a text or JSON report"
+   ],
+   [
+    "QPushButton",
+    "فحص جديد"
+   ]
+  ],
+  "en_result_arname": [
+   [
+    "VerdictBadge.accessibleName",
+    "خطر مرتفع"
+   ],
+   [
+    "QLabel",
+    "C:\\Users\\mahdi\\AppData\\Local\\Temp\\claude\\c--Users-mahdi-Desktop-dist\\8b009106-27fa-4dc1-a7c2-da8cd64de35b\\scratchpad\\cs_audit_ixh9iq5u\\samples\\تقرير_الربع_الثالث_للحسابات_النهائية.pdf.exe"
+   ],
+   [
+    "QLabel",
+    "محركات غير متاحة: النموذج البنيوي"
+   ],
+   [
+    "QLabel",
+    "The supervised model requires reviewed examples for all three classes; no infection probability or automatic repair is claimed."
+   ],
+   [
+    "QLabel",
+    "100/100"
+   ],
+   [
+    "QLabel",
+    "مؤشر المخاطر · لا يمثل احتمالًا لوجود برمجية خبيثة"
+   ],
+   [
+    "QLabel",
+    "الأدلة"
+   ],
+   [
+    "QLabel",
+    "12"
+   ],
+   [
+    "QLabel",
+    "11 بخطورة متوسطة أو أعلى"
+   ],
+   [
+    "QLabel",
+    "أعلى خطورة"
+   ],
+   [
+    "QLabel",
+    "▲ مرتفعة"
+   ],
+   [
+    "QLabel",
+    "تقنيات ATT&CK"
+   ],
+   [
+    "QLabel",
+    "3"
+   ],
+   [
+    "QLabel",
+    "المحركات التي عملت"
+   ],
+   [
+    "QLabel",
+    "1 من 2"
+   ],
+   [
+    "QLabel",
+    "2 غير منطبق · 1 متوقف"
+   ],
+   [
+    "QLabel",
+    "أهم الأدلة"
+   ],
+   [
+    "QLabel",
+    "الأقوى أولًا"
+   ],
+   [
+    "QPushButton",
+    "عرض جميع الأدلة (12)"
+   ],
+   [
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: Double extension spoofing"
+   ],
+   [
+    "Chip",
+    "▲ مرتفعة"
+   ],
+   [
+    "QLabel",
+    "القواعد الاستدلالية"
+   ],
+   [
+    "QLabel",
+    "الوزن 55/100"
+   ],
+   [
+    "QLabel",
+    "Double extension spoofing"
+   ],
+   [
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: EncodedPowerShell"
+   ],
+   [
+    "Chip",
+    "▲ مرتفعة"
+   ],
+   [
+    "QLabel",
+    "قواعد التواقيع (YARA)"
+   ],
+   [
+    "QLabel",
+    "الوزن 50/100"
+   ],
+   [
+    "QLabel",
+    "EncodedPowerShell"
+   ],
+   [
+    "QLabel",
+    "Encoded PowerShell execution pattern"
+   ],
+   [
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: ShadowCopyDeletion"
+   ],
+   [
+    "Chip",
+    "▲ مرتفعة"
+   ],
+   [
+    "QLabel",
+    "قواعد التواقيع (YARA)"
+   ],
+   [
+    "QLabel",
+    "الوزن 50/100"
+   ],
+   [
+    "QLabel",
+    "ShadowCopyDeletion"
+   ],
+   [
+    "QLabel",
+    "Shadow copy deletion associated with ransomware behavior"
+   ],
+   [
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: SuspiciousProcessInjection"
+   ],
+   [
+    "Chip",
+    "▲ مرتفعة"
+   ],
+   [
+    "QLabel",
+    "قواعد التواقيع (YARA)"
+   ],
+   [
+    "QLabel",
+    "الوزن 50/100"
+   ],
+   [
+    "QLabel",
+    "SuspiciousProcessInjection"
+   ],
+   [
+    "QLabel",
+    "Memory and remote thread APIs associated with process injection"
+   ],
+   [
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: Encoded PowerShell execution"
+   ],
+   [
+    "Chip",
+    "▲ مرتفعة"
+   ],
+   [
+    "QLabel",
+    "القواعد الاستدلالية"
+   ],
+   [
+    "QLabel",
+    "الوزن 48/100"
+   ],
+   [
+    "QLabel",
+    "Encoded PowerShell execution"
+   ],
+   [
+    "QLabel",
+    "تقرير_الربع_الثالث_للحسابات_النهائية.pdf.exe"
+   ],
+   [
+    "QLabel",
+    "ملف ⁨EXE⁩ · 59.2 KiB"
+   ],
+   [
+    "QLabel",
+    "SHA-256 6ccf20376d107a18…"
+   ],
+   [
+    "QLabel",
+    "المؤشرات حسب الفئة"
+   ],
+   [
+    "QLabel",
+    "عدد الأدلة"
+   ],
+   [
+    "QLabel",
+    "القواعد الاستدلالية"
+   ],
+   [
+    "QLabel",
+    "6"
+   ],
+   [
+    "QLabel",
+    "بنية الملف"
+   ],
+   [
+    "QLabel",
+    "3"
+   ],
+   [
+    "QLabel",
+    "قواعد التواقيع (YARA)"
+   ],
+   [
+    "QLabel",
+    "3"
+   ],
+   [
+    "QLabel",
+    "تغطية الفحص"
+   ],
+   [
+    "QWidget.tooltip",
+    "available; 1 rule(s) loaded"
+   ],
+   [
+    "QLabel",
+    "قواعد التواقيع (YARA)"
+   ],
+   [
+    "Chip",
+    "✓ نُفّذ"
+   ],
+   [
+    "QWidget.tooltip",
+    "not_pe"
+   ],
+   [
+    "QLabel",
+    "بنية الملف التنفيذي (PE)"
+   ],
+   [
+    "Chip",
+    "– غير منطبق"
+   ],
+   [
+    "QWidget.tooltip",
+    "Structural model rejected: Model not approved: No valid approved SHA-256 digest was supplied for this model. Static evidence remains active."
+   ],
+   [
+    "QLabel",
+    "النموذج البنيوي"
+   ],
+   [
+    "Chip",
+    "! غير متاح"
+   ],
+   [
+    "QWidget.tooltip",
+    "not a ZIP container"
+   ],
+   [
+    "QLabel",
+    "فحص الأرشيف"
+   ],
+   [
+    "Chip",
+    "– غير منطبق"
+   ],
+   [
+    "QWidget.tooltip",
+    "disabled"
+   ],
+   [
+    "QLabel",
+    "استخبارات التهديدات"
+   ],
+   [
+    "Chip",
+    "○ متوقف"
+   ],
+   [
+    "QPushButton",
+    "◂  معلومات الملف"
+   ],
+   [
+    "QPushButton.accessibleName",
+    "معلومات الملف"
+   ],
+   [
+    "QPushButton",
+    "◂  التفاصيل التقنية"
+   ],
+   [
+    "QPushButton.accessibleName",
+    "التفاصيل التقنية"
+   ],
+   [
+    "QPushButton",
+    "عرض التفاصيل التقنية"
+   ],
+   [
+    "QPushButton",
+    "تصدير التقرير"
+   ],
+   [
+    "QPushButton.tooltip",
+    "Save this result as a text or JSON report"
+   ],
+   [
+    "QPushButton",
+    "فحص جديد"
+   ]
+  ],
+  "en_result_mixed": [
+   [
+    "VerdictBadge.accessibleName",
+    "يحتاج إلى مراجعة"
+   ],
+   [
+    "QLabel",
+    "C:\\Users\\mahdi\\AppData\\Local\\Temp\\claude\\c--Users-mahdi-Desktop-dist\\8b009106-27fa-4dc1-a7c2-da8cd64de35b\\scratchpad\\cs_audit_ixh9iq5u\\samples\\Invoice فاتورة 2026 (final نهائي).docx"
+   ],
+   [
+    "QLabel",
+    "تغطية جزئية: Archive"
+   ],
+   [
+    "QLabel",
+    "The supervised model requires reviewed examples for all three classes; no infection probability or automatic repair is claimed."
+   ],
+   [
+    "QLabel",
+    "15/100"
+   ],
+   [
+    "QLabel",
+    "مؤشر المخاطر · لا يمثل احتمالًا لوجود برمجية خبيثة"
+   ],
+   [
+    "QLabel",
+    "الأدلة"
+   ],
+   [
+    "QLabel",
+    "2"
+   ],
+   [
+    "QLabel",
+    "1 بخطورة متوسطة أو أعلى"
+   ],
+   [
+    "QLabel",
+    "أعلى خطورة"
+   ],
+   [
+    "QLabel",
+    "◆ متوسطة"
+   ],
+   [
+    "QLabel",
+    "تقنيات ATT&CK"
+   ],
+   [
+    "QLabel",
+    "0"
+   ],
+   [
+    "QLabel",
+    "المحركات التي عملت"
+   ],
+   [
+    "QLabel",
+    "1 من 3"
+   ],
+   [
+    "QLabel",
+    "1 غير منطبق · 1 متوقف"
+   ],
+   [
+    "QLabel",
+    "أهم الأدلة"
+   ],
+   [
+    "QLabel",
+    "الأقوى أولًا"
+   ],
+   [
+    "FindingCard.accessibleName",
+    "◆ متوسطة: Static decoding indicator"
+   ],
+   [
+    "Chip",
+    "◆ متوسطة"
+   ],
+   [
+    "QLabel",
+    "بنية الملف"
+   ],
+   [
+    "QLabel",
+    "الوزن 15/100"
+   ],
+   [
+    "QLabel",
+    "Static decoding indicator"
+   ],
+   [
+    "QLabel",
+    "REPETITIVE_INSTRUCTION_SEQUENCE"
+   ],
+   [
+    "FindingCard.accessibleName",
+    "○ معلوماتية: ZIP structure: partial"
+   ],
+   [
+    "Chip",
+    "○ معلوماتية"
+   ],
+   [
+    "QLabel",
+    "أرشيف"
+   ],
+   [
+    "QLabel",
+    "ZIP structure: partial"
+   ],
+   [
+    "QLabel",
+    "Bounded inspection recorded 0 member(s) and 0 decompressed byte(s). Archive members were not independently scanned for malware."
+   ],
+   [
+    "QLabel",
+    "Invoice فاتورة 2026 (final نهائي).docx"
+   ],
+   [
+    "QLabel",
+    "ملف ⁨DOCX⁩ · 404 B"
+   ],
+   [
+    "QLabel",
+    "SHA-256 da6be7a89521ecb7…"
+   ],
+   [
+    "QLabel",
+    "المؤشرات حسب الفئة"
+   ],
+   [
+    "QLabel",
+    "عدد الأدلة"
+   ],
+   [
+    "QLabel",
+    "أرشيف"
+   ],
+   [
+    "QLabel",
+    "1"
+   ],
+   [
+    "QLabel",
+    "بنية الملف"
+   ],
+   [
+    "QLabel",
+    "1"
+   ],
+   [
+    "QLabel",
+    "تغطية الفحص"
+   ],
+   [
+    "QWidget.tooltip",
+    "available; 1 rule(s) loaded"
+   ],
+   [
+    "QLabel",
+    "قواعد التواقيع (YARA)"
+   ],
+   [
+    "Chip",
+    "✓ نُفّذ"
+   ],
+   [
+    "QWidget.tooltip",
+    "not_pe"
+   ],
+   [
+    "QLabel",
+    "بنية الملف التنفيذي (PE)"
+   ],
+   [
+    "Chip",
+    "– غير منطبق"
+   ],
+   [
+    "QWidget.tooltip",
+    "Structural model rejected: Model not approved: No valid approved SHA-256 digest was supplied for this model. Static evidence remains active."
+   ],
+   [
+    "QLabel",
+    "النموذج البنيوي"
+   ],
+   [
+    "Chip",
+    "! غير متاح"
+   ],
+   [
+    "QWidget.tooltip",
+    "bounded structure inspection; partial; 0 member(s); member contents not malware-scanned"
+   ],
+   [
+    "QLabel",
+    "فحص الأرشيف"
+   ],
+   [
+    "Chip",
+    "◐ جزئي"
+   ],
+   [
+    "QWidget.tooltip",
+    "disabled"
+   ],
+   [
+    "QLabel",
+    "استخبارات التهديدات"
+   ],
+   [
+    "Chip",
+    "○ متوقف"
+   ],
+   [
+    "QPushButton",
+    "◂  معلومات الملف"
+   ],
+   [
+    "QPushButton.accessibleName",
+    "معلومات الملف"
+   ],
+   [
+    "QPushButton",
+    "◂  التفاصيل التقنية"
+   ],
+   [
+    "QPushButton.accessibleName",
+    "التفاصيل التقنية"
+   ],
+   [
+    "QPushButton",
+    "عرض التفاصيل التقنية"
+   ],
+   [
+    "QPushButton",
+    "تصدير التقرير"
+   ],
+   [
+    "QPushButton.tooltip",
+    "Save this result as a text or JSON report"
+   ],
+   [
+    "QPushButton",
+    "فحص جديد"
+   ]
+  ],
+  "en_page_history": [
+   [
+    "QLabel",
+    "سجل الفحوص"
+   ],
+   [
+    "QLabel",
+    "تبقى الفحوصات والتقارير الناتجة على هذا الجهاز. إزالة سجل لا تحذف الهدف المفحوص."
+   ],
+   [
+    "QLineEdit.placeholder",
+    "Search by file, hash, result…"
+   ],
+   [
+    "QListItem",
+    "Invoice فاتورة 2026 (final نهائي).docx\nREVIEW · 15/100 · 2026-10-31 21:43"
+   ],
+   [
+    "QListItem",
+    "تقرير_الربع_الثالث_للحسابات_النهائية.pdf.exe\nSUSPICIOUS · 100/100 · 2026-10-31 21:43"
+   ],
+   [
+    "QListItem",
+    "archive_blob.bin\nREVIEW · 18/100 · 2026-10-31 21:43"
+   ],
+   [
+    "QListItem",
+    "invoice.pdf.exe\nSUSPICIOUS · 100/100 · 2026-10-31 21:43"
+   ],
+   [
+    "QListItem",
+    "sample_2.bin\nNO_INDICATORS_OBSERVED · 14/100 · 2026-10-03 10:02"
+   ],
+   [
+    "QPushButton",
+    "فتح التقرير"
+   ],
+   [
+    "QPushButton.tooltip",
+    "Open the saved JSON report of the selected scan"
+   ],
+   [
+    "QPushButton",
+    "تصدير المحدد"
+   ],
+   [
+    "QPushButton.tooltip",
+    "Save the selected report as text or JSON"
+   ],
+   [
+    "QPushButton",
+    "إزالة من السجل"
+   ],
+   [
+    "QPushButton.tooltip",
+    "Remove the saved record and its report; the scanned file is kept"
+   ]
+  ],
+  "en_page_yara": [
+   [
+    "QLabel",
+    "فحص YARA وPE"
+   ],
+   [
+    "QLabel",
+    "مطابقة للقراءة فقط وبيانات الملف التنفيذي من أحدث تحليل."
+   ],
+   [
+    "QPlainTextEdit",
+    "YARA status: available; 1 rule(s) loaded\nYARA matches: 0\nNo configured YARA rule matched this target."
+   ],
+   [
+    "QPlainTextEdit",
+    "PE status: not_pe\nIs PE: False\nPE sections: not available\nImported APIs: not available\nDetail: Not a valid PE binary or parsing failed: 'DOS Header magic not found.'"
+   ]
+  ],
+  "en_page_mitre": [
+   [
+    "QLabel",
+    "مطابقة MITRE ATT&CK"
+   ],
+   [
+    "QLabel",
+    "تُستنتج مطابقة التقنيات من المؤشرات المرصودة ولا تثبت نشاط جهة مهاجمة."
+   ],
+   [
+    "QListItem",
+    "N/A · No mapped ATT&CK technique\nEvidence: "
+   ]
+  ],
+  "en_page_model": [
+   [
+    "QLabel",
+    "المصنف البنيوي"
+   ],
+   [
+    "QLabel",
+    "غابة عشوائية مُراقبة بثلاث فئات فوق تمثيل حتمي ذي 4096 بُعدًا. الدرجات ليست احتمالات معايرة."
+   ],
+   [
+    "QPlainTextEdit",
+    "Model: supervised three-class Random Forest\nEmbedding: deterministic 4096-D structural representation\nTraining state: untrained\nPredicted class: not available\nUncalibrated class scores: not available\nUncalibrated infection score: None\nAutomated repair: not available; scores never authorize file chan"
+   ]
+  ],
+  "en_page_logs": [
+   [
+    "QLabel",
+    "السجل الزمني"
+   ],
+   [
+    "QPushButton",
+    "مسح العرض"
+   ],
+   [
+    "QLabel",
+    "أحداث مؤرخة محليًا من الجلسة الحالية."
+   ],
+   [
+    "QPlainTextEdit",
+    "21:41:39  Analysis started in File mode: C:\\Users\\mahdi\\AppData\\Local\\Temp\\claude\\c--Users-mahdi-Desktop-dist\\8b009106-27fa-4dc1-a7c2-da8cd64de35b\\scratchpad\\cs_audit_ixh9iq5u\\samples\\invoice.pdf.exe\n21:41:45  Analysis complete: SUSPICIOUS · risk index 100/100\n21:41:49  Analysis started in File mode"
+   ]
+  ],
+  "en_page_settings": [
+   [
+    "QLabel",
+    "إعدادات التحليل"
+   ],
+   [
+    "QLabel",
+    "محفوظ · مطبَّق"
+   ],
+   [
+    "QLabel",
+    "اختر ما يمكن للمحلل المحلي فحصه أو مشاركته."
+   ],
+   [
+    "QLabel",
+    "الكشف"
+   ],
+   [
+    "QLabel",
+    "المحركات الساكنة المستخدمة في كل تحليل. تعطيل محرك يقلل التغطية ويُذكر في حالة المحركات بكل نتيجة."
+   ],
+   [
+    "QCheckBox",
+    "Entropy analysis"
+   ],
+   [
+    "QCheckBox.tooltip",
+    "Measure byte entropy and its transitions"
+   ],
+   [
+    "QCheckBox",
+    "Heuristic rules"
+   ],
+   [
+    "QCheckBox.tooltip",
+    "Apply the static indicator and URL/text rules"
+   ],
+   [
+    "QCheckBox",
+    "Structural classifier analysis"
+   ],
+   [
+    "QCheckBox.tooltip",
+    "Compute the 4096-D representation and use a trained model if present"
+   ],
+   [
+    "QLabel",
+    "المراقبة"
+   ],
+   [
+    "QLabel",
+    "اختياري. يراقب مجلدًا ويحلل الملفات الجديدة بعد استقرارها. التحليل فقط؛ لا نقل ولا حجر ولا حذف."
+   ],
+   [
+    "QCheckBox",
+    "Downloads monitoring"
+   ],
+   [
+    "QCheckBox.tooltip",
+    "Scan new files in the folder below"
+   ],
+   [
+    "QLabel",
+    "المجلد المراقب"
+   ],
+   [
+    "QLineEdit.tooltip",
+    "The local folder watched when downloads monitoring is enabled"
+   ],
+   [
+    "QPushButton",
+    "استعراض…"
+   ],
+   [
+    "QPushButton.tooltip",
+    "Choose the folder to monitor"
+   ],
+   [
+    "QLabel",
+    "الشبكة"
+   ],
+   [
+    "QLabel",
+    "الاستخبارات العامة معطلة افتراضيًا. تفعيلها يرسل الروابط أو النطاقات أو عناوين IP المدعومة أو بصمة SHA-256 لملف مفحوص إلى خدمات عامة. لا يُرفع محتوى الملفات المحلية. عدم وجود تطابق لا يثبت السلامة."
+   ],
+   [
+    "QCheckBox",
+    "Send indicators to public OSINT feeds"
+   ],
+   [
+    "QCheckBox.tooltip",
+    "Allow non-blocking lookups against optional public feeds"
+   ],
+   [
+    "QLabel",
+    "تأتي بيانات اعتماد المصادر من متغيرات البيئة: URLHAUS_API_KEY وOTX_API_KEY واختياريًا THREATFOX_API_KEY."
+   ],
+   [
+    "QLabel",
+    "إمكانية الوصول"
+   ],
+   [
+    "QLabel",
+    "تفضيلات الواجهة فقط. لا تؤثر في سلوك التحليل."
+   ],
+   [
+    "QCheckBox",
+    "Larger text and controls"
+   ],
+   [
+    "QCheckBox.tooltip",
+    "Increase interface font size and control height"
+   ],
+   [
+    "QLabel",
+    "مفعّل في الإعدادات: الإنتروبيا · القواعد الاستدلالية · النموذج البنيوي"
+   ],
+   [
+    "QPushButton",
+    "تطبيق الإعدادات"
+   ],
+   [
+    "QPushButton.tooltip",
+    "Save and apply the settings changed above"
+   ]
+  ],
+  "en_page_about": [
+   [
+    "QLabel",
+    "حول CyberScan"
+   ],
+   [
+    "QLabel",
+    "نموذج بحثي دفاعي · تحليل ساكن محلي"
+   ],
+   [
+    "QPlainTextEdit",
+    "CyberScan is a defensive cybersecurity research prototype. It analyzes files, URLs, and indicators without executing targets. Its evidence and model scores are investigative aids, not proof of malware or calibrated probabilities. The 4096-D projection is deterministic and non-lossless. Packed or enc"
+   ]
+  ],
+  "en_history_details": [
+   [
+    "details",
+    "Target: C:\\Users\\mahdi\\AppData\\Local\\Temp\\claude\\c--Users-mahdi-Desktop-dist\\8b009106-27fa-4dc1-a7c2-da8cd64de35b\\scratchpad\\cs_audit_ixh9iq5u\\samples\\Invoice فاتورة 2026 (final نهائي).docx\nSHA-256: da6be7a89521ecb7c8799dd318fbf21f27ea2ad075771b1e781d4f5d691075f1\nClassification: REVIEW\nRisk index: 15/100"
+   ]
+  ]
+ },
+ "keyboard": {
+  "idle_chain": [
+   {
+    "class": "QPushButton",
+    "name": "railButton",
+    "label": "New analysis",
+    "x": 14,
+    "y": 86
+   },
+   {
+    "class": "IconRailButton",
+    "name": "railButton",
+    "label": "  Scan history",
+    "x": 14,
+    "y": 163
+   },
+   {
+    "class": "IconRailButton",
+    "name": "railButton",
+    "label": "  YARA && PE",
+    "x": 14,
+    "y": 240
+   },
+   {
+    "class": "IconRailButton",
+    "name": "railButton",
+    "label": "  MITRE ATT&&CK",
+    "x": 14,
+    "y": 284
+   },
+   {
+    "class": "IconRailButton",
+    "name": "railButton",
+    "label": "  Structural model",
+    "x": 14,
+    "y": 328
+   },
+   {
+    "class": "IconRailButton",
+    "name": "railButton",
+    "label": "  Audit timeline",
+    "x": 14,
+    "y": 405
+   },
+   {
+    "class": "IconRailButton",
+    "name": "railButton",
+    "label": "  Settings",
+    "x": 14,
+    "y": 449
+   },
+   {
+    "class": "IconRailButton",
+    "name": "railButton",
+    "label": "  About",
+    "x": 14,
+    "y": 493
+   },
+   {
+    "class": "QPushButton",
+    "name": "quiet",
+    "label": "العربية",
+    "x": 91,
+    "y": 848
+   },
+   {
+    "class": "QScrollArea",
+    "name": "",
+    "label": "",
+    "x": 256,
+    "y": 79
+   },
+   {
+    "class": "QPushButton",
+    "name": "modeChip",
+    "label": "File",
+    "x": 292,
+    "y": 318
+   },
+   {
+    "class": "QPushButton",
+    "name": "modeChip",
+    "label": "URL",
+    "x": 422,
+    "y": 318
+   },
+   {
+    "class": "QPushButton",
+    "name": "modeChip",
+    "label": "Indicator / text",
+    "x": 552,
+    "y": 318
+   },
+   {
+    "class": "QLineEdit",
+    "name": "targetEntry",
+    "label": "Paste a file path or choose a local file…",
+    "x": 313,
+    "y": 456
+   },
+   {
+    "class": "QPushButton",
+    "name": "secondary",
+    "label": "Choose file…",
+    "x": 967,
+    "y": 468
+   },
+   {
+    "class": "PrimaryButton",
+    "name": "primary",
+    "label": "Analyze target",
+    "x": 1113,
+    "y": 469
+   }
+  ],
+  "idle_buttons_not_tab_reachable": [],
+  "idle_buttons_without_text_or_accessible_name": [],
+  "result_chain": [
+   {
+    "class": "QPushButton",
+    "name": "railButton",
+    "label": "New analysis",
+    "x": 14,
+    "y": 86
+   },
+   {
+    "class": "IconRailButton",
+    "name": "railButton",
+    "label": "  Scan history",
+    "x": 14,
+    "y": 163
+   },
+   {
+    "class": "IconRailButton",
+    "name": "railButton",
+    "label": "  YARA && PE",
+    "x": 14,
+    "y": 240
+   },
+   {
+    "class": "IconRailButton",
+    "name": "railButton",
+    "label": "  MITRE ATT&&CK",
+    "x": 14,
+    "y": 284
+   },
+   {
+    "class": "IconRailButton",
+    "name": "railButton",
+    "label": "  Structural model",
+    "x": 14,
+    "y": 328
+   },
+   {
+    "class": "IconRailButton",
+    "name": "railButton",
+    "label": "  Audit timeline",
+    "x": 14,
+    "y": 405
+   },
+   {
+    "class": "IconRailButton",
+    "name": "railButton",
+    "label": "  Settings",
+    "x": 14,
+    "y": 449
+   },
+   {
+    "class": "IconRailButton",
+    "name": "railButton",
+    "label": "  About",
+    "x": 14,
+    "y": 493
+   },
+   {
+    "class": "QPushButton",
+    "name": "quiet",
+    "label": "العربية",
+    "x": 91,
+    "y": 848
+   },
+   {
+    "class": "QScrollArea",
+    "name": "",
+    "label": "",
+    "x": 256,
+    "y": 79
+   },
+   {
+    "class": "QPushButton",
+    "name": "secondary",
+    "label": "New scan",
+    "x": 1248,
+    "y": 286
+   },
+   {
+    "class": "QPushButton",
+    "name": "quiet",
+    "label": "View all 12 findings",
+    "x": 292,
+    "y": 1273
+   },
+   {
+    "class": "QPushButton",
+    "name": "sectionToggle",
+    "label": "▸  File details",
+    "x": 277,
+    "y": 1387
+   },
+   {
+    "class": "QPushButton",
+    "name": "sectionToggle",
+    "label": "▸  Technical details",
+    "x": 277,
+    "y": 1455
+   },
+   {
+    "class": "QPushButton",
+    "name": "secondary",
+    "label": "Show technical details",
+    "x": 277,
+    "y": 1523
+   },
+   {
+    "class": "QPushButton",
+    "name": "secondary",
+    "label": "Export report",
+    "x": 1119,
+    "y": 1523
+   },
+   {
+    "class": "QPushButton",
+    "name": "secondary",
+    "label": "New scan",
+    "x": 1253,
+    "y": 1523
+   },
+   {
+    "class": "QPushButton",
+    "name": "quiet",
+    "label": "Open scan history",
+    "x": 1232,
+    "y": 1612
+   },
+   {
+    "class": "ActivityRow",
+    "name": "activityRow",
+    "label": "<ui.home.ElidedLabel(0x1e2934ab8e0, name=\"subtle\") at 0x0000",
+    "x": 279,
+    "y": 1710
+   }
+  ],
+  "painted_widget_accessibility_en": {
+   "journey": {
+    "accessibleName": "Analysis journey",
+    "accessibleDescription": "concluded; 4 of 4 stages complete"
+   },
+   "verdict_badge": {
+    "accessibleName": "High risk",
+    "accessibleDescription": ""
+   },
+   "risk_gauge": {
+    "accessibleName": "",
+    "accessibleDescription": ""
+   },
+   "category_donut": {
+    "accessibleName": "",
+    "accessibleDescription": ""
+   },
+   "category_bars": {
+    "accessibleName": "",
+    "accessibleDescription": ""
+   },
+   "file_card": {
+    "accessibleName": "",
+    "accessibleDescription": ""
+   },
+   "scan_core": {
+    "accessibleName": "Analysis status",
+    "accessibleDescription": "complete; 4 of 4 stages complete"
+   },
+   "stage_track": {
+    "accessibleName": "",
+    "accessibleDescription": ""
+   }
+  },
+  "painted_widget_accessibility_ar": {
+   "journey": {
+    "accessibleName": "Analysis journey",
+    "accessibleDescription": "concluded; 4 of 4 stages complete"
+   },
+   "verdict_badge": {
+    "accessibleName": "خطر مرتفع",
+    "accessibleDescription": ""
+   },
+   "risk_gauge": {
+    "accessibleName": "",
+    "accessibleDescription": ""
+   },
+   "category_donut": {
+    "accessibleName": "",
+    "accessibleDescription": ""
+   },
+   "scan_core": {
+    "accessibleName": "Analysis status",
+    "accessibleDescription": "complete; 4 of 4 stages complete"
+   }
+  },
+  "focus_ring_probe": {
+   "has_focus": true,
+   "changed_pixels_sampled": 650,
+   "active_window": true
+  }
+ },
+ "errors": [],
+ "qt_messages": [
+  {
+   "t": 168331.224,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168331.224,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168331.272,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168331.272,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168331.272,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168331.272,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168331.305,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168331.305,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168331.305,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168331.305,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168331.335,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168331.335,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168331.335,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168331.335,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168331.342,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168331.342,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168331.342,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168331.342,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168331.372,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168331.372,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168331.372,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168331.372,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168331.378,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168331.378,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168331.378,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168331.378,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168331.405,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168331.405,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168331.405,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168331.405,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168331.425,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168331.425,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168331.425,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168331.425,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168331.451,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168331.451,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168331.474,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168331.474,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168331.498,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168331.499,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168331.509,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168331.509,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168331.509,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168331.509,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168331.512,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168331.512,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168331.512,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168331.512,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168331.541,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168331.541,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168331.578,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168331.578,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168333.197,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168333.197,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168333.264,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168333.264,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168333.264,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168333.264,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168333.282,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168333.283,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168333.283,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168333.283,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168333.322,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168333.322,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168333.322,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168333.322,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168333.342,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168333.342,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168333.342,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168333.342,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168333.375,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168333.375,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168333.375,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168333.375,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168333.384,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168333.384,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168333.384,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168333.384,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168333.407,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168333.407,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168333.415,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168333.415,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168333.415,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168333.415,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168333.416,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168333.416,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168333.416,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168333.416,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168333.456,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168333.456,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168333.463,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168333.463,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168333.463,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168333.463,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168333.465,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168333.465,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168333.465,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168333.465,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168333.514,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168333.514,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168335.712,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168335.712,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168335.786,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168335.786,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168335.823,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168335.823,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168335.823,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168335.823,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168335.831,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168335.831,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168335.831,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168335.831,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168335.853,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168335.853,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168335.853,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168335.853,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168335.859,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168335.86,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168335.86,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168335.86,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168335.889,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168335.889,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168335.889,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168335.889,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168335.895,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168335.895,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168335.895,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168335.895,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168335.936,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168335.936,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168335.936,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168335.936,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168335.942,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168335.942,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168335.942,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168335.942,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168335.971,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168335.971,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168335.971,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168335.971,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168335.992,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168335.992,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168335.992,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168335.992,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168336.016,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168336.016,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168336.016,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168336.016,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168336.022,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168336.022,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168336.022,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168336.022,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168336.056,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168336.056,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168336.098,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168336.098,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168336.14,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168336.14,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168337.793,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168337.793,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168337.848,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168337.849,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168337.849,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168337.849,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168337.856,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168337.856,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168337.856,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168337.856,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168337.887,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168337.887,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168337.887,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168337.887,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168337.893,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168337.893,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168337.893,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168337.893,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168337.924,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168337.924,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168337.924,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168337.924,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168337.948,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168337.948,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168337.948,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168337.948,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168337.988,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168337.988,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168337.988,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168337.988,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168337.997,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168337.997,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168337.997,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168337.997,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168338.028,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168338.028,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168338.069,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168338.069,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168338.103,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168338.103,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168338.138,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168338.138,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168340.363,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168340.363,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168340.396,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168340.396,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168340.396,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168340.396,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168340.408,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168340.408,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168340.408,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168340.408,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168340.44,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168340.44,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168340.44,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168340.44,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168340.445,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168340.445,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168340.445,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168340.445,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168340.466,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168340.466,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168340.466,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168340.466,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168340.473,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168340.473,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168340.473,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168340.473,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168340.495,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168340.495,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168340.495,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168340.495,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168340.518,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168340.518,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168340.518,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168340.518,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168340.558,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168340.558,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168340.558,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168340.558,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168340.565,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168340.565,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168340.565,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168340.565,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168340.589,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168340.589,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168340.614,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168340.614,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168340.624,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168340.624,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168340.624,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168340.624,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168340.626,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168340.626,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168340.626,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168340.626,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168340.657,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168340.657,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168340.695,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168340.695,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168340.732,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168340.732,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168340.764,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168340.764,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168340.798,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168340.798,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168340.829,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168340.829,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168342.422,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168342.422,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168342.507,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168342.507,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168342.548,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168342.549,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168342.549,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168342.549,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168342.569,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168342.569,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168342.569,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168342.569,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168342.612,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168342.612,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168342.612,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168342.612,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168342.63,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168342.63,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168342.63,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168342.63,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168342.666,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168342.666,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168342.666,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168342.666,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168342.683,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168342.683,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168342.683,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168342.683,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168342.719,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168342.719,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168342.719,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168342.719,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168342.737,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168342.737,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168342.737,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168342.737,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168342.772,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168342.772,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168342.806,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168342.806,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168342.842,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168342.842,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168345.062,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168345.062,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168345.115,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168345.115,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168345.115,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168345.115,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168345.133,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168345.133,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168345.133,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168345.133,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168345.166,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168345.166,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168345.166,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168345.166,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168345.173,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168345.173,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168345.173,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168345.173,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168345.21,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168345.21,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168345.21,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168345.21,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168345.216,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168345.216,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168345.216,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168345.216,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168345.241,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168345.241,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168345.241,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168345.241,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168345.26,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168345.26,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168345.26,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168345.26,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168345.285,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168345.285,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168345.285,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168345.285,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168345.29,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168345.29,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168345.29,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168345.29,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168345.3,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168345.3,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168345.325,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168345.325,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168345.333,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168345.333,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168345.333,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168345.333,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168345.335,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168345.335,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168345.335,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168345.335,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168345.359,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168345.359,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168345.391,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168345.391,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168345.424,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168345.424,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168347.111,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168347.111,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168347.172,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168347.172,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168347.172,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168347.172,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168347.192,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168347.192,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168347.192,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168347.192,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168347.235,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168347.235,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168347.235,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168347.235,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168347.257,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168347.257,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168347.257,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168347.257,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168347.297,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168347.297,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168347.297,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168347.297,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168347.316,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168347.316,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168347.316,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168347.316,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168347.35,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168347.351,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168347.389,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168347.389,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168347.398,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168347.398,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168347.398,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168347.398,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168347.4,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168347.4,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168347.4,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168347.4,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168347.435,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168347.435,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168357.592,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168357.592,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168357.641,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168357.641,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168357.68,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168357.68,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168357.68,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168357.68,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168357.69,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168357.69,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168357.69,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168357.69,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168357.724,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168357.724,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168357.724,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168357.724,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168357.731,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168357.731,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168357.731,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168357.731,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168357.757,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168357.757,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168357.757,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168357.757,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168357.763,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168357.763,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168357.763,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168357.763,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168357.792,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168357.793,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168357.793,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168357.793,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168357.815,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168357.815,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168357.815,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168357.815,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168357.851,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168357.851,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168357.851,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168357.851,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168357.872,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168357.872,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168357.872,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168357.872,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168357.896,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168357.896,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168357.931,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168357.931,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168357.97,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168357.97,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168358.54,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168358.54,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168358.61,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168358.61,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168358.67,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168358.67,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168358.703,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168358.703,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168358.766,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168358.766,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168361.407,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168361.407,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168361.457,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168361.457,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168361.457,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168361.457,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168361.48,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168361.48,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168361.48,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168361.48,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168361.513,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168361.513,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168361.513,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168361.513,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168361.518,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168361.519,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168361.519,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168361.519,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168361.547,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168361.547,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168361.547,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168361.547,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168361.553,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168361.553,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168361.553,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168361.553,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168361.573,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168361.573,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168361.573,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168361.573,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168361.577,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168361.577,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168361.577,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168361.577,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168361.603,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168361.603,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168361.603,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168361.603,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168361.622,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168361.622,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168361.622,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168361.622,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168361.661,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168361.661,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168361.685,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168361.685,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168361.691,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168361.691,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168361.691,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168361.691,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168361.692,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168361.692,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168361.692,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168361.692,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168361.73,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168361.73,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168361.756,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168361.756,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168361.783,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168361.783,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168361.819,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168361.819,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168361.859,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168361.859,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168369.368,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168369.368,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168369.44,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168369.44,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168369.465,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168369.465,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168369.485,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168369.485,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168369.485,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168369.485,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168369.493,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168369.493,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168369.493,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168369.493,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168369.517,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168369.517,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168369.517,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168369.517,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168369.531,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168369.531,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168369.531,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168369.531,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168369.554,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168369.554,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168369.554,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168369.554,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168369.559,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168369.559,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168369.559,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168369.559,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168369.579,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168369.579,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168369.579,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168369.579,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168369.584,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168369.584,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168369.584,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168369.584,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168369.608,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168369.608,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168369.608,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168369.608,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168369.623,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168369.623,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168369.623,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168369.623,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168369.644,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168369.644,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168369.644,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168369.644,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168369.648,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168369.648,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168369.648,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168369.648,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168369.674,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168369.674,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168369.674,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168369.674,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168369.69,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168369.69,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168369.69,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168369.69,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168369.725,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168369.725,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168369.75,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168369.75,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168369.779,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168369.779,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168369.808,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168369.808,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168371.905,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168371.905,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168371.972,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168371.972,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168371.972,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168371.972,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168371.989,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168371.989,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168371.989,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168371.989,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168372.03,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168372.03,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168372.03,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168372.03,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168372.047,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168372.047,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168372.047,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168372.047,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168372.08,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168372.08,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168372.08,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168372.08,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168372.087,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168372.087,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168372.087,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168372.087,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168372.114,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168372.114,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168372.114,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168372.114,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168372.12,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168372.12,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168372.12,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168372.12,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168372.145,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168372.145,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168372.155,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168372.155,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168372.155,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168372.155,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168372.157,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168372.157,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168372.157,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168372.157,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168372.198,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168372.198,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168372.238,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168372.238,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168372.278,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168372.278,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168390.035,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168390.035,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168390.06,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168390.06,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168390.06,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168390.06,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168390.086,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168390.086,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168390.086,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168390.086,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168390.111,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168390.111,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168390.111,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168390.111,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168390.115,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168390.115,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168390.115,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168390.115,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168390.154,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168390.154,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168390.154,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168390.154,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168390.175,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168390.175,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168390.175,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168390.175,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168390.216,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168390.216,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168390.216,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168390.216,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168390.234,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168390.234,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168390.234,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168390.234,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168390.277,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168390.277,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168390.277,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168390.277,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168390.283,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168390.283,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168390.283,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168390.283,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168390.311,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168390.311,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168390.335,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168390.335,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168390.357,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168390.357,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168404.16,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168404.16,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168404.204,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168404.205,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168404.233,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168404.233,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168404.233,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168404.233,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168404.241,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168404.241,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168404.241,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168404.241,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168404.279,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168404.279,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168404.279,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168404.279,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168404.284,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168404.284,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168404.284,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168404.284,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168404.303,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168404.303,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168404.303,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168404.303,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168404.307,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168404.307,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168404.307,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168404.307,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168404.323,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168404.323,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168404.323,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168404.323,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168404.345,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168404.345,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168404.345,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168404.345,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168404.375,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168404.375,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168404.375,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168404.375,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168404.382,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168404.382,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168404.382,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168404.382,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168404.409,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168404.409,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168404.409,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168404.409,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168404.413,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168404.413,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168404.413,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168404.413,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168404.431,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168404.431,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168404.431,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168404.431,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168404.46,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168404.461,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168404.461,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168404.461,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168404.489,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168404.489,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168404.517,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168404.517,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168404.55,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168404.55,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  }
+ ],
+ "uncaught_exceptions": [],
+ "dialogs_remaining": [
+  {
+   "kind": "critical",
+   "title": "تعذر إكمال التحليل",
+   "text": "ValueError: File size 1880 exceeds the configured limit of 16 bytes",
+   "t": 168372.915
+  }
+ ],
+ "temp_dir": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\claude\\c--Users-mahdi-Desktop-dist\\8b009106-27fa-4dc1-a7c2-da8cd64de35b\\scratchpad\\cs_audit_ixh9iq5u",
+ "toggle_errors": [
+  "RuntimeError: libshiboken: Internal C++ object (PySide6.QtWidgets.QLabel) already deleted.",
+  "RuntimeError: libshiboken: Internal C++ object (PySide6.QtWidgets.QLabel) already deleted."
+ ]
+}

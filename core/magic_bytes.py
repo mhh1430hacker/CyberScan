@@ -54,3 +54,19 @@ def detect_double_extension(path: str) -> bool:
 def is_executable_extension(path: str) -> bool:
     ext = os.path.splitext(path)[1].lower()
     return ext in {".exe", ".dll", ".scr", ".bat", ".cmd", ".vbs", ".ps1", ".hta", ".js"}
+
+
+def naturally_compressed(header: bytes) -> bool:
+    """Formats whose content is compressed by design: high entropy in them is normal.
+
+    Pictures, sound, video, PDF, ZIP (and every format built on it: docx,
+    xlsx, jar, apk), gzip, 7z, rar, cab.
+    """
+    head = header[:16]
+    return (
+        head.startswith((b"\x89PNG", b"\xFF\xD8\xFF", b"GIF8", b"%PDF", b"PK\x03\x04", b"PK\x05\x06", b"\x1f\x8b",
+                         b"7z\xBC\xAF", b"Rar!", b"MSCF", b"ID3", b"OggS", b"fLaC", b"\x1A\x45\xDF\xA3", b"wOFF", b"wOF2"))
+        or (head[:2] in (b"\xFF\xFB", b"\xFF\xF3", b"\xFF\xF2"))  # MP3 frames
+        or (head[:4] == b"RIFF" and head[8:12] in (b"WEBP", b"AVI "))
+        or head[4:8] == b"ftyp"  # MP4, MOV, HEIC
+    )

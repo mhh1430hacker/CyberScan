@@ -1,0 +1,5 @@
+{"python_to_qapp_ms": 374, "import_qt_app_ms": 7677, "construct_and_show_ms": 2764, "total_ms": 10814}
+{"python_to_qapp_ms": 320, "import_qt_app_ms": 5741, "construct_and_show_ms": 3167, "total_ms": 9227}
+{"python_to_qapp_ms": 310, "import_qt_app_ms": 6434, "construct_and_show_ms": 2962, "total_ms": 9707}
+{"lang": "en", "positions": [0, 680, 940], "max": 1397, "results_visible": true}
+{"lang": "ar", "positions": [0, 680, 940], "max": 1397, "results_visible": true}

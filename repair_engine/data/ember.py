@@ -96,7 +96,8 @@ def _shrink(path: Path, rows: int, dim: int) -> None:
     trimmed = path.with_name(path.stem + ".trim.npy")
     out = np.lib.format.open_memmap(trimmed, mode="w+", dtype=np.float32, shape=(rows, dim))
     for start in range(0, rows, 50_000):
-        out[start:start + 50_000] = full[start:start + 50_000]
+        end = min(start + 50_000, rows)  # the source has more rows than are kept: stop at the last kept one
+        out[start:end] = full[start:end]
     out.flush()
     del out, full
     trimmed.replace(path)

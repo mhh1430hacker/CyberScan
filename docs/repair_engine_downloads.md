@@ -1,5 +1,10 @@
 # Repair engine — Phase 1 downloads: PAUSED
 
+**Resumed and paused again:** 2026-11-04 (steps `ember sorel` only; stopped by request).
+`Win64_test.zip` reached its full size (1,122 MB, no longer `.part`), but the run was
+stopped before its SHA-256 check was logged: the next resume re-checks it before use.
+SOREL had not started. Free on C: at this pause: about 17 GB.
+
 **Paused:** 2026-11-01 21:03 (by request, to move on to the next phases).
 **Data folder:** `C:\CyberScanData` (outside the repo; `samples\` denies execute to Everyone).
 **Free on C: at pause:** 27 GB. **Measured line speed:** ~0.16–0.6 MB/s total
@@ -32,7 +37,7 @@ Tags: `[DONE]` finished and verified · `[PARTIAL]` part file on disk ·
 | `[PARTIAL]` | ClamAV `clamav-1.5.4.win.x64.zip` (GitHub Cisco-Talos release) | 225.8 MB | release SHA-256 `0d9e0228…c395` | 211.8 / 225.8 MB in `downloads\` |
 | `[PENDING]` | YARA Forge `yara-forge-rules-core.zip` (release 20261101) | 1.7 MB | release SHA-256 `c6d6915f…783b` | — |
 | `[PENDING]` | ClamAV signatures via `freshclam` | ~300 MB | ClamAV's own signed CVDs | — |
-| `[PARTIAL]` | EMBER2024 `Win64_test.zip` (HF `joyce8/EMBER2024`) | 1.18 GB | HF LFS SHA-256 `52a5a05c…` | 43.0 MB / 1.18 GB |
+| `[DOWNLOADED]` | EMBER2024 `Win64_test.zip` (HF `joyce8/EMBER2024`) | 1.18 GB | HF LFS SHA-256 `52a5a05c…` | full size on disk; checksum not yet confirmed |
 | `[PENDING]` | EMBER2024 `PDF_train.zip`, `PDF_test.zip`, `ELF_train.zip`, `ELF_test.zip`, `challenge.zip` | 0.27 GB | HF LFS SHA-256 | — |
 | `[PENDING]` | EMBER2024 `Win64_train.zip` (vectorise 250k, then delete) | 5.85 GB | HF LFS SHA-256 `7b050100…` | — (step `ember_big`) |
 | `[PENDING]` | SOREL-20M `processed-data/meta.db` (keep 2,000 rows, then delete) | 3.79 GB | S3 multipart ETag `f1a8b94f…-452` | — |

@@ -1,0 +1,5301 @@
+{
+ "facts": {
+  "window_title": "CyberScan · Local threat analysis",
+  "minimum_size": [
+   880,
+   600
+  ],
+  "reduced_motion_effective": false,
+  "ar_failure_dialogs": [
+   {
+    "kind": "critical",
+    "title": "تعذر إكمال التحليل",
+    "text": "ValueError: File size 1880 exceeds the configured limit of 16 bytes",
+    "t": 168451.058
+   }
+  ]
+ },
+ "measurements": {
+  "startup": {
+   "import_qt_app_ms": 5843.8,
+   "construct_window_ms": 1923.2,
+   "construct_to_first_events_ms": 430.8,
+   "note": "in-process; excludes Python interpreter start. See startup_subprocess for cold runs."
+  },
+  "memory_after_start": {
+   "working_set_mb": 376.6,
+   "private_mb": 1241.8
+  }
+ },
+ "layout": {
+  "ar_idle_1440": {
+   "clipped": [],
+   "horizontal_scroll": [],
+   "beyond_window": []
+  },
+  "ar_result_pe": {
+   "clipped": [],
+   "horizontal_scroll": [],
+   "beyond_window": []
+  },
+  "ar_result_blob": {
+   "clipped": [],
+   "horizontal_scroll": [],
+   "beyond_window": []
+  },
+  "ar_result_arname": {
+   "clipped": [],
+   "horizontal_scroll": [],
+   "beyond_window": []
+  },
+  "ar_result_mixed": {
+   "clipped": [],
+   "horizontal_scroll": [],
+   "beyond_window": []
+  },
+  "ar_page_history": {
+   "clipped": [],
+   "horizontal_scroll": [],
+   "beyond_window": []
+  },
+  "ar_page_yara": {
+   "clipped": [],
+   "horizontal_scroll": [],
+   "beyond_window": []
+  },
+  "ar_page_mitre": {
+   "clipped": [],
+   "horizontal_scroll": [],
+   "beyond_window": []
+  },
+  "ar_page_model": {
+   "clipped": [],
+   "horizontal_scroll": [],
+   "beyond_window": []
+  },
+  "ar_page_logs": {
+   "clipped": [],
+   "horizontal_scroll": [],
+   "beyond_window": []
+  },
+  "ar_page_settings": {
+   "clipped": [],
+   "horizontal_scroll": [],
+   "beyond_window": []
+  },
+  "ar_page_about": {
+   "clipped": [],
+   "horizontal_scroll": [],
+   "beyond_window": []
+  },
+  "ar_widths": {
+   "idle_880": {
+    "clipped": [],
+    "horizontal_scroll": [],
+    "beyond_window": []
+   },
+   "idle_960": {
+    "clipped": [],
+    "horizontal_scroll": [],
+    "beyond_window": []
+   },
+   "idle_1000": {
+    "clipped": [],
+    "horizontal_scroll": [],
+    "beyond_window": []
+   },
+   "idle_1080": {
+    "clipped": [],
+    "horizontal_scroll": [],
+    "beyond_window": []
+   },
+   "idle_1200": {
+    "clipped": [],
+    "horizontal_scroll": [],
+    "beyond_window": []
+   },
+   "idle_1440": {
+    "clipped": [],
+    "horizontal_scroll": [],
+    "beyond_window": []
+   },
+   "idle_1920": {
+    "clipped": [],
+    "horizontal_scroll": [],
+    "beyond_window": []
+   },
+   "idle_880x600": {
+    "clipped": [],
+    "horizontal_scroll": [],
+    "beyond_window": []
+   },
+   "result_880": {
+    "clipped": [],
+    "horizontal_scroll": [
+     {
+      "area": "scroll",
+      "overflow_px": 74
+     }
+    ],
+    "beyond_window": []
+   },
+   "continuous_resize": {
+    "steps": 102,
+    "total_ms": 4883.7
+   }
+  },
+  "ar_large_text_1000": {
+   "clipped": [],
+   "horizontal_scroll": [],
+   "beyond_window": []
+  },
+  "ar_large_text_result": {
+   "clipped": [],
+   "horizontal_scroll": [],
+   "beyond_window": []
+  }
+ },
+ "text": {
+  "ar_idle": [
+   [
+    "QLabel",
+    "CYBERSCAN"
+   ],
+   [
+    "QLabel",
+    "مختبر أمني محلي"
+   ],
+   [
+    "QPushButton",
+    "تحليل جديد"
+   ],
+   [
+    "QPushButton.tooltip",
+    "بدء فحص جديد (Ctrl+1)"
+   ],
+   [
+    "QLabel",
+    "التحليل"
+   ],
+   [
+    "IconRailButton",
+    "  سجل الفحوص"
+   ],
+   [
+    "IconRailButton.tooltip",
+    "فتح سجل الفحوص"
+   ],
+   [
+    "QLabel",
+    "الأدلة"
+   ],
+   [
+    "IconRailButton",
+    "  YARA وPE"
+   ],
+   [
+    "IconRailButton.tooltip",
+    "فتح YARA وPE"
+   ],
+   [
+    "IconRailButton",
+    "  MITRE ATT&&CK"
+   ],
+   [
+    "IconRailButton.tooltip",
+    "فتح MITRE ATT&CK"
+   ],
+   [
+    "IconRailButton",
+    "  النموذج البنيوي"
+   ],
+   [
+    "IconRailButton.tooltip",
+    "فتح المصنف البنيوي"
+   ],
+   [
+    "QLabel",
+    "النظام"
+   ],
+   [
+    "IconRailButton",
+    "  السجل الزمني"
+   ],
+   [
+    "IconRailButton.tooltip",
+    "فتح سجل التدقيق"
+   ],
+   [
+    "IconRailButton",
+    "  الإعدادات"
+   ],
+   [
+    "IconRailButton.tooltip",
+    "فتح الإعدادات"
+   ],
+   [
+    "IconRailButton",
+    "  حول المشروع"
+   ],
+   [
+    "IconRailButton.tooltip",
+    "فتح حول المشروع"
+   ],
+   [
+    "QLabel",
+    "تحليل محلي · تُقرأ الأهداف ولا تُشغَّل أبدًا"
+   ],
+   [
+    "QLabel",
+    "اللغة"
+   ],
+   [
+    "QPushButton",
+    "الإنجليزية"
+   ],
+   [
+    "QLabel",
+    "جاهز"
+   ],
+   [
+    "QLabel.tooltip",
+    "محركات التحليل المحلية جاهزة لهدف جديد."
+   ],
+   [
+    "Chip",
+    "خصوصية افتراضية"
+   ],
+   [
+    "QLabel",
+    "افحص قبل أن تثق."
+   ],
+   [
+    "QLabel",
+    "افحص ملفًا أو رابطًا أو مؤشرًا بمحركات ساكنة محلية. تُقرأ الأهداف ولا تُشغَّل أبدًا."
+   ],
+   [
+    "QPushButton",
+    "ملف"
+   ],
+   [
+    "QPushButton",
+    "رابط"
+   ],
+   [
+    "QPushButton",
+    "مؤشر / نص"
+   ],
+   [
+    "ScanCore.accessibleName",
+    "Analysis status"
+   ],
+   [
+    "QLineEdit.placeholder",
+    "الصق مسار ملف أو اختر ملفًا محليًا…"
+   ],
+   [
+    "QLineEdit.tooltip",
+    "الصق هدفًا أو اسحب ملفًا إلى هنا. يُشغّل Enter التحليل."
+   ],
+   [
+    "QPushButton",
+    "اختر ملفًا…"
+   ],
+   [
+    "QPushButton.tooltip",
+    "اختيار ملف محلي عبر نافذة النظام (Ctrl+O)"
+   ],
+   [
+    "PrimaryButton",
+    "حلّل الهدف"
+   ],
+   [
+    "PrimaryButton.tooltip",
+    "بدء التحليل الساكن (Ctrl+Enter)"
+   ],
+   [
+    "QLabel",
+    "اسحب ملفًا إلى هذه النافذة، أو الصق مساره."
+   ],
+   [
+    "QLabel",
+    "Enter للتحليل · Ctrl+O لاختيار ملف"
+   ],
+   [
+    "QLabel",
+    "Enabled in Settings: Entropy · Heuristics · Structural model"
+   ],
+   [
+    "QLabel",
+    "الاستعلامات العامة متوقفة · لا يُرسل شيء من هذا الجهاز"
+   ],
+   [
+    "QLabel",
+    "مراقبة التنزيلات متوقفة"
+   ],
+   [
+    "QLabel",
+    "النشاط الأخير"
+   ],
+   [
+    "QLabel",
+    "3 فحوص محفوظة · على هذا الجهاز فقط"
+   ],
+   [
+    "QPushButton",
+    "فتح سجل الفحوص"
+   ],
+   [
+    "QLabel",
+    "▲ خطر مرتفع 1   ·   ◆ يحتاج إلى مراجعة 1   ·   ● منخفض المخاطر 1"
+   ],
+   [
+    "ActivityRow.accessibleName",
+    "<ui.home.ElidedLabel(0x161ff044c80, name=\"subtle\") at 0x00000161FDFE0380>: sample_2.bin"
+   ],
+   [
+    "QLabel",
+    "● منخفض المخاطر"
+   ],
+   [
+    "ElidedLabel",
+    "sample_2.bin"
+   ],
+   [
+    "ElidedLabel.tooltip",
+    "sample_2.bin"
+   ],
+   [
+    "ElidedLabel",
+    "ملف · 2026-10-03 10:02"
+   ],
+   [
+    "ElidedLabel.tooltip",
+    "ملف · 2026-10-03 10:02"
+   ],
+   [
+    "QLabel",
+    "14/100"
+   ],
+   [
+    "ActivityRow.accessibleName",
+    "<ui.home.ElidedLabel(0x161ff044e30, name=\"subtle\") at 0x00000161FDFE0800>: sample_1.bin"
+   ],
+   [
+    "QLabel",
+    "◆ يحتاج إلى مراجعة"
+   ],
+   [
+    "ElidedLabel",
+    "sample_1.bin"
+   ],
+   [
+    "ElidedLabel.tooltip",
+    "sample_1.bin"
+   ],
+   [
+    "ElidedLabel",
+    "ملف · 2026-10-02 10:01"
+   ],
+   [
+    "ElidedLabel.tooltip",
+    "ملف · 2026-10-02 10:01"
+   ],
+   [
+    "QLabel",
+    "7/100"
+   ],
+   [
+    "ActivityRow.accessibleName",
+    "<ui.home.ElidedLabel(0x161ff045850, name=\"subtle\") at 0x00000161FDFE0DC0>: sample_0.bin"
+   ],
+   [
+    "QLabel",
+    "▲ خطر مرتفع"
+   ],
+   [
+    "ElidedLabel",
+    "sample_0.bin"
+   ],
+   [
+    "ElidedLabel.tooltip",
+    "sample_0.bin"
+   ],
+   [
+    "ElidedLabel",
+    "ملف · 2026-10-01 10:00"
+   ],
+   [
+    "ElidedLabel.tooltip",
+    "ملف · 2026-10-01 10:00"
+   ],
+   [
+    "QLabel",
+    "0/100"
+   ]
+  ],
+  "ar_result_pe": [
+   [
+    "VerdictBadge.accessibleName",
+    "خطر مرتفع"
+   ],
+   [
+    "QLabel",
+    "C:\\Users\\mahdi\\AppData\\Local\\Temp\\claude\\c--Users-mahdi-Desktop-dist\\8b009106-27fa-4dc1-a7c2-da8cd64de35b\\scratchpad\\cs_audit__ll_rk_o\\samples\\invoice.pdf.exe"
+   ],
+   [
+    "QLabel",
+    "محركات غير متاحة: النموذج البنيوي"
+   ],
+   [
+    "QLabel",
+    "The supervised model requires reviewed examples for all three classes; no infection probability or automatic repair is claimed."
+   ],
+   [
+    "QLabel",
+    "100/100"
+   ],
+   [
+    "QLabel",
+    "مؤشر المخاطر · لا يمثل احتمالًا لوجود برمجية خبيثة"
+   ],
+   [
+    "QLabel",
+    "الأدلة"
+   ],
+   [
+    "QLabel",
+    "12"
+   ],
+   [
+    "QLabel",
+    "11 بخطورة متوسطة أو أعلى"
+   ],
+   [
+    "QLabel",
+    "أعلى خطورة"
+   ],
+   [
+    "QLabel",
+    "▲ مرتفعة"
+   ],
+   [
+    "QLabel",
+    "تقنيات ATT&CK"
+   ],
+   [
+    "QLabel",
+    "3"
+   ],
+   [
+    "QLabel",
+    "المحركات التي عملت"
+   ],
+   [
+    "QLabel",
+    "1 من 2"
+   ],
+   [
+    "QLabel",
+    "2 غير منطبق · 1 متوقف"
+   ],
+   [
+    "QLabel",
+    "أهم الأدلة"
+   ],
+   [
+    "QLabel",
+    "الأقوى أولًا"
+   ],
+   [
+    "QPushButton",
+    "عرض جميع الأدلة (12)"
+   ],
+   [
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: Double extension spoofing"
+   ],
+   [
+    "Chip",
+    "▲ مرتفعة"
+   ],
+   [
+    "QLabel",
+    "القواعد الاستدلالية"
+   ],
+   [
+    "QLabel",
+    "الوزن 55/100"
+   ],
+   [
+    "QLabel",
+    "Double extension spoofing"
+   ],
+   [
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: EncodedPowerShell"
+   ],
+   [
+    "Chip",
+    "▲ مرتفعة"
+   ],
+   [
+    "QLabel",
+    "قواعد التواقيع (YARA)"
+   ],
+   [
+    "QLabel",
+    "الوزن 50/100"
+   ],
+   [
+    "QLabel",
+    "EncodedPowerShell"
+   ],
+   [
+    "QLabel",
+    "Encoded PowerShell execution pattern"
+   ],
+   [
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: ShadowCopyDeletion"
+   ],
+   [
+    "Chip",
+    "▲ مرتفعة"
+   ],
+   [
+    "QLabel",
+    "قواعد التواقيع (YARA)"
+   ],
+   [
+    "QLabel",
+    "الوزن 50/100"
+   ],
+   [
+    "QLabel",
+    "ShadowCopyDeletion"
+   ],
+   [
+    "QLabel",
+    "Shadow copy deletion associated with ransomware behavior"
+   ],
+   [
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: SuspiciousProcessInjection"
+   ],
+   [
+    "Chip",
+    "▲ مرتفعة"
+   ],
+   [
+    "QLabel",
+    "قواعد التواقيع (YARA)"
+   ],
+   [
+    "QLabel",
+    "الوزن 50/100"
+   ],
+   [
+    "QLabel",
+    "SuspiciousProcessInjection"
+   ],
+   [
+    "QLabel",
+    "Memory and remote thread APIs associated with process injection"
+   ],
+   [
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: Encoded PowerShell execution"
+   ],
+   [
+    "Chip",
+    "▲ مرتفعة"
+   ],
+   [
+    "QLabel",
+    "القواعد الاستدلالية"
+   ],
+   [
+    "QLabel",
+    "الوزن 48/100"
+   ],
+   [
+    "QLabel",
+    "Encoded PowerShell execution"
+   ],
+   [
+    "QLabel",
+    "invoice.pdf.exe"
+   ],
+   [
+    "QLabel",
+    "ملف ⁨EXE⁩ · 59.2 KiB"
+   ],
+   [
+    "QLabel",
+    "SHA-256 6ccf20376d107a18…"
+   ],
+   [
+    "QLabel",
+    "المؤشرات حسب الفئة"
+   ],
+   [
+    "QLabel",
+    "عدد الأدلة"
+   ],
+   [
+    "QLabel",
+    "القواعد الاستدلالية"
+   ],
+   [
+    "QLabel",
+    "6"
+   ],
+   [
+    "QLabel",
+    "بنية الملف"
+   ],
+   [
+    "QLabel",
+    "3"
+   ],
+   [
+    "QLabel",
+    "قواعد التواقيع (YARA)"
+   ],
+   [
+    "QLabel",
+    "3"
+   ],
+   [
+    "QLabel",
+    "تغطية الفحص"
+   ],
+   [
+    "QWidget.tooltip",
+    "available; 1 rule(s) loaded"
+   ],
+   [
+    "QLabel",
+    "قواعد التواقيع (YARA)"
+   ],
+   [
+    "Chip",
+    "✓ نُفّذ"
+   ],
+   [
+    "QWidget.tooltip",
+    "not_pe"
+   ],
+   [
+    "QLabel",
+    "بنية الملف التنفيذي (PE)"
+   ],
+   [
+    "Chip",
+    "– غير منطبق"
+   ],
+   [
+    "QWidget.tooltip",
+    "Structural model rejected: Model not approved: No valid approved SHA-256 digest was supplied for this model. Static evidence remains active."
+   ],
+   [
+    "QLabel",
+    "النموذج البنيوي"
+   ],
+   [
+    "Chip",
+    "! غير متاح"
+   ],
+   [
+    "QWidget.tooltip",
+    "not a ZIP container"
+   ],
+   [
+    "QLabel",
+    "فحص الأرشيف"
+   ],
+   [
+    "Chip",
+    "– غير منطبق"
+   ],
+   [
+    "QWidget.tooltip",
+    "disabled"
+   ],
+   [
+    "QLabel",
+    "استخبارات التهديدات"
+   ],
+   [
+    "Chip",
+    "○ متوقف"
+   ],
+   [
+    "QPushButton",
+    "◂  معلومات الملف"
+   ],
+   [
+    "QPushButton.accessibleName",
+    "معلومات الملف"
+   ],
+   [
+    "QPushButton",
+    "◂  التفاصيل التقنية"
+   ],
+   [
+    "QPushButton.accessibleName",
+    "التفاصيل التقنية"
+   ],
+   [
+    "QPushButton",
+    "عرض التفاصيل التقنية"
+   ],
+   [
+    "QPushButton",
+    "تصدير التقرير"
+   ],
+   [
+    "QPushButton.tooltip",
+    "حفظ هذه النتيجة كتقرير نصي أو JSON"
+   ],
+   [
+    "QPushButton",
+    "فحص جديد"
+   ]
+  ],
+  "ar_technical": [
+   [
+    "VerdictBadge.accessibleName",
+    "خطر مرتفع"
+   ],
+   [
+    "QLabel",
+    "C:\\Users\\mahdi\\AppData\\Local\\Temp\\claude\\c--Users-mahdi-Desktop-dist\\8b009106-27fa-4dc1-a7c2-da8cd64de35b\\scratchpad\\cs_audit__ll_rk_o\\samples\\invoice.pdf.exe"
+   ],
+   [
+    "QLabel",
+    "محركات غير متاحة: النموذج البنيوي"
+   ],
+   [
+    "QLabel",
+    "The supervised model requires reviewed examples for all three classes; no infection probability or automatic repair is claimed."
+   ],
+   [
+    "QLabel",
+    "100/100"
+   ],
+   [
+    "QLabel",
+    "مؤشر المخاطر · لا يمثل احتمالًا لوجود برمجية خبيثة"
+   ],
+   [
+    "QLabel",
+    "الأدلة"
+   ],
+   [
+    "QLabel",
+    "12"
+   ],
+   [
+    "QLabel",
+    "11 بخطورة متوسطة أو أعلى"
+   ],
+   [
+    "QLabel",
+    "أعلى خطورة"
+   ],
+   [
+    "QLabel",
+    "▲ مرتفعة"
+   ],
+   [
+    "QLabel",
+    "تقنيات ATT&CK"
+   ],
+   [
+    "QLabel",
+    "3"
+   ],
+   [
+    "QLabel",
+    "المحركات التي عملت"
+   ],
+   [
+    "QLabel",
+    "1 من 2"
+   ],
+   [
+    "QLabel",
+    "2 غير منطبق · 1 متوقف"
+   ],
+   [
+    "QLabel",
+    "أهم الأدلة"
+   ],
+   [
+    "QLabel",
+    "الأقوى أولًا"
+   ],
+   [
+    "QPushButton",
+    "عرض جميع الأدلة (12)"
+   ],
+   [
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: Double extension spoofing"
+   ],
+   [
+    "Chip",
+    "▲ مرتفعة"
+   ],
+   [
+    "QLabel",
+    "القواعد الاستدلالية"
+   ],
+   [
+    "QLabel",
+    "الوزن 55/100"
+   ],
+   [
+    "QLabel",
+    "Double extension spoofing"
+   ],
+   [
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: EncodedPowerShell"
+   ],
+   [
+    "Chip",
+    "▲ مرتفعة"
+   ],
+   [
+    "QLabel",
+    "قواعد التواقيع (YARA)"
+   ],
+   [
+    "QLabel",
+    "الوزن 50/100"
+   ],
+   [
+    "QLabel",
+    "EncodedPowerShell"
+   ],
+   [
+    "QLabel",
+    "Encoded PowerShell execution pattern"
+   ],
+   [
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: ShadowCopyDeletion"
+   ],
+   [
+    "Chip",
+    "▲ مرتفعة"
+   ],
+   [
+    "QLabel",
+    "قواعد التواقيع (YARA)"
+   ],
+   [
+    "QLabel",
+    "الوزن 50/100"
+   ],
+   [
+    "QLabel",
+    "ShadowCopyDeletion"
+   ],
+   [
+    "QLabel",
+    "Shadow copy deletion associated with ransomware behavior"
+   ],
+   [
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: SuspiciousProcessInjection"
+   ],
+   [
+    "Chip",
+    "▲ مرتفعة"
+   ],
+   [
+    "QLabel",
+    "قواعد التواقيع (YARA)"
+   ],
+   [
+    "QLabel",
+    "الوزن 50/100"
+   ],
+   [
+    "QLabel",
+    "SuspiciousProcessInjection"
+   ],
+   [
+    "QLabel",
+    "Memory and remote thread APIs associated with process injection"
+   ],
+   [
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: Encoded PowerShell execution"
+   ],
+   [
+    "Chip",
+    "▲ مرتفعة"
+   ],
+   [
+    "QLabel",
+    "القواعد الاستدلالية"
+   ],
+   [
+    "QLabel",
+    "الوزن 48/100"
+   ],
+   [
+    "QLabel",
+    "Encoded PowerShell execution"
+   ],
+   [
+    "QLabel",
+    "invoice.pdf.exe"
+   ],
+   [
+    "QLabel",
+    "ملف ⁨EXE⁩ · 59.2 KiB"
+   ],
+   [
+    "QLabel",
+    "SHA-256 6ccf20376d107a18…"
+   ],
+   [
+    "QLabel",
+    "المؤشرات حسب الفئة"
+   ],
+   [
+    "QLabel",
+    "عدد الأدلة"
+   ],
+   [
+    "QLabel",
+    "القواعد الاستدلالية"
+   ],
+   [
+    "QLabel",
+    "6"
+   ],
+   [
+    "QLabel",
+    "بنية الملف"
+   ],
+   [
+    "QLabel",
+    "3"
+   ],
+   [
+    "QLabel",
+    "قواعد التواقيع (YARA)"
+   ],
+   [
+    "QLabel",
+    "3"
+   ],
+   [
+    "QLabel",
+    "تغطية الفحص"
+   ],
+   [
+    "QWidget.tooltip",
+    "available; 1 rule(s) loaded"
+   ],
+   [
+    "QLabel",
+    "قواعد التواقيع (YARA)"
+   ],
+   [
+    "Chip",
+    "✓ نُفّذ"
+   ],
+   [
+    "QWidget.tooltip",
+    "not_pe"
+   ],
+   [
+    "QLabel",
+    "بنية الملف التنفيذي (PE)"
+   ],
+   [
+    "Chip",
+    "– غير منطبق"
+   ],
+   [
+    "QWidget.tooltip",
+    "Structural model rejected: Model not approved: No valid approved SHA-256 digest was supplied for this model. Static evidence remains active."
+   ],
+   [
+    "QLabel",
+    "النموذج البنيوي"
+   ],
+   [
+    "Chip",
+    "! غير متاح"
+   ],
+   [
+    "QWidget.tooltip",
+    "not a ZIP container"
+   ],
+   [
+    "QLabel",
+    "فحص الأرشيف"
+   ],
+   [
+    "Chip",
+    "– غير منطبق"
+   ],
+   [
+    "QWidget.tooltip",
+    "disabled"
+   ],
+   [
+    "QLabel",
+    "استخبارات التهديدات"
+   ],
+   [
+    "Chip",
+    "○ متوقف"
+   ],
+   [
+    "QPushButton",
+    "◂  معلومات الملف"
+   ],
+   [
+    "QPushButton.accessibleName",
+    "معلومات الملف"
+   ],
+   [
+    "QPushButton",
+    "▾  التفاصيل التقنية"
+   ],
+   [
+    "QPushButton.accessibleName",
+    "التفاصيل التقنية"
+   ],
+   [
+    "QTab",
+    "الأدلة"
+   ],
+   [
+    "QTab",
+    "البنية"
+   ],
+   [
+    "QTab",
+    "النتائج"
+   ],
+   [
+    "QTab",
+    "المحركات"
+   ],
+   [
+    "QTab",
+    "الاستخبارات"
+   ],
+   [
+    "QTab",
+    "التقرير"
+   ],
+   [
+    "QPlainTextEdit",
+    "[HIGH] Double extension\nA misleading file name attempts to hide an executable payload behind a benign extension.\n\n[MEDIUM] Executable extension\nThe file extension is associated with executable content.\n\n[HIGH] EncodedPowerShell\nEncoded PowerShell execution pattern\n\n[HIGH] SuspiciousProcessInjection\n"
+   ],
+   [
+    "QLabel",
+    "Phase 1: Byte-stream baseline for invoice.pdf.exe covered 60617 bytes across 57 entropy windows; mean entropy was 0.020/8 and peak entropy was 1.165/8.\nPhase 2: The measured byte stream is predominantly low-entropy; no sharp entropy boundary met the discontinuity threshold.\nPhase 3: Static x86-32 decoding yielded 60315 instructions, 54 basic blocks, and cyclomatic complexity 21.\nPhase 4: Structural heuristics identified NOP_SLED. These are indicators for review, not proof of malicious behavior.\nPhase 5: The deterministic composite analysis score is 24.29/100 (lower indicator level); it is a static-analysis heuristic, not a probability of malware."
+   ],
+   [
+    "QLabel",
+    "Risk index"
+   ],
+   [
+    "QLabel",
+    "100/100"
+   ],
+   [
+    "QLabel",
+    "File size"
+   ],
+   [
+    "QLabel",
+    "59.2 KiB"
+   ],
+   [
+    "QLabel",
+    "Mean entropy"
+   ],
+   [
+    "QLabel",
+    "0.02/8"
+   ],
+   [
+    "QLabel",
+    "CFG complexity"
+   ],
+   [
+    "QLabel",
+    "21"
+   ],
+   [
+    "QPushButton",
+    "إخفاء التفاصيل التقنية"
+   ],
+   [
+    "QPushButton",
+    "تصدير التقرير"
+   ],
+   [
+    "QPushButton.tooltip",
+    "حفظ هذه النتيجة كتقرير نصي أو JSON"
+   ],
+   [
+    "QPushButton",
+    "فحص جديد"
+   ]
+  ],
+  "ar_result_blob": [
+   [
+    "VerdictBadge.accessibleName",
+    "يحتاج إلى مراجعة"
+   ],
+   [
+    "QLabel",
+    "C:\\Users\\mahdi\\AppData\\Local\\Temp\\claude\\c--Users-mahdi-Desktop-dist\\8b009106-27fa-4dc1-a7c2-da8cd64de35b\\scratchpad\\cs_audit__ll_rk_o\\samples\\archive_blob.bin"
+   ],
+   [
+    "QLabel",
+    "محركات غير متاحة: النموذج البنيوي"
+   ],
+   [
+    "QLabel",
+    "The supervised model requires reviewed examples for all three classes; no infection probability or automatic repair is claimed."
+   ],
+   [
+    "QLabel",
+    "18/100"
+   ],
+   [
+    "QLabel",
+    "مؤشر المخاطر · لا يمثل احتمالًا لوجود برمجية خبيثة"
+   ],
+   [
+    "QLabel",
+    "الأدلة"
+   ],
+   [
+    "QLabel",
+    "2"
+   ],
+   [
+    "QLabel",
+    "2 بخطورة متوسطة أو أعلى"
+   ],
+   [
+    "QLabel",
+    "أعلى خطورة"
+   ],
+   [
+    "QLabel",
+    "◆ متوسطة"
+   ],
+   [
+    "QLabel",
+    "تقنيات ATT&CK"
+   ],
+   [
+    "QLabel",
+    "1"
+   ],
+   [
+    "QLabel",
+    "المحركات التي عملت"
+   ],
+   [
+    "QLabel",
+    "1 من 2"
+   ],
+   [
+    "QLabel",
+    "2 غير منطبق · 1 متوقف"
+   ],
+   [
+    "QLabel",
+    "أهم الأدلة"
+   ],
+   [
+    "QLabel",
+    "الأقوى أولًا"
+   ],
+   [
+    "FindingCard.accessibleName",
+    "◆ متوسطة: High entropy"
+   ],
+   [
+    "Chip",
+    "◆ متوسطة"
+   ],
+   [
+    "QLabel",
+    "الإنتروبيا والإحصاءات"
+   ],
+   [
+    "QLabel",
+    "الوزن 18/100"
+   ],
+   [
+    "QLabel",
+    "High entropy"
+   ],
+   [
+    "QLabel",
+    "The content deviates from typical low-entropy file data and may indicate packing or obfuscation."
+   ],
+   [
+    "FindingCard.accessibleName",
+    "◆ متوسطة: Static decoding indicator"
+   ],
+   [
+    "Chip",
+    "◆ متوسطة"
+   ],
+   [
+    "QLabel",
+    "بنية الملف"
+   ],
+   [
+    "QLabel",
+    "الوزن 15/100"
+   ],
+   [
+    "QLabel",
+    "Static decoding indicator"
+   ],
+   [
+    "QLabel",
+    "ANTI_DISASSEMBLY_GAP"
+   ],
+   [
+    "QLabel",
+    "archive_blob.bin"
+   ],
+   [
+    "QLabel",
+    "ملف ⁨BIN⁩ · 390.6 KiB"
+   ],
+   [
+    "QLabel",
+    "SHA-256 0e14df39e171c55d…"
+   ],
+   [
+    "QLabel",
+    "المؤشرات حسب الفئة"
+   ],
+   [
+    "QLabel",
+    "عدد الأدلة"
+   ],
+   [
+    "QLabel",
+    "الإنتروبيا والإحصاءات"
+   ],
+   [
+    "QLabel",
+    "1"
+   ],
+   [
+    "QLabel",
+    "بنية الملف"
+   ],
+   [
+    "QLabel",
+    "1"
+   ],
+   [
+    "QLabel",
+    "تغطية الفحص"
+   ],
+   [
+    "QWidget.tooltip",
+    "available; 1 rule(s) loaded"
+   ],
+   [
+    "QLabel",
+    "قواعد التواقيع (YARA)"
+   ],
+   [
+    "Chip",
+    "✓ نُفّذ"
+   ],
+   [
+    "QWidget.tooltip",
+    "not_pe"
+   ],
+   [
+    "QLabel",
+    "بنية الملف التنفيذي (PE)"
+   ],
+   [
+    "Chip",
+    "– غير منطبق"
+   ],
+   [
+    "QWidget.tooltip",
+    "Structural model rejected: Model not approved: No valid approved SHA-256 digest was supplied for this model. Static evidence remains active."
+   ],
+   [
+    "QLabel",
+    "النموذج البنيوي"
+   ],
+   [
+    "Chip",
+    "! غير متاح"
+   ],
+   [
+    "QWidget.tooltip",
+    "not a ZIP container"
+   ],
+   [
+    "QLabel",
+    "فحص الأرشيف"
+   ],
+   [
+    "Chip",
+    "– غير منطبق"
+   ],
+   [
+    "QWidget.tooltip",
+    "disabled"
+   ],
+   [
+    "QLabel",
+    "استخبارات التهديدات"
+   ],
+   [
+    "Chip",
+    "○ متوقف"
+   ],
+   [
+    "QPushButton",
+    "◂  معلومات الملف"
+   ],
+   [
+    "QPushButton.accessibleName",
+    "معلومات الملف"
+   ],
+   [
+    "QPushButton",
+    "◂  التفاصيل التقنية"
+   ],
+   [
+    "QPushButton.accessibleName",
+    "التفاصيل التقنية"
+   ],
+   [
+    "QPushButton",
+    "عرض التفاصيل التقنية"
+   ],
+   [
+    "QPushButton",
+    "تصدير التقرير"
+   ],
+   [
+    "QPushButton.tooltip",
+    "حفظ هذه النتيجة كتقرير نصي أو JSON"
+   ],
+   [
+    "QPushButton",
+    "فحص جديد"
+   ]
+  ],
+  "ar_result_arname": [
+   [
+    "VerdictBadge.accessibleName",
+    "خطر مرتفع"
+   ],
+   [
+    "QLabel",
+    "C:\\Users\\mahdi\\AppData\\Local\\Temp\\claude\\c--Users-mahdi-Desktop-dist\\8b009106-27fa-4dc1-a7c2-da8cd64de35b\\scratchpad\\cs_audit__ll_rk_o\\samples\\تقرير_الربع_الثالث_للحسابات_النهائية.pdf.exe"
+   ],
+   [
+    "QLabel",
+    "محركات غير متاحة: النموذج البنيوي"
+   ],
+   [
+    "QLabel",
+    "The supervised model requires reviewed examples for all three classes; no infection probability or automatic repair is claimed."
+   ],
+   [
+    "QLabel",
+    "100/100"
+   ],
+   [
+    "QLabel",
+    "مؤشر المخاطر · لا يمثل احتمالًا لوجود برمجية خبيثة"
+   ],
+   [
+    "QLabel",
+    "الأدلة"
+   ],
+   [
+    "QLabel",
+    "12"
+   ],
+   [
+    "QLabel",
+    "11 بخطورة متوسطة أو أعلى"
+   ],
+   [
+    "QLabel",
+    "أعلى خطورة"
+   ],
+   [
+    "QLabel",
+    "▲ مرتفعة"
+   ],
+   [
+    "QLabel",
+    "تقنيات ATT&CK"
+   ],
+   [
+    "QLabel",
+    "3"
+   ],
+   [
+    "QLabel",
+    "المحركات التي عملت"
+   ],
+   [
+    "QLabel",
+    "1 من 2"
+   ],
+   [
+    "QLabel",
+    "2 غير منطبق · 1 متوقف"
+   ],
+   [
+    "QLabel",
+    "أهم الأدلة"
+   ],
+   [
+    "QLabel",
+    "الأقوى أولًا"
+   ],
+   [
+    "QPushButton",
+    "عرض جميع الأدلة (12)"
+   ],
+   [
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: Double extension spoofing"
+   ],
+   [
+    "Chip",
+    "▲ مرتفعة"
+   ],
+   [
+    "QLabel",
+    "القواعد الاستدلالية"
+   ],
+   [
+    "QLabel",
+    "الوزن 55/100"
+   ],
+   [
+    "QLabel",
+    "Double extension spoofing"
+   ],
+   [
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: EncodedPowerShell"
+   ],
+   [
+    "Chip",
+    "▲ مرتفعة"
+   ],
+   [
+    "QLabel",
+    "قواعد التواقيع (YARA)"
+   ],
+   [
+    "QLabel",
+    "الوزن 50/100"
+   ],
+   [
+    "QLabel",
+    "EncodedPowerShell"
+   ],
+   [
+    "QLabel",
+    "Encoded PowerShell execution pattern"
+   ],
+   [
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: ShadowCopyDeletion"
+   ],
+   [
+    "Chip",
+    "▲ مرتفعة"
+   ],
+   [
+    "QLabel",
+    "قواعد التواقيع (YARA)"
+   ],
+   [
+    "QLabel",
+    "الوزن 50/100"
+   ],
+   [
+    "QLabel",
+    "ShadowCopyDeletion"
+   ],
+   [
+    "QLabel",
+    "Shadow copy deletion associated with ransomware behavior"
+   ],
+   [
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: SuspiciousProcessInjection"
+   ],
+   [
+    "Chip",
+    "▲ مرتفعة"
+   ],
+   [
+    "QLabel",
+    "قواعد التواقيع (YARA)"
+   ],
+   [
+    "QLabel",
+    "الوزن 50/100"
+   ],
+   [
+    "QLabel",
+    "SuspiciousProcessInjection"
+   ],
+   [
+    "QLabel",
+    "Memory and remote thread APIs associated with process injection"
+   ],
+   [
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: Encoded PowerShell execution"
+   ],
+   [
+    "Chip",
+    "▲ مرتفعة"
+   ],
+   [
+    "QLabel",
+    "القواعد الاستدلالية"
+   ],
+   [
+    "QLabel",
+    "الوزن 48/100"
+   ],
+   [
+    "QLabel",
+    "Encoded PowerShell execution"
+   ],
+   [
+    "QLabel",
+    "تقرير_الربع_الثالث_للحسابات_النهائية.pdf.exe"
+   ],
+   [
+    "QLabel",
+    "ملف ⁨EXE⁩ · 59.2 KiB"
+   ],
+   [
+    "QLabel",
+    "SHA-256 6ccf20376d107a18…"
+   ],
+   [
+    "QLabel",
+    "المؤشرات حسب الفئة"
+   ],
+   [
+    "QLabel",
+    "عدد الأدلة"
+   ],
+   [
+    "QLabel",
+    "القواعد الاستدلالية"
+   ],
+   [
+    "QLabel",
+    "6"
+   ],
+   [
+    "QLabel",
+    "بنية الملف"
+   ],
+   [
+    "QLabel",
+    "3"
+   ],
+   [
+    "QLabel",
+    "قواعد التواقيع (YARA)"
+   ],
+   [
+    "QLabel",
+    "3"
+   ],
+   [
+    "QLabel",
+    "تغطية الفحص"
+   ],
+   [
+    "QWidget.tooltip",
+    "available; 1 rule(s) loaded"
+   ],
+   [
+    "QLabel",
+    "قواعد التواقيع (YARA)"
+   ],
+   [
+    "Chip",
+    "✓ نُفّذ"
+   ],
+   [
+    "QWidget.tooltip",
+    "not_pe"
+   ],
+   [
+    "QLabel",
+    "بنية الملف التنفيذي (PE)"
+   ],
+   [
+    "Chip",
+    "– غير منطبق"
+   ],
+   [
+    "QWidget.tooltip",
+    "Structural model rejected: Model not approved: No valid approved SHA-256 digest was supplied for this model. Static evidence remains active."
+   ],
+   [
+    "QLabel",
+    "النموذج البنيوي"
+   ],
+   [
+    "Chip",
+    "! غير متاح"
+   ],
+   [
+    "QWidget.tooltip",
+    "not a ZIP container"
+   ],
+   [
+    "QLabel",
+    "فحص الأرشيف"
+   ],
+   [
+    "Chip",
+    "– غير منطبق"
+   ],
+   [
+    "QWidget.tooltip",
+    "disabled"
+   ],
+   [
+    "QLabel",
+    "استخبارات التهديدات"
+   ],
+   [
+    "Chip",
+    "○ متوقف"
+   ],
+   [
+    "QPushButton",
+    "◂  معلومات الملف"
+   ],
+   [
+    "QPushButton.accessibleName",
+    "معلومات الملف"
+   ],
+   [
+    "QPushButton",
+    "◂  التفاصيل التقنية"
+   ],
+   [
+    "QPushButton.accessibleName",
+    "التفاصيل التقنية"
+   ],
+   [
+    "QPushButton",
+    "عرض التفاصيل التقنية"
+   ],
+   [
+    "QPushButton",
+    "تصدير التقرير"
+   ],
+   [
+    "QPushButton.tooltip",
+    "حفظ هذه النتيجة كتقرير نصي أو JSON"
+   ],
+   [
+    "QPushButton",
+    "فحص جديد"
+   ]
+  ],
+  "ar_result_mixed": [
+   [
+    "VerdictBadge.accessibleName",
+    "يحتاج إلى مراجعة"
+   ],
+   [
+    "QLabel",
+    "C:\\Users\\mahdi\\AppData\\Local\\Temp\\claude\\c--Users-mahdi-Desktop-dist\\8b009106-27fa-4dc1-a7c2-da8cd64de35b\\scratchpad\\cs_audit__ll_rk_o\\samples\\Invoice فاتورة 2026 (final نهائي).docx"
+   ],
+   [
+    "QLabel",
+    "تغطية جزئية: Archive"
+   ],
+   [
+    "QLabel",
+    "The supervised model requires reviewed examples for all three classes; no infection probability or automatic repair is claimed."
+   ],
+   [
+    "QLabel",
+    "15/100"
+   ],
+   [
+    "QLabel",
+    "مؤشر المخاطر · لا يمثل احتمالًا لوجود برمجية خبيثة"
+   ],
+   [
+    "QLabel",
+    "الأدلة"
+   ],
+   [
+    "QLabel",
+    "2"
+   ],
+   [
+    "QLabel",
+    "1 بخطورة متوسطة أو أعلى"
+   ],
+   [
+    "QLabel",
+    "أعلى خطورة"
+   ],
+   [
+    "QLabel",
+    "◆ متوسطة"
+   ],
+   [
+    "QLabel",
+    "تقنيات ATT&CK"
+   ],
+   [
+    "QLabel",
+    "0"
+   ],
+   [
+    "QLabel",
+    "المحركات التي عملت"
+   ],
+   [
+    "QLabel",
+    "1 من 3"
+   ],
+   [
+    "QLabel",
+    "1 غير منطبق · 1 متوقف"
+   ],
+   [
+    "QLabel",
+    "أهم الأدلة"
+   ],
+   [
+    "QLabel",
+    "الأقوى أولًا"
+   ],
+   [
+    "FindingCard.accessibleName",
+    "◆ متوسطة: Static decoding indicator"
+   ],
+   [
+    "Chip",
+    "◆ متوسطة"
+   ],
+   [
+    "QLabel",
+    "بنية الملف"
+   ],
+   [
+    "QLabel",
+    "الوزن 15/100"
+   ],
+   [
+    "QLabel",
+    "Static decoding indicator"
+   ],
+   [
+    "QLabel",
+    "REPETITIVE_INSTRUCTION_SEQUENCE"
+   ],
+   [
+    "FindingCard.accessibleName",
+    "○ معلوماتية: ZIP structure: partial"
+   ],
+   [
+    "Chip",
+    "○ معلوماتية"
+   ],
+   [
+    "QLabel",
+    "أرشيف"
+   ],
+   [
+    "QLabel",
+    "ZIP structure: partial"
+   ],
+   [
+    "QLabel",
+    "Bounded inspection recorded 0 member(s) and 0 decompressed byte(s). Archive members were not independently scanned for malware."
+   ],
+   [
+    "QLabel",
+    "Invoice فاتورة 2026 (final نهائي).docx"
+   ],
+   [
+    "QLabel",
+    "ملف ⁨DOCX⁩ · 404 B"
+   ],
+   [
+    "QLabel",
+    "SHA-256 da6be7a89521ecb7…"
+   ],
+   [
+    "QLabel",
+    "المؤشرات حسب الفئة"
+   ],
+   [
+    "QLabel",
+    "عدد الأدلة"
+   ],
+   [
+    "QLabel",
+    "أرشيف"
+   ],
+   [
+    "QLabel",
+    "1"
+   ],
+   [
+    "QLabel",
+    "بنية الملف"
+   ],
+   [
+    "QLabel",
+    "1"
+   ],
+   [
+    "QLabel",
+    "تغطية الفحص"
+   ],
+   [
+    "QWidget.tooltip",
+    "available; 1 rule(s) loaded"
+   ],
+   [
+    "QLabel",
+    "قواعد التواقيع (YARA)"
+   ],
+   [
+    "Chip",
+    "✓ نُفّذ"
+   ],
+   [
+    "QWidget.tooltip",
+    "not_pe"
+   ],
+   [
+    "QLabel",
+    "بنية الملف التنفيذي (PE)"
+   ],
+   [
+    "Chip",
+    "– غير منطبق"
+   ],
+   [
+    "QWidget.tooltip",
+    "Structural model rejected: Model not approved: No valid approved SHA-256 digest was supplied for this model. Static evidence remains active."
+   ],
+   [
+    "QLabel",
+    "النموذج البنيوي"
+   ],
+   [
+    "Chip",
+    "! غير متاح"
+   ],
+   [
+    "QWidget.tooltip",
+    "bounded structure inspection; partial; 0 member(s); member contents not malware-scanned"
+   ],
+   [
+    "QLabel",
+    "فحص الأرشيف"
+   ],
+   [
+    "Chip",
+    "◐ جزئي"
+   ],
+   [
+    "QWidget.tooltip",
+    "disabled"
+   ],
+   [
+    "QLabel",
+    "استخبارات التهديدات"
+   ],
+   [
+    "Chip",
+    "○ متوقف"
+   ],
+   [
+    "QPushButton",
+    "◂  معلومات الملف"
+   ],
+   [
+    "QPushButton.accessibleName",
+    "معلومات الملف"
+   ],
+   [
+    "QPushButton",
+    "◂  التفاصيل التقنية"
+   ],
+   [
+    "QPushButton.accessibleName",
+    "التفاصيل التقنية"
+   ],
+   [
+    "QPushButton",
+    "عرض التفاصيل التقنية"
+   ],
+   [
+    "QPushButton",
+    "تصدير التقرير"
+   ],
+   [
+    "QPushButton.tooltip",
+    "حفظ هذه النتيجة كتقرير نصي أو JSON"
+   ],
+   [
+    "QPushButton",
+    "فحص جديد"
+   ]
+  ],
+  "ar_page_history": [
+   [
+    "QLabel",
+    "سجل الفحوص"
+   ],
+   [
+    "QLabel",
+    "تبقى الفحوصات والتقارير الناتجة على هذا الجهاز. إزالة سجل لا تحذف الهدف المفحوص."
+   ],
+   [
+    "QLineEdit.placeholder",
+    "ابحث باسم الملف أو البصمة أو النتيجة…"
+   ],
+   [
+    "QListItem",
+    "Invoice فاتورة 2026 (final نهائي).docx\nREVIEW · 15/100 · 2026-10-31 21:45"
+   ],
+   [
+    "QListItem",
+    "تقرير_الربع_الثالث_للحسابات_النهائية.pdf.exe\nSUSPICIOUS · 100/100 · 2026-10-31 21:44"
+   ],
+   [
+    "QListItem",
+    "archive_blob.bin\nREVIEW · 18/100 · 2026-10-31 21:44"
+   ],
+   [
+    "QListItem",
+    "invoice.pdf.exe\nSUSPICIOUS · 100/100 · 2026-10-31 21:44"
+   ],
+   [
+    "QListItem",
+    "sample_2.bin\nNO_INDICATORS_OBSERVED · 14/100 · 2026-10-03 10:02"
+   ],
+   [
+    "QPushButton",
+    "فتح التقرير"
+   ],
+   [
+    "QPushButton.tooltip",
+    "فتح تقرير JSON المحفوظ للفحص المحدد"
+   ],
+   [
+    "QPushButton",
+    "تصدير المحدد"
+   ],
+   [
+    "QPushButton.tooltip",
+    "حفظ التقرير المحدد بصيغة نص أو JSON"
+   ],
+   [
+    "QPushButton",
+    "إزالة من السجل"
+   ],
+   [
+    "QPushButton.tooltip",
+    "إزالة السجل المحفوظ وتقريره؛ يبقى الملف المفحوص"
+   ]
+  ],
+  "ar_page_yara": [
+   [
+    "QLabel",
+    "فحص YARA وPE"
+   ],
+   [
+    "QLabel",
+    "مطابقة للقراءة فقط وبيانات الملف التنفيذي من أحدث تحليل."
+   ],
+   [
+    "QPlainTextEdit",
+    "YARA status: available; 1 rule(s) loaded\nYARA matches: 0\nNo configured YARA rule matched this target."
+   ],
+   [
+    "QPlainTextEdit",
+    "PE status: not_pe\nIs PE: False\nPE sections: not available\nImported APIs: not available\nDetail: Not a valid PE binary or parsing failed: 'DOS Header magic not found.'"
+   ]
+  ],
+  "ar_page_mitre": [
+   [
+    "QLabel",
+    "مطابقة MITRE ATT&CK"
+   ],
+   [
+    "QLabel",
+    "تُستنتج مطابقة التقنيات من المؤشرات المرصودة ولا تثبت نشاط جهة مهاجمة."
+   ],
+   [
+    "QListItem",
+    "N/A · No mapped ATT&CK technique\nEvidence: "
+   ]
+  ],
+  "ar_page_model": [
+   [
+    "QLabel",
+    "المصنف البنيوي"
+   ],
+   [
+    "QLabel",
+    "غابة عشوائية مُراقبة بثلاث فئات فوق تمثيل حتمي ذي 4096 بُعدًا. الدرجات ليست احتمالات معايرة."
+   ],
+   [
+    "QPlainTextEdit",
+    "Model: supervised three-class Random Forest\nEmbedding: deterministic 4096-D structural representation\nTraining state: untrained\nPredicted class: not available\nUncalibrated class scores: not available\nUncalibrated infection score: None\nAutomated repair: not available; scores never authorize file chan"
+   ]
+  ],
+  "ar_page_logs": [
+   [
+    "QLabel",
+    "السجل الزمني"
+   ],
+   [
+    "QPushButton",
+    "مسح العرض"
+   ],
+   [
+    "QLabel",
+    "أحداث مؤرخة محليًا من الجلسة الحالية."
+   ],
+   [
+    "QPlainTextEdit",
+    "21:44:30  Analysis started in File mode: C:\\Users\\mahdi\\AppData\\Local\\Temp\\claude\\c--Users-mahdi-Desktop-dist\\8b009106-27fa-4dc1-a7c2-da8cd64de35b\\scratchpad\\cs_audit__ll_rk_o\\samples\\invoice.pdf.exe\n21:44:36  Analysis complete: SUSPICIOUS · risk index 100/100\n21:44:40  Analysis started in File mode"
+   ]
+  ],
+  "ar_page_settings": [
+   [
+    "QLabel",
+    "إعدادات التحليل"
+   ],
+   [
+    "QLabel",
+    "Saved · applied"
+   ],
+   [
+    "QLabel",
+    "اختر ما يمكن للمحلل المحلي فحصه أو مشاركته."
+   ],
+   [
+    "QLabel",
+    "الكشف"
+   ],
+   [
+    "QLabel",
+    "المحركات الساكنة المستخدمة في كل تحليل. تعطيل محرك يقلل التغطية ويُذكر في حالة المحركات بكل نتيجة."
+   ],
+   [
+    "QCheckBox",
+    "تحليل الإنتروبيا"
+   ],
+   [
+    "QCheckBox.tooltip",
+    "قياس إنتروبيا البايتات وانقطاعاتها"
+   ],
+   [
+    "QCheckBox",
+    "القواعد الاستدلالية"
+   ],
+   [
+    "QCheckBox.tooltip",
+    "تطبيق قواعد المؤشرات الساكنة والنصوص والروابط"
+   ],
+   [
+    "QCheckBox",
+    "تحليل المصنف البنيوي"
+   ],
+   [
+    "QCheckBox.tooltip",
+    "حساب التمثيل ذي 4096 بُعدًا واستخدام نموذج مدرّب إن وُجد"
+   ],
+   [
+    "QLabel",
+    "المراقبة"
+   ],
+   [
+    "QLabel",
+    "اختياري. يراقب مجلدًا ويحلل الملفات الجديدة بعد استقرارها. التحليل فقط؛ لا نقل ولا حجر ولا حذف."
+   ],
+   [
+    "QCheckBox",
+    "مراقبة مجلد التنزيلات"
+   ],
+   [
+    "QCheckBox.tooltip",
+    "فحص الملفات الجديدة في المجلد أدناه"
+   ],
+   [
+    "QLabel",
+    "المجلد المراقب"
+   ],
+   [
+    "QLineEdit.tooltip",
+    "المجلد المحلي المراقب عند تفعيل مراقبة التنزيلات"
+   ],
+   [
+    "QPushButton",
+    "استعراض…"
+   ],
+   [
+    "QPushButton.tooltip",
+    "اختر المجلد المراقب"
+   ],
+   [
+    "QLabel",
+    "الشبكة"
+   ],
+   [
+    "QLabel",
+    "الاستخبارات العامة معطلة افتراضيًا. تفعيلها يرسل الروابط أو النطاقات أو عناوين IP المدعومة أو بصمة SHA-256 لملف مفحوص إلى خدمات عامة. لا يُرفع محتوى الملفات المحلية. عدم وجود تطابق لا يثبت السلامة."
+   ],
+   [
+    "QCheckBox",
+    "إرسال المؤشرات إلى مصادر OSINT العامة"
+   ],
+   [
+    "QCheckBox.tooltip",
+    "السماح باستعلامات غير معيقة على مصادر عامة اختيارية"
+   ],
+   [
+    "QLabel",
+    "تأتي بيانات اعتماد المصادر من متغيرات البيئة: URLHAUS_API_KEY وOTX_API_KEY واختياريًا THREATFOX_API_KEY."
+   ],
+   [
+    "QLabel",
+    "إمكانية الوصول"
+   ],
+   [
+    "QLabel",
+    "تفضيلات الواجهة فقط. لا تؤثر في سلوك التحليل."
+   ],
+   [
+    "QCheckBox",
+    "تكبير النص وعناصر التحكم"
+   ],
+   [
+    "QCheckBox.tooltip",
+    "تكبير خط الواجهة وارتفاع عناصر التحكم"
+   ],
+   [
+    "QLabel",
+    "Enabled in Settings: Entropy · Heuristics · Structural model"
+   ],
+   [
+    "QPushButton",
+    "تطبيق الإعدادات"
+   ],
+   [
+    "QPushButton.tooltip",
+    "حفظ وتطبيق الإعدادات المعدلة أعلاه"
+   ]
+  ],
+  "ar_page_about": [
+   [
+    "QLabel",
+    "حول CyberScan"
+   ],
+   [
+    "QLabel",
+    "نموذج بحثي دفاعي · تحليل ساكن محلي"
+   ],
+   [
+    "QPlainTextEdit",
+    "CyberScan نموذج بحثي دفاعي للأمن السيبراني. يحلل الملفات والروابط والمؤشرات دون تشغيلها. أدلته ودرجات نموذجه أدوات تحقيق وليست إثباتًا لوجود برمجية خبيثة أو احتمالات معايرة. إسقاط 4096 بُعدًا حتمي وغير بلا فقدان. قد يخفي المحتوى المضغوط أو المشفر دلالاته. لا يوجد إصلاح أو حذف أو حجر تلقائي. الاستخبا"
+   ]
+  ],
+  "ar_history_details": [
+   [
+    "details",
+    "Target: C:\\Users\\mahdi\\AppData\\Local\\Temp\\claude\\c--Users-mahdi-Desktop-dist\\8b009106-27fa-4dc1-a7c2-da8cd64de35b\\scratchpad\\cs_audit__ll_rk_o\\samples\\Invoice فاتورة 2026 (final نهائي).docx\nSHA-256: da6be7a89521ecb7c8799dd318fbf21f27ea2ad075771b1e781d4f5d691075f1\nClassification: REVIEW\nRisk index: 15/100"
+   ]
+  ],
+  "arabic_latin_leaks": [
+   [
+    "ar_idle",
+    "IconRailButton",
+    "  MITRE ATT&&CK"
+   ],
+   [
+    "ar_idle",
+    "IconRailButton.tooltip",
+    "فتح MITRE ATT&CK"
+   ],
+   [
+    "ar_idle",
+    "ScanCore.accessibleName",
+    "Analysis status"
+   ],
+   [
+    "ar_idle",
+    "QLineEdit.tooltip",
+    "الصق هدفًا أو اسحب ملفًا إلى هنا. يُشغّل Enter التحليل."
+   ],
+   [
+    "ar_idle",
+    "PrimaryButton.tooltip",
+    "بدء التحليل الساكن (Ctrl+Enter)"
+   ],
+   [
+    "ar_idle",
+    "QLabel",
+    "Enter للتحليل · Ctrl+O لاختيار ملف"
+   ],
+   [
+    "ar_idle",
+    "QLabel",
+    "Enabled in Settings: Entropy · Heuristics · Structural model"
+   ],
+   [
+    "ar_idle",
+    "ActivityRow.accessibleName",
+    "<ui.home.ElidedLabel(0x161ff044c80, name=\"subtle\") at 0x00000161FDFE0380>: sample_2.bin"
+   ],
+   [
+    "ar_idle",
+    "ActivityRow.accessibleName",
+    "<ui.home.ElidedLabel(0x161ff044e30, name=\"subtle\") at 0x00000161FDFE0800>: sample_1.bin"
+   ],
+   [
+    "ar_idle",
+    "ActivityRow.accessibleName",
+    "<ui.home.ElidedLabel(0x161ff045850, name=\"subtle\") at 0x00000161FDFE0DC0>: sample_0.bin"
+   ],
+   [
+    "ar_result_pe",
+    "QLabel",
+    "The supervised model requires reviewed examples for all three classes; no infection probability or automatic repair is claimed."
+   ],
+   [
+    "ar_result_pe",
+    "QLabel",
+    "تقنيات ATT&CK"
+   ],
+   [
+    "ar_result_pe",
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: Double extension spoofing"
+   ],
+   [
+    "ar_result_pe",
+    "QLabel",
+    "Double extension spoofing"
+   ],
+   [
+    "ar_result_pe",
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: EncodedPowerShell"
+   ],
+   [
+    "ar_result_pe",
+    "QLabel",
+    "EncodedPowerShell"
+   ],
+   [
+    "ar_result_pe",
+    "QLabel",
+    "Encoded PowerShell execution pattern"
+   ],
+   [
+    "ar_result_pe",
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: ShadowCopyDeletion"
+   ],
+   [
+    "ar_result_pe",
+    "QLabel",
+    "ShadowCopyDeletion"
+   ],
+   [
+    "ar_result_pe",
+    "QLabel",
+    "Shadow copy deletion associated with ransomware behavior"
+   ],
+   [
+    "ar_result_pe",
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: SuspiciousProcessInjection"
+   ],
+   [
+    "ar_result_pe",
+    "QLabel",
+    "SuspiciousProcessInjection"
+   ],
+   [
+    "ar_result_pe",
+    "QLabel",
+    "Memory and remote thread APIs associated with process injection"
+   ],
+   [
+    "ar_result_pe",
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: Encoded PowerShell execution"
+   ],
+   [
+    "ar_result_pe",
+    "QLabel",
+    "Encoded PowerShell execution"
+   ],
+   [
+    "ar_result_pe",
+    "QLabel",
+    "ملف ⁨EXE⁩ · 59.2 KiB"
+   ],
+   [
+    "ar_result_pe",
+    "QLabel",
+    "SHA-256 6ccf20376d107a18…"
+   ],
+   [
+    "ar_result_pe",
+    "QWidget.tooltip",
+    "available; 1 rule(s) loaded"
+   ],
+   [
+    "ar_result_pe",
+    "QWidget.tooltip",
+    "not_pe"
+   ],
+   [
+    "ar_result_pe",
+    "QWidget.tooltip",
+    "Structural model rejected: Model not approved: No valid approved SHA-256 digest was supplied for this model. Static evidence remains active."
+   ],
+   [
+    "ar_result_pe",
+    "QWidget.tooltip",
+    "not a ZIP container"
+   ],
+   [
+    "ar_result_pe",
+    "QWidget.tooltip",
+    "disabled"
+   ],
+   [
+    "ar_technical",
+    "QLabel",
+    "The supervised model requires reviewed examples for all three classes; no infection probability or automatic repair is claimed."
+   ],
+   [
+    "ar_technical",
+    "QLabel",
+    "تقنيات ATT&CK"
+   ],
+   [
+    "ar_technical",
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: Double extension spoofing"
+   ],
+   [
+    "ar_technical",
+    "QLabel",
+    "Double extension spoofing"
+   ],
+   [
+    "ar_technical",
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: EncodedPowerShell"
+   ],
+   [
+    "ar_technical",
+    "QLabel",
+    "EncodedPowerShell"
+   ],
+   [
+    "ar_technical",
+    "QLabel",
+    "Encoded PowerShell execution pattern"
+   ],
+   [
+    "ar_technical",
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: ShadowCopyDeletion"
+   ],
+   [
+    "ar_technical",
+    "QLabel",
+    "ShadowCopyDeletion"
+   ],
+   [
+    "ar_technical",
+    "QLabel",
+    "Shadow copy deletion associated with ransomware behavior"
+   ],
+   [
+    "ar_technical",
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: SuspiciousProcessInjection"
+   ],
+   [
+    "ar_technical",
+    "QLabel",
+    "SuspiciousProcessInjection"
+   ],
+   [
+    "ar_technical",
+    "QLabel",
+    "Memory and remote thread APIs associated with process injection"
+   ],
+   [
+    "ar_technical",
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: Encoded PowerShell execution"
+   ],
+   [
+    "ar_technical",
+    "QLabel",
+    "Encoded PowerShell execution"
+   ],
+   [
+    "ar_technical",
+    "QLabel",
+    "ملف ⁨EXE⁩ · 59.2 KiB"
+   ],
+   [
+    "ar_technical",
+    "QLabel",
+    "SHA-256 6ccf20376d107a18…"
+   ],
+   [
+    "ar_technical",
+    "QWidget.tooltip",
+    "available; 1 rule(s) loaded"
+   ],
+   [
+    "ar_technical",
+    "QWidget.tooltip",
+    "not_pe"
+   ],
+   [
+    "ar_technical",
+    "QWidget.tooltip",
+    "Structural model rejected: Model not approved: No valid approved SHA-256 digest was supplied for this model. Static evidence remains active."
+   ],
+   [
+    "ar_technical",
+    "QWidget.tooltip",
+    "not a ZIP container"
+   ],
+   [
+    "ar_technical",
+    "QWidget.tooltip",
+    "disabled"
+   ],
+   [
+    "ar_technical",
+    "QPlainTextEdit",
+    "[HIGH] Double extension\nA misleading file name attempts to hide an executable payload behind a benign extension.\n\n[MEDIUM] Executable extension\nThe file extensi"
+   ],
+   [
+    "ar_technical",
+    "QLabel",
+    "Phase 1: Byte-stream baseline for invoice.pdf.exe covered 60617 bytes across 57 entropy windows; mean entropy was 0.020/8 and peak entropy was 1.165/8.\nPhase 2:"
+   ],
+   [
+    "ar_technical",
+    "QLabel",
+    "Risk index"
+   ],
+   [
+    "ar_technical",
+    "QLabel",
+    "File size"
+   ],
+   [
+    "ar_technical",
+    "QLabel",
+    "59.2 KiB"
+   ],
+   [
+    "ar_technical",
+    "QLabel",
+    "Mean entropy"
+   ],
+   [
+    "ar_technical",
+    "QLabel",
+    "CFG complexity"
+   ],
+   [
+    "ar_result_blob",
+    "QLabel",
+    "The supervised model requires reviewed examples for all three classes; no infection probability or automatic repair is claimed."
+   ],
+   [
+    "ar_result_blob",
+    "QLabel",
+    "تقنيات ATT&CK"
+   ],
+   [
+    "ar_result_blob",
+    "FindingCard.accessibleName",
+    "◆ متوسطة: High entropy"
+   ],
+   [
+    "ar_result_blob",
+    "QLabel",
+    "High entropy"
+   ],
+   [
+    "ar_result_blob",
+    "QLabel",
+    "The content deviates from typical low-entropy file data and may indicate packing or obfuscation."
+   ],
+   [
+    "ar_result_blob",
+    "FindingCard.accessibleName",
+    "◆ متوسطة: Static decoding indicator"
+   ],
+   [
+    "ar_result_blob",
+    "QLabel",
+    "Static decoding indicator"
+   ],
+   [
+    "ar_result_blob",
+    "QLabel",
+    "ANTI_DISASSEMBLY_GAP"
+   ],
+   [
+    "ar_result_blob",
+    "QLabel",
+    "ملف ⁨BIN⁩ · 390.6 KiB"
+   ],
+   [
+    "ar_result_blob",
+    "QLabel",
+    "SHA-256 0e14df39e171c55d…"
+   ],
+   [
+    "ar_result_blob",
+    "QWidget.tooltip",
+    "available; 1 rule(s) loaded"
+   ],
+   [
+    "ar_result_blob",
+    "QWidget.tooltip",
+    "not_pe"
+   ],
+   [
+    "ar_result_blob",
+    "QWidget.tooltip",
+    "Structural model rejected: Model not approved: No valid approved SHA-256 digest was supplied for this model. Static evidence remains active."
+   ],
+   [
+    "ar_result_blob",
+    "QWidget.tooltip",
+    "not a ZIP container"
+   ],
+   [
+    "ar_result_blob",
+    "QWidget.tooltip",
+    "disabled"
+   ],
+   [
+    "ar_result_arname",
+    "QLabel",
+    "The supervised model requires reviewed examples for all three classes; no infection probability or automatic repair is claimed."
+   ],
+   [
+    "ar_result_arname",
+    "QLabel",
+    "تقنيات ATT&CK"
+   ],
+   [
+    "ar_result_arname",
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: Double extension spoofing"
+   ],
+   [
+    "ar_result_arname",
+    "QLabel",
+    "Double extension spoofing"
+   ],
+   [
+    "ar_result_arname",
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: EncodedPowerShell"
+   ],
+   [
+    "ar_result_arname",
+    "QLabel",
+    "EncodedPowerShell"
+   ],
+   [
+    "ar_result_arname",
+    "QLabel",
+    "Encoded PowerShell execution pattern"
+   ],
+   [
+    "ar_result_arname",
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: ShadowCopyDeletion"
+   ],
+   [
+    "ar_result_arname",
+    "QLabel",
+    "ShadowCopyDeletion"
+   ],
+   [
+    "ar_result_arname",
+    "QLabel",
+    "Shadow copy deletion associated with ransomware behavior"
+   ],
+   [
+    "ar_result_arname",
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: SuspiciousProcessInjection"
+   ],
+   [
+    "ar_result_arname",
+    "QLabel",
+    "SuspiciousProcessInjection"
+   ],
+   [
+    "ar_result_arname",
+    "QLabel",
+    "Memory and remote thread APIs associated with process injection"
+   ],
+   [
+    "ar_result_arname",
+    "FindingCard.accessibleName",
+    "▲ مرتفعة: Encoded PowerShell execution"
+   ],
+   [
+    "ar_result_arname",
+    "QLabel",
+    "Encoded PowerShell execution"
+   ],
+   [
+    "ar_result_arname",
+    "QLabel",
+    "ملف ⁨EXE⁩ · 59.2 KiB"
+   ],
+   [
+    "ar_result_arname",
+    "QLabel",
+    "SHA-256 6ccf20376d107a18…"
+   ],
+   [
+    "ar_result_arname",
+    "QWidget.tooltip",
+    "available; 1 rule(s) loaded"
+   ],
+   [
+    "ar_result_arname",
+    "QWidget.tooltip",
+    "not_pe"
+   ],
+   [
+    "ar_result_arname",
+    "QWidget.tooltip",
+    "Structural model rejected: Model not approved: No valid approved SHA-256 digest was supplied for this model. Static evidence remains active."
+   ],
+   [
+    "ar_result_arname",
+    "QWidget.tooltip",
+    "not a ZIP container"
+   ],
+   [
+    "ar_result_arname",
+    "QWidget.tooltip",
+    "disabled"
+   ],
+   [
+    "ar_result_mixed",
+    "QLabel",
+    "C:\\Users\\mahdi\\AppData\\Local\\Temp\\claude\\c--Users-mahdi-Desktop-dist\\8b009106-27fa-4dc1-a7c2-da8cd64de35b\\scratchpad\\cs_audit__ll_rk_o\\samples\\Invoice فاتورة 20"
+   ],
+   [
+    "ar_result_mixed",
+    "QLabel",
+    "تغطية جزئية: Archive"
+   ],
+   [
+    "ar_result_mixed",
+    "QLabel",
+    "The supervised model requires reviewed examples for all three classes; no infection probability or automatic repair is claimed."
+   ],
+   [
+    "ar_result_mixed",
+    "QLabel",
+    "تقنيات ATT&CK"
+   ],
+   [
+    "ar_result_mixed",
+    "FindingCard.accessibleName",
+    "◆ متوسطة: Static decoding indicator"
+   ],
+   [
+    "ar_result_mixed",
+    "QLabel",
+    "Static decoding indicator"
+   ],
+   [
+    "ar_result_mixed",
+    "QLabel",
+    "REPETITIVE_INSTRUCTION_SEQUENCE"
+   ],
+   [
+    "ar_result_mixed",
+    "FindingCard.accessibleName",
+    "○ معلوماتية: ZIP structure: partial"
+   ],
+   [
+    "ar_result_mixed",
+    "QLabel",
+    "ZIP structure: partial"
+   ],
+   [
+    "ar_result_mixed",
+    "QLabel",
+    "Bounded inspection recorded 0 member(s) and 0 decompressed byte(s). Archive members were not independently scanned for malware."
+   ],
+   [
+    "ar_result_mixed",
+    "QLabel",
+    "Invoice فاتورة 2026 (final نهائي).docx"
+   ],
+   [
+    "ar_result_mixed",
+    "QLabel",
+    "ملف ⁨DOCX⁩ · 404 B"
+   ],
+   [
+    "ar_result_mixed",
+    "QLabel",
+    "SHA-256 da6be7a89521ecb7…"
+   ],
+   [
+    "ar_result_mixed",
+    "QWidget.tooltip",
+    "available; 1 rule(s) loaded"
+   ],
+   [
+    "ar_result_mixed",
+    "QWidget.tooltip",
+    "not_pe"
+   ],
+   [
+    "ar_result_mixed",
+    "QWidget.tooltip",
+    "Structural model rejected: Model not approved: No valid approved SHA-256 digest was supplied for this model. Static evidence remains active."
+   ],
+   [
+    "ar_result_mixed",
+    "QWidget.tooltip",
+    "bounded structure inspection; partial; 0 member(s); member contents not malware-scanned"
+   ],
+   [
+    "ar_result_mixed",
+    "QWidget.tooltip",
+    "disabled"
+   ],
+   [
+    "ar_page_history",
+    "QListItem",
+    "Invoice فاتورة 2026 (final نهائي).docx\nREVIEW · 15/100 · 2026-10-31 21:45"
+   ],
+   [
+    "ar_page_history",
+    "QListItem",
+    "تقرير_الربع_الثالث_للحسابات_النهائية.pdf.exe\nSUSPICIOUS · 100/100 · 2026-10-31 21:44"
+   ],
+   [
+    "ar_page_history",
+    "QListItem",
+    "archive_blob.bin\nREVIEW · 18/100 · 2026-10-31 21:44"
+   ],
+   [
+    "ar_page_history",
+    "QListItem",
+    "invoice.pdf.exe\nSUSPICIOUS · 100/100 · 2026-10-31 21:44"
+   ],
+   [
+    "ar_page_history",
+    "QListItem",
+    "sample_2.bin\nNO_INDICATORS_OBSERVED · 14/100 · 2026-10-03 10:02"
+   ],
+   [
+    "ar_page_yara",
+    "QPlainTextEdit",
+    "YARA status: available; 1 rule(s) loaded\nYARA matches: 0\nNo configured YARA rule matched this target."
+   ],
+   [
+    "ar_page_yara",
+    "QPlainTextEdit",
+    "PE status: not_pe\nIs PE: False\nPE sections: not available\nImported APIs: not available\nDetail: Not a valid PE binary or parsing failed: 'DOS Header magic not fo"
+   ],
+   [
+    "ar_page_mitre",
+    "QLabel",
+    "مطابقة MITRE ATT&CK"
+   ],
+   [
+    "ar_page_mitre",
+    "QListItem",
+    "N/A · No mapped ATT&CK technique\nEvidence: "
+   ],
+   [
+    "ar_page_model",
+    "QPlainTextEdit",
+    "Model: supervised three-class Random Forest\nEmbedding: deterministic 4096-D structural representation\nTraining state: untrained\nPredicted class: not available\nU"
+   ],
+   [
+    "ar_page_logs",
+    "QPlainTextEdit",
+    "21:44:30  Analysis started in File mode: C:\\Users\\mahdi\\AppData\\Local\\Temp\\claude\\c--Users-mahdi-Desktop-dist\\8b009106-27fa-4dc1-a7c2-da8cd64de35b\\scratchpad\\cs"
+   ],
+   [
+    "ar_page_settings",
+    "QLabel",
+    "Saved · applied"
+   ],
+   [
+    "ar_page_settings",
+    "QLabel",
+    "الاستخبارات العامة معطلة افتراضيًا. تفعيلها يرسل الروابط أو النطاقات أو عناوين IP المدعومة أو بصمة SHA-256 لملف مفحوص إلى خدمات عامة. لا يُرفع محتوى الملفات الم"
+   ],
+   [
+    "ar_page_settings",
+    "QLabel",
+    "Enabled in Settings: Entropy · Heuristics · Structural model"
+   ],
+   [
+    "ar_history_details",
+    "details",
+    "Target: C:\\Users\\mahdi\\AppData\\Local\\Temp\\claude\\c--Users-mahdi-Desktop-dist\\8b009106-27fa-4dc1-a7c2-da8cd64de35b\\scratchpad\\cs_audit__ll_rk_o\\samples\\Invoice ف"
+   ]
+  ]
+ },
+ "keyboard": {
+  "idle_chain": [
+   {
+    "class": "QPushButton",
+    "name": "railButton",
+    "label": "تحليل جديد",
+    "x": 1222,
+    "y": 86
+   },
+   {
+    "class": "IconRailButton",
+    "name": "railButton",
+    "label": "  سجل الفحوص",
+    "x": 1222,
+    "y": 163
+   },
+   {
+    "class": "IconRailButton",
+    "name": "railButton",
+    "label": "  YARA وPE",
+    "x": 1222,
+    "y": 240
+   },
+   {
+    "class": "IconRailButton",
+    "name": "railButton",
+    "label": "  MITRE ATT&&CK",
+    "x": 1222,
+    "y": 284
+   },
+   {
+    "class": "IconRailButton",
+    "name": "railButton",
+    "label": "  النموذج البنيوي",
+    "x": 1222,
+    "y": 328
+   },
+   {
+    "class": "IconRailButton",
+    "name": "railButton",
+    "label": "  السجل الزمني",
+    "x": 1222,
+    "y": 405
+   },
+   {
+    "class": "IconRailButton",
+    "name": "railButton",
+    "label": "  الإعدادات",
+    "x": 1222,
+    "y": 449
+   },
+   {
+    "class": "IconRailButton",
+    "name": "railButton",
+    "label": "  حول المشروع",
+    "x": 1222,
+    "y": 493
+   },
+   {
+    "class": "QPushButton",
+    "name": "quiet",
+    "label": "الإنجليزية",
+    "x": 1222,
+    "y": 848
+   },
+   {
+    "class": "QScrollArea",
+    "name": "",
+    "label": "",
+    "x": 24,
+    "y": 79
+   },
+   {
+    "class": "QPushButton",
+    "name": "modeChip",
+    "label": "ملف",
+    "x": 1022,
+    "y": 318
+   },
+   {
+    "class": "QPushButton",
+    "name": "modeChip",
+    "label": "رابط",
+    "x": 892,
+    "y": 318
+   },
+   {
+    "class": "QPushButton",
+    "name": "modeChip",
+    "label": "مؤشر / نص",
+    "x": 762,
+    "y": 318
+   },
+   {
+    "class": "QLineEdit",
+    "name": "targetEntry",
+    "label": "الصق مسار ملف أو اختر ملفًا محليًا…",
+    "x": 475,
+    "y": 456
+   },
+   {
+    "class": "QPushButton",
+    "name": "secondary",
+    "label": "اختر ملفًا…",
+    "x": 335,
+    "y": 468
+   },
+   {
+    "class": "PrimaryButton",
+    "name": "primary",
+    "label": "حلّل الهدف",
+    "x": 91,
+    "y": 469
+   }
+  ],
+  "idle_buttons_not_tab_reachable": [],
+  "idle_buttons_without_text_or_accessible_name": [],
+  "result_chain": [
+   {
+    "class": "QPushButton",
+    "name": "railButton",
+    "label": "تحليل جديد",
+    "x": 1222,
+    "y": 86
+   },
+   {
+    "class": "IconRailButton",
+    "name": "railButton",
+    "label": "  سجل الفحوص",
+    "x": 1222,
+    "y": 163
+   },
+   {
+    "class": "IconRailButton",
+    "name": "railButton",
+    "label": "  YARA وPE",
+    "x": 1222,
+    "y": 240
+   },
+   {
+    "class": "IconRailButton",
+    "name": "railButton",
+    "label": "  MITRE ATT&&CK",
+    "x": 1222,
+    "y": 284
+   },
+   {
+    "class": "IconRailButton",
+    "name": "railButton",
+    "label": "  النموذج البنيوي",
+    "x": 1222,
+    "y": 328
+   },
+   {
+    "class": "IconRailButton",
+    "name": "railButton",
+    "label": "  السجل الزمني",
+    "x": 1222,
+    "y": 405
+   },
+   {
+    "class": "IconRailButton",
+    "name": "railButton",
+    "label": "  الإعدادات",
+    "x": 1222,
+    "y": 449
+   },
+   {
+    "class": "IconRailButton",
+    "name": "railButton",
+    "label": "  حول المشروع",
+    "x": 1222,
+    "y": 493
+   },
+   {
+    "class": "QPushButton",
+    "name": "quiet",
+    "label": "الإنجليزية",
+    "x": 1222,
+    "y": 848
+   },
+   {
+    "class": "QScrollArea",
+    "name": "",
+    "label": "",
+    "x": 24,
+    "y": 79
+   },
+   {
+    "class": "QPushButton",
+    "name": "secondary",
+    "label": "فحص جديد",
+    "x": 60,
+    "y": 285
+   },
+   {
+    "class": "QPushButton",
+    "name": "quiet",
+    "label": "عرض جميع الأدلة (12)",
+    "x": 986,
+    "y": 1272
+   },
+   {
+    "class": "QPushButton",
+    "name": "sectionToggle",
+    "label": "◂  معلومات الملف",
+    "x": 55,
+    "y": 1386
+   },
+   {
+    "class": "QPushButton",
+    "name": "sectionToggle",
+    "label": "◂  التفاصيل التقنية",
+    "x": 55,
+    "y": 1454
+   },
+   {
+    "class": "QPushButton",
+    "name": "secondary",
+    "label": "عرض التفاصيل التقنية",
+    "x": 1000,
+    "y": 1522
+   },
+   {
+    "class": "QPushButton",
+    "name": "secondary",
+    "label": "تصدير التقرير",
+    "x": 189,
+    "y": 1522
+   },
+   {
+    "class": "QPushButton",
+    "name": "secondary",
+    "label": "فحص جديد",
+    "x": 55,
+    "y": 1522
+   },
+   {
+    "class": "QPushButton",
+    "name": "quiet",
+    "label": "فتح سجل الفحوص",
+    "x": 57,
+    "y": 1611
+   },
+   {
+    "class": "ActivityRow",
+    "name": "activityRow",
+    "label": "<ui.home.ElidedLabel(0x161ff7e5580, name=\"subtle\") at 0x0000",
+    "x": 57,
+    "y": 1709
+   }
+  ],
+  "painted_widget_accessibility_en": {
+   "journey": {
+    "accessibleName": "Analysis journey",
+    "accessibleDescription": "concluded; 4 of 4 stages complete"
+   },
+   "verdict_badge": {
+    "accessibleName": "خطر مرتفع",
+    "accessibleDescription": ""
+   },
+   "risk_gauge": {
+    "accessibleName": "",
+    "accessibleDescription": ""
+   },
+   "category_donut": {
+    "accessibleName": "",
+    "accessibleDescription": ""
+   },
+   "category_bars": {
+    "accessibleName": "",
+    "accessibleDescription": ""
+   },
+   "file_card": {
+    "accessibleName": "",
+    "accessibleDescription": ""
+   },
+   "scan_core": {
+    "accessibleName": "Analysis status",
+    "accessibleDescription": "complete; 4 of 4 stages complete"
+   },
+   "stage_track": {
+    "accessibleName": "",
+    "accessibleDescription": ""
+   }
+  },
+  "painted_widget_accessibility_ar": {
+   "journey": {
+    "accessibleName": "Analysis journey",
+    "accessibleDescription": "concluded; 4 of 4 stages complete"
+   },
+   "verdict_badge": {
+    "accessibleName": "High risk",
+    "accessibleDescription": ""
+   },
+   "risk_gauge": {
+    "accessibleName": "",
+    "accessibleDescription": ""
+   },
+   "category_donut": {
+    "accessibleName": "",
+    "accessibleDescription": ""
+   },
+   "scan_core": {
+    "accessibleName": "Analysis status",
+    "accessibleDescription": "complete; 4 of 4 stages complete"
+   }
+  },
+  "focus_ring_probe": {
+   "has_focus": true,
+   "changed_pixels_sampled": 650,
+   "active_window": true
+  }
+ },
+ "errors": [],
+ "qt_messages": [
+  {
+   "t": 168424.362,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168424.362,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168424.391,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168424.391,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168424.423,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168424.423,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168424.423,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168424.423,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168424.449,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168424.449,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168424.449,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168424.449,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168424.481,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168424.481,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168424.481,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168424.481,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168424.487,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168424.487,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168424.487,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168424.487,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168424.523,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168424.523,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168424.523,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168424.523,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168424.531,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168424.531,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168424.531,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168424.531,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168424.571,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168424.571,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168424.571,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168424.571,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168424.606,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168424.606,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168424.606,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168424.606,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168424.656,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168424.656,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168424.656,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168424.656,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168424.662,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168424.662,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168424.662,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168424.662,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168424.682,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168424.682,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168424.728,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168424.728,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168424.765,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168424.765,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168425.1,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168425.101,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168425.137,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168425.137,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168425.151,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168425.151,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168425.153,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168425.153,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168425.179,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168425.179,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168425.196,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168425.196,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168434.368,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168434.368,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168434.423,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168434.423,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168434.445,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168434.445,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168434.445,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168434.445,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168434.452,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168434.452,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168434.452,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168434.452,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168434.481,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168434.481,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168434.481,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168434.481,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168434.507,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168434.507,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168434.507,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168434.507,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168434.544,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168434.544,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168434.544,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168434.544,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168434.55,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168434.55,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168434.55,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168434.55,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168434.566,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168434.566,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168434.566,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168434.566,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168434.572,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168434.572,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168434.572,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168434.572,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168434.603,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168434.603,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168434.603,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168434.603,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168434.61,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168434.61,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168434.61,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168434.61,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168434.656,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168434.656,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168434.656,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168434.657,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168434.664,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168434.664,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168434.664,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168434.664,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168434.702,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168434.702,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168434.745,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168434.745,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168435.314,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168435.314,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168435.372,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168435.372,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168435.399,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168435.399,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168435.422,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168435.422,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168435.445,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168435.445,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168435.521,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168435.521,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168438.172,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168438.172,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168438.232,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168438.232,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168438.232,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168438.232,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168438.257,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168438.257,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168438.257,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168438.257,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168438.306,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168438.306,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168438.306,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168438.306,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168438.311,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168438.311,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168438.311,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168438.311,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168438.345,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168438.345,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168438.345,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168438.345,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168438.351,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168438.351,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168438.351,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168438.351,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168438.368,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168438.368,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168438.368,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168438.369,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168438.392,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168438.392,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168438.392,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168438.392,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168438.428,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168438.428,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168438.469,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168438.469,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168438.505,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168438.505,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168438.544,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168438.544,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168447.312,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168447.312,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168447.353,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168447.353,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168447.397,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168447.397,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168447.397,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168447.397,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168447.423,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168447.423,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168447.423,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168447.423,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168447.462,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168447.462,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168447.462,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168447.462,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168447.481,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168447.481,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168447.481,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168447.481,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168447.524,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168447.524,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168447.524,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168447.524,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168447.545,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168447.545,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168447.545,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168447.545,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168447.576,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168447.576,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168447.576,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168447.576,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168447.583,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168447.583,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168447.583,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168447.583,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168447.613,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168447.613,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168447.613,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168447.613,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168447.62,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168447.62,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168447.62,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168447.62,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168447.656,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168447.656,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168447.695,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168447.695,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168447.731,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168447.731,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168447.769,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168447.769,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168447.804,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168447.804,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168449.95,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168449.95,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168450.021,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168450.021,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168450.054,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168450.054,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168450.054,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168450.054,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168450.064,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168450.064,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168450.064,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168450.064,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168450.08,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168450.08,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168450.08,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168450.08,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168450.086,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168450.086,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168450.086,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168450.086,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168450.114,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168450.114,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168450.114,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168450.114,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168450.12,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168450.12,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168450.121,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168450.121,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168450.153,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168450.153,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168450.153,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168450.153,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168450.161,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168450.161,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168450.161,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168450.161,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168450.189,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168450.189,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168450.189,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168450.189,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168450.195,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168450.195,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168450.195,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168450.195,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168450.227,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168450.227,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168450.227,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168450.227,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168450.234,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168450.234,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168450.234,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168450.234,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168450.264,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168450.264,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168450.264,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168450.264,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168450.272,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168450.272,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168450.272,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168450.272,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168450.293,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168450.293,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168450.327,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168450.327,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168450.37,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168450.37,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168450.406,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168450.406,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168468.417,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168468.417,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168468.448,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168468.448,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168468.448,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168468.448,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168468.456,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168468.456,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168468.456,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168468.456,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168468.497,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168468.497,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168468.497,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168468.497,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168468.502,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168468.502,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168468.502,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168468.502,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168468.546,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168468.546,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168468.546,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168468.546,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168468.572,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168468.572,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168468.572,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168468.572,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168468.595,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168468.595,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168468.595,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168468.595,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168468.6,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168468.6,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168468.6,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168468.6,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168468.622,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168468.622,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168468.622,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168468.622,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168468.627,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168468.627,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168468.627,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168468.627,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168468.644,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168468.644,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168468.644,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168468.644,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168468.671,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168468.671,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168468.671,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168468.671,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168468.718,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168468.718,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168468.745,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168468.745,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168468.781,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168468.781,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168468.805,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168468.805,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168482.383,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168482.383,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168482.412,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168482.412,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168482.436,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168482.436,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168482.463,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168482.463,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168482.463,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168482.463,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168482.47,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168482.47,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168482.47,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168482.47,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168482.5,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168482.5,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168482.5,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168482.5,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168482.521,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168482.521,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168482.521,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168482.521,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168482.54,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168482.54,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168482.541,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168482.541,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168482.545,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168482.545,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168482.545,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168482.545,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168482.565,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168482.565,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168482.565,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168482.565,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168482.569,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168482.569,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168482.569,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168482.569,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168482.617,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168482.617,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168482.617,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168482.617,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168482.642,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168482.642,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168482.642,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168482.642,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168482.685,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168482.685,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168482.685,
+   "mode": "1",
+   "msg": "QPainter::worldTransform: Painter not active"
+  },
+  {
+   "t": 168482.685,
+   "mode": "1",
+   "msg": "QWidgetEffectSourcePrivate::pixmap: Painter not active"
+  },
+  {
+   "t": 168482.712,
+   "mode": "1",
+   "msg": "QPainter::save: Painter not active"
+  },
+  {
+   "t": 168482.712,
+   "mode": "1",
+   "msg": "QPainter::setOpacity: Painter not active"
+  },
+  {
+   "t": 168482.712,
+   "mode": "1",
+   "msg": "QPainter::setWorldTransform: Painter not active"
+  },
+  {
+   "t": 168482.712,
+   "mode": "1",
+   "msg": "QPainter::restore: Unbalanced save/restore"
+  },
+  {
+   "t": 168482.741,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168482.741,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  },
+  {
+   "t": 168482.773,
+   "mode": "1",
+   "msg": "QPainter::begin: A paint device can only be painted by one painter at a time."
+  },
+  {
+   "t": 168482.773,
+   "mode": "1",
+   "msg": "QPainter::translate: Painter not active"
+  }
+ ],
+ "uncaught_exceptions": [],
+ "dialogs_remaining": [
+  {
+   "kind": "critical",
+   "title": "تعذر إكمال التحليل",
+   "text": "ValueError: File size 1880 exceeds the configured limit of 16 bytes",
+   "t": 168451.058
+  }
+ ],
+ "temp_dir": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\claude\\c--Users-mahdi-Desktop-dist\\8b009106-27fa-4dc1-a7c2-da8cd64de35b\\scratchpad\\cs_audit__ll_rk_o",
+ "toggle_errors": [
+  "RuntimeError: libshiboken: Internal C++ object (PySide6.QtWidgets.QLabel) already deleted."
+ ]
+}

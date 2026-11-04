@@ -15,7 +15,9 @@ places where the content changes form the walls the picture shows.
 
 Flagged regions are only those the engine itself located, with byte offsets:
 the entropy transitions it reported (``position_aware_evidence`` or, for
-older reports, ``entropy_topography.anomalies``). Findings without a
+older reports, ``entropy_topography.anomalies``) and the windows the
+surprise map found foreign to their part of a program
+(``position_aware_evidence.surprise_regions``). Findings without a
 location (a file name, a matched rule) are not placed in the cube; nothing
 here invents a location or a judgement.
 
@@ -161,6 +163,21 @@ def _entropy_from_windows(topography: Mapping[str, Any], offsets: np.ndarray) ->
 
 
 def _located_regions(position: Mapping[str, Any], topography: Mapping[str, Any]) -> list[dict[str, Any]]:
+    # Windows the surprise map found foreign to their part of the program (core.surprise_map).
+    foreign = [
+        {
+            "offset_start": item.get("offset_start"),
+            "offset_end": item.get("offset_end"),
+            "severity": item.get("severity"),
+            "delta": None,
+        }
+        for item in position.get("surprise_regions") or []
+        if isinstance(item, Mapping)
+    ]
+    return _entropy_regions(position, topography) + foreign
+
+
+def _entropy_regions(position: Mapping[str, Any], topography: Mapping[str, Any]) -> list[dict[str, Any]]:
     boundaries = list(position.get("entropy_boundaries") or [])
     if boundaries:
         return [

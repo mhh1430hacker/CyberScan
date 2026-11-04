@@ -16,6 +16,7 @@ from sklearn.metrics import (
     roc_auc_score,
 )
 
+from ml.conformal import evaluate as conformal_evaluate
 from ml.dataset_loader import check_leakage, get_split_data, prepare_dataset
 from ml.structural_classifier import StructuralClassifier
 
@@ -97,6 +98,9 @@ def evaluate_model(
         
         # Compute metrics
         metrics = compute_metrics(y_split, y_pred, y_proba, class_labels)
+        if classifier.conformal is not None:
+            # Coverage and abstention on files the calibration never saw.
+            metrics["conformal"] = conformal_evaluate(y_proba, y_split, classifier.conformal)
         results["splits"][split_name] = metrics
     
     return results
