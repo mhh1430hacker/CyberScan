@@ -422,3 +422,30 @@ def test_findings_read_in_arabic(window, qapplication, program):
     texts = [w.text() for w in window.result_panel.findings_card.findChildren(QLabel)]
     assert "نوع ملف مموَّه" in texts
     assert "أمر PowerShell مخفي" in texts
+
+
+def test_switching_language_never_flashes_a_stray_window(window, qapplication, notes):
+    """Rebuilt lists used to detach their old rows first; detached rows became windows for a moment."""
+    from PySide6.QtCore import QEvent, QObject
+
+    shown = []
+
+    class Spy(QObject):
+        def eventFilter(self, watched, event):  # noqa: N802
+            if event.type() == QEvent.Type.Show and getattr(watched, "isWindow", lambda: False)() and watched is not window:
+                shown.append(type(watched).__name__)
+            return False
+
+    scan(qapplication, window, str(notes))  # the history rail now has a card and a group heading
+    spy = Spy()
+    qapplication.installEventFilter(spy)
+    try:
+        for _ in range(4):
+            window.toggle_language()
+            settle(qapplication, 0.3)
+        window.rail.search.setText("no such scan")
+        window.rail.search.setText("")
+        settle(qapplication, 0.3)
+    finally:
+        qapplication.removeEventFilter(spy)
+    assert shown == []

@@ -1077,7 +1077,9 @@ def _clear(layout) -> None:
         item = layout.takeAt(0)
         widget = item.widget()
         if widget is not None:
-            widget.setParent(None)
+            # Hidden and deleted where it is: a widget given no parent becomes a window
+            # of its own and can flash on screen before it is deleted.
+            widget.hide()
             widget.deleteLater()
         elif item.layout() is not None:
             _clear(item.layout())
