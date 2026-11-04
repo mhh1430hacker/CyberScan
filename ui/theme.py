@@ -155,7 +155,7 @@ QWidget {{ color: {t['text']}; font-family: {UI_FONT}; font-size: {px(14)}; }}
 QWidget#main, QWidget#stage, QWidget#page, QScrollArea, QScrollArea > QWidget > QWidget {{
     background: transparent; border: 0;
 }}
-QToolTip {{ background: {t['raised']}; color: {t['text']}; border: 1px solid {t['glass_edge_top']}; padding: 6px 9px; border-radius: 6px; }}
+QToolTip {{ background: {t['raised']}; color: {t['text']}; border: 1px solid {t['glass_edge_top']}; border-top: 2px solid {p['accent']}; padding: 7px 10px; border-radius: 7px; }}
 
 /* ---- type ---- */
 QLabel#display {{ font-size: {px(46)}; font-weight: 600; letter-spacing: {track('-1.3px')}; color: {t['text']}; }}
@@ -196,7 +196,7 @@ QFrame#command[invalid="true"] {{ border: 1px solid {t['danger']}; }}
 QFrame#segmentBar {{ background: rgba(255, 255, 255, 0.035); border: 1px solid {t['glass_edge']}; border-radius: 10px; }}
 QPushButton#segment {{ background: transparent; border: 1px solid transparent; border-radius: 7px; padding: 5px 16px; color: {t['text_mute']}; font-weight: 500; min-height: 0; }}
 QPushButton#segment:hover {{ color: {t['text']}; }}
-QPushButton#segment:checked {{ background: {alpha(p['accent'], 0.16).name(QColor.NameFormat.HexArgb)}; color: {p['strong']}; border-color: {alpha(p['accent'], 0.45).name(QColor.NameFormat.HexArgb)}; }}
+QPushButton#segment:checked {{ background: transparent; color: {p['strong']}; border-color: transparent; }}  /* the pill is the SegmentGlider */
 QPushButton#segment:focus {{ border: 1px solid {p['accent']}; }}
 QPushButton#segment:disabled {{ color: {t['line_field']}; }}
 QFrame#topbar {{ background: transparent; border-bottom: 1px solid {t['glass_edge']}; }}
@@ -278,9 +278,11 @@ QTabBar::tab:hover {{ color: {t['text']}; }}
 /* ---- scrollbars ---- */
 QScrollBar:vertical {{ background: transparent; width: 9px; margin: 2px; }}
 QScrollBar::handle:vertical {{ background: rgba(255,255,255,0.10); border-radius: 4px; min-height: 36px; }}
-QScrollBar::handle:vertical:hover {{ background: rgba(255,255,255,0.18); }}
+QScrollBar::handle:vertical:hover {{ background: {alpha(p['accent'], 0.45).name(QColor.NameFormat.HexArgb)}; }}
+QScrollBar::handle:vertical:pressed {{ background: {p['accent']}; }}
 QScrollBar:horizontal {{ background: transparent; height: 9px; margin: 2px; }}
 QScrollBar::handle:horizontal {{ background: rgba(255,255,255,0.10); border-radius: 4px; min-width: 36px; }}
+QScrollBar::handle:horizontal:hover {{ background: {alpha(p['accent'], 0.45).name(QColor.NameFormat.HexArgb)}; }}
 QScrollBar::add-line, QScrollBar::sub-line, QScrollBar::add-page, QScrollBar::sub-page {{ background: none; border: 0; width: 0; height: 0; }}
 
 QMessageBox, QDialog {{ background: {t['surface_2']}; }}

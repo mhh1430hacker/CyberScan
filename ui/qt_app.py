@@ -56,6 +56,7 @@ from ui.journey import JourneyScene
 from ui.lens import DropOverlay, Lens
 from ui.motion import fade_in
 from ui.names import visible
+from ui.polish import CursorLight, SegmentGlider, fade_in_window, toast, window_chrome
 from ui.persistence import LocalUiStore
 from ui.result_tiers import ResultPanel, advanced_texts, region_label
 from ui.result_view import ResultView, build_result_view
@@ -362,6 +363,7 @@ class CyberScanApp(QMainWindow):
             segments.addWidget(button)
             self.mode_buttons[key] = button
         self.mode_buttons["scan"].setChecked(True)
+        self.glider = SegmentGlider(self.mode_bar, list(self.mode_buttons.values()))
         bar.addWidget(self.mode_bar)
         bar.addStretch(1)
         self.language_button = QPushButton()
@@ -614,6 +616,8 @@ class CyberScanApp(QMainWindow):
         self.column_layout.setStretch(self.column_layout.count() - 1, 3 if centred else 1)
         if animate:
             fade_in(widgets[name])
+        if getattr(self, "cursor_light", None) is not None:
+            self.cursor_light.attach()
         self.scroll.verticalScrollBar().setValue(0)
         self._refresh_status()
 
@@ -1053,6 +1057,11 @@ class CyberScanApp(QMainWindow):
         for key, button in self.mode_buttons.items():
             button.setChecked(key == mode)
         self._apply_text_scale()
+        accent = MODE_ACCENTS.get(mode, MODE_ACCENTS["scan"])["accent"]
+        self.glider.set_color(accent)
+        if getattr(self, "cursor_light", None) is not None:
+            self.cursor_light.set_color(accent)
+        window_chrome(self, mode)
         self.backdrop.set_palette(mode)
         if mode == "repair":
             self.backdrop.set_hue(MODE_ACCENTS["repair"]["accent"])
@@ -1109,6 +1118,7 @@ class CyberScanApp(QMainWindow):
             except (OSError, TypeError, ValueError) as exc:
                 self._append_log(f"Quarantine noted only for this session: {exc}")
         self.result_panel.mark_quarantined(str(sealed))
+        toast(self, "🔒  " + self.t("Moved to quarantine"), "warn")
         self._announce(self.t("Moved to quarantine."))
         self._append_log(f"Moved to quarantine: {path} -> {sealed}")
 
@@ -1780,6 +1790,15 @@ class CyberScanApp(QMainWindow):
         super().resizeEvent(event)
         self._apply_layout_mode()
 
+    def showEvent(self, event) -> None:  # noqa: N802
+        super().showEvent(event)
+        if getattr(self, "cursor_light", None) is None:
+            # First appearance: the finishing touches (see ui/polish.py).
+            self.cursor_light = CursorLight(self)
+            self.cursor_light.set_color(MODE_ACCENTS.get(self.app_mode, MODE_ACCENTS["scan"])["accent"])
+            window_chrome(self, self.app_mode)
+            fade_in_window(self)
+
     def dragEnterEvent(self, event) -> None:  # noqa: N802
         if self.worker is None and event.mimeData().hasUrls():
             self.lens.set_armed(True)
@@ -1832,6 +1851,9 @@ def main() -> None:
     from ui.brand import app_icon
 
     app.setWindowIcon(app_icon())  # title bar, taskbar and Alt+Tab
+    from ui.polish import Ripples
+
+    app.ripples = Ripples(app)  # every button answers a press with a ripple
     if "--exhibit" in sys.argv:
         from ui.exhibit import ExhibitWindow
 

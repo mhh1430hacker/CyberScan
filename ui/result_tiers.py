@@ -13,7 +13,7 @@ import re
 from dataclasses import asdict, is_dataclass
 from typing import Any, Mapping
 
-from PySide6.QtCore import QEasingCurve, QPointF, QPropertyAnimation, QRectF, QSize, Qt, Signal
+from PySide6.QtCore import QEasingCurve, QPointF, QPropertyAnimation, QRectF, QSize, Qt, QTimer, Signal
 from PySide6.QtGui import QColor, QGuiApplication, QPainter, QPainterPath, QPen
 from PySide6.QtWidgets import (
     QBoxLayout,
@@ -34,6 +34,7 @@ from ui.file_kind import FileKind
 from ui.icons import glyph_icon, glyph_pixmap
 from ui.motion import VIEW_MS, prefers_reduced_motion, stagger
 from ui.plain_language import SEVERITY_WORDS, Details, Summary
+from ui.polish import toast
 from ui.sonar import SonarCube
 from ui.structure import Structure
 from ui.theme import TOKENS, alpha, tone_color
@@ -274,6 +275,7 @@ class ResultPanel(QWidget):
 
         # Level 1 ---------------------------------------------------------------
         self.summary_card = QWidget()
+        self.summary_card.setObjectName("summaryCard")
         self.summary_ambient = Ambient(self.summary_card)
         summary = QVBoxLayout(self.summary_card)
         summary.setContentsMargins(34, 30, 34, 28)
@@ -641,6 +643,7 @@ class ResultPanel(QWidget):
         self._sync_buttons(details=False, advanced=False)
         if reveal:
             self.medallion.reveal()
+            QTimer.singleShot(120, self.meter.reveal)
             stagger([self.headline, self.sentence, self.advice, self.limit, self.meter])
 
     def retranslate(self, language: str) -> None:
@@ -944,6 +947,7 @@ class ResultPanel(QWidget):
         if self.fingerprint:
             QGuiApplication.clipboard().setText(self.fingerprint)
             self.copy_hash_button.setText(tr("Copied", self.language))
+            toast(self, "✓  " + tr("Fingerprint copied to the clipboard", self.language))
 
     def offer_repair(self, count: int) -> None:
         """Show "Repair this file" when ``count`` parts can be cut out exactly."""

@@ -241,6 +241,17 @@ class Medallion(QWidget):
         self._animation.setEndValue(1.0)
         self._animation.setEasingCurve(QEasingCurve.Type.OutBack)
         self._animation.valueChanged.connect(self._on_progress)
+        self._pulse = 1.0  # a halo leaves the ring once, on reveal
+        self._pulse_animation = QVariantAnimation(self)
+        self._pulse_animation.setDuration(1100)
+        self._pulse_animation.setStartValue(0.0)
+        self._pulse_animation.setEndValue(1.0)
+        self._pulse_animation.setEasingCurve(QEasingCurve.Type.OutCubic)
+        self._pulse_animation.valueChanged.connect(self._on_pulse)
+
+    def _on_pulse(self, value) -> None:
+        self._pulse = float(value)
+        self.update()
 
     def set_verdict(self, symbol: str, color: str, name: str) -> None:
         self._symbol = symbol
@@ -254,7 +265,11 @@ class Medallion(QWidget):
             self.update()
             return
         self._animation.stop()
+        self._on_progress(0.0)
         self._animation.start()
+        self._pulse_animation.stop()
+        self._on_pulse(0.0)
+        self._pulse_animation.start()
 
     def _on_progress(self, value) -> None:
         self._progress = float(value)
@@ -279,6 +294,10 @@ class Medallion(QWidget):
         painter.setPen(QPen(alpha(self._color, 0.25), 1))
         painter.setBrush(Qt.BrushStyle.NoBrush)
         painter.drawEllipse(center, ring * 1.22, ring * 1.22)
+        if 0.0 < self._pulse < 1.0:
+            halo = ring * (1.0 + 0.42 * self._pulse)
+            painter.setPen(QPen(alpha(self._color, 0.55 * (1.0 - self._pulse)), 2.0 * (1.0 - self._pulse) + 0.6))
+            painter.drawEllipse(center, halo, halo)
         painter.setFont(ui_font(ring * 0.82, 600))
         painter.setPen(self._color)
         painter.drawText(QRectF(center.x() - ring, center.y() - ring, ring * 2, ring * 2), int(Qt.AlignmentFlag.AlignCenter), self._symbol)
@@ -295,6 +314,13 @@ class LevelMeter(QWidget):
         self.level: int | None = None
         self._labels = list(self.LABELS)
         self._unknown = "Unknown"
+        self._fill = 1.0
+        self._fill_animation = QVariantAnimation(self)
+        self._fill_animation.setDuration(EMPHASIS_MS + 260)
+        self._fill_animation.setStartValue(0.0)
+        self._fill_animation.setEndValue(1.0)
+        self._fill_animation.setEasingCurve(QEasingCurve.Type.OutCubic)
+        self._fill_animation.valueChanged.connect(self._on_fill)
         self.setMinimumSize(240, 54)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
 
@@ -305,6 +331,19 @@ class LevelMeter(QWidget):
         self.setAccessibleName(name)
         self.setAccessibleDescription(labels[level - 1] if level else unknown)
         self.update()
+
+    def _on_fill(self, value) -> None:
+        self._fill = float(value)
+        self.update()
+
+    def reveal(self) -> None:
+        """Fill the active bars in order, once."""
+        if prefers_reduced_motion() or not self.level:
+            self._on_fill(1.0)
+            return
+        self._fill_animation.stop()
+        self._on_fill(0.0)  # the first frame starts empty, not full
+        self._fill_animation.start()
 
     def sizeHint(self) -> QSize:  # noqa: N802
         return QSize(360, 54)
@@ -323,8 +362,14 @@ class LevelMeter(QWidget):
             active = self.level is not None and index < self.level
             color = QColor(self.COLORS[self.level - 1]) if active and self.level else QColor(TOKENS["line_strong"])
             painter.setPen(Qt.PenStyle.NoPen)
-            painter.setBrush(color)
+            painter.setBrush(QColor(TOKENS["line_strong"]))
             painter.drawRoundedRect(bar, 2.5, 2.5)
+            if active:
+                share = min(1.0, max(0.0, self._fill * self.level - index))
+                if share > 0:
+                    filled = QRectF(bar.right() - bar.width() * share if rtl else bar.left(), bar.top(), bar.width() * share, bar.height())
+                    painter.setBrush(color)
+                    painter.drawRoundedRect(filled, 2.5, 2.5)
             current = self.level is not None and index == self.level - 1
             painter.setPen(QColor(TOKENS["text"] if current else TOKENS["text_mute"]))
             painter.drawText(

@@ -34,6 +34,7 @@ from PySide6.QtWidgets import (
 from ui.copy import tr
 from ui.names import visible
 from ui.plain_language import format_size, isolate
+from ui.polish import SuccessMark, toast
 from ui.sonar import SonarCube
 from ui.structure import build_structure
 from ui.theme import TONES, tone_color
@@ -258,7 +259,13 @@ class RepairView(QWidget):
         self.outcome_hashes = label("", "mono", wrap=True)
         self.outcome_hashes.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
         self.outcome_hashes.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
-        for widget in (self.outcome_title, self.outcome_body, self.outcome_checks, self.outcome_hashes):
+        heading = QHBoxLayout()
+        heading.setSpacing(12)
+        self.success_mark = SuccessMark(40)
+        heading.addWidget(self.success_mark, 0, Qt.AlignmentFlag.AlignVCenter)
+        heading.addWidget(self.outcome_title, 1)
+        outcome.addLayout(heading)
+        for widget in (self.outcome_body, self.outcome_checks, self.outcome_hashes):
             outcome.addWidget(widget)
         outcome_actions = QHBoxLayout()
         self.folder_button = QPushButton()
@@ -495,6 +502,7 @@ class RepairView(QWidget):
         self.outcome.setVisible(True)
         self.output = output
         if output is None:
+            self.success_mark.setVisible(False)
             self.outcome_title.setText("✕  " + t("Nothing was written"))
             self.outcome_body.setText(t(result.message) if result.message else t("The repair couldn't be completed."))
             failures = result.validation.failures if result.validation else {}
@@ -503,7 +511,10 @@ class RepairView(QWidget):
             self.folder_button.setVisible(False)
             self.logged.emit(f"Repair not written: {self.path} · {result.message}")
             return
-        self.outcome_title.setText("✓  " + t("Repaired copy saved"))
+        self.outcome_title.setText(t("Repaired copy saved"))
+        self.success_mark.setVisible(True)
+        self.success_mark.play(tone_color("ok"))
+        toast(self, "✓  " + t("Repaired copy saved"), "repair")
         self.outcome_body.setText(t("“{name}” · {removed} removed · problems found: {before} before, {after} after.").format(
             name=visible(output.name), removed=isolate(format_size(result.removed_bytes), self.language), before=result.before, after=result.after))
         checks = result.validation.checks if result.validation else {}

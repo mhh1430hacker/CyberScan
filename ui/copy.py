@@ -465,6 +465,8 @@ AR: dict[str, str] = {
     'Repair this file · {count} can be fixed': 'أصلح هذا الملف · يمكن إصلاح {count}',
     "Opens Repair on a copy of this file. The original isn't changed.": 'يفتح الإصلاح على نسخة من هذا الملف. لا يتغير الأصل.',
     'Repair mode': 'وضع الإصلاح',
+    'Fingerprint copied to the clipboard': 'نُسخت البصمة إلى الحافظة',
+    'Moved to quarantine': 'نُقل إلى الحجر',
 }
 
 _COUNT_FORMS = {
