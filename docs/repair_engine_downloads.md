@@ -1,9 +1,16 @@
-# Repair engine — Phase 1 downloads: PAUSED
+# Repair engine — Phase 1 downloads: RUNNING
 
-**Resumed and paused again:** 2026-11-04 (steps `ember sorel` only; stopped by request).
-`Win64_test.zip` reached its full size (1,122 MB, no longer `.part`), but the run was
-stopped before its SHA-256 check was logged: the next resume re-checks it before use.
-SOREL had not started. Free on C: at this pause: about 17 GB.
+**Resumed:** 2026-11-05 06:47, steps `ember sorel tools benign ember_big`, log in
+`C:\CyberScanData\logs\resume_2026-11-05.txt`. The run left going overnight on 2026-11-04
+had lost its line: from 21:17 every SOREL sample failed on a dropped connection or DNS
+lookup and was skipped (134,436 skip events over repeated passes; 86 of 2,000 binaries on
+disk). The connection here is intermittent: some hosts answer while others time out in
+the same minute. `fetch.retrying` now waits and retries network drops (5 s up to 15 min,
+about 50 min in all) and resumes `.part` files, so only a real server answer (404, a
+hash mismatch) skips a sample. Skipped samples were never marked done; this run retries them.
+
+**2026-11-04:** EMBER2024 small files all downloaded, SHA-256-verified and vectorised;
+SOREL `meta.db` verified, 4,041 rows selected, then deleted. Free on C: on 2026-11-05: 36 GB.
 
 **Paused:** 2026-11-01 21:03 (by request, to move on to the next phases).
 **Data folder:** `C:\CyberScanData` (outside the repo; `samples\` denies execute to Everyone).
@@ -37,11 +44,11 @@ Tags: `[DONE]` finished and verified · `[PARTIAL]` part file on disk ·
 | `[PARTIAL]` | ClamAV `clamav-1.5.4.win.x64.zip` (GitHub Cisco-Talos release) | 225.8 MB | release SHA-256 `0d9e0228…c395` | 211.8 / 225.8 MB in `downloads\` |
 | `[PENDING]` | YARA Forge `yara-forge-rules-core.zip` (release 20261101) | 1.7 MB | release SHA-256 `c6d6915f…783b` | — |
 | `[PENDING]` | ClamAV signatures via `freshclam` | ~300 MB | ClamAV's own signed CVDs | — |
-| `[DOWNLOADED]` | EMBER2024 `Win64_test.zip` (HF `joyce8/EMBER2024`) | 1.18 GB | HF LFS SHA-256 `52a5a05c…` | full size on disk; checksum not yet confirmed |
-| `[PENDING]` | EMBER2024 `PDF_train.zip`, `PDF_test.zip`, `ELF_train.zip`, `ELF_test.zip`, `challenge.zip` | 0.27 GB | HF LFS SHA-256 | — |
+| `[DONE]` | EMBER2024 `Win64_test.zip` (HF `joyce8/EMBER2024`) | 1.18 GB | HF LFS SHA-256 `52a5a05c…` | verified, 240,000 rows vectorised |
+| `[DONE]` | EMBER2024 `PDF_train.zip`, `PDF_test.zip`, `ELF_train.zip`, `ELF_test.zip`, `challenge.zip` | 0.27 GB | HF LFS SHA-256 | verified and vectorised |
 | `[PENDING]` | EMBER2024 `Win64_train.zip` (vectorise 250k, then delete) | 5.85 GB | HF LFS SHA-256 `7b050100…` | — (step `ember_big`) |
-| `[PENDING]` | SOREL-20M `processed-data/meta.db` (keep 2,000 rows, then delete) | 3.79 GB | S3 multipart ETag `f1a8b94f…-452` | — |
-| `[PENDING]` | SOREL-20M 2,000 disarmed binaries (stay zlib-compressed) | ~2.2 GB | per-object S3 ETag (MD5) | — |
+| `[DONE]` | SOREL-20M `processed-data/meta.db` (keep 2,000 rows, then delete) | 3.79 GB | S3 multipart ETag `f1a8b94f…-452` | verified; 4,041 rows kept; db deleted |
+| `[PARTIAL]` | SOREL-20M 2,000 disarmed binaries (stay zlib-compressed) | ~2.2 GB | per-object S3 ETag (MD5) | 86 / 2,000; downloading |
 | `[PENDING]` | Govdocs1 `zipfiles/000.zip`, `001.zip`, `002.zip` | 3 × 0.49 GB | published MD5 list | — |
 | `[PENDING]` | NapierOne small: DLL DOC DOCX ELF XLS XLSX HTML | ~1.2 GB | published per-archive SHA-256 | — |
 | `[PENDING]` | NapierOne tiny: EXE PDF PPT PPTX GIF | ~0.9 GB | published per-archive SHA-256 | — |

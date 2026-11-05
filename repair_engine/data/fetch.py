@@ -7,6 +7,7 @@ opened by another program.
 from __future__ import annotations
 
 import hashlib
+import time
 from collections.abc import Iterator
 from pathlib import Path
 
@@ -26,6 +27,28 @@ HEADERS = {"User-Agent": "CyberScan-repair-engine-data/1.0 (research dataset fet
 
 class VerificationError(RuntimeError):
     """A download did not match its published size or hash."""
+
+
+NETWORK_ERRORS = (requests.ConnectionError, requests.Timeout, requests.exceptions.ChunkedEncodingError)
+WAITS = (5, 15, 30, 60, 120, 300, 300, 600, 600, 900)  # ~50 min in all: rides out a dropped line
+
+
+def retrying(call, *args, store: DataStore | None = None, what: str = "", **kwargs):
+    """Run ``call``; on a network drop (not an HTTP error, not a failed check) wait and try again.
+
+    A flaky line used to turn every dropped connection into a skipped sample;
+    now only a real answer from the server (404, a hash mismatch) does.
+    """
+    for attempt, wait in enumerate((*WAITS, None)):
+        try:
+            return call(*args, **kwargs)
+        except NETWORK_ERRORS as exc:
+            if wait is None:
+                raise
+            if store is not None:
+                store.log("network_retry", what=what, attempt=attempt + 1, wait_s=wait, reason=type(exc).__name__)
+            time.sleep(wait)
+    raise AssertionError("unreachable")
 
 
 def head_size(url: str) -> int | None:
@@ -53,9 +76,15 @@ def download(
     sha256: str | None = None,
     md5: str | None = None,
 ) -> Path:
-    """Fetch ``url`` to ``destination`` (resuming a .part file), then verify."""
+    """Fetch ``url`` to ``destination`` (resuming a .part file), then verify. Network drops are retried."""
     if destination.exists():
         return destination
+    return retrying(_download_once, store, url, destination, size=size, sha256=sha256, md5=md5, store=store,
+                    what=destination.name)
+
+
+def _download_once(store: DataStore, url: str, destination: Path, *, size: int | None, sha256: str | None,
+                   md5: str | None) -> Path:
     expected = size if size is not None else head_size(url)
     partial = destination.with_name(destination.name + ".part")
     have = partial.stat().st_size if partial.exists() else 0
@@ -96,6 +125,10 @@ def stream(url: str) -> Iterator[bytes]:
 
 
 def fetch_bytes(url: str) -> bytes:
+    return retrying(_fetch_bytes_once, url, what=url)
+
+
+def _fetch_bytes_once(url: str) -> bytes:
     response = requests.get(url, timeout=TIMEOUT, headers=HEADERS, allow_redirects=True)
     response.raise_for_status()
     return response.content

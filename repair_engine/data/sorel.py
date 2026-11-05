@@ -21,7 +21,7 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import requests
 
-from repair_engine.data.fetch import HEADERS, TIMEOUT, VerificationError, download, s3_multipart_etag
+from repair_engine.data.fetch import HEADERS, TIMEOUT, VerificationError, download, retrying, s3_multipart_etag
 from repair_engine.data.store import DataStore
 
 # From the SOREL-20M baseline configuration: train before, test after.
@@ -107,7 +107,7 @@ def fetch_binaries(store: DataStore, rows: list[dict]) -> list[dict]:
         url = f"{settings['base_url']}/binaries/{sha256}"
         try:
             if not path.exists():
-                etag, size = _etag(url)
+                etag, size = retrying(_etag, url, store=store, what=sha256)
                 download(store, url, path, size=size, md5=etag if "-" not in etag else None)
             info = check_disarmed(path.read_bytes())
         except Exception as exc:  # noqa: BLE001 - a bad sample is skipped and logged, never patched
