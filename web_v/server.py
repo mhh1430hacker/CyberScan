@@ -430,7 +430,8 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
             self.send_header(
                 "Content-Security-Policy",
                 "default-src 'self'; img-src 'self' data: blob:; style-src 'self'; "
-                "script-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'",
+                "script-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; "
+                "frame-ancestors 'none'; base-uri 'none'; form-action 'self'",
             )
             for key, value in (extra or {}).items():
                 self.send_header(key, value)
@@ -554,6 +555,10 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
             ctype = mimetypes.guess_type(target.name)[0] or "application/octet-stream"
             if target.suffix == ".js":
                 ctype = "text/javascript"
+            elif target.suffix == ".webmanifest":
+                ctype = "application/manifest+json"
+            elif target.suffix == ".svg":
+                ctype = "image/svg+xml"
             if ctype.startswith("text/") or ctype.endswith(("javascript", "json", "svg+xml")):
                 ctype += "; charset=utf-8"
             self._send(HTTPStatus.OK, body, ctype)
@@ -599,6 +604,16 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
         # ---- history -------------------------------------------------
         def history_index(self, query: dict) -> None:
             self._json(HTTPStatus.OK, history_list())
+
+        def history_lookup(self, query: dict) -> None:
+            digest = (query.get("sha256") or [""])[0].lower()
+            if not re.fullmatch(r"[0-9a-f]{64}", digest):
+                raise ApiError(400, "expected a SHA-256 fingerprint")
+            matches = [
+                {k: r[k] for k in ("id", "timestamp", "target", "classification", "score")}
+                for r in reversed(load_history()) if str(r.get("sha256", "")).lower() == digest
+            ]
+            self._json(HTTPStatus.OK, {"matches": matches})
 
         def history_get(self, record_id: str, query: dict) -> None:
             self._json(HTTPStatus.OK, history_open(record_id))
@@ -773,6 +788,7 @@ ROUTES = [
     _route("POST", r"/api/scan/file", "scan_upload"),
     _route("GET", rf"/api/scan/{ID}", "scan_status"),
     _route("GET", r"/api/history", "history_index"),
+    _route("GET", r"/api/history/lookup", "history_lookup"),
     _route("GET", rf"/api/history/{ID}", "history_get"),
     _route("DELETE", rf"/api/history/{ID}", "history_remove"),
     _route("GET", rf"/api/history/{ID}/export", "history_export"),

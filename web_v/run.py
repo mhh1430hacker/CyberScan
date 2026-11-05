@@ -22,12 +22,17 @@ from server import cleanup, create_server  # noqa: E402
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="CyberScan web interface")
-    parser.add_argument("--port", type=int, default=0, help="0 picks a free port")
+    parser.add_argument("--port", type=int, default=8765,
+                        help="a fixed port keeps the installed app's address stable; 0 picks a free one")
     parser.add_argument("--browser", action="store_true", help="use the default browser")
     parser.add_argument("--no-open", action="store_true", help="only start the server")
     args = parser.parse_args()
 
-    server, app = create_server(args.port)
+    try:
+        server, app = create_server(args.port)
+    except OSError:
+        print(f"Port {args.port} is busy; using a free one (the installed app won't find this one).", flush=True)
+        server, app = create_server(0)
     url = f"http://127.0.0.1:{server.server_address[1]}/"
     print(f"CyberScan web interface: {url}", flush=True)
 

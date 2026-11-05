@@ -186,10 +186,17 @@ function chooseFile(file) {
   $("drop-label").dataset.keep = "1";
   $("drop-label").textContent = `${file.name} · ${formatBytes(file.size)}`;
   updateReady();
+  if (window.CSHash) CSHash.check(file);
+}
+function chooseFiles(files) {
+  const list = [...(files || [])];
+  if (list.length > 1 && window.CSBatch) { CSBatch.start(list); return; }
+  chooseFile(list[0]);
 }
 function chooseDisk(path, name, size) {
   state.diskPath = path;
   state.file = null;
+  if (window.CSHash) CSHash.clear();
   drop.classList.add("chosen");
   $("drop-label").dataset.keep = "1";
   $("drop-label").textContent = `${name} · ${formatBytes(size || 0)}`;
@@ -201,11 +208,12 @@ function resetChoice() {
   delete $("drop-label").dataset.keep;
   $("drop-label").textContent = t("dropTitle");
   $("file").value = "";
+  if (window.CSHash) CSHash.clear();
 }
-$("file").addEventListener("change", (e) => chooseFile(e.target.files[0]));
+$("file").addEventListener("change", (e) => chooseFiles(e.target.files));
 ["dragenter", "dragover"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add("over"); }));
-["dragleave", "drop"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove("over"); }));
-drop.addEventListener("drop", (e) => chooseFile(e.dataTransfer.files[0]));
+["dragleave", "drop"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); e.stopPropagation(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", (e) => chooseFiles(e.dataTransfer.files));
 $("pick-disk").addEventListener("click", async () => {
   $("pick-disk").disabled = true;
   try {
@@ -285,11 +293,14 @@ function poll(id) {
       state.lastResult = job.result;
       renderResult(job.result, true);
       if (cells) { cells.setMode("ambient"); if (job.result.classification === "NO_INDICATORS_OBSERVED") cells.heal(); }
+      const p = plainOf(job.result);
+      notify(job.result.target, p ? p.summary.headline : job.result.classification);
     }, 450);
   }).catch(() => showError(t("network")));
 }
 
 function showProgress(label) {
+  $("batch").hidden = true;
   $("error").hidden = true;
   $("result").hidden = true;
   document.querySelector(".composer").hidden = true;
@@ -332,6 +343,7 @@ function plainOf(r) { return (r.plain && (r.plain[lang] || r.plain.en)) || null;
 
 function renderResult(r, animate) {
   document.querySelector(".composer").hidden = true;
+  $("batch").hidden = true;
   $("progress").hidden = true;
   $("error").hidden = true;
   const view = $("result");
@@ -613,6 +625,7 @@ function renderActions(r) {
   if (id) buttons.push(actionButton(t("aExportJson"), () => download(`/api/history/${id}/export?format=json`)));
   if (r.sha256) buttons.push(actionButton(t("aCopyHash"), async () => { await navigator.clipboard.writeText(r.sha256); toast(t("copied")); }));
   buttons.push(actionButton(t("copy"), async () => { await navigator.clipboard.writeText(r.report_text); toast(t("copied")); }));
+  buttons.push(actionButton("⎙ " + t("pPrint"), () => { $("result").dataset.printed = new Date().toLocaleString(lang); window.print(); }));
   buttons.push(actionButton(t("again"), () => newScan()));
   buttons.forEach((b, i) => b.style.setProperty("--i", i));
   bar.append(...buttons);
@@ -621,6 +634,7 @@ function renderActions(r) {
 function newScan() {
   state.lastResult = null;
   $("result").hidden = true;
+  $("batch").hidden = true;
   $("error").hidden = true;
   const composer = document.querySelector(".composer");
   composer.hidden = false;
@@ -736,6 +750,7 @@ function renderHistory(animate) {
     (state.filter === "all" || (state.filter === "quarantined" ? r.quarantined : r.classification === state.filter)) &&
     (!query || r.target.toLowerCase().includes(query)));
   $("history-count").textContent = all.length ? t("count")(all.length) : "";
+  if (animate && window.CSInsights) CSInsights.render(all);
   const dist = $("dist");
   dist.replaceChildren();
   ["SUSPICIOUS", "REVIEW", "NO_INDICATORS_OBSERVED"].forEach((k, i) => {
@@ -803,6 +818,7 @@ async function deleteRecord(record, row, name) {
   if (!(await confirmDialog(t("delTitle"), t("delBody")(name), t("remove")))) { row.focus(); return; }
   try { await api(`/api/history/${record.id}`, { method: "DELETE" }); } catch (err) { toast(err.message); return; }
   state.history = state.history.filter((r) => r.id !== record.id);
+  if (window.CSInsights) CSInsights.render(state.history);
   row.classList.add("leaving");
   row.addEventListener("animationend", () => renderHistory(false), { once: true });
   toast(t("removed"));
@@ -941,6 +957,7 @@ function watchEvents() {
       res.events.forEach((ev) => {
         state.eventsSince = Math.max(state.eventsSince, ev.id);
         toast(t("downloadSeen")(ev.name), { label: t("scanIt"), run: () => scanPath(ev.path) });
+        notify(ev.name, t("downloadSeen")(ev.name), () => scanPath(ev.path));
       });
     } catch { /* server gone */ }
     eventsTimer = setTimeout(tick, 4000);
@@ -952,7 +969,29 @@ function watchEvents() {
 }
 
 /* ---------------- boot ---------------- */
-window.CS = { t, api, postJSON, download, toast, confirmDialog, el, $, cells, enterApp, formatBytes, onLang: (fn) => langListeners.push(fn), get lang() { return lang; }, scanPath };
+/* desktop notifications, only when the window is in the background */
+function notificationsOn() {
+  try { return localStorage.getItem("cs-notify") === "1" && "Notification" in window && Notification.permission === "granted"; } catch { return false; }
+}
+function notify(title, body, onClick) {
+  if (!notificationsOn() || !document.hidden) return;
+  const n = new Notification(`CyberScan · ${String(title).split(/[\\/]/).pop()}`, { body, icon: "icon.svg", tag: "cyberscan" });
+  n.onclick = () => { window.focus(); n.close(); if (onClick) onClick(); };
+}
+
+function showResult(result) {
+  state.lastResult = result;
+  location.hash = "#/scan";
+  renderResult(result, true);
+}
+
+window.CS = {
+  t, api, postJSON, download, toast, confirmDialog, el, $, cells, enterApp, formatBytes, scanPath,
+  onLang: (fn) => langListeners.push(fn), get lang() { return lang; },
+  get settings() { return state.settings; }, state, openRecord, showResult, notify, notificationsOn,
+  newScan, chooseFiles, setMode: (m) => tabs.find((x) => x.dataset.mode === m)?.click(),
+  toggleLang: () => document.querySelector(".lang-btn").click(),
+};
 document.addEventListener("DOMContentLoaded", () => {
   applyLang();
   route();

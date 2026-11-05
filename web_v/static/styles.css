@@ -57,6 +57,8 @@ main { max-width: 1180px; margin: 0 auto; padding: 0 16px 64px; }
 .view.entering > * { animation: view-in .7s var(--ease) both; }
 .view.entering > *:nth-child(2) { animation-delay: .08s; }
 @keyframes view-in { from { opacity: 0; transform: translateY(18px) scale(.985); filter: blur(6px); } }
+/* for elements that start hidden (opacity: 0): the end state must be explicit */
+@keyframes rise-in { from { opacity: 0; transform: translateY(18px) scale(.985); filter: blur(6px); } to { opacity: 1; transform: none; filter: none; } }
 .view-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
 .view-head h1 { margin: 0; }
 
@@ -238,7 +240,7 @@ form { display: grid; gap: 16px; }
 .tag-list span { font: 12px Consolas, ui-monospace, monospace; padding: 3px 9px; border-radius: 7px; background: rgba(248, 113, 113, .1); border: 1px solid rgba(248, 113, 113, .3); color: #fecaca; }
 
 .checks { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; }
-.checks li { --tone: var(--muted); padding: 14px; border-radius: 14px; background: var(--surface-2); display: grid; grid-template-columns: 30px 1fr; gap: 4px 10px; opacity: 0; animation: view-in .5s var(--ease) forwards; animation-delay: var(--d); }
+.checks li { --tone: var(--muted); padding: 14px; border-radius: 14px; background: var(--surface-2); display: grid; grid-template-columns: 30px 1fr; gap: 4px 10px; opacity: 0; animation: rise-in .5s var(--ease) forwards; animation-delay: var(--d); }
 .checks li i { grid-row: span 2; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-weight: 800; color: var(--tone); background: color-mix(in srgb, var(--tone) 15%, transparent); }
 .checks li b { font-weight: 600; }
 .checks li small { color: var(--muted); }

@@ -5,10 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="cyberscan-token" content="__CYBERSCAN_TOKEN__">
   <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#050912">
+  <meta name="description" content="Static analysis of files, links and text, explained in plain words. Nothing you check is ever run.">
   <title>CyberScan</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="landing.css">
   <link rel="stylesheet" href="fx.css">
+  <link rel="stylesheet" href="tech.css">
 </head>
 <body class="on-landing">
   <canvas id="cells" class="cells" aria-hidden="true"></canvas>
@@ -204,7 +210,10 @@
         <span class="nav-ink" aria-hidden="true"></span>
       </nav>
       <div class="top-right">
+        <span class="conn" id="conn" hidden><i></i><span></span></span>
         <span class="watch-pill" id="watch-pill" hidden><i></i><span></span></span>
+        <button class="ghost install-btn" type="button" hidden data-i18n="pInstall">Install app</button>
+        <button class="ghost pal-open" type="button" aria-label="Command palette"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg><kbd class="pal-kbd">Ctrl K</kbd></button>
         <button class="ghost lang-btn" type="button" data-i18n="switchLang">العربية</button>
       </div>
     </header>
@@ -231,7 +240,7 @@
           <form id="form">
             <div class="file-panel" data-panel="file">
               <label class="drop" id="drop">
-                <input id="file" type="file" hidden>
+                <input id="file" type="file" multiple hidden>
                 <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 32V10m-9 9 9-9 9 9M10 34v4h28v-4"/></svg>
                 <strong id="drop-label" data-i18n="dropTitle">Drop a file here or click to choose</strong>
                 <small data-i18n="dropHint"></small>
@@ -243,6 +252,7 @@
                   <span data-i18n="pickDisk">Choose from disk</span></button>
                 <small data-i18n="pickDiskHint"></small>
               </div>
+              <div id="seen" class="seen" hidden aria-live="polite"></div>
             </div>
             <input id="url" class="field" data-panel="url" type="url" hidden placeholder="https://example.com/download" data-i18n-ph="urlPh">
             <div data-panel="text" hidden class="text-panel">
@@ -251,6 +261,19 @@
             </div>
             <button id="go" class="primary magnetic" type="submit" disabled><span data-i18n="scan">Start check</span></button>
           </form>
+        </section>
+
+        <section id="batch" class="card batch" hidden aria-live="polite">
+          <div class="view-head">
+            <div><h1 id="batch-title"></h1><div class="bsummary" id="batch-summary"></div></div>
+            <div class="batch-actions">
+              <input id="batch-file" type="file" multiple hidden>
+              <button class="ghost" type="button" id="batch-add" data-i18n="bAdd">Add files</button>
+              <button class="ghost" type="button" id="batch-new" data-i18n="bNew">New batch</button>
+            </div>
+          </div>
+          <div class="batch-progress"><i id="batch-progress"></i></div>
+          <div class="batch-list" id="batch-list"></div>
         </section>
 
         <section id="progress" class="card progress" hidden aria-live="polite">
@@ -370,6 +393,19 @@
 
       <!-- ================= HISTORY ================= -->
       <div class="view" id="view-history" hidden>
+        <section class="card insights" id="insights" aria-label="Insights">
+          <div class="ins-grid">
+            <div class="ins-donut">
+              <svg viewBox="0 0 120 120" id="ins-donut" aria-hidden="true"></svg>
+              <div class="ins-center"><b id="ins-total">0</b><small data-i18n="insScans">scans</small></div>
+            </div>
+            <div class="ins-kpis" id="ins-kpis"></div>
+            <div class="ins-chart">
+              <div class="ins-chart-head"><b data-i18n="insActivity">Last 14 days</b><small id="ins-week"></small></div>
+              <div class="ins-bars" id="ins-bars"></div>
+            </div>
+          </div>
+        </section>
         <section class="card history">
           <div class="view-head">
             <h1 data-i18n="historyTitle">Your scans</h1>
@@ -494,6 +530,11 @@
             <div class="setting"><span><b data-i18n="setModel"></b><small id="ai-state"></small></span><select class="field select" id="ai-model"></select></div>
           </div>
 
+          <h3 data-i18n="grpNotify">Notifications</h3>
+          <div class="setting-group">
+            <label class="setting"><span><b data-i18n="setNotify"></b><small data-i18n="setNotifyHint" id="notify-hint"></small></span><input type="checkbox" class="switch" id="notify-toggle"></label>
+          </div>
+
           <h3 data-i18n="grpDisplay">Display</h3>
           <div class="setting-group">
             <label class="setting"><span><b data-i18n="setLarge"></b></span><input type="checkbox" class="switch" data-key="large_text"></label>
@@ -525,11 +566,43 @@
 
   <div id="toasts" class="toasts" aria-live="polite"></div>
 
+  <div id="palette" class="palette" hidden>
+    <div class="pal-box" role="dialog" aria-modal="true" aria-label="Command palette">
+      <div class="pal-search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>
+        <input id="pal-input" type="text" autocomplete="off" spellcheck="false" role="combobox" aria-expanded="true" aria-controls="pal-list" data-i18n-ph="pPlaceholder">
+        <kbd>Esc</kbd>
+      </div>
+      <div class="pal-list" id="pal-list" role="listbox"></div>
+      <div class="pal-foot"><span><kbd>↑</kbd><kbd>↓</kbd> <span data-i18n="pMove">move</span></span><span><kbd>↵</kbd> <span data-i18n="pRun">run</span></span><span><kbd>?</kbd> <span data-i18n="pShortcuts">shortcuts</span></span></div>
+    </div>
+  </div>
+
+  <dialog id="shortcuts" class="confirm shortcuts">
+    <form method="dialog">
+      <h2 data-i18n="pShortcuts">Keyboard shortcuts</h2>
+      <div id="sc-list" class="sc-list"></div>
+      <div class="actions"><button value="ok" class="ghost" data-i18n="kClose">Close</button></div>
+    </form>
+  </dialog>
+
+  <div id="drop-veil" class="drop-veil" hidden aria-hidden="true">
+    <div class="dv-box">
+      <svg viewBox="0 0 48 48"><path d="M24 32V10m-9 9 9-9 9 9M10 34v4h28v-4"/></svg>
+      <b data-i18n="dvTitle">Drop to scan</b>
+      <small data-i18n="dvHint">One file or many. Nothing is run.</small>
+    </div>
+  </div>
+
   <script src="js/i18n.js"></script>
   <script src="js/cells.js"></script>
   <script src="js/cube.js"></script>
   <script src="app.js"></script>
   <script src="js/repair.js"></script>
+  <script src="js/batch.js"></script>
+  <script src="js/palette.js"></script>
+  <script src="js/pwa.js"></script>
+  <script src="js/insights.js"></script>
   <script src="js/story.js"></script>
   <script src="js/landing.js"></script>
   <script src="js/fx.js"></script>
