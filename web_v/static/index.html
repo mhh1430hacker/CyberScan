@@ -8,11 +8,39 @@
   <title>CyberScan</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="landing.css">
+  <link rel="stylesheet" href="fx.css">
 </head>
 <body class="on-landing">
   <canvas id="cells" class="cells" aria-hidden="true"></canvas>
   <div class="glow-cursor" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
   <div class="warp-veil" aria-hidden="true"></div>
+  <div class="cursor-ring" aria-hidden="true"><span></span></div>
+  <div class="cursor-dot" aria-hidden="true"></div>
+
+  <div id="preloader" class="preloader" aria-hidden="true">
+    <div class="pl-panel top"></div><div class="pl-panel bottom"></div>
+    <div class="pl-core">
+      <svg class="pl-logo" viewBox="0 0 64 64">
+        <path class="pl-hex" d="M32 4 56 18v28L32 60 8 46V18z"/>
+        <path class="pl-shield" d="M32 14 20 19v8c0 7.5 5.1 13.4 12 15 6.9-1.6 12-7.5 12-15v-8z"/>
+        <path class="pl-tick" d="m26.5 28.5 3.8 3.8 7.4-8"/>
+      </svg>
+      <div class="pl-word">CyberScan</div>
+      <div class="pl-bar"><i></i></div>
+      <div class="pl-num">0</div>
+    </div>
+  </div>
+
+  <div class="scroll-progress" aria-hidden="true"><i></i></div>
+  <nav class="side-dots" aria-label="Sections">
+    <a href="#top" data-sec="top"><span data-i18n="dTop">Start</span></a>
+    <a href="#story" data-sec="story"><span data-i18n="dStory">Story</span></a>
+    <a href="#how" data-sec="how"><span data-i18n="lHow">How it works</span></a>
+    <a href="#features" data-sec="features"><span data-i18n="lFeatures">Features</span></a>
+    <a href="#repair-sec" data-sec="repair-sec"><span data-i18n="lRepair">Repair</span></a>
+    <a href="#privacy" data-sec="privacy"><span data-i18n="lPrivacy">Privacy</span></a>
+  </nav>
 
   <!-- ===================================================== LANDING -->
   <div id="landing" class="landing">
@@ -33,7 +61,8 @@
       </div>
     </header>
 
-    <section class="hero">
+    <section class="hero" id="top">
+      <div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
       <div class="hero-copy">
         <span class="eyebrow" data-reveal><i class="dot"></i><span data-i18n="lEyebrow" data-scramble>Static analysis</span></span>
         <h1 class="hero-title">
@@ -77,6 +106,23 @@
 
     <div class="marquee" aria-hidden="true"><div class="marquee-track" id="marquee"></div></div>
 
+    <section id="story" class="story">
+      <div class="story-pin">
+        <canvas id="story-canvas" aria-hidden="true"></canvas>
+        <div class="story-copy">
+          <span class="story-kicker" data-i18n="storyKicker">Inside one scan</span>
+          <div class="story-steps" id="story-steps"></div>
+          <div class="story-meter"><i id="story-meter"></i></div>
+        </div>
+        <div class="story-hud" aria-hidden="true">
+          <span class="hud-file" id="hud-file">invoice_2026.pdf.exe</span>
+          <span class="hud-stat"><b id="hud-cells">0</b> <small data-i18n="hudCells">cells</small></span>
+          <span class="hud-stat"><b id="hud-bad">0</b> <small data-i18n="hudBad">flagged</small></span>
+          <span class="hud-stat"><b id="hud-score">0</b> <small data-i18n="hudScore">risk</small></span>
+        </div>
+      </div>
+    </section>
+
     <section id="how" class="l-section how">
       <h2 class="l-h2" data-reveal data-i18n="lHowTitle"></h2>
       <p class="l-sub" data-reveal data-i18n="lHowSub"></p>
@@ -98,7 +144,8 @@
 
     <section id="features" class="l-section">
       <h2 class="l-h2 center" data-reveal data-i18n="lFeatTitle"></h2>
-      <div class="feat-grid" id="feat-grid"></div>
+      <p class="l-sub center" data-reveal data-i18n="lFeatSub"></p>
+      <div class="bento" id="feat-grid"></div>
     </section>
 
     <section id="repair-sec" class="l-section repair-sec">
@@ -128,7 +175,10 @@
       <button class="primary huge enter magnetic" type="button" data-reveal><span data-i18n="lCtaBtn">Enter CyberScan</span>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></button>
     </section>
-    <footer class="l-foot"><span>© 2026 CyberScan</span><span data-i18n="lFoot"></span></footer>
+    <footer class="l-foot">
+      <div class="foot-word" aria-hidden="true">CyberScan</div>
+      <div class="foot-row"><span>© 2026 CyberScan</span><span data-i18n="lFoot"></span></div>
+    </footer>
   </div>
 
   <!-- ===================================================== APP -->
@@ -480,6 +530,8 @@
   <script src="js/cube.js"></script>
   <script src="app.js"></script>
   <script src="js/repair.js"></script>
+  <script src="js/story.js"></script>
   <script src="js/landing.js"></script>
+  <script src="js/fx.js"></script>
 </body>
 </html>

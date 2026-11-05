@@ -55,15 +55,7 @@
       const li = el("li"); const sw = el("i"); sw.style.background = colors[i]; li.append(sw, label); return li;
     }));
 
-    $("feat-grid").replaceChildren(...t("feats").map(([title, body], i) => {
-      const card = el("div", "feat");
-      card.setAttribute("data-reveal", "");
-      card.style.setProperty("--i", i % 4);
-      const icon = el("div", "ficon");
-      icon.innerHTML = svg(FEAT_ICONS[i]);
-      card.append(icon, el("b", "", title), el("p", "", body));
-      return card;
-    }));
+    buildBento();
 
     $("r-checks").replaceChildren(...t("lRepairChecks").map((x, i) => { const li = el("li", "", x); li.style.setProperty("--i", i); return li; }));
 
@@ -90,6 +82,109 @@
     observeReveals();
     wireTilt();
     if (stats) fillStats();
+  }
+
+  /* ---------------- bento ---------------- */
+  // order in i18n "feats": verdicts, cube, repair, quarantine, ai, downloads, intel, history
+  const AREAS = ["a", "b", "c", "d", "e", "f", "g", "h"];
+  let bentoCube = null, bentoTimers = [];
+  function viz(i) {
+    const box = el("div", "bviz");
+    if (i === 0) {
+      const bubble = el("div", "bubble");
+      bubble.append(el("i", "bdot"), el("span", "btype"));
+      box.append(bubble, el("div", "bline w80"), el("div", "bline w60"));
+    } else if (i === 1) {
+      const c = el("canvas", "bcube");
+      box.append(c);
+    } else if (i === 2) {
+      const strip = el("div", "bstrip");
+      for (let k = 0; k < 22; k++) { const b = el("i", k >= 14 && k < 18 ? "bad" : ""); b.style.setProperty("--k", k); strip.append(b); }
+      box.append(strip, el("div", "bscissors", "✂"));
+    } else if (i === 3) {
+      box.innerHTML = '<svg class="block" viewBox="0 0 64 64" aria-hidden="true"><rect class="bfile" x="16" y="6" width="22" height="28" rx="3"/><path class="bshackle" d="M22 34v-6a10 10 0 0 1 20 0v6"/><rect class="bbody" x="16" y="32" width="32" height="24" rx="5"/><circle class="bkey" cx="32" cy="44" r="3"/></svg>';
+    } else if (i === 4) {
+      const row = el("div", "airow");
+      row.append(el("span", "ai-orb"), el("p", "aitype"));
+      box.append(row);
+    } else if (i === 5) {
+      box.innerHTML = '<svg class="bdl" viewBox="0 0 64 64" aria-hidden="true"><path class="arrow" d="M32 8v26m-10-10 10 10 10-10"/><path class="tray" d="M12 40v12h40V40"/></svg>';
+      const toast = el("div", "btoast");
+      toast.append(el("span", "", t("bentoNew")), el("b", "", t("bentoScan")));
+      box.append(toast);
+    } else if (i === 6) {
+      box.innerHTML = '<svg class="globe" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="38"/><ellipse class="m m1" cx="50" cy="50" rx="38" ry="38"/><ellipse class="m m2" cx="50" cy="50" rx="38" ry="38"/><ellipse class="m m3" cx="50" cy="50" rx="38" ry="38"/><path d="M12 50h76M18 32h64M18 68h64"/><circle class="ping" cx="64" cy="38" r="3"/></svg>';
+    } else if (i === 7) {
+      const list = el("div", "blist");
+      const tones = ["--bad", "--warn", "--ok", "--warn", "--bad", "--ok", "--warn", "--ok"];
+      const names = ["setup.exe", "invoice.pdf", "photo.jpg", "macro.docm", "update.js", "notes.txt", "tool.zip", "cv.pdf"];
+      [...names, ...names].forEach((n, k) => {
+        const r = el("div", "brow");
+        const d = el("i"); d.style.background = `var(${tones[k % 8]})`;
+        r.append(d, el("span", "", n), el("small", "", `${(k * 7 + 12) % 100}`));
+        list.append(r);
+      });
+      box.append(list);
+    }
+    return box;
+  }
+
+  function typeLoop(node, texts, speed = 38, hold = 1700) {
+    let ti = 0, ci = 0, del = false;
+    const step = () => {
+      const text = texts[ti % texts.length];
+      node.textContent = text.slice(0, ci);
+      if (!del && ci < text.length) ci++;
+      else if (!del) { del = true; bentoTimers.push(setTimeout(step, hold)); return; }
+      else if (ci > 0) ci -= 2;
+      else { del = false; ti++; }
+      bentoTimers.push(setTimeout(step, del ? 14 : speed));
+    };
+    if (reduced) node.textContent = texts[0]; else step();
+  }
+
+  function buildBento() {
+    bentoTimers.forEach(clearTimeout); bentoTimers = [];
+    if (bentoCube) { bentoCube.destroy(); bentoCube = null; }
+    $("feat-grid").replaceChildren(...t("feats").map(([title, body], i) => {
+      const card = el("div", `bento-card area-${AREAS[i]}`);
+      card.setAttribute("data-reveal", "");
+      card.style.setProperty("--i", i % 4);
+      const icon = el("div", "ficon");
+      icon.innerHTML = svg(FEAT_ICONS[i]);
+      const text = el("div", "btext");
+      text.append(icon, el("b", "", title), el("p", "", body));
+      card.append(viz(i), text);
+      return card;
+    }));
+    const grid = $("feat-grid");
+    const verdictNode = grid.querySelector(".btype");
+    const dot = grid.querySelector(".bdot");
+    const tones = ["var(--ok)", "var(--warn)", "var(--bad)", "var(--muted)"];
+    const verdicts = t("bentoVerdicts");
+    let vi = 0;
+    const typeVerdict = () => {
+      const text = verdicts[vi % verdicts.length];
+      dot.style.background = tones[vi % tones.length];
+      vi++;
+      let ci = 0;
+      const step = () => {
+        verdictNode.textContent = text.slice(0, ++ci);
+        if (ci < text.length) bentoTimers.push(setTimeout(step, 34));
+        else bentoTimers.push(setTimeout(typeVerdict, 2200));
+      };
+      step();
+    };
+    if (reduced) { verdictNode.textContent = verdicts[0]; dot.style.background = tones[0]; } else typeVerdict();
+    typeLoop(grid.querySelector(".aitype"), [t("bentoAi")], 26, 2600);
+    const cubeCanvas = grid.querySelector(".bcube");
+    new IntersectionObserver((entries, obs) => {
+      if (entries[0].isIntersecting && !bentoCube) {
+        bentoCube = CyberCube.create(cubeCanvas, null);
+        bentoCube.setData(CyberCube.demoStructure());
+        obs.disconnect();
+      }
+    }, { threshold: 0.2 }).observe(cubeCanvas);
   }
 
   /* ---------------- reveals ---------------- */
@@ -149,7 +244,7 @@
 
   /* ---------------- tilt, spotlight, magnetic ---------------- */
   function wireTilt() {
-    landing.querySelectorAll(".feat").forEach((node) => {
+    landing.querySelectorAll(".bento-card, .priv, .stat, .l-steps li").forEach((node) => {
       node.addEventListener("pointermove", (e) => {
         const r = node.getBoundingClientRect();
         const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
@@ -190,7 +285,7 @@
 
   /* clicks on empty space send a healing wave through the cells */
   landing.addEventListener("pointerdown", (e) => {
-    if (e.target.closest("a, button, canvas, .scan-card, .feat, input")) return;
+    if (e.target.closest("a, button, canvas, .scan-card, .bento-card, input")) return;
     if (cells) cells.pulse(e.clientX, e.clientY);
   });
 

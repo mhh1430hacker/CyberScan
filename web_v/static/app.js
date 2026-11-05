@@ -98,8 +98,12 @@ function route() {
   $("app").hidden = onLanding;
   if (cells) cells.setMode(onLanding ? "hero" : "ambient");
   if (onLanding) { state.view = null; window.dispatchEvent(new Event("cs:landing")); return; }
-  if (!entered) { entered = true; $("app").classList.add("enter"); }
-  showView(view);
+  if (!entered) { entered = true; $("app").classList.add("enter"); showView(view); return; }
+  if (document.startViewTransition && state.view && state.view !== view && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    const order = VIEWS.indexOf(view) - VIEWS.indexOf(state.view);
+    document.documentElement.dataset.vtDir = (order > 0) !== (lang === "ar") ? "fwd" : "back";
+    document.startViewTransition(() => showView(view));
+  } else showView(view);
 }
 window.addEventListener("hashchange", route);
 
@@ -363,6 +367,7 @@ function renderResult(r, animate) {
     meter.style.strokeDashoffset = circumference;
     requestAnimationFrame(() => requestAnimationFrame(() => { meter.style.strokeDashoffset = offset; }));
     countUp($("score"), r.combined_score, 1700);
+    impact(r);
   } else {
     meter.style.strokeDashoffset = offset;
     $("score").textContent = r.combined_score;
@@ -376,6 +381,36 @@ function renderResult(r, animate) {
   renderTech(r);
   if (animate) { selectTab("findings"); $("ai-card").hidden = true; stopAi(); }
   if (state.cube && currentTab() === "structure") state.cube.setData(r.structure);
+}
+
+/* The result arrives: cells burst out of the gauge, a ring pulses, and a
+ * suspicious result gives the card a short shake. */
+function impact(r) {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const card = document.querySelector(".verdict");
+  const gauge = $("gauge");
+  card.classList.remove("impact", "shake");
+  void card.offsetWidth;
+  setTimeout(() => {
+    card.classList.add("impact");
+    if (r.classification === "SUSPICIOUS") card.classList.add("shake");
+    const burst = el("div", "burst");
+    for (let i = 0; i < 26; i++) {
+      const s = el("i");
+      const a = (i / 26) * Math.PI * 2 + Math.random() * 0.3;
+      const d = 90 + Math.random() * 120;
+      s.style.setProperty("--dx", `${Math.cos(a) * d}px`);
+      s.style.setProperty("--dy", `${Math.sin(a) * d}px`);
+      s.style.setProperty("--r", `${Math.random() * 360}deg`);
+      s.style.setProperty("--s", (0.5 + Math.random() * 0.9).toFixed(2));
+      s.style.animationDelay = `${Math.random() * 0.12}s`;
+      burst.append(s);
+    }
+    gauge.append(burst);
+    setTimeout(() => burst.remove(), 1600);
+    const gr = gauge.getBoundingClientRect();
+    if (cells) cells.pulse(gr.left + gr.width / 2, gr.top + gr.height / 2);
+  }, 1350);
 }
 
 function renderFindings(r, plain, animate) {

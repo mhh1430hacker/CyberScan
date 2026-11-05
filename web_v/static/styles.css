@@ -151,8 +151,8 @@ form { display: grid; gap: 16px; }
 
 /* ---------- verdict ---------- */
 .result { display: grid; gap: 18px; grid-template-columns: minmax(0, 1fr); }
-.verdict { display: flex; gap: 34px; align-items: center; flex-wrap: wrap; overflow: hidden; }
-.verdict::after { content: ""; position: absolute; inset: auto -20% -60% auto; width: 60%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--risk) 22%, transparent), transparent 65%); pointer-events: none; }
+.verdict { display: flex; gap: 34px; align-items: center; flex-wrap: wrap; overflow: visible; }
+.verdict::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: radial-gradient(60% 90% at 100% 120%, color-mix(in srgb, var(--risk) 22%, transparent), transparent 70%); pointer-events: none; }
 .gauge { position: relative; width: 176px; height: 176px; flex: none; color: var(--risk); }
 .gauge svg { width: 100%; height: 100%; transform: rotate(-90deg); }
 .gauge circle { fill: none; }
