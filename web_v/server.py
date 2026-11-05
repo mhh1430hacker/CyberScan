@@ -1,16 +1,17 @@
 """Local web API for the CyberScan web interface.
 
-Serves the HTML/CSS/JS front end and a small JSON API around the existing
-``ScanService``. Uses only the Python standard library.
+Serves the HTML/CSS/JS front end and a JSON API around the existing engine
+(``ScanService``) and the desktop app's own modules. Standard library only.
 
-Security model (this server can read local files and run scans, so any web
-page the user visits must not be able to drive it):
+Security model (this server reads local files, quarantines and repairs them,
+so no other web page the user visits may drive it):
   * binds to 127.0.0.1 only;
   * rejects requests whose Host header is not this loopback address and port
-    (blocks DNS-rebinding);
+    (blocks DNS rebinding);
   * rejects cross-origin requests (Origin must be this server);
-  * every /api/ call needs a random per-launch token, which is injected only
-    into the page this server serves.
+  * every /api/ call needs a random per-launch token, injected only into the
+    page this server serves;
+  * strict Content-Security-Policy: no inline or third-party scripts.
 """
 from __future__ import annotations
 
@@ -23,22 +24,28 @@ import shutil
 import sys
 import tempfile
 import threading
+import time
 import uuid
 from datetime import datetime
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
+from urllib.parse import parse_qs, quote, unquote
 
 ROOT = Path(__file__).resolve().parent.parent
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+for entry in (ROOT, Path(__file__).resolve().parent):
+    if str(entry) not in sys.path:
+        sys.path.insert(0, str(entry))
 
 from config import DATA_DIR, DEFAULT_SETTINGS, REPORT_DIR  # noqa: E402
 from core.models import Finding, ScanResult  # noqa: E402
 from reports.exporter import export_report  # noqa: E402
+from reports.report_generator import generate_report  # noqa: E402
 from ui.persistence import LocalUiStore  # noqa: E402
 from ui.scan_service import ScanService  # noqa: E402
+
+import services  # noqa: E402
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 STAGES = 4
@@ -46,25 +53,49 @@ MAX_JOBS = 32
 MAX_TEXT = 1024 * 1024
 HISTORY_LIMIT = 200
 HISTORY_DIR = Path(REPORT_DIR) / "history"
+ID = r"([0-9a-f]{32})"
 
-# Settings the web page may change, with their validators. Everything else in
-# the shared settings file (language, monitoring, AI model…) is preserved.
-EDITABLE_SETTINGS: dict[str, Any] = {
-    "entropy_analysis": bool,
-    "heuristic_rules": bool,
-    "ml_analysis": bool,
-    "osint_enabled": bool,
-    "large_text": bool,
-    "animated_background": bool,
-    "maximum_file_size": (1 * 1024 * 1024, 200 * 1024 * 1024),
-    "analysis_timeout": (5.0, 300.0),
+_MODEL_NAME = re.compile(r"^[\w.:/\-]{1,80}$")
+
+
+def _is_bool(value: Any) -> bool:
+    return isinstance(value, bool)
+
+
+def _number(low: float, high: float) -> Callable[[Any], bool]:
+    return lambda v: not isinstance(v, bool) and isinstance(v, (int, float)) and low <= v <= high
+
+
+# Settings the web page may change, each with a validator. Everything else in
+# the shared settings file (weights, quarantine folder, language…) is kept.
+EDITABLE_SETTINGS: dict[str, Callable[[Any], bool]] = {
+    "entropy_analysis": _is_bool,
+    "heuristic_rules": _is_bool,
+    "ml_analysis": _is_bool,
+    "osint_enabled": _is_bool,
+    "large_text": _is_bool,
+    "animated_background": _is_bool,
+    "ai_summary_enabled": _is_bool,
+    "monitoring_enabled": _is_bool,
+    "maximum_file_size": _number(1 * 1024 * 1024, 200 * 1024 * 1024),
+    "analysis_timeout": _number(5.0, 300.0),
+    "monitoring_directory": lambda v: isinstance(v, str) and 0 < len(v) < 1024,
+    "ai_model": lambda v: isinstance(v, str) and bool(_MODEL_NAME.match(v)),
 }
 
-# One store shared with the Qt app, so both interfaces see the same scans.
+# One store shared with the desktop app, so both interfaces see the same scans.
 STORE = LocalUiStore(DATA_DIR / "ui_settings.json", DATA_DIR / "scan_history.json")
 STORE_LOCK = threading.Lock()
+MONITOR = services.Monitor()
 
 
+class ApiError(Exception):
+    def __init__(self, status: int, message: str) -> None:
+        super().__init__(message)
+        self.status = status
+
+
+# ---------------------------------------------------------------- settings
 def _settings_defaults() -> dict[str, Any]:
     return {**DEFAULT_SETTINGS, "ui_language": "en"}
 
@@ -78,36 +109,48 @@ def load_settings() -> dict[str, Any]:
 
 def public_settings() -> dict[str, Any]:
     current = load_settings()
-    return {key: current[key] for key in EDITABLE_SETTINGS}
+    out = {key: current[key] for key in EDITABLE_SETTINGS}
+    out["monitor_state"] = "on" if MONITOR.monitor is not None else "off"
+    return out
 
 
 def update_settings(changes: Any) -> dict[str, Any]:
     if not isinstance(changes, dict):
-        raise ValueError("expected an object")
+        raise ApiError(400, "expected an object")
     with STORE_LOCK:
         current = load_settings()
         for key, value in changes.items():
-            rule = EDITABLE_SETTINGS.get(key)
-            if rule is None:
-                raise ValueError(f"{key} cannot be changed here")
-            if rule is bool:
-                if not isinstance(value, bool):
-                    raise ValueError(f"{key} must be true or false")
-            else:
-                low, high = rule
-                if isinstance(value, bool) or not isinstance(value, (int, float)) or not low <= value <= high:
-                    raise ValueError(f"{key} must be between {low} and {high}")
-                value = type(DEFAULT_SETTINGS[key])(value)
+            check = EDITABLE_SETTINGS.get(key)
+            if check is None:
+                raise ApiError(400, f"{key} cannot be changed here")
+            if not check(value):
+                raise ApiError(400, f"{key} has an invalid value")
+            if isinstance(DEFAULT_SETTINGS.get(key), float):
+                value = float(value)
+            elif isinstance(DEFAULT_SETTINGS.get(key), int) and not isinstance(DEFAULT_SETTINGS.get(key), bool):
+                value = int(value)
             current[key] = value
+        folder = str(Path(current["monitoring_directory"]).expanduser())
+        if current["monitoring_enabled"] and not Path(folder).is_dir():
+            raise ApiError(400, "Choose a folder that exists.")
+        current["monitoring_directory"] = folder
         STORE.save_settings(current)
+    apply_monitor(current)
     return public_settings()
+
+
+def apply_monitor(settings: dict[str, Any]) -> None:
+    try:
+        MONITOR.apply(bool(settings.get("monitoring_enabled")), str(settings.get("monitoring_directory", "")))
+    except Exception:  # noqa: BLE001 - monitoring is optional
+        pass
 
 
 # ---------------------------------------------------------------- history
 def _report_path(record: dict[str, Any]) -> Path:
     path = Path(str(record.get("report_path", ""))).resolve()
     if path.parent != HISTORY_DIR.resolve() or not path.is_file():
-        raise FileNotFoundError("The saved report is missing or outside the history folder.")
+        raise ApiError(410, "The saved report is missing or outside the history folder.")
     return path
 
 
@@ -116,6 +159,23 @@ def load_history() -> list[dict[str, Any]]:
         return STORE.load_history()
     except ValueError:
         return []
+
+
+def find_record(record_id: str) -> dict[str, Any]:
+    record = next((r for r in load_history() if r["id"] == record_id), None)
+    if record is None:
+        raise ApiError(404, "no such scan")
+    return record
+
+
+def update_record(record_id: str, change: Callable[[dict[str, Any]], None]) -> None:
+    with STORE_LOCK:
+        history = load_history()
+        for record in history:
+            if record["id"] == record_id:
+                change(record)
+                break
+        STORE.save_history(history)
 
 
 def record_history(result: ScanResult, display_target: str) -> str:
@@ -143,31 +203,17 @@ def record_history(result: ScanResult, display_target: str) -> str:
     for expired in candidate[:-HISTORY_LIMIT]:
         try:
             _report_path(expired).unlink()
-        except OSError:
+        except (OSError, ApiError):
             pass
     return record_id
 
 
-def history_list() -> list[dict[str, Any]]:
-    return [
-        {
-            "id": r["id"],
-            "timestamp": r["timestamp"],
-            "target": r["target"],
-            "classification": r["classification"],
-            "score": r["score"],
-            "quarantined": bool(r.get("quarantined")),
-        }
-        for r in reversed(load_history())
-    ]
-
-
-def history_open(record_id: str) -> dict[str, Any] | None:
-    record = next((r for r in load_history() if r["id"] == record_id), None)
-    if record is None:
-        return None
-    payload = json.loads(_report_path(record).read_text(encoding="utf-8"))
-    result = ScanResult(
+def result_from_record(record: dict[str, Any]) -> ScanResult:
+    try:
+        payload = json.loads(_report_path(record).read_text(encoding="utf-8"))
+    except ValueError as exc:
+        raise ApiError(410, f"The saved report can't be read: {exc}") from exc
+    return ScanResult(
         target=str(payload.get("target", record["target"])),
         heuristic_score=int(payload.get("heuristic_score", 0)),
         ml_risk_score=payload.get("ml_risk_score"),
@@ -185,14 +231,43 @@ def history_open(record_id: str) -> dict[str, Any] | None:
         model_status=str(payload.get("model_status", "")),
         limitations=str(payload.get("limitations", "")),
         summary=str(payload.get("summary", "")),
+        yara_matches=payload.get("yara_matches", []),
         engine_status=payload.get("engine_status", {}),
         nextgen_analysis=payload.get("nextgen_analysis", {}),
+        pe_analysis=payload.get("pe_analysis", {}),
         mitre_techniques=payload.get("mitre_techniques", []),
         osint_summary=payload.get("osint_summary", {}),
         structural_prediction=payload.get("structural_prediction", {}),
     )
-    out = serialize_result(result, record["target"])
-    out.update(record_id=record_id, timestamp=record["timestamp"])
+
+
+def _on_disk(target: str) -> bool:
+    return not target.startswith(("http://", "https://")) and Path(target).is_absolute()
+
+
+def history_list() -> list[dict[str, Any]]:
+    return [
+        {
+            "id": r["id"],
+            "timestamp": r["timestamp"],
+            "target": r["target"],
+            "classification": r["classification"],
+            "score": r["score"],
+            "quarantined": bool(r.get("quarantined")),
+        }
+        for r in reversed(load_history())
+    ]
+
+
+def history_open(record_id: str) -> dict[str, Any]:
+    record = find_record(record_id)
+    out = serialize_result(result_from_record(record), record["target"], None, None, None)
+    out.update(
+        record_id=record_id,
+        timestamp=record["timestamp"],
+        quarantined=bool(record.get("quarantined")),
+        exists=_on_disk(record["target"]) and Path(record["target"]).is_file(),
+    )
     return out
 
 
@@ -205,11 +280,21 @@ def history_delete(record_id: str) -> bool:
         STORE.save_history([r for r in history if r["id"] != record_id])
     try:
         _report_path(record).unlink()
-    except OSError:
+    except (OSError, ApiError):
         pass
     return True
 
 
+def history_stats() -> dict[str, Any]:
+    history = load_history()
+    counts = {"SUSPICIOUS": 0, "REVIEW": 0, "NO_INDICATORS_OBSERVED": 0}
+    for record in history:
+        if record["classification"] in counts:
+            counts[record["classification"]] += 1
+    return {"scans": len(history), "by_class": counts}
+
+
+# ---------------------------------------------------------------- results
 def _downsample(values: list[float], limit: int = 240) -> list[float]:
     if len(values) <= limit:
         return [round(float(v), 4) for v in values]
@@ -217,12 +302,14 @@ def _downsample(values: list[float], limit: int = 240) -> list[float]:
     return [round(float(values[int(i * step)]), 4) for i in range(limit)]
 
 
-def serialize_result(result: ScanResult, display_target: str) -> dict[str, Any]:
+def serialize_result(
+    result: ScanResult, display_target: str, mode: str | None, raw: bytes | None, elapsed: float | None
+) -> dict[str, Any]:
     nextgen = result.nextgen_analysis or {}
     prediction = result.structural_prediction or {}
     intelligence = result.osint_summary or {}
     entropy = nextgen.get("entropy_topography") or {}
-    return {
+    out = {
         "target": display_target,
         "combined_score": result.combined_score,
         "heuristic_score": result.heuristic_score,
@@ -239,21 +326,28 @@ def serialize_result(result: ScanResult, display_target: str) -> dict[str, Any]:
             "status": prediction.get("status"),
             "label": prediction.get("label"),
             "abstained": prediction.get("abstained", False),
+            "class_scores": prediction.get("class_scores") or {},
         },
         "osint_status": intelligence.get("status"),
+        "osint_matches": len(intelligence.get("matches") or []),
         "size": int(nextgen.get("file_size", 0) or 0),
+        "elapsed": round(elapsed, 2) if elapsed is not None else None,
         "entropy": {
             "trajectory": _downsample(list(entropy.get("trajectory") or [])),
             "mean": round(float(entropy.get("mean_entropy", 0.0)), 3),
             "peak": round(float(entropy.get("peak_entropy", 0.0)), 3),
             "anomalies": len(entropy.get("anomalies") or []),
         },
-        "report_text": result.as_text().replace(
-            f"Target: {result.target}", f"Target: {display_target}", 1
-        ),
+        "report_text": result.as_text().replace(f"Target: {result.target}", f"Target: {display_target}", 1),
     }
+    try:
+        out.update(services.present(result, display_target, mode, raw, elapsed))
+    except Exception as exc:  # noqa: BLE001 - the raw result is still useful
+        out["present_error"] = f"{type(exc).__name__}: {exc}"
+    return out
 
 
+# ---------------------------------------------------------------- scans
 class Job:
     def __init__(self) -> None:
         self.id = uuid.uuid4().hex
@@ -263,13 +357,7 @@ class Job:
         self.error: str | None = None
 
     def snapshot(self) -> dict[str, Any]:
-        return {
-            "id": self.id,
-            "status": self.status,
-            "stages": self.stages,
-            "result": self.result,
-            "error": self.error,
-        }
+        return {"id": self.id, "status": self.status, "stages": self.stages, "result": self.result, "error": self.error}
 
 
 class App:
@@ -293,13 +381,19 @@ class App:
                 job.stages[index] = {"state": state, "detail": detail}
 
         def run() -> None:
+            started = time.monotonic()
             try:
-                result = ScanService().analyze(candidate, mode, load_settings(), progress)[0]
-                job.result = serialize_result(result, display)
+                payload = ScanService().analyze(candidate, mode, load_settings(), progress)
+                result, raw = payload[0], payload[5]
+                # Uploaded copies are not where the user keeps the file: present them by name.
+                shown_mode = "File" if mode == "File" else mode
+                job.result = serialize_result(result, display, shown_mode, raw, time.monotonic() - started)
                 try:
                     job.result["record_id"] = record_history(result, display)
                 except (OSError, TypeError, ValueError) as exc:
                     job.result["history_error"] = f"{type(exc).__name__}: {exc}"
+                job.result["exists"] = cleanup is None and mode == "File"
+                job.result["quarantined"] = False
                 job.status = "done"
             except Exception as exc:  # noqa: BLE001 - reported to the page
                 job.error = f"{type(exc).__name__}: {exc}"
@@ -312,6 +406,7 @@ class App:
         return job
 
 
+# ---------------------------------------------------------------- handler
 def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
     allowed_hosts = {f"127.0.0.1:{port}", f"localhost:{port}"}
     allowed_origins = {f"http://{h}" for h in allowed_hosts}
@@ -319,12 +414,13 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
     class Handler(BaseHTTPRequestHandler):
         server_version = "CyberScanWeb"
         sys_version = ""
+        protocol_version = "HTTP/1.1"
 
         def log_message(self, fmt: str, *args: Any) -> None:  # quiet console
             pass
 
-        # ---- helpers -------------------------------------------------
-        def _send(self, status: int, body: bytes, ctype: str) -> None:
+        # ---- plumbing ------------------------------------------------
+        def _send(self, status: int, body: bytes, ctype: str, extra: dict[str, str] | None = None) -> None:
             self.send_response(status)
             self.send_header("Content-Type", ctype)
             self.send_header("Content-Length", str(len(body)))
@@ -333,9 +429,11 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
             self.send_header("Referrer-Policy", "no-referrer")
             self.send_header(
                 "Content-Security-Policy",
-                "default-src 'self'; img-src 'self' data:; style-src 'self'; "
-                "script-src 'self'; connect-src 'self'; frame-ancestors 'none'",
+                "default-src 'self'; img-src 'self' data: blob:; style-src 'self'; "
+                "script-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'",
             )
+            for key, value in (extra or {}).items():
+                self.send_header(key, value)
             self.end_headers()
             self.wfile.write(body)
 
@@ -350,57 +448,102 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
             if origin is not None and origin not in allowed_origins:
                 self._json(HTTPStatus.FORBIDDEN, {"error": "bad origin"})
                 return False
-            if api and not secrets.compare_digest(
-                self.headers.get("X-CyberScan-Token", ""), app.token
-            ):
+            if api and not secrets.compare_digest(self.headers.get("X-CyberScan-Token", ""), app.token):
                 self._json(HTTPStatus.UNAUTHORIZED, {"error": "bad token"})
                 return False
             return True
 
-        def _body(self, limit: int) -> bytes | None:
+        def _length(self) -> int:
             try:
-                length = int(self.headers.get("Content-Length", "0"))
+                return int(self.headers.get("Content-Length", "0"))
             except ValueError:
-                length = -1
+                return -1
+
+        def _raw_body(self, limit: int) -> bytes:
+            length = self._length()
             if length < 0 or length > limit:
-                self._json(HTTPStatus.REQUEST_ENTITY_TOO_LARGE, {"error": "body too large"})
-                return None
+                # Don't read it; close the connection so it can't leak into the next request.
+                self.close_connection = True
+                self._consumed = True
+                raise ApiError(413, "body too large")
+            self._consumed = True
             return self.rfile.read(length)
 
-        # ---- routes --------------------------------------------------
-        def do_GET(self) -> None:  # noqa: N802
-            path = self.path.split("?", 1)[0]
-            if path.startswith("/api/"):
-                if not self._guard(api=True):
+        def _drain(self) -> None:
+            """Keep-alive safety: a body no handler read must not become the
+            start of the next request on this connection."""
+            if getattr(self, "_consumed", True):
+                return
+            self._consumed = True
+            length = self._length()
+            if 0 < length <= MAX_TEXT:
+                self.rfile.read(length)
+            elif length != 0:
+                self.close_connection = True
+
+        def _json_body(self, limit: int = MAX_TEXT) -> Any:
+            raw = self._raw_body(limit)
+            if not raw:
+                return {}
+            try:
+                return json.loads(raw)
+            except ValueError as exc:
+                raise ApiError(400, "invalid JSON") from exc
+
+        def _dispatch(self, method: str) -> None:
+            self._consumed = method == "GET" and self._length() <= 0
+            # Drain before replying: some clients wait for the reply before sending the rest.
+            original_send = type(self)._send.__get__(self, type(self))
+
+            def send_after_drain(*args: Any, **kwargs: Any) -> None:
+                self._drain()
+                original_send(*args, **kwargs)
+
+            self._send = send_after_drain  # type: ignore[method-assign]
+            try:
+                self._route(method)
+            finally:
+                self._drain()
+
+        def _route(self, method: str) -> None:
+            path, _, query = self.path.partition("?")
+            if not path.startswith("/api/"):
+                if method != "GET":
+                    self._json(HTTPStatus.METHOD_NOT_ALLOWED, {"error": "method not allowed"})
                     return
-                if path == "/api/history":
-                    self._json(HTTPStatus.OK, history_list())
-                    return
-                if path == "/api/settings":
-                    self._json(HTTPStatus.OK, public_settings())
-                    return
-                match = re.fullmatch(r"/api/history/([0-9a-f]{32})", path)
+                if self._guard(api=False):
+                    self._static(path)
+                return
+            if not self._guard(api=True):
+                return
+            for route_method, pattern, handler in ROUTES:
+                if route_method != method:
+                    continue
+                match = re.fullmatch(pattern, path)
                 if match:
                     try:
-                        found = history_open(match.group(1))
-                    except (OSError, ValueError, TypeError) as exc:
-                        self._json(HTTPStatus.GONE, {"error": str(exc)})
-                        return
-                    if found is None:
-                        self._json(HTTPStatus.NOT_FOUND, {"error": "no such scan"})
-                    else:
-                        self._json(HTTPStatus.OK, found)
+                        handler(self, *match.groups(), query=parse_qs(query))
+                    except ApiError as exc:
+                        self._json(exc.status, {"error": str(exc)})
+                    except (OSError, ValueError, RuntimeError) as exc:
+                        self._json(HTTPStatus.INTERNAL_SERVER_ERROR, {"error": f"{type(exc).__name__}: {exc}"})
                     return
-                match = re.fullmatch(r"/api/scan/([0-9a-f]{32})", path)
-                job = app.jobs.get(match.group(1)) if match else None
-                if job is None:
-                    self._json(HTTPStatus.NOT_FOUND, {"error": "no such scan"})
-                else:
-                    self._json(HTTPStatus.OK, job.snapshot())
-                return
-            if not self._guard(api=False):
-                return
-            name = "index.html" if path in ("/", "/index.html") else path.lstrip("/")
+            self._json(HTTPStatus.NOT_FOUND, {"error": "not found"})
+
+        def do_GET(self) -> None:  # noqa: N802
+            self._dispatch("GET")
+
+        def do_POST(self) -> None:  # noqa: N802
+            self._dispatch("POST")
+
+        def do_PUT(self) -> None:  # noqa: N802
+            self._dispatch("PUT")
+
+        def do_DELETE(self) -> None:  # noqa: N802
+            self._dispatch("DELETE")
+
+        def _static(self, path: str) -> None:
+            name = "index.html" if path in ("/", "/index.html") else unquote(path).lstrip("/")
             target = (STATIC_DIR / name).resolve()
             if STATIC_DIR not in target.parents or not target.is_file():
                 self._json(HTTPStatus.NOT_FOUND, {"error": "not found"})
@@ -409,80 +552,249 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
             if name == "index.html":
                 body = body.replace(b"__CYBERSCAN_TOKEN__", app.token.encode())
             ctype = mimetypes.guess_type(target.name)[0] or "application/octet-stream"
-            if ctype.startswith("text/") or ctype.endswith("javascript"):
+            if target.suffix == ".js":
+                ctype = "text/javascript"
+            if ctype.startswith("text/") or ctype.endswith(("javascript", "json", "svg+xml")):
                 ctype += "; charset=utf-8"
             self._send(HTTPStatus.OK, body, ctype)
 
-        def do_POST(self) -> None:  # noqa: N802
-            if not self._guard(api=True):
-                return
-            path = self.path.split("?", 1)[0]
-            if path == "/api/scan":
-                raw = self._body(MAX_TEXT)
-                if raw is None:
-                    return
-                try:
-                    data = json.loads(raw)
-                    mode = {"url": "URL", "text": "Text"}[data["mode"]]
-                    value = str(data["value"]).strip()
-                except (ValueError, KeyError, TypeError):
-                    self._json(HTTPStatus.BAD_REQUEST, {"error": "expected {mode: url|text, value}"})
-                    return
-                if not value:
-                    self._json(HTTPStatus.BAD_REQUEST, {"error": "empty input"})
-                    return
+        # ---- scans ---------------------------------------------------
+        def scan_start(self, query: dict) -> None:
+            data = self._json_body()
+            try:
+                mode = {"url": "URL", "text": "Text", "path": "File"}[data["mode"]]
+                value = str(data["value"]).strip()
+            except (KeyError, TypeError) as exc:
+                raise ApiError(400, "expected {mode: url|text|path, value}") from exc
+            if not value:
+                raise ApiError(400, "empty input")
+            if mode == "File":
+                file_path = Path(value.strip('"')).expanduser()
+                if not file_path.is_absolute() or not file_path.is_file():
+                    raise ApiError(400, "That file doesn't exist.")
+                value = str(file_path.resolve())
+                label = value
+            else:
                 label = value if mode == "URL" else "Pasted text"
-                job = app.start_job(value, mode, label[:300], None)
-                self._json(HTTPStatus.ACCEPTED, {"id": job.id})
-                return
-            if path == "/api/scan/file":
-                limit = int(load_settings().get("maximum_file_size", 50 * 1024 * 1024))
-                raw = self._body(limit)
-                if raw is None:
-                    return
-                from urllib.parse import unquote
+            job = app.start_job(value, mode, label[:1000], None)
+            self._json(HTTPStatus.ACCEPTED, {"id": job.id})
 
-                original = unquote(self.headers.get("X-Filename", "upload.bin"))
-                safe = re.sub(r"[^\w.\- ]", "_", Path(original).name)[:120] or "upload.bin"
-                folder = Path(tempfile.mkdtemp(dir=app.upload_root))
-                file_path = folder / safe
-                file_path.write_bytes(raw)
-                job = app.start_job(str(file_path), "File", Path(original).name[:300], folder)
-                self._json(HTTPStatus.ACCEPTED, {"id": job.id})
-                return
-            self._json(HTTPStatus.NOT_FOUND, {"error": "not found"})
+        def scan_upload(self, query: dict) -> None:
+            limit = int(load_settings().get("maximum_file_size", 50 * 1024 * 1024))
+            raw = self._raw_body(limit)
+            original = unquote(self.headers.get("X-Filename", "upload.bin"))
+            safe = re.sub(r"[^\w.\- ]", "_", Path(original).name)[:120] or "upload.bin"
+            folder = Path(tempfile.mkdtemp(dir=app.upload_root))
+            file_path = folder / safe
+            file_path.write_bytes(raw)
+            job = app.start_job(str(file_path), "File", Path(original).name[:300], folder)
+            self._json(HTTPStatus.ACCEPTED, {"id": job.id})
 
-        def do_PUT(self) -> None:  # noqa: N802
-            if not self._guard(api=True):
-                return
-            if self.path.split("?", 1)[0] != "/api/settings":
-                self._json(HTTPStatus.NOT_FOUND, {"error": "not found"})
-                return
-            raw = self._body(64 * 1024)
-            if raw is None:
-                return
-            try:
-                self._json(HTTPStatus.OK, update_settings(json.loads(raw)))
-            except ValueError as exc:
-                self._json(HTTPStatus.BAD_REQUEST, {"error": str(exc)})
-            except OSError as exc:
-                self._json(HTTPStatus.INTERNAL_SERVER_ERROR, {"error": str(exc)})
+        def scan_status(self, job_id: str, query: dict) -> None:
+            job = app.jobs.get(job_id)
+            if job is None:
+                raise ApiError(404, "no such scan")
+            self._json(HTTPStatus.OK, job.snapshot())
 
-        def do_DELETE(self) -> None:  # noqa: N802
-            if not self._guard(api=True):
-                return
-            match = re.fullmatch(r"/api/history/([0-9a-f]{32})", self.path.split("?", 1)[0])
-            if not match:
-                self._json(HTTPStatus.NOT_FOUND, {"error": "not found"})
-                return
-            try:
-                removed = history_delete(match.group(1))
-            except (OSError, ValueError) as exc:
-                self._json(HTTPStatus.INTERNAL_SERVER_ERROR, {"error": str(exc)})
-                return
+        # ---- history -------------------------------------------------
+        def history_index(self, query: dict) -> None:
+            self._json(HTTPStatus.OK, history_list())
+
+        def history_get(self, record_id: str, query: dict) -> None:
+            self._json(HTTPStatus.OK, history_open(record_id))
+
+        def history_remove(self, record_id: str, query: dict) -> None:
+            removed = history_delete(record_id)
             self._json(HTTPStatus.OK if removed else HTTPStatus.NOT_FOUND, {"removed": removed})
 
+        def history_export(self, record_id: str, query: dict) -> None:
+            record = find_record(record_id)
+            result = result_from_record(record)
+            fmt = (query.get("format") or ["txt"])[0]
+            base = re.sub(r"[^\w.\- ]", "_", Path(record["target"]).name or "scan")[:80] or "scan"
+            if fmt == "json":
+                body = _report_path(record).read_bytes()
+                name, ctype = f"{base}.cyberscan.json", "application/json"
+            else:
+                body = generate_report(result).encode("utf-8")
+                name, ctype = f"{base}.cyberscan.txt", "text/plain; charset=utf-8"
+            self._send(HTTPStatus.OK, body, ctype, {
+                "Content-Disposition": f"attachment; filename*=UTF-8''{quote(name)}",
+            })
+
+        def history_quarantine(self, record_id: str, query: dict) -> None:
+            record = find_record(record_id)
+            if record.get("quarantined"):
+                raise ApiError(409, "Already in quarantine.")
+            if not _on_disk(record["target"]) or not Path(record["target"]).is_file():
+                raise ApiError(409, "The file is no longer where it was scanned.")
+            sealed = services.quarantine(record["target"])
+            update_record(record_id, lambda r: r.__setitem__("quarantined", sealed))
+            self._json(HTTPStatus.OK, {"quarantined": True})
+
+        def history_restore(self, record_id: str, query: dict) -> None:
+            record = find_record(record_id)
+            if not record.get("quarantined"):
+                raise ApiError(409, "This file isn't in quarantine.")
+            try:
+                services.restore(record["quarantined"], record["target"])
+            except FileExistsError as exc:
+                raise ApiError(409, "A file with that name is already there, so nothing was restored.") from exc
+            update_record(record_id, lambda r: r.pop("quarantined", None))
+            self._json(HTTPStatus.OK, {"quarantined": False})
+
+        def history_reveal(self, record_id: str, query: dict) -> None:
+            record = find_record(record_id)
+            if not _on_disk(record["target"]):
+                raise ApiError(409, "This scan isn't a file on disk.")
+            services.reveal(record["target"])
+            self._json(HTTPStatus.OK, {"ok": True})
+
+        def history_ai(self, record_id: str, query: dict) -> None:
+            record = find_record(record_id)
+            data = self._json_body()
+            lang = "ar" if data.get("lang") == "ar" else "en"
+            settings = load_settings()
+            if not settings.get("ai_summary_enabled", True):
+                raise ApiError(409, "AI summaries are turned off in Settings.")
+            job = services.ai_start(result_from_record(record), record["target"], None, lang, settings.get("ai_model", "qwen3:8b"))
+            self._json(HTTPStatus.ACCEPTED, {"id": job.id})
+
+        def stats(self, query: dict) -> None:
+            out = history_stats()
+            out["rules"] = sum(
+                1 for f in (ROOT / "rules").glob("*.yar") for line in f.read_text(errors="ignore").splitlines()
+                if line.lstrip().startswith("rule ")
+            )
+            self._json(HTTPStatus.OK, out)
+
+        # ---- AI ------------------------------------------------------
+        def ai_status(self, query: dict) -> None:
+            settings = load_settings()
+            status = services.ai_status(settings.get("ai_model", "qwen3:8b"))
+            status["enabled"] = bool(settings.get("ai_summary_enabled", True))
+            self._json(HTTPStatus.OK, status)
+
+        def ai_poll(self, job_id: str, query: dict) -> None:
+            job = services.AI_JOBS.get(job_id)
+            if job is None:
+                raise ApiError(404, "no such summary")
+            self._json(HTTPStatus.OK, {"status": job.status, "text": job.text, "error": job.error})
+
+        def ai_stop(self, job_id: str, query: dict) -> None:
+            job = services.AI_JOBS.get(job_id)
+            if job is not None:
+                job.stop = True
+            self._json(HTTPStatus.OK, {"stopped": True})
+
+        # ---- settings, keys, pick, events ----------------------------
+        def settings_get(self, query: dict) -> None:
+            self._json(HTTPStatus.OK, public_settings())
+
+        def settings_put(self, query: dict) -> None:
+            self._json(HTTPStatus.OK, update_settings(self._json_body(64 * 1024)))
+
+        def keys_get(self, query: dict) -> None:
+            self._json(HTTPStatus.OK, services.keys_status())
+
+        def keys_put(self, query: dict) -> None:
+            data = self._json_body(16 * 1024)
+            if not isinstance(data, dict):
+                raise ApiError(400, "expected an object")
+            try:
+                self._json(HTTPStatus.OK, services.save_keys(data))
+            except ValueError as exc:
+                raise ApiError(400, str(exc)) from exc
+
+        def pick(self, query: dict) -> None:
+            data = self._json_body()
+            kind = "folder" if data.get("kind") == "folder" else "file"
+            try:
+                chosen = services.pick(kind)
+            except RuntimeError as exc:
+                raise ApiError(409, str(exc)) from exc
+            info: dict[str, Any] = {"path": chosen}
+            if chosen and kind == "file" and Path(chosen).is_file():
+                info.update(name=Path(chosen).name, size=Path(chosen).stat().st_size)
+            self._json(HTTPStatus.OK, info)
+
+        def events(self, query: dict) -> None:
+            try:
+                since = int((query.get("since") or ["0"])[0])
+            except ValueError:
+                since = 0
+            self._json(HTTPStatus.OK, {"events": MONITOR.since(since), "monitor": "on" if MONITOR.monitor else "off"})
+
+        # ---- repair --------------------------------------------------
+        def repair_path(self, query: dict) -> None:
+            data = self._json_body()
+            file_path = Path(str(data.get("path", "")).strip('"')).expanduser()
+            if not file_path.is_absolute() or not file_path.is_file():
+                raise ApiError(400, "That file doesn't exist.")
+            if file_path.stat().st_size > services.REPAIR_MAX:
+                raise ApiError(413, "This file is larger than 200 MB, which Repair doesn't handle yet.")
+            self._json(HTTPStatus.OK, services.repair_open(file_path.read_bytes(), file_path.name, file_path.resolve()))
+
+        def repair_upload(self, query: dict) -> None:
+            raw = self._raw_body(services.REPAIR_MAX)
+            name = Path(unquote(self.headers.get("X-Filename", "upload.bin"))).name[:200] or "upload.bin"
+            self._json(HTTPStatus.OK, services.repair_open(raw, name, None))
+
+        def repair_run(self, session_id: str, query: dict) -> None:
+            session = services.REPAIRS.get(session_id)
+            if session is None:
+                raise ApiError(404, "This repair session has expired. Open the file again.")
+            data = self._json_body()
+            keys = data.get("keys")
+            if not isinstance(keys, list) or not all(isinstance(k, str) for k in keys):
+                raise ApiError(400, "expected {keys: [...]}")
+            try:
+                self._json(HTTPStatus.OK, services.repair_run(session, keys))
+            except ValueError as exc:
+                raise ApiError(400, str(exc)) from exc
+
+        def repair_download(self, session_id: str, query: dict) -> None:
+            session = services.REPAIRS.get(session_id)
+            if session is None or session.output is None:
+                raise ApiError(404, "Nothing to download.")
+            self._send(HTTPStatus.OK, session.output, "application/octet-stream", {
+                "Content-Disposition": f"attachment; filename*=UTF-8''{quote(session.output_name)}",
+            })
+
     return Handler
+
+
+def _route(method: str, pattern: str, name: str) -> tuple[str, str, Callable]:
+    return method, pattern, lambda handler, *groups, query: getattr(handler, name)(*groups, query=query)
+
+
+ROUTES = [
+    _route("POST", r"/api/scan", "scan_start"),
+    _route("POST", r"/api/scan/file", "scan_upload"),
+    _route("GET", rf"/api/scan/{ID}", "scan_status"),
+    _route("GET", r"/api/history", "history_index"),
+    _route("GET", rf"/api/history/{ID}", "history_get"),
+    _route("DELETE", rf"/api/history/{ID}", "history_remove"),
+    _route("GET", rf"/api/history/{ID}/export", "history_export"),
+    _route("POST", rf"/api/history/{ID}/quarantine", "history_quarantine"),
+    _route("POST", rf"/api/history/{ID}/restore", "history_restore"),
+    _route("POST", rf"/api/history/{ID}/reveal", "history_reveal"),
+    _route("POST", rf"/api/history/{ID}/ai", "history_ai"),
+    _route("GET", r"/api/stats", "stats"),
+    _route("GET", r"/api/ai/status", "ai_status"),
+    _route("GET", rf"/api/ai/{ID}", "ai_poll"),
+    _route("POST", rf"/api/ai/{ID}/stop", "ai_stop"),
+    _route("GET", r"/api/settings", "settings_get"),
+    _route("PUT", r"/api/settings", "settings_put"),
+    _route("GET", r"/api/keys", "keys_get"),
+    _route("PUT", r"/api/keys", "keys_put"),
+    _route("POST", r"/api/pick", "pick"),
+    _route("GET", r"/api/events", "events"),
+    _route("POST", r"/api/repair/path", "repair_path"),
+    _route("POST", r"/api/repair/upload", "repair_upload"),
+    _route("POST", rf"/api/repair/{ID}/run", "repair_run"),
+    _route("GET", rf"/api/repair/{ID}/download", "repair_download"),
+]
 
 
 def create_server(port: int = 0) -> tuple[ThreadingHTTPServer, App]:
@@ -491,8 +803,11 @@ def create_server(port: int = 0) -> tuple[ThreadingHTTPServer, App]:
     actual = server.server_address[1]
     server.RequestHandlerClass = make_handler(app, actual)
     server.daemon_threads = True
+    services.load_keys_into_environment()
+    apply_monitor(load_settings())
     return server, app
 
 
 def cleanup(app: App) -> None:
+    MONITOR.stop()
     shutil.rmtree(app.upload_root, ignore_errors=True)

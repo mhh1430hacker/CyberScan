@@ -4,199 +4,482 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="cyberscan-token" content="__CYBERSCAN_TOKEN__">
+  <meta name="color-scheme" content="dark">
   <title>CyberScan</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="landing.css">
 </head>
-<body>
-  <div class="backdrop" aria-hidden="true">
-    <span class="orb orb-a"></span><span class="orb orb-b"></span><span class="orb orb-c"></span>
-    <div class="grid"></div>
+<body class="on-landing">
+  <canvas id="cells" class="cells" aria-hidden="true"></canvas>
+  <div class="glow-cursor" aria-hidden="true"></div>
+  <div class="warp-veil" aria-hidden="true"></div>
+
+  <!-- ===================================================== LANDING -->
+  <div id="landing" class="landing">
+    <header class="l-top">
+      <a class="brand" href="#/" aria-label="CyberScan">
+        <svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2 4 7v8c0 7.5 5.1 13.4 12 15 6.9-1.6 12-7.5 12-15V7z"/><path class="logo-tick" d="m10.5 16.5 3.8 3.8 7.4-8"/></svg>
+        <span>CyberScan</span>
+      </a>
+      <nav class="l-links">
+        <a href="#features" data-i18n="lFeatures">Features</a>
+        <a href="#how" data-i18n="lHow">How it works</a>
+        <a href="#repair-sec" data-i18n="lRepair">Repair</a>
+        <a href="#privacy" data-i18n="lPrivacy">Privacy</a>
+      </nav>
+      <div class="l-actions">
+        <button class="ghost lang-btn" type="button" data-i18n="switchLang">العربية</button>
+        <button class="primary small enter magnetic" type="button" data-i18n="lOpen">Open the app</button>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="hero-copy">
+        <span class="eyebrow" data-reveal><i class="dot"></i><span data-i18n="lEyebrow" data-scramble>Static analysis</span></span>
+        <h1 class="hero-title">
+          <span class="line"><span class="word-wrap" data-i18n="lTitle1">See inside any file</span></span>
+          <span class="line"><span class="word-wrap grad" data-i18n="lTitle2">before it sees inside</span></span>
+          <span class="line"><span class="word-wrap" data-i18n="lTitle3">your computer.</span></span>
+        </h1>
+        <p class="hero-sub" data-reveal data-i18n="lSub"></p>
+        <div class="hero-ctas" data-reveal>
+          <button class="primary big enter magnetic" type="button"><span data-i18n="lStart">Start scanning</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></button>
+          <a class="ghost big" href="#how" data-i18n="lWatch">See how it works</a>
+        </div>
+      </div>
+
+      <div class="hero-visual" data-reveal>
+        <div class="scan-card tilt">
+          <div class="sc-head">
+            <span class="sc-icon" aria-hidden="true">EXE</span>
+            <div><b data-i18n="lCardFile">invoice_2026.pdf.exe</b><small>412 KB</small></div>
+          </div>
+          <div class="sc-body">
+            <div class="sc-gauge">
+              <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="track" cx="60" cy="60" r="52"/><circle class="sc-meter" cx="60" cy="60" r="52"/></svg>
+              <span class="sc-num">0</span>
+            </div>
+            <div class="sc-verdict"><span class="badge bad">!</span><b data-i18n="lCardVerdict">This looks suspicious</b></div>
+          </div>
+          <ul class="sc-list">
+            <li data-i18n="lCardF1"></li>
+            <li data-i18n="lCardF2"></li>
+            <li data-i18n="lCardF3"></li>
+          </ul>
+          <div class="sc-beam" aria-hidden="true"></div>
+        </div>
+        <div class="orbit o1" aria-hidden="true"></div>
+        <div class="orbit o2" aria-hidden="true"></div>
+      </div>
+      <a href="#how" class="scroll-cue" aria-hidden="true"><span></span></a>
+    </section>
+
+    <div class="marquee" aria-hidden="true"><div class="marquee-track" id="marquee"></div></div>
+
+    <section id="how" class="l-section how">
+      <h2 class="l-h2" data-reveal data-i18n="lHowTitle"></h2>
+      <p class="l-sub" data-reveal data-i18n="lHowSub"></p>
+      <div class="steps-rail"><div class="steps-fill" id="steps-fill"></div></div>
+      <ol class="l-steps" id="l-steps"></ol>
+    </section>
+
+    <section class="l-section cube-sec">
+      <div class="cube-copy">
+        <h2 class="l-h2" data-reveal data-i18n="lCubeTitle"></h2>
+        <p class="l-sub" data-reveal data-i18n="lCubeSub"></p>
+        <ul class="legend" id="l-legend" data-reveal></ul>
+      </div>
+      <div class="cube-stage" data-reveal>
+        <canvas id="l-cube"></canvas>
+        <div class="cube-tip" id="l-cube-tip" hidden></div>
+      </div>
+    </section>
+
+    <section id="features" class="l-section">
+      <h2 class="l-h2 center" data-reveal data-i18n="lFeatTitle"></h2>
+      <div class="feat-grid" id="feat-grid"></div>
+    </section>
+
+    <section id="repair-sec" class="l-section repair-sec">
+      <div class="repair-copy">
+        <h2 class="l-h2" data-reveal data-i18n="lRepairTitle"></h2>
+        <p class="l-sub" data-reveal data-i18n="lRepairSub"></p>
+        <ul class="r-checks" id="r-checks"></ul>
+      </div>
+      <div class="bytes-demo" data-reveal id="bytes-demo">
+        <div class="bytes-row"><span class="bytes-label" data-i18n="lBefore"></span><div class="bytes" id="bytes-before"></div></div>
+        <div class="bytes-row"><span class="bytes-label" data-i18n="lAfter"></span><div class="bytes" id="bytes-after"></div></div>
+      </div>
+    </section>
+
+    <section class="l-section stats-sec">
+      <h2 class="l-h2 center" data-reveal data-i18n="lStatsTitle"></h2>
+      <div class="stats-grid" id="stats-grid"></div>
+    </section>
+
+    <section id="privacy" class="l-section">
+      <h2 class="l-h2 center" data-reveal data-i18n="lPrivTitle"></h2>
+      <div class="priv-grid" id="priv-grid"></div>
+    </section>
+
+    <section class="l-cta">
+      <h2 class="l-h2 center" data-reveal data-i18n="lCtaTitle"></h2>
+      <button class="primary huge enter magnetic" type="button" data-reveal><span data-i18n="lCtaBtn">Enter CyberScan</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></button>
+    </section>
+    <footer class="l-foot"><span>© 2026 CyberScan</span><span data-i18n="lFoot"></span></footer>
   </div>
 
-  <header class="top">
-    <div class="brand">
-      <svg class="logo" viewBox="0 0 32 32" aria-hidden="true">
-        <path d="M16 2 4 7v8c0 7.5 5.1 13.4 12 15 6.9-1.6 12-7.5 12-15V7z" />
-        <path class="logo-tick" d="m10.5 16.5 3.8 3.8 7.4-8" />
-      </svg>
-      <span>CyberScan</span>
-    </div>
-    <nav class="nav" aria-label="Main">
-      <button type="button" class="nav-btn active" data-view="scan">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>
-        <span data-i18n="navScan">Scan</span>
-      </button>
-      <button type="button" class="nav-btn" data-view="history">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 12a8.5 8.5 0 1 0 2.5-6M3.5 4v4h4"/><path d="M12 7.5V12l3 2"/></svg>
-        <span data-i18n="navHistory">History</span>
-      </button>
-      <button type="button" class="nav-btn" data-view="settings">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>
-        <span data-i18n="navSettings">Settings</span>
-      </button>
-      <span class="nav-ink" aria-hidden="true"></span>
-    </nav>
-    <button id="lang" class="ghost" type="button" data-i18n="switchLang">العربية</button>
-  </header>
-
-  <main>
-   <div class="view" id="view-scan">
-    <section class="composer card" aria-labelledby="composer-title">
-      <h1 id="composer-title" data-i18n="title">Check a file, link or text</h1>
-      <p class="lede" data-i18n="lede">Static analysis only. Nothing you check is ever run.</p>
-
-      <div class="tabs" role="tablist">
-        <button role="tab" class="tab active" data-mode="file" aria-selected="true" data-i18n="tabFile">File</button>
-        <button role="tab" class="tab" data-mode="url" aria-selected="false" data-i18n="tabUrl">Link</button>
-        <button role="tab" class="tab" data-mode="text" aria-selected="false" data-i18n="tabText">Text</button>
-        <span class="tab-ink" aria-hidden="true"></span>
+  <!-- ===================================================== APP -->
+  <div id="app" class="app" hidden>
+    <header class="top">
+      <a class="brand" href="#/" title="Home">
+        <svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2 4 7v8c0 7.5 5.1 13.4 12 15 6.9-1.6 12-7.5 12-15V7z"/><path class="logo-tick" d="m10.5 16.5 3.8 3.8 7.4-8"/></svg>
+        <span>CyberScan</span>
+      </a>
+      <nav class="nav" aria-label="Main">
+        <a class="nav-btn" href="#/scan" data-view="scan">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>
+          <span data-i18n="navScan">Scan</span></a>
+        <a class="nav-btn" href="#/history" data-view="history">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 12a8.5 8.5 0 1 0 2.5-6M3.5 4v4h4"/><path d="M12 7.5V12l3 2"/></svg>
+          <span data-i18n="navHistory">History</span></a>
+        <a class="nav-btn" href="#/repair" data-view="repair">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L3.5 17.3a1.8 1.8 0 0 0 2.5 2.5l5.8-5.8a4 4 0 0 0 5.2-5.4l-2.6 2.6-2.3-.5-.5-2.3z"/></svg>
+          <span data-i18n="navRepair">Repair</span></a>
+        <a class="nav-btn" href="#/settings" data-view="settings">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>
+          <span data-i18n="navSettings">Settings</span></a>
+        <span class="nav-ink" aria-hidden="true"></span>
+      </nav>
+      <div class="top-right">
+        <span class="watch-pill" id="watch-pill" hidden><i></i><span></span></span>
+        <button class="ghost lang-btn" type="button" data-i18n="switchLang">العربية</button>
       </div>
+    </header>
 
-      <form id="form">
-        <label class="drop" id="drop" data-panel="file">
-          <input id="file" type="file" hidden>
-          <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 32V10m-9 9 9-9 9 9M10 34v4h28v-4"/></svg>
-          <strong id="drop-label" data-i18n="dropTitle">Drop a file here or click to choose</strong>
-          <small data-i18n="dropHint">Up to 50 MB · read locally, deleted after the check</small>
-        </label>
-        <input id="url" class="field" data-panel="url" type="url" hidden
-               placeholder="https://example.com/download" data-i18n-ph="urlPh">
-        <textarea id="text" class="field" data-panel="text" rows="5" hidden
-                  placeholder="Paste a script, an email or a command…" data-i18n-ph="textPh"></textarea>
-        <button id="go" class="primary" type="submit" disabled>
-          <span data-i18n="scan">Start check</span>
-        </button>
-      </form>
-    </section>
-
-    <section id="progress" class="card progress" hidden aria-live="polite">
-      <h2 data-i18n="working">Checking…</h2>
-      <ol class="stages">
-        <li data-i18n="s0">Reading the target</li>
-        <li data-i18n="s1">Measuring structure</li>
-        <li data-i18n="s2">Comparing with known patterns</li>
-        <li data-i18n="s3">Public threat lookups</li>
-      </ol>
-      <p id="stage-detail" class="detail"></p>
-    </section>
-
-    <section id="error" class="card error" hidden role="alert"></section>
-
-    <section id="result" class="result" hidden>
-      <div class="card verdict">
-        <div class="gauge" role="img" id="gauge">
-          <svg viewBox="0 0 120 120" aria-hidden="true">
-            <circle class="track" cx="60" cy="60" r="52"/>
-            <circle class="meter" id="meter" cx="60" cy="60" r="52"/>
-          </svg>
-          <div class="gauge-num"><span id="score">0</span><small>/100</small></div>
-        </div>
-        <div class="verdict-text">
-          <span id="badge" class="badge"></span>
-          <h2 id="verdict-title"></h2>
-          <p id="verdict-body"></p>
-          <p class="target" id="target"></p>
-          <p class="when" id="when" hidden></p>
-          <div class="actions">
-            <button id="again" class="ghost" type="button" data-i18n="again">Check something else</button>
-            <button id="copy" class="ghost" type="button" data-i18n="copy">Copy report</button>
+    <main>
+      <!-- ================= SCAN ================= -->
+      <div class="view" id="view-scan">
+        <section class="composer card" aria-labelledby="composer-title">
+          <div class="composer-head">
+            <div>
+              <h1 id="composer-title" data-i18n="title">Check a file, link or text</h1>
+              <p class="lede" data-i18n="lede"></p>
+            </div>
+            <div class="sonar" aria-hidden="true"><span></span><span></span><span></span><i></i></div>
           </div>
-        </div>
+
+          <div class="tabs" role="tablist">
+            <button role="tab" class="tab active" data-mode="file" aria-selected="true" data-i18n="tabFile">File</button>
+            <button role="tab" class="tab" data-mode="url" aria-selected="false" data-i18n="tabUrl">Link</button>
+            <button role="tab" class="tab" data-mode="text" aria-selected="false" data-i18n="tabText">Text</button>
+            <span class="tab-ink" aria-hidden="true"></span>
+          </div>
+
+          <form id="form">
+            <div class="file-panel" data-panel="file">
+              <label class="drop" id="drop">
+                <input id="file" type="file" hidden>
+                <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 32V10m-9 9 9-9 9 9M10 34v4h28v-4"/></svg>
+                <strong id="drop-label" data-i18n="dropTitle">Drop a file here or click to choose</strong>
+                <small data-i18n="dropHint"></small>
+              </label>
+              <div class="disk-row">
+                <span class="or" data-i18n="orDisk">or</span>
+                <button type="button" class="ghost" id="pick-disk">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                  <span data-i18n="pickDisk">Choose from disk</span></button>
+                <small data-i18n="pickDiskHint"></small>
+              </div>
+            </div>
+            <input id="url" class="field" data-panel="url" type="url" hidden placeholder="https://example.com/download" data-i18n-ph="urlPh">
+            <div data-panel="text" hidden class="text-panel">
+              <textarea id="text" class="field" rows="5" placeholder="" data-i18n-ph="textPh"></textarea>
+              <button type="button" class="link-btn" id="sample" data-i18n="sample">Try a sample</button>
+            </div>
+            <button id="go" class="primary magnetic" type="submit" disabled><span data-i18n="scan">Start check</span></button>
+          </form>
+        </section>
+
+        <section id="progress" class="card progress" hidden aria-live="polite">
+          <div class="progress-head">
+            <div class="radar" aria-hidden="true"><i></i></div>
+            <div>
+              <h2 data-i18n="working">Checking…</h2>
+              <p id="progress-target" class="target"></p>
+            </div>
+          </div>
+          <ol class="stages">
+            <li data-i18n="s0">Reading the target</li>
+            <li data-i18n="s1">Measuring structure</li>
+            <li data-i18n="s2">Comparing with known patterns</li>
+            <li data-i18n="s3">Public threat lookups</li>
+          </ol>
+          <p id="stage-detail" class="detail"></p>
+        </section>
+
+        <section id="error" class="card error" hidden role="alert"></section>
+
+        <section id="result" class="result" hidden>
+          <div class="card verdict">
+            <div class="gauge" role="img" id="gauge">
+              <svg viewBox="0 0 120 120" aria-hidden="true">
+                <defs><linearGradient id="gauge-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="currentColor" stop-opacity=".55"/><stop offset="1" stop-color="currentColor"/></linearGradient></defs>
+                <circle class="track" cx="60" cy="60" r="52"/>
+                <circle class="ticks" cx="60" cy="60" r="44"/>
+                <circle class="meter" id="meter" cx="60" cy="60" r="52"/>
+              </svg>
+              <div class="gauge-num"><span id="score">0</span><small>/100</small></div>
+            </div>
+            <div class="verdict-text">
+              <span id="badge" class="badge"></span>
+              <h2 id="verdict-title"></h2>
+              <p id="verdict-body"></p>
+              <p id="verdict-advice" class="advice"></p>
+              <p id="notice" class="notice" hidden></p>
+              <ul id="facts-chips" class="chips-row"></ul>
+              <p class="target" id="target"></p>
+              <p class="when" id="when" hidden></p>
+            </div>
+          </div>
+
+          <div class="actions-bar" id="actions"></div>
+
+          <div class="card ai-card" id="ai-card" hidden>
+            <div class="ai-head">
+              <span class="ai-orb" aria-hidden="true"></span>
+              <div><b data-i18n="aiTitle">AI explanation</b><small data-i18n="aiLocal"></small></div>
+              <button class="ghost small" id="ai-stop" type="button" data-i18n="aiStop">Stop</button>
+            </div>
+            <p id="ai-text" class="ai-text"></p>
+          </div>
+
+          <div class="card result-tabs">
+            <div class="rtabs" role="tablist" id="rtabs">
+              <button role="tab" class="rtab active" data-tab="findings" data-i18n="tFindings">Findings</button>
+              <button role="tab" class="rtab" data-tab="structure" data-i18n="tStructure">Structure</button>
+              <button role="tab" class="rtab" data-tab="details" data-i18n="tDetails">Details</button>
+              <button role="tab" class="rtab" data-tab="checks" data-i18n="tChecks">Checks</button>
+              <button role="tab" class="rtab" data-tab="attack" data-i18n="tAttack">ATT&amp;CK</button>
+              <button role="tab" class="rtab" data-tab="tech" data-i18n="tTech">Technical</button>
+            </div>
+
+            <div class="rpanel" data-tab="findings">
+              <ul id="evidence" class="evidence"></ul>
+            </div>
+            <div class="rpanel" data-tab="structure" hidden>
+              <p class="hint" data-i18n="structureHint"></p>
+              <div class="cube-stage app-cube"><canvas id="r-cube"></canvas><div class="cube-tip" id="r-cube-tip" hidden></div></div>
+              <ul class="legend" id="r-legend"></ul>
+              <p class="empty-state" id="no-structure" hidden data-i18n="noStructure"></p>
+            </div>
+            <div class="rpanel" data-tab="details" hidden>
+              <div class="cols">
+                <div>
+                  <h3 data-i18n="facts">About this target</h3>
+                  <dl class="facts" id="facts"></dl>
+                </div>
+                <div>
+                  <h3 data-i18n="entropy">Byte randomness across the file</h3>
+                  <svg id="spark" class="spark" viewBox="0 0 300 90" preserveAspectRatio="none" aria-hidden="true">
+                    <path class="spark-fill" id="spark-fill"/><path class="spark-line" id="spark-line"/>
+                  </svg>
+                  <dl class="stats">
+                    <div><dt data-i18n="mean">Average</dt><dd id="e-mean">–</dd></div>
+                    <div><dt data-i18n="peak">Peak</dt><dd id="e-peak">–</dd></div>
+                    <div><dt data-i18n="jumps">Sudden jumps</dt><dd id="e-jumps">–</dd></div>
+                  </dl>
+                </div>
+              </div>
+              <h3 data-i18n="peTitle">Program anatomy</h3>
+              <div id="pe"></div>
+            </div>
+            <div class="rpanel" data-tab="checks" hidden>
+              <ul id="checks" class="checks"></ul>
+            </div>
+            <div class="rpanel" data-tab="attack" hidden>
+              <h3 data-i18n="mitre">MITRE ATT&amp;CK techniques</h3>
+              <ul id="mitre" class="tech-list"></ul>
+              <h3 data-i18n="yara">YARA rule matches</h3>
+              <ul id="yara" class="tech-list"></ul>
+            </div>
+            <div class="rpanel" data-tab="tech" hidden>
+              <h3 data-i18n="rawEvidence">Engine evidence</h3>
+              <ul id="raw" class="raw-list"></ul>
+              <h3 data-i18n="classScores">Learning model</h3>
+              <div id="ml"></div>
+              <h3 data-i18n="engines">Engines</h3>
+              <ul id="engines" class="engines"></ul>
+            </div>
+          </div>
+          <p class="limits" id="limits"></p>
+        </section>
       </div>
 
-      <div class="cols">
-        <div class="card">
-          <h3 data-i18n="evidence">What we found</h3>
-          <ul id="evidence" class="evidence"></ul>
-        </div>
-        <div class="card">
-          <h3 data-i18n="entropy">Byte randomness across the file</h3>
-          <svg id="spark" class="spark" viewBox="0 0 300 90" preserveAspectRatio="none" aria-hidden="true">
-            <path class="spark-fill" id="spark-fill"/>
-            <path class="spark-line" id="spark-line"/>
-          </svg>
-          <dl class="stats">
-            <div><dt data-i18n="mean">Average</dt><dd id="e-mean">–</dd></div>
-            <div><dt data-i18n="peak">Peak</dt><dd id="e-peak">–</dd></div>
-            <div><dt data-i18n="jumps">Sudden jumps</dt><dd id="e-jumps">–</dd></div>
-          </dl>
-          <h3 data-i18n="engines">Engines</h3>
-          <ul id="engines" class="engines"></ul>
-        </div>
-      </div>
-      <p class="limits" id="limits"></p>
-    </section>
-   </div>
-
-   <div class="view" id="view-history" hidden>
-    <section class="card history">
-      <div class="view-head">
-        <h1 data-i18n="historyTitle">Your scans</h1>
-        <span id="history-count" class="count"></span>
-      </div>
-      <div class="history-tools">
-        <input id="history-search" class="field search" type="search" placeholder="Search by name or link" data-i18n-ph="searchPh">
-        <div class="chips" role="group">
-          <button type="button" class="chip active" data-filter="all" data-i18n="fAll">All</button>
-          <button type="button" class="chip" data-filter="SUSPICIOUS" data-i18n="fBad">Suspicious</button>
-          <button type="button" class="chip" data-filter="REVIEW" data-i18n="fReview">Review</button>
-          <button type="button" class="chip" data-filter="NO_INDICATORS_OBSERVED" data-i18n="fClear">Clear</button>
-        </div>
-      </div>
-      <div id="history-list" class="history-list" aria-live="polite"></div>
-    </section>
-   </div>
-
-   <div class="view" id="view-settings" hidden>
-    <section class="card settings">
-      <div class="view-head">
-        <h1 data-i18n="settingsTitle">Settings</h1>
-        <span id="save-state" class="save-state" aria-live="polite"></span>
-      </div>
-      <p class="lede" data-i18n="settingsLede">Changes save on their own and apply to your next check. The desktop app uses the same settings.</p>
-
-      <h3 data-i18n="grpChecks">What to check</h3>
-      <div class="setting-group">
-        <label class="setting"><span><b data-i18n="setEntropy">Check how scrambled the content is</b><small data-i18n="setEntropyHint">Packed or encrypted parts look random.</small></span><input type="checkbox" class="switch" data-key="entropy_analysis"></label>
-        <label class="setting"><span><b data-i18n="setHeur">Look for common warning signs</b><small data-i18n="setHeurHint">Known tricks used by harmful files and links.</small></span><input type="checkbox" class="switch" data-key="heuristic_rules"></label>
-        <label class="setting"><span><b data-i18n="setMl">Use the learning model, if one is installed</b><small data-i18n="setMlHint">Its scores are not calibrated yet.</small></span><input type="checkbox" class="switch" data-key="ml_analysis"></label>
+      <!-- ================= HISTORY ================= -->
+      <div class="view" id="view-history" hidden>
+        <section class="card history">
+          <div class="view-head">
+            <h1 data-i18n="historyTitle">Your scans</h1>
+            <span id="history-count" class="count"></span>
+          </div>
+          <div class="dist" id="dist" aria-hidden="true"></div>
+          <div class="history-tools">
+            <input id="history-search" class="field search" type="search" data-i18n-ph="searchPh">
+            <div class="chips" role="group">
+              <button type="button" class="chip active" data-filter="all" data-i18n="fAll">All</button>
+              <button type="button" class="chip" data-filter="SUSPICIOUS" data-i18n="fBad">Suspicious</button>
+              <button type="button" class="chip" data-filter="REVIEW" data-i18n="fReview">Review</button>
+              <button type="button" class="chip" data-filter="NO_INDICATORS_OBSERVED" data-i18n="fClear">Clear</button>
+              <button type="button" class="chip" data-filter="quarantined" data-i18n="fQuar">Quarantined</button>
+            </div>
+          </div>
+          <div id="history-list" class="history-list" aria-live="polite"></div>
+        </section>
       </div>
 
-      <h3 data-i18n="grpOnline">Online</h3>
-      <div class="setting-group">
-        <label class="setting"><span><b data-i18n="setOsint">Look the result up in public threat lists</b><small data-i18n="setOsintHint">Sends only a fingerprint or the link, never the file itself.</small></span><input type="checkbox" class="switch" data-key="osint_enabled"></label>
+      <!-- ================= REPAIR ================= -->
+      <div class="view" id="view-repair" hidden>
+        <section class="card repair">
+          <div class="view-head">
+            <div>
+              <h1 data-i18n="repairTitle">Repair a file</h1>
+              <p class="lede" data-i18n="repairLede"></p>
+            </div>
+          </div>
+          <ol class="rsteps" id="rsteps">
+            <li class="active"><i>1</i><span data-i18n="rStep1">Choose</span></li>
+            <li><i>2</i><span data-i18n="rStep2">Review</span></li>
+            <li><i>3</i><span data-i18n="rStep3">Repair</span></li>
+          </ol>
+
+          <div id="r-choose">
+            <label class="drop" id="r-drop">
+              <input id="r-file" type="file" hidden>
+              <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 32V10m-9 9 9-9 9 9M10 34v4h28v-4"/></svg>
+              <strong data-i18n="rDrop">Drop a file to inspect</strong>
+            </label>
+            <div class="disk-row">
+              <span class="or" data-i18n="orDisk">or</span>
+              <button type="button" class="ghost" id="r-pick"><span data-i18n="pickDisk">Choose from disk</span></button>
+            </div>
+            <ul class="rules" id="r-rules"></ul>
+          </div>
+
+          <div id="r-busy" class="r-busy" hidden><div class="radar" aria-hidden="true"><i></i></div><span data-i18n="rAnalyzing"></span></div>
+
+          <div id="r-review" hidden>
+            <div class="r-file">
+              <div class="r-file-icon" id="r-format">?</div>
+              <div class="r-file-meta"><b id="r-name"></b><small id="r-meta"></small></div>
+              <span class="r-count" id="r-count"></span>
+            </div>
+            <h3 data-i18n="rMap">Where the problems are</h3>
+            <div class="bytemap" id="r-map"></div>
+            <ul class="r-findings" id="r-findings"></ul>
+            <div class="r-foot">
+              <button class="ghost" type="button" id="r-reset" data-i18n="rAnother">Repair another file</button>
+              <button class="primary magnetic" type="button" id="r-run" disabled><span data-i18n="rRun">Repair a copy</span></button>
+            </div>
+          </div>
+
+          <div id="r-outcome" class="r-outcome" hidden>
+            <svg class="r-mark" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="28"/><path d="m20 33 8 8 16-17"/></svg>
+            <h2 id="r-out-title"></h2>
+            <p id="r-out-body"></p>
+            <p id="r-out-checks" class="muted"></p>
+            <pre id="r-out-hashes" class="hashes"></pre>
+            <div class="r-foot">
+              <button class="ghost" type="button" id="r-again" data-i18n="rAnother">Repair another file</button>
+              <button class="primary" type="button" id="r-download" hidden data-i18n="rDownload">Download the repaired copy</button>
+            </div>
+          </div>
+        </section>
       </div>
 
-      <h3 data-i18n="grpDisplay">Display</h3>
-      <div class="setting-group">
-        <label class="setting"><span><b data-i18n="setLarge">Larger text</b></span><input type="checkbox" class="switch" data-key="large_text"></label>
-        <label class="setting"><span><b data-i18n="setAnim">Moving background</b></span><input type="checkbox" class="switch" data-key="animated_background"></label>
-      </div>
+      <!-- ================= SETTINGS ================= -->
+      <div class="view" id="view-settings" hidden>
+        <section class="card settings">
+          <div class="view-head">
+            <h1 data-i18n="settingsTitle">Settings</h1>
+            <span id="save-state" class="save-state" aria-live="polite"></span>
+          </div>
+          <p class="lede" data-i18n="settingsLede"></p>
 
-      <h3 data-i18n="grpLimits">Limits</h3>
-      <div class="setting-group">
-        <label class="setting range"><span><b data-i18n="setSize">Largest file to check</b><small><output id="size-out"></output></small></span>
-          <input type="range" min="1" max="200" step="1" data-key="maximum_file_size" data-scale="1048576"></label>
-        <label class="setting range"><span><b data-i18n="setTime">Give up after</b><small><output id="time-out"></output></small></span>
-          <input type="range" min="5" max="300" step="5" data-key="analysis_timeout"></label>
+          <h3 data-i18n="grpChecks">What to check</h3>
+          <div class="setting-group">
+            <label class="setting"><span><b data-i18n="setEntropy"></b><small data-i18n="setEntropyHint"></small></span><input type="checkbox" class="switch" data-key="entropy_analysis"></label>
+            <label class="setting"><span><b data-i18n="setHeur"></b><small data-i18n="setHeurHint"></small></span><input type="checkbox" class="switch" data-key="heuristic_rules"></label>
+            <label class="setting"><span><b data-i18n="setMl"></b><small data-i18n="setMlHint"></small></span><input type="checkbox" class="switch" data-key="ml_analysis"></label>
+          </div>
+
+          <h3 data-i18n="grpOnline">Online</h3>
+          <div class="setting-group">
+            <label class="setting"><span><b data-i18n="setOsint"></b><small data-i18n="setOsintHint"></small></span><input type="checkbox" class="switch" data-key="osint_enabled"></label>
+          </div>
+
+          <h3 data-i18n="grpKeys">Online lookup keys</h3>
+          <div class="setting-group">
+            <div class="setting keys">
+              <span><small data-i18n="keysHint"></small></span>
+              <div class="key-fields">
+                <label>abuse.ch <em id="k-abusech"></em><input type="password" class="field" autocomplete="off" data-secret="abusech"></label>
+                <label>AlienVault OTX <em id="k-otx"></em><input type="password" class="field" autocomplete="off" data-secret="otx"></label>
+                <button class="ghost" type="button" id="keys-save" data-i18n="keySave">Save keys</button>
+              </div>
+            </div>
+          </div>
+
+          <h3 data-i18n="grpWatch">Downloads watch</h3>
+          <div class="setting-group">
+            <label class="setting"><span><b data-i18n="setWatch"></b><small data-i18n="setWatchHint"></small></span><input type="checkbox" class="switch" data-key="monitoring_enabled"></label>
+            <div class="setting"><span><b data-i18n="setFolder"></b><small id="folder-out" class="mono"></small></span><button class="ghost" type="button" id="pick-folder" data-i18n="choose">Choose…</button></div>
+          </div>
+
+          <h3 data-i18n="grpAi">AI explanation</h3>
+          <div class="setting-group">
+            <label class="setting"><span><b data-i18n="setAi"></b><small data-i18n="setAiHint"></small></span><input type="checkbox" class="switch" data-key="ai_summary_enabled"></label>
+            <div class="setting"><span><b data-i18n="setModel"></b><small id="ai-state"></small></span><select class="field select" id="ai-model"></select></div>
+          </div>
+
+          <h3 data-i18n="grpDisplay">Display</h3>
+          <div class="setting-group">
+            <label class="setting"><span><b data-i18n="setLarge"></b></span><input type="checkbox" class="switch" data-key="large_text"></label>
+            <label class="setting"><span><b data-i18n="setAnim"></b></span><input type="checkbox" class="switch" data-key="animated_background"></label>
+          </div>
+
+          <h3 data-i18n="grpLimits">Limits</h3>
+          <div class="setting-group">
+            <label class="setting range"><span><b data-i18n="setSize"></b><small><output id="size-out"></output></small></span>
+              <input type="range" min="1" max="200" step="1" data-key="maximum_file_size" data-scale="1048576"></label>
+            <label class="setting range"><span><b data-i18n="setTime"></b><small><output id="time-out"></output></small></span>
+              <input type="range" min="5" max="300" step="5" data-key="analysis_timeout"></label>
+          </div>
+        </section>
       </div>
-    </section>
-   </div>
-  </main>
+    </main>
+  </div>
 
   <dialog id="confirm" class="confirm">
     <form method="dialog">
-      <h2 data-i18n="delTitle">Remove this scan?</h2>
+      <h2 id="confirm-title"></h2>
       <p id="confirm-body"></p>
       <div class="actions">
         <button value="cancel" class="ghost" data-i18n="cancel">Cancel</button>
-        <button value="ok" class="danger" data-i18n="remove">Remove</button>
+        <button value="ok" class="danger" id="confirm-ok"></button>
       </div>
     </form>
   </dialog>
 
-  <div id="toast" class="toast" role="status" hidden></div>
+  <div id="toasts" class="toasts" aria-live="polite"></div>
 
+  <script src="js/i18n.js"></script>
+  <script src="js/cells.js"></script>
+  <script src="js/cube.js"></script>
   <script src="app.js"></script>
+  <script src="js/repair.js"></script>
+  <script src="js/landing.js"></script>
 </body>
 </html>
