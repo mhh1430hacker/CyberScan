@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "cyberscan-web",
+      "runtimeExecutable": ".venv/Scripts/python.exe",
+      "runtimeArgs": ["web_v/run.py", "--port", "8765", "--no-open"],
+      "port": 8765
+    }
+  ]
+}
