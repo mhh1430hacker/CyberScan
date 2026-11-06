@@ -39,32 +39,44 @@
   }
 
   /* ---------------- cursor ---------------- */
-  if (fine && !reduced) {
+  /* A cyberpunk "< >" cursor. The dot is the exact hotspot; the brackets
+   * trail it slightly, spread and show a "/" over anything clickable
+   * (so it reads "</>"), snap shut on press, and step aside for the
+   * normal text cursor inside fields. */
+  if (fine) {
     const ring = document.querySelector(".cursor-ring");
     const dot = document.querySelector(".cursor-dot");
-    const label = ring.querySelector("span");
+    ring.innerHTML = '<i class="cb cb-l">&lt;</i><span class="cb-mid"></span><i class="cb cb-r">&gt;</i>';
+    const mid = ring.querySelector(".cb-mid");
     let x = innerWidth / 2, y = innerHeight / 2, rx = x, ry = y;
     document.body.classList.add("has-cursor");
+    const CLICKABLE = "a, button, [role=button], .row, label.drop, label.setting, .chip, .bento-card, .pal-item, .pipe-node, .lg-opt, .film-seek, #film-canvas";
     window.addEventListener("pointermove", (e) => {
       x = e.clientX; y = e.clientY;
       dot.style.transform = `translate(${x}px, ${y}px)`;
-      const target = e.target.closest ? e.target.closest("a, button, .row, label.drop, canvas, input, select, textarea, .chip, .feat, .bento-card") : null;
-      ring.classList.toggle("hover", !!target && !target.matches("canvas, input, textarea, select"));
-      const drag = target && target.matches("#l-cube, #r-cube");
+      const el = e.target.closest ? e.target : null;
+      const field = el && el.closest("input:not([type=checkbox]):not([type=range]), textarea, select, [contenteditable]");
+      const drag = el && el.closest("#l-cube, #r-cube, .bcube");
+      const hover = !field && !drag && el && el.closest(CLICKABLE);
+      ring.classList.toggle("text", !!field);
       ring.classList.toggle("drag", !!drag);
-      label.textContent = drag ? (window.CS.lang === "ar" ? "اسحب" : "drag") : "";
-      ring.classList.toggle("text", !!target && target.matches("input, textarea"));
+      ring.classList.toggle("hover", !!hover);
+      dot.classList.toggle("text", !!field);
+      mid.textContent = drag ? (window.CS.lang === "ar" ? "اسحب" : "drag") : hover ? "/" : "";
+      if (reduced) { rx = x; ry = y; ring.style.transform = `translate(${rx}px, ${ry}px)`; }
     }, { passive: true });
     window.addEventListener("pointerdown", () => ring.classList.add("press"));
     window.addEventListener("pointerup", () => ring.classList.remove("press"));
     document.addEventListener("pointerleave", () => { ring.style.opacity = "0"; dot.style.opacity = "0"; });
     document.addEventListener("pointerenter", () => { ring.style.opacity = ""; dot.style.opacity = ""; });
-    const follow = () => {
-      rx += (x - rx) * 0.18; ry += (y - ry) * 0.18;
-      ring.style.transform = `translate(${rx}px, ${ry}px)`;
-      requestAnimationFrame(follow);
-    };
-    follow();
+    if (!reduced) {
+      const follow = () => {
+        rx += (x - rx) * 0.32; ry += (y - ry) * 0.32;
+        ring.style.transform = `translate(${rx.toFixed(1)}px, ${ry.toFixed(1)}px)`;
+        requestAnimationFrame(follow);
+      };
+      follow();
+    }
   }
 
   /* ---------------- ripples on every button ---------------- */

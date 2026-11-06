@@ -29,6 +29,19 @@
   <div class="cursor-ring" aria-hidden="true"><span></span></div>
   <div class="cursor-dot" aria-hidden="true"></div>
 
+  <div id="lang-gate" class="lang-gate" hidden role="dialog" aria-modal="true" aria-labelledby="lg-title">
+    <div class="lg-box">
+      <svg class="lg-logo" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 4 56 18v28L32 60 8 46V18z"/><path d="M32 14 20 19v8c0 7.5 5.1 13.4 12 15 6.9-1.6 12-7.5 12-15v-8z"/><path d="m26.5 28.5 3.8 3.8 7.4-8"/></svg>
+      <span class="lg-kicker">CYBERSCAN://LANGUAGE</span>
+      <h2 id="lg-title"><span>Choose your language</span><span lang="ar" dir="rtl">اختر لغتك</span></h2>
+      <div class="lg-options">
+        <button type="button" class="lg-opt" data-lang="en"><span class="lg-code">EN</span><b>English</b><small>Continue in English</small></button>
+        <button type="button" class="lg-opt" data-lang="ar" lang="ar" dir="rtl"><span class="lg-code">AR</span><b>العربية</b><small>المتابعة بالعربية</small></button>
+      </div>
+      <p class="lg-note">You can change this any time from the top bar. <span lang="ar" dir="rtl">يمكنك تغييرها في أي وقت من الشريط العلوي.</span></p>
+    </div>
+  </div>
+
   <div id="preloader" class="preloader" aria-hidden="true">
     <div class="pl-panel top"></div><div class="pl-panel bottom"></div>
     <div class="pl-core">
@@ -604,6 +617,7 @@
           <div class="setting-group">
             <label class="setting"><span><b data-i18n="setLarge"></b></span><input type="checkbox" class="switch" data-key="large_text"></label>
             <label class="setting"><span><b data-i18n="setAnim"></b></span><input type="checkbox" class="switch" data-key="animated_background"></label>
+            <label class="setting"><span><b data-i18n="setUiSound"></b><small data-i18n="setUiSoundHint"></small></span><input type="checkbox" class="switch" id="ui-sound-toggle"></label>
           </div>
 
           <h3 data-i18n="grpLimits">Limits</h3>
@@ -663,6 +677,7 @@
   <script src="js/cells.js"></script>
   <script src="js/cube.js"></script>
   <script src="app.js"></script>
+  <script src="js/lang-gate.js"></script>
   <script src="js/repair.js"></script>
   <script src="js/batch.js"></script>
   <script src="js/palette.js"></script>
@@ -670,6 +685,7 @@
   <script src="js/insights.js"></script>
   <script src="js/gl-hero.js"></script>
   <script src="js/sound.js"></script>
+  <script src="js/ui-sound.js"></script>
   <script src="js/pipeline.js"></script>
   <script src="js/workspace.js"></script>
   <script src="js/film.js"></script>

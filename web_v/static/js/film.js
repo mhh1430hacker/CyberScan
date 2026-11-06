@@ -378,7 +378,23 @@
   let voice = null;
   function pickVoice() {
     const all = window.speechSynthesis ? speechSynthesis.getVoices() : [];
-    voice = all.find((v) => /en-(US|GB)/i.test(v.lang) && /natural|aria|jenny|guy|zira|david/i.test(v.name)) || all.find((v) => /^en/i.test(v.lang)) || null;
+    const en = all.filter((v) => /^en[-_]/i.test(v.lang));
+    // best first: neural "Natural" voices, then Google's, then the better Windows voices
+    const rank = (v) =>
+      /natural/i.test(v.name) ? 0 :
+      /online/i.test(v.name) ? 1 :
+      /google/i.test(v.name) ? 2 :
+      /aria|jenny|guy|ava|andrew|emma|brian/i.test(v.name) ? 3 :
+      /zira|hazel|susan/i.test(v.name) ? 4 : 5;
+    voice = en.sort((a, b) => rank(a) - rank(b) || (/en-US/i.test(b.lang) - /en-US/i.test(a.lang)))[0] || null;
+  }
+
+  /* spoken text reads better than written text: say the filename like a person would */
+  function forSpeech(text) {
+    return text
+      .replace("invoice_2026.pdf.exe", "invoice twenty twenty-six, dot P D F, dot E X E")
+      .replace(/YARA/g, "Yara")
+      .replace(/CyberScan/g, "Cyber Scan");
   }
   if (window.speechSynthesis) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
   function speak(s) {
@@ -386,12 +402,20 @@
     const cue = cues.en.find((c) => s >= c.start && s < c.start + 0.4 && !spoken.has(c.start));
     if (!cue) return;
     spoken.add(cue.start);
-    const u = new SpeechSynthesisUtterance(cue.text.replace("invoice_2026.pdf.exe", "invoice 2026 dot P D F dot E X E").replace("YARA", "Yara"));
-    u.lang = "en-US"; u.rate = 1.0; u.pitch = 1.0;
-    if (voice) u.voice = voice;
-    u.onstart = () => window.CSSound && CSSound.setDuck(0.35);
-    u.onend = () => window.CSSound && CSSound.setDuck(1);
-    speechSynthesis.speak(u);
+    // short phrases with their own pauses sound far less mechanical than one long sentence
+    const phrases = forSpeech(cue.text).split(/(?<=[.?!:])\s+/).filter(Boolean);
+    const natural = voice && /natural|online/i.test(voice.name);
+    phrases.forEach((phrase, i) => {
+      const u = new SpeechSynthesisUtterance(phrase);
+      u.lang = voice ? voice.lang : "en-US";
+      if (voice) u.voice = voice;
+      u.rate = natural ? 1.0 : 0.93;   // older voices sound better a little slower
+      u.pitch = natural ? 1.0 : 1.04;
+      u.volume = 0.95;
+      if (i === 0) u.onstart = () => window.CSSound && CSSound.setDuck(0.35);
+      if (i === phrases.length - 1) u.onend = () => window.CSSound && CSSound.setDuck(1);
+      speechSynthesis.speak(u);
+    });
   }
 
   /* ---------------- playback ---------------- */

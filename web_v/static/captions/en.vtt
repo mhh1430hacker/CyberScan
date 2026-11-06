@@ -2,15 +2,15 @@ WEBVTT
 
 1
 00:00:00.500 --> 00:00:06.500
-This is CyberScan. It lets you see inside any file before you open it.
+Meet CyberScan. It shows you what's inside a file, before you open it.
 
 2
 00:00:07.000 --> 00:00:11.500
-Here's a file called invoice_2026.pdf.exe. It looks like a document.
+Say you get this: invoice_2026.pdf.exe. Looks like a PDF, right?
 
 3
 00:00:11.500 --> 00:00:16.000
-Most security tools give you a red or a green light, and ask you to trust them.
+Most tools just flash a red or a green light, and hope you trust them.
 
 4
 00:00:16.500 --> 00:00:21.000
@@ -18,40 +18,40 @@ CyberScan reads every byte, but it never runs a single one.
 
 5
 00:00:21.000 --> 00:00:26.000
-It lays the file out as cells, and measures how random each part is.
+It lays the file out as cells, and checks how random each part looks.
 
 6
 00:00:26.500 --> 00:00:32.000
-Then nine engines examine it: the real file type, warning signs, YARA rules, program anatomy,
+Then nine engines take a look: the real file type, warning signs, YARA rules, how the program is built,
 
 7
 00:00:32.000 --> 00:00:38.000
-archive contents, signatures, a learning model, and optional threat intelligence.
+what's inside archives, the signature, a learning model, and, if you want, public threat lists.
 
 8
 00:00:38.500 --> 00:00:43.000
-Every signal is weighed into one score, never lower than the strongest evidence.
+All of that becomes one score, and it's never lower than the strongest clue.
 
 9
 00:00:43.000 --> 00:00:48.000
-You get a verdict in plain words, in English or Arabic, with every finding explained.
+What you get is a plain answer, in English or Arabic, with every finding explained.
 
 10
 00:00:48.500 --> 00:00:53.000
-If something doesn't belong, CyberScan cuts it out of a copy. The original is kept.
+If something doesn't belong, CyberScan cuts it out of a copy. Your original stays untouched.
 
 11
 00:00:53.000 --> 00:00:58.000
-The removed parts are sealed in an encrypted vault, and the copy is checked.
+The parts it removed are locked in an encrypted vault, and the copy gets checked.
 
 12
 00:00:58.500 --> 00:01:02.500
-Everything runs on your computer. Nothing is uploaded by default.
+It all happens on your computer. Nothing gets uploaded unless you ask.
 
 13
 00:01:02.500 --> 00:01:06.000
-And when it isn't sure, it tells you so.
+And if it's not sure? It'll tell you.
 
 14
 00:01:06.500 --> 00:01:13.500
-Drop a file to begin. CyberScan.
+So go ahead. Drop in a file, and see for yourself.
