@@ -326,12 +326,27 @@ class RepairSession:
 REPAIRS: dict[str, RepairSession] = {}
 
 
+# One fixed sentence per kind of repair finding (the same sentences as the
+# desktop app's ui/repair.py, kept here so the web edition needs no Qt).
+# ui.copy translates them.
+REPAIR_SUMMARIES = {
+    "name_hidden": "The name contains invisible direction characters that make it read as something else.",
+    "name_double": "It's named like a document or picture, but the real extension is a program that can run.",
+    "name_mismatch": "The name's extension doesn't match what the file really contains.",
+    "after_eof": "Data is stored after the point where the format ends. Readers ignore it; other programs can use it.",
+    "pe_overlay": "Data after the program's last section. Installers often keep their payload there, so it isn't removed unless you choose to.",
+    "pdf_update": "The last update to this PDF only adds active content. Removing that update returns the document to its previous version.",
+    "pdf_active": "Part of the document carries active content: JavaScript, automatic actions or embedded files.",
+    "ooxml_vba_project": "Code that can run when the document is opened.",
+    "ooxml_embedded_object": "Another file stored inside the document; it can be a program.",
+    "ooxml_activex": "A control that can run code inside Office.",
+    "ooxml_link": "The document fetches something from the internet when it opens.",
+    "ole_vba": "This older Office file contains macro code.",
+}
+
+
 def _repair_summary(key: str, lang: str, fallback: str) -> str:
-    try:
-        from ui.repair import SUMMARIES
-    except Exception:  # noqa: BLE001
-        SUMMARIES = {}
-    english = SUMMARIES.get(key)
+    english = REPAIR_SUMMARIES.get(key)
     if english:
         return tr(english, lang)
     return tr(fallback, lang) if lang == "ar" else fallback
