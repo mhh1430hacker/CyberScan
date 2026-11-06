@@ -1,0 +1,54 @@
+# Phase 1 data selection for the repair engine.
+# Every source is the dataset's official location. Sizes are what was
+# measured from the official listings on 2026-11-01.
+# Samples never live in the repository: they go under data_root.
+
+data_root: C:/CyberScanData
+# Hard limits. The downloader refuses to start a file that would leave less
+# than min_free_gb on the data drive, or push data_root above max_total_gb.
+budget:
+  max_total_gb: 18
+  min_free_gb: 6
+
+ember2024:
+  # https://github.com/futurecomputing4ai/EMBER2024 -> HF dataset joyce8/EMBER2024
+  repo: joyce8/EMBER2024
+  files: [Win64_train.zip, Win64_test.zip, PDF_train.zip, PDF_test.zip, ELF_train.zip, ELF_test.zip, challenge.zip]
+  # Win64_train is large: vectorise this many samples (uniform by hash), then delete the zip.
+  max_train_per_file: 250000
+  delete_zip_after_vectorising: [Win64_train.zip]
+
+sorel20m:
+  # https://github.com/sophos/SOREL-20M ; public bucket, no credentials.
+  base_url: https://sorel-20m.s3.amazonaws.com/09-DEC-2020
+  meta_db: processed-data/meta.db
+  delete_meta_db_after_extract: true
+  binaries: 2000          # disarmed by Sophos; kept zlib-compressed as distributed
+  selection_seed: 20201209
+
+benign:
+  govdocs1:
+    # https://digitalcorpora.org/corpora/file-corpora/files/
+    base_url: https://downloads.digitalcorpora.org/corpora/files/govdocs1/zipfiles
+    md5_list: https://downloads.digitalcorpora.org/corpora/files/govdocs1/zipfilelist-md5.txt
+    threads: ["000", "001", "002"]
+  napierone:
+    # https://registry.opendata.aws/napierone/ ; plain variants only.
+    base_url: https://s3.eu-north-1.amazonaws.com/napierone.com/NapierOne/Data
+    small: [DLL, DOC, DOCX, ELF, XLS, XLSX, HTML]
+    tiny: [EXE, PDF, PPT, PPTX, GIF]
+    # Never: EXTRA (ransomware-encrypted outputs), *-ENCRYPTED, *-PASSWORD, *-NOMAGIC.
+  assemblage:
+    # https://assemblagedocs.readthedocs.io/en/latest/dataset.html
+    url: https://huggingface.co/datasets/changliu8541/Assemblage_PE/resolve/main/binaries.tar.xz
+    stream_first: 2000      # stop the stream after this many PE files
+
+verification:
+  clamav:
+    # Official Cisco Talos release (portable Windows build), checked against the release digest.
+    release_api: https://api.github.com/repos/Cisco-Talos/clamav/releases/latest
+    asset_suffix: .win.x64.zip
+  yara:
+    # YARA Forge core rule set (public, curated), checked against the release digest.
+    release_api: https://api.github.com/repos/YARAHQ/yara-forge/releases/latest
+    asset_name: yara-forge-rules-core.zip

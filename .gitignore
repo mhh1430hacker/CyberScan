@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Local user data: scan history, settings, keys and quarantine never belong in git
+data/*
+!data/models/
+data/models/trusted_models.json
+data/secrets.bin
+data/quarantine.key
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

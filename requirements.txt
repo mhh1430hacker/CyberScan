@@ -1,0 +1,12 @@
+# CyberScan web edition
+numpy>=1.26.0
+pandas>=2.2.0
+scikit-learn>=1.4.0
+capstone>=5.0.1
+aiohttp>=3.10.0
+yara-python>=4.5.1
+pefile>=2023.2.7
+cryptography>=42.0.8
+
+# Optional: open the interface in its own desktop window instead of the browser
+# pywebview>=5.0
