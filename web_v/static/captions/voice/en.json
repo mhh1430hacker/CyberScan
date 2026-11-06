@@ -1,0 +1,91 @@
+{
+ "voice": "Eric - Smooth, Trustworthy",
+ "model": "eleven_multilingual_v2",
+ "lang": "en",
+ "cues": [
+  {
+   "start": 0.5,
+   "end": 5.82,
+   "file": "en/01.mp3",
+   "duration": 4.92
+  },
+  {
+   "start": 7.4,
+   "end": 14.77,
+   "file": "en/02.mp3",
+   "duration": 6.97
+  },
+  {
+   "start": 14.8,
+   "end": 19.15,
+   "file": "en/03.mp3",
+   "duration": 3.95
+  },
+  {
+   "start": 19.8,
+   "end": 24.98,
+   "file": "en/04.mp3",
+   "duration": 4.78
+  },
+  {
+   "start": 25.0,
+   "end": 30.14,
+   "file": "en/05.mp3",
+   "duration": 4.74
+  },
+  {
+   "start": 30.8,
+   "end": 39.37,
+   "file": "en/06.mp3",
+   "duration": 8.17
+  },
+  {
+   "start": 39.4,
+   "end": 46.35,
+   "file": "en/07.mp3",
+   "duration": 6.55
+  },
+  {
+   "start": 47.0,
+   "end": 51.9,
+   "file": "en/08.mp3",
+   "duration": 4.5
+  },
+  {
+   "start": 51.9,
+   "end": 57.73,
+   "file": "en/09.mp3",
+   "duration": 5.43
+  },
+  {
+   "start": 58.4,
+   "end": 65.6,
+   "file": "en/10.mp3",
+   "duration": 6.83
+  },
+  {
+   "start": 65.6,
+   "end": 71.2,
+   "file": "en/11.mp3",
+   "duration": 5.2
+  },
+  {
+   "start": 71.9,
+   "end": 76.57,
+   "file": "en/12.mp3",
+   "duration": 4.27
+  },
+  {
+   "start": 76.6,
+   "end": 79.51,
+   "file": "en/13.mp3",
+   "duration": 2.51
+  },
+  {
+   "start": 80.2,
+   "end": 85.0,
+   "file": "en/14.mp3",
+   "duration": 3.16
+  }
+ ]
+}

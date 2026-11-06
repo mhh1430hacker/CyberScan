@@ -1,4 +1,4 @@
-/* The explainer video: 74 seconds, eight scenes, drawn live on a canvas.
+/* The explainer video: 86 seconds, eight scenes, drawn live on a canvas.
  *
  * - English narration through the browser's own speech voice (no files)
  * - English and Arabic subtitles burned in at the bottom, read from
@@ -12,10 +12,10 @@
   const canvas = $("film-canvas");
   if (!canvas) return;
   const ctx = canvas.getContext("2d");
-  const W = 1280, H = 720, DURATION = 74;
+  const W = 1280, H = 720, DURATION = 86;
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const C = { cyan: "#22e8ff", violet: "#b46cff", pink: "#ff4fd8", green: "#3dffb0", red: "#ff4f6d", ink: "#e9f3ff", dim: "#7f8bb3", bg: "#07051a" };
-  const CHAPTERS = [0, 7, 16, 26, 38, 48, 58, 66];
+  const CHAPTERS = [0, 7, 19.3, 30.3, 46.5, 57.9, 71.4, 79.7];
 
   let time = 0, playing = false, last = 0, raf = 0, cues = { en: [], ar: [] }, spoken = new Set(), voiceOn = true, subsOn = true, recorder = null;
 
@@ -150,8 +150,9 @@
 
   /* ---------------- scenes ---------------- */
   const SCENES = [
-    [0, 7, sceneIntro], [7, 16, sceneFile], [16, 26, sceneRead], [26, 38, sceneEngines],
-    [38, 48, sceneVerdict], [48, 58, sceneRepair], [58, 66, scenePrivate], [66, 74, sceneEnd],
+    // timed to the narration (captions/voice/en.json): each line ends inside its own scene
+    [0, 7, sceneIntro], [7, 19.3, sceneFile], [19.3, 30.3, sceneRead], [30.3, 46.5, sceneEngines],
+    [46.5, 57.9, sceneVerdict], [57.9, 71.4, sceneRepair], [71.4, 79.7, scenePrivate], [79.7, 86, sceneEnd],
   ];
 
   function sceneIntro(p, s) {
@@ -183,12 +184,12 @@
   function sceneFile(p, s) {
     const enter = ease(p / 0.25);
     const x = -300 + (W / 2 - 150 + 300) * enter;
-    const flip = s > 11.6;
+    const flip = s > 13.9;
     fileCard(x, 170, 300, 340, 1, flip ? "EXE" : "PDF", flip ? C.pink : C.cyan);
     glowText("invoice_2026.pdf.exe", x + 150, 545, 20, C.ink, { mono: true, blur: 8, weight: 600 });
-    if (flip) glowText("…it's really a program", x + 150, 140, 20, C.pink, { alpha: ease((s - 11.6) / 0.6), blur: 14, weight: 600 });
-    if (s > 12.2) {
-      const k = ease((s - 12.2) / 0.8);
+    if (flip) glowText("…it's really a program", x + 150, 140, 20, C.pink, { alpha: ease((s - 13.9) / 0.6), blur: 14, weight: 600 });
+    if (s > 14.8) {
+      const k = ease((s - 14.8) / 0.8);
       [[C.red, 0], [C.green, 1]].forEach(([col, i]) => {
         const on = Math.floor(s * 2.2) % 2 === i;
         ctx.save(); ctx.globalAlpha = k * (on ? 1 : 0.25);
@@ -252,8 +253,9 @@
     ENGINES.forEach((name, i) => {
       const a = -Math.PI / 2 + (i / ENGINES.length) * Math.PI * 2;
       const x = cx + Math.cos(a) * R * 1.35, y = cy + Math.sin(a) * R * 0.95;
-      const on = s >= 26.6 + i * 1.15;
-      const k = on ? ease((s - (26.6 + i * 1.15)) / 0.5) : 0;
+      const at = 31.3 + i * 1.6;   // each engine lights as the narrator names it
+      const on = s >= at;
+      const k = on ? ease((s - at) / 0.5) : 0;
       ctx.strokeStyle = on ? `rgba(34,232,255,${0.25 + 0.5 * k})` : "rgba(127,139,179,0.2)";
       ctx.lineWidth = on ? 2 : 1;
       ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(cx, cy); ctx.stroke();
@@ -289,7 +291,7 @@
       ctx.restore();
       glowText(f, tx + 22, H * 0.3 + i * 64 + 25, 18, C.ink, { align: "left", alpha: k, blur: 0, weight: 600 });
     });
-    const lang = s > 44.5 && Math.floor(s) % 2 === 0;
+    const lang = s > 54 && Math.floor(s) % 2 === 0;
     glowText(lang ? "AR · العربية" : "EN · ENGLISH", tx + 470, H * 0.3 + 3 * 64 + 22, 15, C.cyan, { align: "right", mono: true, alpha: ease((p - 0.55) / 0.1), blur: 8, weight: 700 });
   }
 
@@ -343,7 +345,7 @@
       ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2); ctx.fill();
     }
     glowText("LOCAL  ·  NOTHING UPLOADED", cx, cy + 190, 24, C.cyan, { mono: true, alpha: ease(p / 0.25), blur: 14, weight: 700 });
-    if (s > 62.5) glowText("NOT SURE?  IT SAYS SO.", cx, cy - 150, 26, C.violet, { mono: true, alpha: ease((s - 62.5) / 0.6), blur: 16, weight: 800 });
+    if (s > 76.6) glowText("NOT SURE?  IT SAYS SO.", cx, cy - 150, 26, C.violet, { mono: true, alpha: ease((s - 76.6) / 0.6), blur: 16, weight: 800 });
   }
 
   function sceneEnd(p, s) {
@@ -418,17 +420,88 @@
     });
   }
 
+  /* ---------------- studio narration ----------------
+   * Clips recorded once with ElevenLabs (web_v/make_voice.py) and stored as
+   * MP3 in captions/voice/. Played through Web Audio so they stay in step with
+   * the picture and can be recorded into the exported video. If they don't
+   * exist, the browser's own voice is used instead. */
+  // the narration is English only; the Arabic subtitles stay on screen
+  let studio = null, actx = null, narrBus = null, recDest = null, sources = [], busyUntil = 0;
+  const buffers = new Map();
+  function audioCtx() {
+    if (!actx) {
+      actx = new (window.AudioContext || window.webkitAudioContext)();
+      narrBus = actx.createGain();
+      narrBus.gain.value = 1;
+      narrBus.connect(actx.destination);
+    }
+    if (actx.state === "suspended") actx.resume();
+    return actx;
+  }
+  function clip(file) {
+    if (!buffers.has(file)) {
+      buffers.set(file, fetch(`captions/voice/${file}`).then((r) => r.arrayBuffer()).then((b) => audioCtx().decodeAudioData(b)).catch(() => null));
+    }
+    return buffers.get(file);
+  }
+  const studioTrack = () => (voiceOn ? studio : null);
+  async function loadStudio() {
+    try {
+      const r = await fetch("captions/voice/en.json", { cache: "no-cache" });
+      if (r.ok) studio = await r.json();
+    } catch { /* not generated yet */ }
+    voiceLabel();
+  }
+  function studioSpeak(s) {
+    const track = studioTrack();
+    if (!track) return false;
+    const cue = track.cues.find((c) => s >= c.start && s < c.start + 0.4 && !spoken.has(`en:${c.start}`));
+    if (!cue) return true;
+    spoken.add(`en:${cue.start}`);
+    clip(cue.file).then((buffer) => {
+      if (!buffer || !playing) return;
+      const ctx = audioCtx();
+      const src = ctx.createBufferSource();
+      src.buffer = buffer;
+      src.connect(narrBus);
+      // a line never talks over the previous one: it waits for it to finish
+      const when = Math.max(ctx.currentTime, busyUntil);
+      src.start(when);
+      busyUntil = when + buffer.duration;
+      sources.push(src);
+      window.CSSound && CSSound.setDuck(0.3);
+      src.onended = () => {
+        sources = sources.filter((x) => x !== src);
+        if (!sources.length) window.CSSound && CSSound.setDuck(1);
+      };
+    });
+    return true;
+  }
+  function silence() {
+    sources.forEach((s) => { try { s.stop(); } catch { /* already ended */ } });
+    sources = [];
+    busyUntil = 0;
+  }
+  function voiceLabel() {
+    const b = $("film-voice");
+    const base = t("filmVoice");
+    b.classList.toggle("on", voiceOn);
+    b.textContent = voiceOn ? base : `${base} · ${t("filmOff")}`;
+    b.title = studio && voiceOn ? `${studio.voice} · ElevenLabs` : "";
+  }
+
   /* ---------------- playback ---------------- */
   function frame(now) {
     if (!playing) return;
     time += Math.min(0.1, (now - last) / 1000); last = now;
     if (time >= DURATION) { time = DURATION; stop(); draw(); finishExport(); return; }
-    speak(time);
+    if (!studioSpeak(time)) speak(time);
     draw();
     raf = requestAnimationFrame(frame);
   }
   function play() {
     if (time >= DURATION - 0.05) seek(0);
+    if (studioTrack()) { audioCtx(); studioTrack().cues.forEach((c) => clip(c.file)); } // unlock audio on the click, preload
     playing = true; last = performance.now();
     $("film-player").classList.add("playing");
     raf = requestAnimationFrame(frame);
@@ -438,12 +511,15 @@
     cancelAnimationFrame(raf);
     $("film-player").classList.remove("playing");
     if (window.speechSynthesis) speechSynthesis.cancel();
+    silence();
     window.CSSound && CSSound.setDuck(1);
   }
   function seek(s) {
     time = clamp(s, 0, DURATION);
     if (window.speechSynthesis) speechSynthesis.cancel();
-    spoken = new Set(cues.en.filter((c) => c.start < time - 0.2).map((c) => c.start));
+    silence();
+    const past = cues.en.filter((c) => c.start < time - 0.2).map((c) => c.start);
+    spoken = new Set([...past, ...past.map((p) => `en:${p}`)]);
     draw();
   }
   const fmt = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
@@ -474,9 +550,19 @@
   function exportVideo() {
     if (recorder) return;
     if (!canvas.captureStream || !window.MediaRecorder) { toast(t("filmNoExport")); return; }
-    const type = ["video/webm;codecs=vp9", "video/webm;codecs=vp8", "video/webm"].find((m) => MediaRecorder.isTypeSupported(m));
     const chunks = [];
-    recorder = new MediaRecorder(canvas.captureStream(30), { mimeType: type, videoBitsPerSecond: 6_000_000 });
+    const stream = canvas.captureStream(30);
+    // the studio narration is recorded into the file; the browser voice can't be
+    const withVoice = !!studioTrack();
+    if (withVoice) {
+      const ctx = audioCtx();
+      if (!recDest) { recDest = ctx.createMediaStreamDestination(); narrBus.connect(recDest); }
+      recDest.stream.getAudioTracks().forEach((track) => stream.addTrack(track));
+    }
+    const type = (withVoice ? ["video/webm;codecs=vp9,opus", "video/webm;codecs=vp8,opus"] : [])
+      .concat(["video/webm;codecs=vp9", "video/webm;codecs=vp8", "video/webm"])
+      .find((m) => MediaRecorder.isTypeSupported(m));
+    recorder = new MediaRecorder(stream, { mimeType: type, videoBitsPerSecond: 6_000_000, audioBitsPerSecond: 128_000 });
     recorder.ondataavailable = (e) => { if (e.data.size) chunks.push(e.data); };
     recorder.onstop = () => {
       const url = URL.createObjectURL(new Blob(chunks, { type: "video/webm" }));
@@ -507,7 +593,17 @@
   seekbar.addEventListener("keydown", (e) => {
     if (e.key === "ArrowRight") seek(time + 5); else if (e.key === "ArrowLeft") seek(time - 5); else if (e.key === " ") { e.preventDefault(); toggle(); }
   });
-  $("film-voice").addEventListener("click", (e) => { voiceOn = !voiceOn; e.currentTarget.classList.toggle("on", voiceOn); if (!voiceOn && window.speechSynthesis) speechSynthesis.cancel(); });
+  // Voice: on ↔ off (English narration)
+  $("film-voice").addEventListener("click", () => {
+    voiceOn = !voiceOn;
+    if (window.speechSynthesis) speechSynthesis.cancel();
+    silence();
+    const past = cues.en.filter((c) => c.start < time - 0.2).map((c) => c.start);
+    past.forEach((p) => { spoken.add(p); spoken.add(`en:${p}`); });
+    voiceLabel();
+  });
+  window.CS.onLang(voiceLabel);
+  loadStudio();
   $("film-subs").addEventListener("click", (e) => { subsOn = !subsOn; e.currentTarget.classList.toggle("on", subsOn); draw(); });
   $("film-export").addEventListener("click", exportVideo);
   $("film-full").addEventListener("click", () => { const f = $("film-player"); if (document.fullscreenElement) document.exitFullscreen(); else f.requestFullscreen && f.requestFullscreen(); });
