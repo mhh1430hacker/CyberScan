@@ -28,19 +28,63 @@
     landing.querySelectorAll(".word-wrap").forEach((wrap) => {
       const words = t(wrap.dataset.i18n).split(/\s+/);
       wrap.replaceChildren();
+      const arabic = window.CS.lang === "ar";
+      let c = 0;
       words.forEach((word, n) => {
-        const w = el("span", "w", word);
+        const w = el("span", "w");
         w.style.setProperty("--i", i++);
+        // Arabic letters join, so they react as whole words; Latin reacts letter by letter
+        (arabic ? [word] : [...word]).forEach((part) => {
+          const ch = el("span", "ch", part);
+          ch.style.setProperty("--c", c++);
+          w.append(ch);
+        });
         wrap.append(w);
         if (n < words.length - 1) wrap.append(" ");
       });
     });
+    measureChars();
+  }
+
+  /* the title reacts to the cursor: letters near it rise, swell and glow */
+  let chars = [], titleRaf = 0;
+  const pointer = { x: -1e4, y: -1e4 };
+  function measureChars() {
+    chars = [...landing.querySelectorAll(".hero-title .ch")].map((node) => {
+      const r = node.getBoundingClientRect();
+      return { node, x: r.left + r.width / 2 + scrollX, y: r.top + r.height / 2 + scrollY, f: 0 };
+    });
+  }
+  function titleFrame() {
+    titleRaf = 0;
+    let moving = false;
+    for (const c of chars) {
+      const dx = pointer.x - (c.x - scrollX), dy = pointer.y - (c.y - scrollY);
+      const target = Math.exp(-(dx * dx + dy * dy) / (2 * 110 * 110));
+      c.f += (target - c.f) * 0.18;
+      if (Math.abs(target - c.f) > 0.002) moving = true;
+      const f = c.f;
+      const push = dx === 0 ? 0 : -Math.sign(dx) * f * 6;
+      c.node.style.transform = f > 0.004 ? `translate(${push.toFixed(1)}px, ${(-f * 16).toFixed(1)}px) scale(${(1 + f * 0.28).toFixed(3)})` : "";
+      c.node.style.setProperty("--f", f.toFixed(3));
+    }
+    if (moving) titleRaf = requestAnimationFrame(titleFrame);
+  }
+  if (!reduced) {
+    window.addEventListener("pointermove", (e) => {
+      if (landing.hidden) return;
+      pointer.x = e.clientX; pointer.y = e.clientY;
+      if (!titleRaf) titleRaf = requestAnimationFrame(titleFrame);
+    }, { passive: true });
+    window.addEventListener("resize", () => measureChars());
+    window.addEventListener("cs:landing", () => setTimeout(measureChars, 1600));
+    setTimeout(measureChars, 1800);
   }
 
   function build() {
     splitTitle();
     const items = t("marquee");
-    $("marquee").replaceChildren(...[...items, ...items].map((x) => el("span", "", x)));
+    if ($("marquee")) $("marquee").replaceChildren(...[...items, ...items].map((x) => el("span", "", x)));
 
     $("l-steps").replaceChildren(...t("steps").map(([title, body], i) => {
       const li = el("li");
@@ -51,7 +95,7 @@
     }));
 
     const colors = ["rgb(30,58,138)", "rgb(56,189,248)", "rgb(244,114,182)", "rgb(248,113,113)"];
-    $("l-legend").replaceChildren(...t("lCubeLegend").map((label, i) => {
+    if ($("l-legend")) $("l-legend").replaceChildren(...t("lCubeLegend").map((label, i) => {
       const li = el("li"); const sw = el("i"); sw.style.background = colors[i]; li.append(sw, label); return li;
     }));
 
@@ -300,7 +344,8 @@
     if (landing.hidden) return;
     top.classList.toggle("scrolled", scrollY > 30);
     const r = how.getBoundingClientRect();
-    const p = Math.max(0, Math.min(1, (innerHeight * 0.75 - r.top) / (r.height * 0.8)));
+    // the steps section is pinned: its progress is how far through the pin we are
+    const p = Math.max(0, Math.min(1, -r.top / Math.max(1, r.height - innerHeight)));
     fill.style.transform = `scaleX(${p})`;
     $("l-steps").querySelectorAll("li").forEach((li, i, all) => li.classList.toggle("lit", p >= (i + 0.5) / all.length));
   }
@@ -313,7 +358,7 @@
       cube = CyberCube.create($("l-cube"), $("l-cube-tip"));
       cube.setData(CyberCube.demoStructure());
     }
-  }, { threshold: 0.2 }).observe($("l-cube"));
+  }, { threshold: 0.2 }).observe($("l-cube") || document.createElement("i"));
 
   /* ---------------- repair demo ---------------- */
   function buildBytes() {

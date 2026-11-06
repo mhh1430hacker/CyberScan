@@ -127,7 +127,7 @@
   }
   window.addEventListener("scroll", onScroll, { passive: true });
 
-  if (!reduced) {
+  if (!reduced && track) {
     track.style.animation = "none";
     const loop = (now) => {
       requestAnimationFrame(loop);

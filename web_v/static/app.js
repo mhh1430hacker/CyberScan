@@ -289,17 +289,20 @@ function poll(id) {
     if (job.status === "failed") { showError(job.error); return; }
     renderStages(job.stages.map((s) => ({ ...s, state: "complete" })));
     state.history = null;
+    // let the scan theater finish its sweep: at least 1.4 s on screen
+    const wait = Math.max(450, 1400 - (performance.now() - (state.scanStarted || 0)));
     setTimeout(() => {
       state.lastResult = job.result;
       renderResult(job.result, true);
       if (cells) { cells.setMode("ambient"); if (job.result.classification === "NO_INDICATORS_OBSERVED") cells.heal(); }
       const p = plainOf(job.result);
       notify(job.result.target, p ? p.summary.headline : job.result.classification);
-    }, 450);
+    }, wait);
   }).catch(() => showError(t("network")));
 }
 
 function showProgress(label) {
+  state.scanStarted = performance.now();
   $("batch").hidden = true;
   $("error").hidden = true;
   $("result").hidden = true;
@@ -310,6 +313,7 @@ function showProgress(label) {
   renderStages([]);
   $("stage-detail").textContent = "";
   if (cells) cells.setMode("scan");
+  window.dispatchEvent(new CustomEvent("cs:scan-start", { detail: label || "" }));
 }
 
 function showError(message) {
@@ -330,6 +334,7 @@ function renderStages(stages) {
   });
   const current = [...stages].reverse().find((s) => s.detail);
   if (current) $("stage-detail").textContent = current.detail;
+  window.dispatchEvent(new CustomEvent("cs:stages", { detail: stages }));
 }
 
 /* ===================================================================
@@ -393,6 +398,7 @@ function renderResult(r, animate) {
   renderTech(r);
   if (animate) { selectTab("findings"); $("ai-card").hidden = true; stopAi(); }
   if (state.cube && currentTab() === "structure") state.cube.setData(r.structure);
+  window.dispatchEvent(new CustomEvent("cs:result", { detail: { result: r, animate } }));
 }
 
 /* The result arrives: cells burst out of the gauge, a ring pulses, and a
@@ -763,6 +769,9 @@ function renderHistory(animate) {
     seg.title = `${t("verdicts")[k][0]}: ${n}`;
     dist.append(seg);
   });
+  // FLIP: remember where each row was, so a filter or search glides rows into place
+  const before = new Map();
+  if (!animate) list.querySelectorAll(".row").forEach((n) => before.set(n.dataset.id, n.getBoundingClientRect().top));
   list.replaceChildren();
   if (!rows.length) { list.append(el("p", "empty-state", all.length ? t("noMatch") : t("emptyHistory"))); return; }
   let lastGroup = null;
@@ -771,10 +780,21 @@ function renderHistory(animate) {
     if (g !== lastGroup) { lastGroup = g; list.append(el("div", "group-label", t("groups")[g])); }
     list.append(historyRow(r, animate ? Math.min(i, 14) * 0.035 : 0));
   });
+  if (!animate && before.size && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    list.querySelectorAll(".row").forEach((n) => {
+      const was = before.get(n.dataset.id);
+      n.style.opacity = "1";
+      n.style.animation = "none";
+      if (was === undefined) { n.animate([{ opacity: 0, transform: "scale(.96)" }, { opacity: 1, transform: "none" }], { duration: 380, easing: "cubic-bezier(.22,1,.36,1)" }); return; }
+      const dy = was - n.getBoundingClientRect().top;
+      if (Math.abs(dy) > 1) n.animate([{ transform: `translateY(${dy}px)` }, { transform: "none" }], { duration: 520, easing: "cubic-bezier(.22,1,.36,1)" });
+    });
+  }
 }
 
 function historyRow(r, delay) {
   const row = el("div", "row");
+  row.dataset.id = r.id;
   row.tabIndex = 0;
   row.setAttribute("role", "button");
   row.style.setProperty("--c", `var(${RISK_COLOR[r.classification] || "--muted"})`);
@@ -828,7 +848,7 @@ $("history-search").addEventListener("input", () => renderHistory(false));
 document.querySelectorAll(".chip").forEach((chip) => chip.addEventListener("click", () => {
   state.filter = chip.dataset.filter;
   document.querySelectorAll(".chip").forEach((c) => c.classList.toggle("active", c === chip));
-  renderHistory(true);
+  renderHistory(false);
 }));
 
 /* ===================================================================

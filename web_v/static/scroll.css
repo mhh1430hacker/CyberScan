@@ -1,0 +1,92 @@
+/* ================= scroll scenes ================= */
+html.landing-glide { scroll-behavior: auto; }
+.tint { position: fixed; inset: 0; z-index: -3; pointer-events: none; background: #050912; transition: background .2s linear; }
+body.on-landing { background: transparent; }
+body.on-landing::before {
+  background:
+    radial-gradient(60vmax 50vmax at 10% -10%, rgba(14, 165, 233, .2), transparent 60%),
+    radial-gradient(60vmax 50vmax at 110% 110%, rgba(99, 102, 241, .2), transparent 60%);
+}
+body:not(.on-landing) .tint { display: none; }
+
+/* ---------- manifesto: words light up as you scroll ---------- */
+.manifesto { position: relative; height: 320vh; }
+.mf-pin { position: sticky; top: 0; height: 100vh; display: grid; align-content: center; gap: 28px; max-width: 1240px; margin: 0 auto; padding: 0 24px; }
+.mf-kicker { font: 600 12px Consolas, ui-monospace, monospace; letter-spacing: .22em; text-transform: uppercase; color: var(--accent); }
+[dir="rtl"] .mf-kicker { font-family: inherit; letter-spacing: 0; font-size: 14px; }
+.mf-text { margin: 0; font-size: clamp(26px, 4.1vw, 60px); line-height: 1.22; font-weight: 750; letter-spacing: -.02em; }
+[dir="rtl"] .mf-text { letter-spacing: 0; line-height: 1.5; }
+.mw { --k: 0; display: inline-block; color: rgba(226, 232, 240, calc(.12 + var(--k) * .88)); transform: translateY(calc((1 - var(--k)) * 10px)); filter: blur(calc((1 - var(--k)) * 2px)); transition: color .15s linear; }
+.mw.key { color: color-mix(in srgb, rgba(226, 232, 240, .12), #7dd3fc calc(var(--k) * 100%)); text-shadow: 0 0 calc(var(--k) * 30px) rgba(56, 189, 248, calc(var(--k) * .55)); }
+.mf-progress { height: 2px; width: min(420px, 60%); background: rgba(148, 163, 184, .2); border-radius: 2px; overflow: hidden; }
+.mf-progress i { display: block; height: 100%; transform-origin: left; transform: scaleX(0); background: linear-gradient(90deg, var(--accent), #a78bfa); }
+[dir="rtl"] .mf-progress i { transform-origin: right; }
+
+/* ---------- horizontal pinned steps ---------- */
+.hpin { position: relative; }
+.hpin-sticky { position: sticky; top: 0; height: 100vh; overflow: hidden; display: grid; grid-template-rows: auto 1fr; align-content: center; gap: 36px; padding: 90px 0 40px; }
+.how-head { max-width: 1240px; width: 100%; margin: 0 auto; padding: 0 24px; }
+.how-head .l-sub { margin-bottom: 26px; }
+.htrack.l-steps { display: flex; gap: 28px; width: max-content; padding-inline: max(24px, calc((100vw - 1240px) / 2 + 24px)); will-change: transform; perspective: 1400px; }
+.htrack.l-steps li {
+  --off: 0;
+  width: min(460px, 78vw); min-height: 340px; flex: none; padding: 40px 34px; border-radius: 28px;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  background: linear-gradient(160deg, rgba(23, 32, 52, .88), rgba(8, 13, 26, .86));
+  rotate: y calc(var(--off) * -22deg); scale: calc(1 - min(.12, abs(var(--off)) * .16));
+  transition: border-color .5s, box-shadow .5s;
+}
+.htrack.l-steps li .num { font-size: clamp(90px, 10vw, 150px); margin-bottom: auto; }
+.htrack.l-steps li b { font-size: 28px; }
+.htrack.l-steps li p { font-size: 16px; line-height: 1.7; }
+.htrack.l-steps li.lit { box-shadow: 0 40px 90px -40px rgba(56, 189, 248, .55); }
+.hpin-count { position: absolute; bottom: 34px; inset-inline-end: max(24px, calc((100vw - 1240px) / 2 + 24px)); font-variant-numeric: tabular-nums; color: var(--muted); direction: ltr; }
+.hpin-count b { font-size: 44px; color: var(--text); font-weight: 800; margin-inline-end: 6px; }
+
+/* ---------- kinetic bands ---------- */
+.bands { padding: 80px 0 20px; overflow: hidden; display: grid; gap: 4px; }
+.band { white-space: nowrap; line-height: 1; direction: ltr; }
+.band span { display: inline-block; font-size: clamp(56px, 10vw, 150px); font-weight: 900; letter-spacing: -.03em; will-change: transform; background: linear-gradient(90deg, #e0f2fe, #7dd3fc 40%, #c4b5fd); -webkit-background-clip: text; background-clip: text; color: transparent; }
+[dir="rtl"] .band span { letter-spacing: 0; }
+.band.outline span { background: none; color: transparent; -webkit-text-stroke: 1.5px rgba(148, 163, 184, .55); }
+
+/* ---------- mask reveals ---------- */
+.cube-stage { clip-path: circle(0% at 50% 50%); will-change: clip-path, transform; }
+.bytes-demo { clip-path: inset(0 100% 0 0 round 22px); }
+.cube-stage[data-reveal], .bytes-demo[data-reveal] { opacity: 1; filter: none; transform: none; }
+
+/* ---------- stacking cards ---------- */
+.stack-sec { padding-bottom: 120px; }
+.priv-grid.stack { display: grid; grid-template-columns: 1fr; gap: 26vh; max-width: 760px; margin: 60px auto 0; }
+.stack .priv {
+  --covered: 0;
+  position: sticky; top: calc(120px + var(--i) * 26px); min-height: 300px; padding: 44px 40px;
+  display: grid; align-content: end; transform-origin: 50% 0;
+  scale: calc(1 - var(--covered) * .07);
+  filter: brightness(calc(1 - var(--covered) * .35));
+  background: linear-gradient(160deg, rgba(23, 34, 56, .97), rgba(10, 16, 30, .97));
+  box-shadow: 0 -20px 60px -30px rgba(0, 0, 0, .9);
+}
+.stack .priv .pi { width: 64px; height: 64px; margin-bottom: auto; }
+.stack .priv b { font-size: 28px; margin-top: 40px; }
+.stack .priv p { font-size: 17px; }
+.stack .priv[data-reveal] { opacity: 1; filter: brightness(calc(1 - var(--covered) * .35)); transform: none; }
+
+/* ---------- skew with speed ---------- */
+.skewable { --skew: 0deg; }
+.skewable .l-h2, .skewable .bento, .skewable .stats-grid { transform: skewY(var(--skew)); transition: transform .1s linear; }
+
+@media (max-width: 800px) {
+  .manifesto { height: 260vh; }
+  .htrack.l-steps li { min-height: 300px; padding: 30px 24px; }
+  .hpin-sticky { padding-top: 70px; gap: 20px; }
+  .stack .priv { padding: 30px 24px; min-height: 240px; top: calc(80px + var(--i) * 18px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .manifesto, .hpin { height: auto !important; }
+  .mf-pin, .hpin-sticky { position: relative; height: auto; padding-block: 100px; }
+  .htrack.l-steps { width: auto; flex-wrap: wrap; transform: none !important; }
+  .mw { --k: 1 !important; }
+  .cube-stage, .bytes-demo { clip-path: none !important; }
+  .stack .priv { position: relative; top: 0; }
+}
