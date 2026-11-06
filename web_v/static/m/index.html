@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#07051a">
+  <meta name="color-scheme" content="dark">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="CyberScan">
+  <meta name="description" content="Check files, links and text on your phone. The analysis runs on the device; nothing is uploaded.">
+  <title>CyberScan</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="../icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="stylesheet" href="m.css">
+</head>
+<body>
+  <div class="bg" aria-hidden="true"><i></i><i></i><div class="floor"></div></div>
+
+  <!-- first run: which language? -->
+  <div class="sheet-veil" id="lang-sheet" hidden>
+    <div class="sheet lang">
+      <span class="grab" aria-hidden="true"></span>
+      <svg class="logo big" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 4 56 18v28L32 60 8 46V18z"/><path d="M32 14 20 19v8c0 7.5 5.1 13.4 12 15 6.9-1.6 12-7.5 12-15v-8z"/><path d="m26.5 28.5 3.8 3.8 7.4-8"/></svg>
+      <h2>Choose your language<br><span lang="ar" dir="rtl">اختر لغتك</span></h2>
+      <button class="choice" data-lang="en" type="button"><b>English</b><small>Continue in English</small></button>
+      <button class="choice" data-lang="ar" type="button" lang="ar" dir="rtl"><b>العربية</b><small>المتابعة بالعربية</small></button>
+    </div>
+  </div>
+
+  <header class="appbar">
+    <div class="appbar-row">
+      <svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 14 20 19v8c0 7.5 5.1 13.4 12 15 6.9-1.6 12-7.5 12-15v-8z"/><path d="m26.5 28.5 3.8 3.8 7.4-8"/></svg>
+      <span class="appbar-title" id="bar-title">CyberScan</span>
+      <button class="icon-btn" id="lang-toggle" type="button" aria-label="Language">ع</button>
+    </div>
+    <h1 class="large-title" id="large-title">Scan</h1>
+  </header>
+
+  <main id="main">
+    <!-- ============ SCAN ============ -->
+    <section class="view" id="v-scan">
+      <div class="engine-card" id="engine-card">
+        <span class="dot" id="engine-dot"></span>
+        <div><b id="engine-title"></b><small id="engine-sub"></small></div>
+        <div class="engine-bar"><i id="engine-bar"></i></div>
+      </div>
+
+      <div id="compose">
+        <div class="seg" role="tablist">
+          <button class="seg-btn on" data-mode="file" type="button" data-t="tFile">File</button>
+          <button class="seg-btn" data-mode="url" type="button" data-t="tLink">Link</button>
+          <button class="seg-btn" data-mode="text" type="button" data-t="tText">Text</button>
+        </div>
+
+        <div class="panel" data-panel="file">
+          <label class="picker" id="picker">
+            <input type="file" id="file" hidden>
+            <span class="ring" aria-hidden="true"><i></i><i></i></span>
+            <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 32V10m-9 9 9-9 9 9M10 34v4h28v-4"/></svg>
+            <b id="picker-label" data-t="pick">Choose a file</b>
+            <small id="picker-hint"></small>
+          </label>
+        </div>
+        <div class="panel" data-panel="url" hidden>
+          <input class="field" id="url" type="url" inputmode="url" autocomplete="off" placeholder="https://">
+        </div>
+        <div class="panel" data-panel="text" hidden>
+          <textarea class="field" id="text" rows="6"></textarea>
+          <button class="link" id="sample" type="button" data-t="sample">Try a sample</button>
+        </div>
+        <button class="cta" id="go" type="button" disabled><span data-t="scan">Check it</span></button>
+        <p class="cloud-note" id="cloud-note"></p>
+      </div>
+
+      <div id="progress" class="card" hidden>
+        <div class="scanner" aria-hidden="true"><i></i><i></i><b id="p-pct">0%</b></div>
+        <ol class="steps" id="steps">
+          <li data-t="s0">Reading</li><li data-t="s1">Measuring</li><li data-t="s2">Comparing</li><li data-t="s3">Finishing</li>
+        </ol>
+        <p class="detail" id="p-detail"></p>
+      </div>
+
+      <div id="result" hidden>
+        <div class="card verdict" id="verdict">
+          <div class="gauge"><svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="52"/><circle class="meter" id="meter" cx="60" cy="60" r="52"/></svg><b id="score">0</b></div>
+          <span class="badge" id="badge"></span>
+          <h2 id="headline"></h2>
+          <p id="sentence"></p>
+          <p class="advice" id="advice"></p>
+          <p class="notice" id="notice" hidden></p>
+          <div class="chips" id="chips"></div>
+          <p class="target" id="target"></p>
+        </div>
+        <div class="actions" id="actions"></div>
+        <h3 data-t="found">What we found</h3>
+        <ul class="list" id="findings"></ul>
+        <details class="card more"><summary data-t="details">Details</summary><dl class="facts" id="facts"></dl></details>
+        <details class="card more"><summary data-t="checks">Checks</summary><ul class="checks" id="checks"></ul></details>
+        <details class="card more" id="mitre-box"><summary>MITRE ATT&amp;CK</summary><ul class="checks" id="mitre"></ul></details>
+        <p class="limits" id="limits"></p>
+      </div>
+    </section>
+
+    <!-- ============ HISTORY ============ -->
+    <section class="view" id="v-history" hidden>
+      <ul class="list" id="history"></ul>
+      <p class="empty" id="history-empty" data-t="noHistory"></p>
+      <button class="link danger-link" id="clear-history" type="button" data-t="clearHistory">Clear history</button>
+    </section>
+
+    <!-- ============ DEVICE ============ -->
+    <section class="view" id="v-device" hidden>
+      <div class="card tier-card" id="tier-card">
+        <span class="tier" id="tier-name"></span>
+        <p id="tier-text"></p>
+        <button class="cta small" id="load-engine" type="button" data-t="loadEngine">Load the engine now</button>
+      </div>
+      <h3 data-t="deviceTitle">This device</h3>
+      <dl class="facts" id="caps"></dl>
+      <h3 data-t="installTitle">Install</h3>
+      <div class="card install" id="install-card"></div>
+      <h3 data-t="aboutTitle">About</h3>
+      <div class="card"><p class="muted" data-t="aboutText"></p><p class="muted" id="cloud-soon"></p></div>
+    </section>
+  </main>
+
+  <!-- repair sheet -->
+  <div class="sheet-veil" id="repair-sheet" hidden>
+    <div class="sheet">
+      <span class="grab" aria-hidden="true"></span>
+      <h2 data-t="repairTitle">Repair a copy</h2>
+      <p class="muted" data-t="repairLede"></p>
+      <ul class="list" id="repair-list"></ul>
+      <div class="sheet-actions">
+        <button class="ghost" id="repair-cancel" type="button" data-t="cancel">Cancel</button>
+        <button class="cta small" id="repair-run" type="button" data-t="repairRun">Repair</button>
+      </div>
+      <div id="repair-out" hidden></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" hidden></div>
+
+  <nav class="tabbar" aria-label="Main">
+    <button class="tab on" data-view="scan" type="button"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg><span data-t="navScan">Scan</span></button>
+    <button class="tab" data-view="history" type="button"><svg viewBox="0 0 24 24"><path d="M3.5 12a8.5 8.5 0 1 0 2.5-6M3.5 4v4h4"/><path d="M12 7.5V12l3 2"/></svg><span data-t="navHistory">History</span></button>
+    <button class="tab" data-view="device" type="button"><svg viewBox="0 0 24 24"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></svg><span data-t="navDevice">Device</span></button>
+    <i class="tab-ink" aria-hidden="true"></i>
+  </nav>
+
+  <script src="caps.js"></script>
+  <script src="m.js"></script>
+</body>
+</html>

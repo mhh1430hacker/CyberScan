@@ -28,3 +28,7 @@ data/secrets.bin
 # Large archives (keep project snapshots outside the repository)
 *.zip
 !mlware/eicar_com.zip
+
+# The phone app needs these archives at runtime (engine bundle, Pyodide stdlib, NumPy)
+!web_v/static/m/engine.zip
+!web_v/static/pyodide/*.zip

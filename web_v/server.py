@@ -421,19 +421,22 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
 
         # ---- plumbing ------------------------------------------------
         def _send(self, status: int, body: bytes, ctype: str, extra: dict[str, str] | None = None) -> None:
+            extra = dict(extra or {})
             self.send_response(status)
             self.send_header("Content-Type", ctype)
             self.send_header("Content-Length", str(len(body)))
-            self.send_header("Cache-Control", "no-store")
+            self.send_header("Cache-Control", extra.pop("Cache-Control", "no-store"))
             self.send_header("X-Content-Type-Options", "nosniff")
             self.send_header("Referrer-Policy", "no-referrer")
+            # 'wasm-unsafe-eval' only lets the page compile WebAssembly (the phone
+            # app's on-device engine); it does not allow eval() of JavaScript.
             self.send_header(
                 "Content-Security-Policy",
                 "default-src 'self'; img-src 'self' data: blob:; style-src 'self'; "
-                "script-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; "
+                "script-src 'self' 'wasm-unsafe-eval'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; "
                 "frame-ancestors 'none'; base-uri 'none'; form-action 'self'",
             )
-            for key, value in (extra or {}).items():
+            for key, value in extra.items():
                 self.send_header(key, value)
             self.end_headers()
             self.wfile.write(body)
@@ -546,22 +549,29 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
         def _static(self, path: str) -> None:
             name = "index.html" if path in ("/", "/index.html") else unquote(path).lstrip("/")
             target = (STATIC_DIR / name).resolve()
+            if target.is_dir() and STATIC_DIR in target.parents:
+                if not path.endswith("/"):  # /m -> /m/ so relative links resolve
+                    self._send(HTTPStatus.MOVED_PERMANENTLY, b"", "text/plain", {"Location": path + "/"})
+                    return
+                target = target / "index.html"
             if STATIC_DIR not in target.parents or not target.is_file():
                 self._json(HTTPStatus.NOT_FOUND, {"error": "not found"})
                 return
             body = target.read_bytes()
             if name == "index.html":
                 body = body.replace(b"__CYBERSCAN_TOKEN__", app.token.encode())
-            ctype = mimetypes.guess_type(target.name)[0] or "application/octet-stream"
-            if target.suffix == ".js":
-                ctype = "text/javascript"
-            elif target.suffix == ".webmanifest":
-                ctype = "application/manifest+json"
-            elif target.suffix == ".svg":
-                ctype = "image/svg+xml"
+            types = {".js": "text/javascript", ".mjs": "text/javascript", ".webmanifest": "application/manifest+json",
+                     ".svg": "image/svg+xml", ".wasm": "application/wasm", ".zip": "application/zip",
+                     ".vtt": "text/vtt", ".png": "image/png", ".json": "application/json"}
+            ctype = types.get(target.suffix) or mimetypes.guess_type(target.name)[0] or "application/octet-stream"
             if ctype.startswith("text/") or ctype.endswith(("javascript", "json", "svg+xml")):
                 ctype += "; charset=utf-8"
-            self._send(HTTPStatus.OK, body, ctype)
+            extra = {}
+            rel = target.relative_to(STATIC_DIR).as_posix()
+            if rel.startswith("pyodide/") or rel == "m/engine.zip":
+                # versioned and large: the phone downloads the engine once
+                extra["Cache-Control"] = "public, max-age=31536000, immutable"
+            self._send(HTTPStatus.OK, body, ctype, extra)
 
         # ---- scans ---------------------------------------------------
         def scan_start(self, query: dict) -> None:
