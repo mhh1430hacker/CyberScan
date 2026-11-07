@@ -1,57 +1,57 @@
 WEBVTT
 
 1
-00:00:00.500 --> 00:00:06.500
+00:00:00.500 --> 00:00:05.820
 Meet CyberScan. It shows you what's inside a file, before you open it.
 
 2
-00:00:07.000 --> 00:00:11.500
+00:00:07.400 --> 00:00:14.770
 Say you get this: invoice_2026.pdf.exe. Looks like a PDF, right?
 
 3
-00:00:11.500 --> 00:00:16.000
+00:00:14.800 --> 00:00:19.150
 Most tools just flash a red or a green light, and hope you trust them.
 
 4
-00:00:16.500 --> 00:00:21.000
+00:00:19.800 --> 00:00:24.980
 CyberScan reads every byte, but it never runs a single one.
 
 5
-00:00:21.000 --> 00:00:26.000
+00:00:25.000 --> 00:00:30.140
 It lays the file out as cells, and checks how random each part looks.
 
 6
-00:00:26.500 --> 00:00:32.000
+00:00:30.800 --> 00:00:39.370
 Then nine engines take a look: the real file type, warning signs, YARA rules, how the program is built,
 
 7
-00:00:32.000 --> 00:00:38.000
+00:00:39.400 --> 00:00:46.350
 what's inside archives, the signature, a learning model, and, if you want, public threat lists.
 
 8
-00:00:38.500 --> 00:00:43.000
+00:00:47.000 --> 00:00:51.900
 All of that becomes one score, and it's never lower than the strongest clue.
 
 9
-00:00:43.000 --> 00:00:48.000
+00:00:51.900 --> 00:00:57.730
 What you get is a plain answer, in English or Arabic, with every finding explained.
 
 10
-00:00:48.500 --> 00:00:53.000
+00:00:58.400 --> 00:01:05.600
 If something doesn't belong, CyberScan cuts it out of a copy. Your original stays untouched.
 
 11
-00:00:53.000 --> 00:00:58.000
+00:01:05.600 --> 00:01:11.200
 The parts it removed are locked in an encrypted vault, and the copy gets checked.
 
 12
-00:00:58.500 --> 00:01:02.500
+00:01:11.900 --> 00:01:16.570
 It all happens on your computer. Nothing gets uploaded unless you ask.
 
 13
-00:01:02.500 --> 00:01:06.000
+00:01:16.600 --> 00:01:19.510
 And if it's not sure? It'll tell you.
 
 14
-00:01:06.500 --> 00:01:13.500
+00:01:20.200 --> 00:01:25.000
 So go ahead. Drop in a file, and see for yourself.

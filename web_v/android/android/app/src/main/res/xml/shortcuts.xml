@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Long-press the CyberScan icon: jump straight to a task. -->
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="check_file"
+        android:enabled="true"
+        android:icon="@drawable/ic_sc_file"
+        android:shortcutShortLabel="@string/sc_file_short"
+        android:shortcutLongLabel="@string/sc_file_long">
+        <intent
+            android:action="io.github.mhh1430hacker.cyberscan.PICK"
+            android:targetPackage="io.github.mhh1430hacker.cyberscan"
+            android:targetClass="io.github.mhh1430hacker.cyberscan.MainActivity" />
+    </shortcut>
+    <shortcut
+        android:shortcutId="check_link"
+        android:enabled="true"
+        android:icon="@drawable/ic_sc_link"
+        android:shortcutShortLabel="@string/sc_link_short"
+        android:shortcutLongLabel="@string/sc_link_long">
+        <intent
+            android:action="io.github.mhh1430hacker.cyberscan.LINK"
+            android:targetPackage="io.github.mhh1430hacker.cyberscan"
+            android:targetClass="io.github.mhh1430hacker.cyberscan.MainActivity" />
+    </shortcut>
+    <shortcut
+        android:shortcutId="history"
+        android:enabled="true"
+        android:icon="@drawable/ic_sc_history"
+        android:shortcutShortLabel="@string/sc_history_short"
+        android:shortcutLongLabel="@string/sc_history_long">
+        <intent
+            android:action="io.github.mhh1430hacker.cyberscan.HISTORY"
+            android:targetPackage="io.github.mhh1430hacker.cyberscan"
+            android:targetClass="io.github.mhh1430hacker.cyberscan.MainActivity" />
+    </shortcut>
+</shortcuts>

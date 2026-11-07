@@ -1,4 +1,4 @@
-# CyberScan — web edition
+# CyberScan — web, phone and Android
 
 Static analysis of files, links and text, explained in plain words, in English and Arabic.
 Nothing you check is ever run.
@@ -35,9 +35,10 @@ The server starts on `http://127.0.0.1:8765/` and opens your browser (or a deskt
 **Landing page**
 - language choice on first visit (English / العربية), remembered
 - WebGL2 particle field that takes a shape per section, written from scratch
-- a 74-second explainer film drawn on a canvas, with English narration, English and Arabic subtitles
+- an 86-second explainer film drawn on a canvas, with studio English narration, English and Arabic subtitles
   (`web_v/static/captions/*.vtt`), chapters and export to `.webm`
 - scroll scenes, an interactive engine pipeline, generated calm lo-fi music (off by default)
+- **Get the app** menu: the signed Android APK, plus Google Play and App Store (coming soon)
 
 **App**
 - scan uploads, files on disk, links or pasted text; batch scanning; in-browser SHA-256 fingerprint
@@ -48,10 +49,25 @@ The server starts on `http://127.0.0.1:8765/` and opens your browser (or a deskt
 - optional AI explanation through a local Ollama model
 - history with insights, settings, downloads watch, command palette (Ctrl+K), installable as a PWA
 
+**Phone app** (`web_v/static/m/`, served at `/m/`, installable as a PWA)
+- the real Python engine runs **on the phone** in WebAssembly (Pyodide), offline; files are never uploaded
+- measures the device and picks a mode (full / light / viewer)
+- one or many files, links, text; a map of the file, YARA (pure-Python reader), program details,
+  fingerprints, exports (HTML / text / JSON), repair a copy, history with search and overview
+
+**Android app** (`web_v/android/`, Capacitor 8, Android 7+, targets API 36)
+- the phone app plus Share / Open with → CyberScan (one or many files), launcher shortcuts, a Quick
+  Settings tile, fingerprint/face/screen-lock app lock, hiding from screenshots, keys kept in the
+  Android Keystore, optional threat-list lookups (off by default; only a hash or a link is sent)
+- signed builds with `web_v/android/release.ps1`; details in `web_v/android/ANDROID.md`
+- download: `web_v/static/downloads/` (signed by CyberScan, SA)
+
 ## Layout
 
 ```
 web_v/          the web server (standard library only) and the front end in web_v/static/
+web_v/static/m/ the phone app (also the Android app's interface)
+web_v/android/  the Android project, release script and Play listing
 core/           analysis engines
 ml/             structural classifier runtime
 repair_engine/  format parsers, blind repair and the encrypted vault

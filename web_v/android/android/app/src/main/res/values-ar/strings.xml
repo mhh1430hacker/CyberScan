@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="share_label">افحص بـ CyberScan</string>
+    <string name="tile_label">افحص الرابط المنسوخ</string>
+    <string name="sc_file_short">افحص ملفًا</string>
+    <string name="sc_file_long">اختر ملفًا لفحصه</string>
+    <string name="sc_link_short">افحص الرابط المنسوخ</string>
+    <string name="sc_link_long">افحص الرابط الموجود في الحافظة</string>
+    <string name="sc_history_short">السجل</string>
+    <string name="sc_history_long">فحوصاتك السابقة</string>
+</resources>
