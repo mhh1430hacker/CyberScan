@@ -6,6 +6,7 @@ so a phone and the desktop give the same verdict for the same file.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import time
 from pathlib import Path
@@ -28,11 +29,26 @@ def _settings(max_bytes: int) -> dict[str, Any]:
 
 
 def warm() -> str:
-    """Import everything and build the engine once; returns the engine list."""
+    """Import everything and build the engine once; returns what's on board."""
     global _service
     if _service is None:
         _service = ScanService()
-    return json.dumps({"python": __import__("sys").version.split()[0]})
+    info = {"python": __import__("sys").version.split()[0]}
+    try:
+        import yara  # the pure-Python reader packed as yara.py
+        from core.yara_engine import discover_yara_rules
+        files = discover_yara_rules()
+        rules = yara.compile(filepaths={p.stem: str(p) for p in files})
+        info["yara"] = {"reader": getattr(yara, "__version__", "?"), "files": len(files),
+                        "rules": len(list(rules)), "skipped": rules.skipped if hasattr(rules, "skipped") else []}
+    except Exception as exc:  # noqa: BLE001 - shown on the Device screen, never fatal
+        info["yara"] = {"error": f"{type(exc).__name__}: {exc}"}
+    return json.dumps(info)
+
+
+def fingerprints(data: bytes) -> dict[str, Any]:
+    return {"md5": hashlib.md5(data).hexdigest(), "sha1": hashlib.sha1(data).hexdigest(),
+            "sha256": hashlib.sha256(data).hexdigest(), "size": len(data)}
 
 
 def scan(kind: str, value: str, display: str, max_bytes: int, progress: Callable | None = None) -> str:
@@ -51,6 +67,12 @@ def scan(kind: str, value: str, display: str, max_bytes: int, progress: Callable
     out = server.serialize_result(result, display, mode, raw, time.monotonic() - started)
     out["exists"] = False
     out["on_device"] = True
+    try:
+        data = Path(value).read_bytes() if kind == "file" else value.encode("utf-8")
+        out["fingerprints"] = fingerprints(data)
+        out["kind"] = kind
+    except OSError:
+        pass
     return json.dumps(out, ensure_ascii=False)
 
 

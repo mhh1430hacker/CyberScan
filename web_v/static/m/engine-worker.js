@@ -5,8 +5,8 @@
  * Messages out: {id, type: "progress" | "done" | "error", ...}
  * Nothing is sent anywhere: files are written to the worker's in-memory disk.
  */
-/* global importScripts, loadPyodide */
-"use strict";
+/* A module worker: Pyodide 314 refuses to start in a classic worker
+ * (one where importScripts works, as in the Android app's WebView). */
 
 const BASE = new URL("../pyodide/", self.location.href).href;
 let py = null, bridge = null, ready = null;
@@ -18,8 +18,8 @@ async function init(id) {
   ready = (async () => {
     const t0 = performance.now();
     post({ id, type: "progress", stage: "runtime" });
-    importScripts(BASE + "pyodide.js");
-    py = await loadPyodide({ indexURL: BASE });
+    await import(BASE + "pyodide.js");   // defines globalThis.loadPyodide
+    py = await self.loadPyodide({ indexURL: BASE });
     post({ id, type: "progress", stage: "numpy" });
     await py.loadPackage(["numpy"], { messageCallback: () => {}, errorCallback: () => {} });
     post({ id, type: "progress", stage: "engine" });
@@ -32,7 +32,7 @@ async function init(id) {
     py.runPython("import sys; sys.path[:0] = ['/engine', '/engine/web_v']");
     bridge = py.pyimport("mobile_bridge");
     const info = JSON.parse(bridge.warm());
-    return { ms: Math.round(performance.now() - t0), python: info.python };
+    return { ms: Math.round(performance.now() - t0), ...info };
   })();
   return ready;
 }

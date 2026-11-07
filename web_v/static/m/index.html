@@ -21,13 +21,21 @@
 
   <!-- first run: which language? -->
   <div class="sheet-veil" id="lang-sheet" hidden>
-    <div class="sheet lang">
+    <div class="sheet lang" role="dialog" aria-modal="true" aria-labelledby="lang-title">
       <span class="grab" aria-hidden="true"></span>
       <svg class="logo big" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 4 56 18v28L32 60 8 46V18z"/><path d="M32 14 20 19v8c0 7.5 5.1 13.4 12 15 6.9-1.6 12-7.5 12-15v-8z"/><path d="m26.5 28.5 3.8 3.8 7.4-8"/></svg>
-      <h2>Choose your language<br><span lang="ar" dir="rtl">اختر لغتك</span></h2>
+      <h2 id="lang-title">Choose your language<br><span lang="ar" dir="rtl">اختر لغتك</span></h2>
       <button class="choice" data-lang="en" type="button"><b>English</b><small>Continue in English</small></button>
       <button class="choice" data-lang="ar" type="button" lang="ar" dir="rtl"><b>العربية</b><small>المتابعة بالعربية</small></button>
     </div>
+  </div>
+
+  <!-- app lock -->
+  <div class="lock" id="lock" hidden>
+    <svg class="logo big" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 4 56 18v28L32 60 8 46V18z"/><path d="M32 14 20 19v8c0 7.5 5.1 13.4 12 15 6.9-1.6 12-7.5 12-15v-8z"/><path d="m26.5 28.5 3.8 3.8 7.4-8"/></svg>
+    <h2 data-t="lockTitle">CyberScan is locked</h2>
+    <p class="muted" data-t="lockText">Unlock with your fingerprint, face or screen lock.</p>
+    <button class="cta small" id="unlock" type="button" data-t="unlock">Unlock</button>
   </div>
 
   <header class="appbar">
@@ -42,7 +50,7 @@
   <main id="main">
     <!-- ============ SCAN ============ -->
     <section class="view" id="v-scan">
-      <div class="engine-card" id="engine-card">
+      <div class="engine-card" id="engine-card" role="status" aria-live="polite">
         <span class="dot" id="engine-dot"></span>
         <div><b id="engine-title"></b><small id="engine-sub"></small></div>
         <div class="engine-bar"><i id="engine-bar"></i></div>
@@ -50,14 +58,14 @@
 
       <div id="compose">
         <div class="seg" role="tablist">
-          <button class="seg-btn on" data-mode="file" type="button" data-t="tFile">File</button>
-          <button class="seg-btn" data-mode="url" type="button" data-t="tLink">Link</button>
-          <button class="seg-btn" data-mode="text" type="button" data-t="tText">Text</button>
+          <button class="seg-btn on" data-mode="file" type="button" role="tab" data-t="tFile">File</button>
+          <button class="seg-btn" data-mode="url" type="button" role="tab" data-t="tLink">Link</button>
+          <button class="seg-btn" data-mode="text" type="button" role="tab" data-t="tText">Text</button>
         </div>
 
         <div class="panel" data-panel="file">
           <label class="picker" id="picker">
-            <input type="file" id="file" hidden>
+            <input type="file" id="file" multiple hidden>
             <span class="ring" aria-hidden="true"><i></i><i></i></span>
             <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 32V10m-9 9 9-9 9 9M10 34v4h28v-4"/></svg>
             <b id="picker-label" data-t="pick">Choose a file</b>
@@ -65,10 +73,11 @@
           </label>
         </div>
         <div class="panel" data-panel="url" hidden>
-          <input class="field" id="url" type="url" inputmode="url" autocomplete="off" placeholder="https://">
+          <input class="field" id="url" type="url" inputmode="url" autocomplete="off" placeholder="https://" aria-label="Link">
+          <button class="link" id="paste-link" type="button" data-t="pasteLink">Paste the copied link</button>
         </div>
         <div class="panel" data-panel="text" hidden>
-          <textarea class="field" id="text" rows="6"></textarea>
+          <textarea class="field" id="text" rows="6" aria-label="Text"></textarea>
           <button class="link" id="sample" type="button" data-t="sample">Try a sample</button>
         </div>
         <button class="cta" id="go" type="button" disabled><span data-t="scan">Check it</span></button>
@@ -80,10 +89,25 @@
         <ol class="steps" id="steps">
           <li data-t="s0">Reading</li><li data-t="s1">Measuring</li><li data-t="s2">Comparing</li><li data-t="s3">Finishing</li>
         </ol>
-        <p class="detail" id="p-detail"></p>
+        <p class="detail" id="p-detail" aria-live="polite"></p>
+      </div>
+
+      <!-- several files at once -->
+      <div id="batch" class="card batch" hidden>
+        <div class="batch-head">
+          <b id="batch-title"></b>
+          <span class="batch-count" id="batch-count"></span>
+        </div>
+        <div class="batch-bar"><i id="batch-bar"></i></div>
+        <ul class="list batch-list" id="batch-list"></ul>
+        <div class="sheet-actions">
+          <button class="ghost" id="batch-stop" type="button" data-t="batchStop">Stop</button>
+          <button class="cta small" id="batch-done" type="button" data-t="batchNew">Check something else</button>
+        </div>
       </div>
 
       <div id="result" hidden>
+        <button class="link back-link" id="back-batch" type="button" hidden data-t="backBatch">‹ All files</button>
         <div class="card verdict" id="verdict">
           <div class="gauge"><svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="52"/><circle class="meter" id="meter" cx="60" cy="60" r="52"/></svg><b id="score">0</b></div>
           <span class="badge" id="badge"></span>
@@ -95,10 +119,30 @@
           <p class="target" id="target"></p>
         </div>
         <div class="actions" id="actions"></div>
+
         <h3 data-t="found">What we found</h3>
         <ul class="list" id="findings"></ul>
+
+        <div class="card map-card" id="map-card" hidden>
+          <div class="card-head"><b data-t="mapTitle">Inside the file</b><span class="muted small" id="map-stats"></span></div>
+          <canvas id="map" height="120" aria-label="Map of the file: randomness of each part"></canvas>
+          <div class="legend"><span><i class="lg-low"></i><em data-t="mapLow">Plain</em></span><span><i class="lg-mid"></i><em data-t="mapMid">Code / data</em></span><span><i class="lg-high"></i><em data-t="mapHigh">Packed or encrypted</em></span><span><i class="lg-flag"></i><em data-t="mapFlag">Flagged</em></span></div>
+          <p class="muted small" id="map-note"></p>
+        </div>
+
+        <div class="card lookup-card" id="lookup-card" hidden>
+          <div class="card-head"><b data-t="lookupTitle">Public threat lists</b><span class="pill" id="lookup-state"></span></div>
+          <p class="muted small" id="lookup-note"></p>
+          <ul class="checks" id="lookup-list"></ul>
+          <button class="ghost small" id="lookup-run" type="button" data-t="lookupRun">Look it up</button>
+        </div>
+
+        <details class="card more" id="yara-box"><summary><span data-t="yaraTitle">Known-pattern rules (YARA)</span><em class="count" id="yara-count"></em></summary><ul class="checks" id="yara"></ul></details>
+        <details class="card more" id="pe-box"><summary data-t="peTitle">Program details</summary><div id="pe"></div></details>
         <details class="card more"><summary data-t="details">Details</summary><dl class="facts" id="facts"></dl></details>
+        <details class="card more" id="fp-box"><summary data-t="fpTitle">Fingerprints</summary><div class="fps" id="fps"></div></details>
         <details class="card more"><summary data-t="checks">Checks</summary><ul class="checks" id="checks"></ul></details>
+        <details class="card more"><summary data-t="enginesTitle">Engines</summary><ul class="checks" id="engines"></ul></details>
         <details class="card more" id="mitre-box"><summary>MITRE ATT&amp;CK</summary><ul class="checks" id="mitre"></ul></details>
         <p class="limits" id="limits"></p>
       </div>
@@ -106,30 +150,89 @@
 
     <!-- ============ HISTORY ============ -->
     <section class="view" id="v-history" hidden>
+      <div class="card insights" id="insights" hidden>
+        <svg class="donut" id="donut" viewBox="0 0 120 120" aria-hidden="true"></svg>
+        <div class="ins-nums">
+          <div><b id="ins-total">0</b><small data-t="insTotal">checks</small></div>
+          <div><b id="ins-bad" class="bad">0</b><small data-t="insBad">suspicious</small></div>
+          <div><b id="ins-warn" class="warn">0</b><small data-t="insWarn">to review</small></div>
+          <div><b id="ins-ok" class="ok">0</b><small data-t="insOk">clear</small></div>
+        </div>
+        <div class="spark" id="ins-days" aria-label="Checks in the last 14 days"></div>
+      </div>
+      <input class="field search" id="h-search" type="search" autocomplete="off" aria-label="Search">
+      <div class="chip-row" id="h-filters">
+        <button class="chip on" data-f="all" type="button" data-t="fAll">All</button>
+        <button class="chip" data-f="SUSPICIOUS" type="button" data-t="fBad">Suspicious</button>
+        <button class="chip" data-f="REVIEW" type="button" data-t="fWarn">Review</button>
+        <button class="chip" data-f="NO_INDICATORS_OBSERVED" type="button" data-t="fOk">Clear</button>
+      </div>
       <ul class="list" id="history"></ul>
       <p class="empty" id="history-empty" data-t="noHistory"></p>
-      <button class="link danger-link" id="clear-history" type="button" data-t="clearHistory">Clear history</button>
+      <div class="row-actions" id="history-actions">
+        <button class="link" id="export-history" type="button" data-t="exportHistory">Export history</button>
+        <button class="link danger-link" id="clear-history" type="button" data-t="clearHistory">Clear history</button>
+      </div>
     </section>
 
-    <!-- ============ DEVICE ============ -->
-    <section class="view" id="v-device" hidden>
+    <!-- ============ SETTINGS ============ -->
+    <section class="view" id="v-settings" hidden>
+      <h3 data-t="setGeneral">General</h3>
+      <div class="card settings">
+        <div class="set-row"><span data-t="setLang">Language</span>
+          <div class="seg mini" id="set-lang"><button class="seg-btn" data-l="en" type="button">English</button><button class="seg-btn" data-l="ar" type="button">العربية</button></div>
+        </div>
+        <label class="set-row"><span><b data-t="setHaptics">Vibration</b><small data-t="setHapticsSub">A short buzz on taps and results</small></span><input type="checkbox" class="switch" id="set-haptics"></label>
+        <label class="set-row"><span><b data-t="setWarm">Get the engine ready at start</b><small data-t="setWarmSub">The first check starts faster; uses a little battery when the app opens</small></span><input type="checkbox" class="switch" id="set-warm"></label>
+        <label class="set-row"><span><b data-t="setHistory">Keep a history</b><small data-t="setHistorySub">Saved only on this phone</small></span><input type="checkbox" class="switch" id="set-history"></label>
+      </div>
+
+      <h3 data-t="setOnline">Online lookups</h3>
+      <div class="card settings" id="online-card">
+        <label class="set-row"><span><b data-t="setLookups">Check public threat lists</b><small data-t="setLookupsSub">Off by default. Only a fingerprint (SHA-256) or the link is sent — never the file.</small></span><input type="checkbox" class="switch" id="set-lookups"></label>
+        <div id="keys" class="keys" hidden>
+          <label class="key"><span data-t="keyAbuse">abuse.ch Auth-Key (MalwareBazaar, URLhaus, ThreatFox)</span><input class="field" id="key-abuse" type="password" autocomplete="off" spellcheck="false" placeholder="••••••••"></label>
+          <label class="key"><span data-t="keyOtx">AlienVault OTX key (optional)</span><input class="field" id="key-otx" type="password" autocomplete="off" spellcheck="false" placeholder="••••••••"></label>
+          <p class="muted small" data-t="keysNote">Keys are encrypted with the phone's secure key store and never leave it, except to the service they belong to. Get a free abuse.ch key at auth.abuse.ch.</p>
+          <div class="sheet-actions"><button class="ghost small" id="keys-save" type="button" data-t="keysSave">Save keys</button><button class="ghost small" id="keys-clear" type="button" data-t="keysClear">Remove keys</button></div>
+        </div>
+        <p class="muted small" id="online-web" hidden data-t="onlineWeb">Online lookups are available in the Android app.</p>
+      </div>
+
+      <h3 data-t="setSecurity">Privacy &amp; security</h3>
+      <div class="card settings" id="security-card">
+        <label class="set-row native-only"><span><b data-t="setLock">App lock</b><small data-t="setLockSub">Ask for your fingerprint, face or screen lock to open CyberScan</small></span><input type="checkbox" class="switch" id="set-lock"></label>
+        <label class="set-row native-only"><span><b data-t="setSecure">Hide in recent apps</b><small data-t="setSecureSub">Blocks screenshots and blurs CyberScan in the app switcher</small></span><input type="checkbox" class="switch" id="set-secure"></label>
+        <button class="set-row link-row" id="open-privacy" type="button"><span><b data-t="privacy">Privacy policy</b><small data-t="privacySub">What CyberScan does with your data: nothing leaves the phone unless you turn on lookups</small></span><i>›</i></button>
+        <button class="set-row link-row danger" id="wipe" type="button"><span><b data-t="wipe">Erase all app data</b><small data-t="wipeSub">History, settings and saved keys</small></span><i>›</i></button>
+      </div>
+
+      <h3 data-t="deviceTitle">This device</h3>
       <div class="card tier-card" id="tier-card">
         <span class="tier" id="tier-name"></span>
         <p id="tier-text"></p>
         <button class="cta small" id="load-engine" type="button" data-t="loadEngine">Load the engine now</button>
       </div>
-      <h3 data-t="deviceTitle">This device</h3>
-      <dl class="facts" id="caps"></dl>
-      <h3 data-t="installTitle">Install</h3>
-      <div class="card install" id="install-card"></div>
+      <dl class="facts card" id="caps"></dl>
+
+      <div id="install-wrap">
+        <h3 data-t="installTitle">Install</h3>
+        <div class="card install" id="install-card"></div>
+      </div>
+
       <h3 data-t="aboutTitle">About</h3>
-      <div class="card"><p class="muted" data-t="aboutText"></p><p class="muted" id="cloud-soon"></p></div>
+      <div class="card about">
+        <p class="muted" data-t="aboutText"></p>
+        <p class="muted small" data-t="disclaimer"></p>
+        <p class="muted small" id="version"></p>
+        <button class="set-row link-row" id="open-licenses" type="button"><span><b data-t="licenses">Open-source licences</b><small>Pyodide · NumPy · pefile · Capacitor · AndroidX</small></span><i>›</i></button>
+      </div>
     </section>
   </main>
 
   <!-- repair sheet -->
   <div class="sheet-veil" id="repair-sheet" hidden>
-    <div class="sheet">
+    <div class="sheet" role="dialog" aria-modal="true">
       <span class="grab" aria-hidden="true"></span>
       <h2 data-t="repairTitle">Repair a copy</h2>
       <p class="muted" data-t="repairLede"></p>
@@ -142,16 +245,41 @@
     </div>
   </div>
 
-  <div class="toast" id="toast" hidden></div>
+  <!-- export sheet -->
+  <div class="sheet-veil" id="export-sheet" hidden>
+    <div class="sheet" role="dialog" aria-modal="true">
+      <span class="grab" aria-hidden="true"></span>
+      <h2 data-t="exportTitle">Export the report</h2>
+      <button class="choice" data-x="html" type="button"><b data-t="xHtml">Report page (.html)</b><small data-t="xHtmlSub">Opens in any browser; good for sharing or printing</small></button>
+      <button class="choice" data-x="txt" type="button"><b data-t="xTxt">Plain text (.txt)</b><small data-t="xTxtSub">The full technical report</small></button>
+      <button class="choice" data-x="json" type="button"><b data-t="xJson">Data (.json)</b><small data-t="xJsonSub">Everything, for tools and analysts</small></button>
+      <div class="sheet-actions"><button class="ghost" id="export-cancel" type="button" data-t="cancel">Cancel</button><label class="set-row inline"><input type="checkbox" class="switch" id="export-share"><span data-t="xShare">Share instead of save</span></label></div>
+    </div>
+  </div>
+
+  <!-- privacy policy / licences -->
+  <div class="sheet-veil" id="doc-sheet" hidden>
+    <div class="sheet doc" role="dialog" aria-modal="true">
+      <span class="grab" aria-hidden="true"></span>
+      <iframe id="doc-frame" title="Document"></iframe>
+      <button class="ghost" id="doc-close" type="button" data-t="close">Close</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
   <nav class="tabbar" aria-label="Main">
-    <button class="tab on" data-view="scan" type="button"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg><span data-t="navScan">Scan</span></button>
-    <button class="tab" data-view="history" type="button"><svg viewBox="0 0 24 24"><path d="M3.5 12a8.5 8.5 0 1 0 2.5-6M3.5 4v4h4"/><path d="M12 7.5V12l3 2"/></svg><span data-t="navHistory">History</span></button>
-    <button class="tab" data-view="device" type="button"><svg viewBox="0 0 24 24"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></svg><span data-t="navDevice">Device</span></button>
+    <button class="tab on" data-view="scan" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg><span data-t="navScan">Scan</span></button>
+    <button class="tab" data-view="history" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 12a8.5 8.5 0 1 0 2.5-6M3.5 4v4h4"/><path d="M12 7.5V12l3 2"/></svg><span data-t="navHistory">History</span></button>
+    <button class="tab" data-view="settings" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.6M12 18.6v2.6M4.1 7.4l2.2 1.3M17.7 15.3l2.2 1.3M4.1 16.6l2.2-1.3M17.7 8.7l2.2-1.3"/><circle cx="12" cy="12" r="7.2"/></svg><span data-t="navSettings">Settings</span></button>
     <i class="tab-ink" aria-hidden="true"></i>
   </nav>
 
+  <script src="native.js"></script>
   <script src="caps.js"></script>
+  <script src="viz.js"></script>
+  <script src="report.js"></script>
+  <script src="lookup.js"></script>
   <script src="m.js"></script>
 </body>
 </html>

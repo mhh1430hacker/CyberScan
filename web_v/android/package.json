@@ -1,0 +1,20 @@
+{
+  "name": "cyberscan-android",
+  "private": true,
+  "version": "1.0.0",
+  "description": "CyberScan for Android: the /m/ web app and its on-device engine, packaged with Capacitor",
+  "scripts": {
+    "www": "python ../build_android_www.py",
+    "sync": "npm run www && npx cap sync android"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.6.0",
+    "@capacitor/app": "^8.1.2",
+    "@capacitor/core": "8.6.0",
+    "@capacitor/filesystem": "^8.0.0",
+    "@capacitor/share": "^8.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.6.0"
+  }
+}

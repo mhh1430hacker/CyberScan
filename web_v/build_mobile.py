@@ -4,7 +4,8 @@
     .venv\\Scripts\\python.exe web_v\\build_mobile.py --worktree # from the files on disk
 
 Writes web_v/static/m/engine.zip: the engine, the shared presentation code,
-the web server's result format, pefile (pure Python, MIT licence) and two
+the web server's result format, pefile (pure Python, MIT licence), a pure-Python
+YARA reader (web_v/yara_lite.py, packed as `yara`) and two
 tiny stand-ins for scikit-learn (only needed for training, never on a phone).
 """
 from __future__ import annotations
@@ -83,10 +84,12 @@ def main() -> None:
         lic = next((p for p in dist.glob("**/LICENSE*")), None) if dist.exists() else None
         if lic:
             z.writestr("pefile-LICENSE.txt", lic.read_bytes())
+        # yara-python is C; the phone gets a pure-Python reader for the same rules
+        z.writestr("yara.py", (ROOT / "web_v" / "yara_lite.py").read_bytes())
         z.writestr("sklearn/__init__.py", "")
         z.writestr("sklearn/ensemble.py", SKLEARN_STUB.format(name="RandomForestClassifier"))
         z.writestr("sklearn/preprocessing.py", SKLEARN_STUB.format(name="LabelEncoder"))
-        z.writestr("BUILD.json", json.dumps({"source": ref or "worktree", "files": len(paths) + 4}))
+        z.writestr("BUILD.json", json.dumps({"source": ref or "worktree", "files": len(paths) + 5}))
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_bytes(buf.getvalue())
     digest = hashlib.sha256(buf.getvalue()).hexdigest()[:12]

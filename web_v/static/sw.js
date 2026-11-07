@@ -11,11 +11,12 @@
  *
  * API calls are never touched.
  */
-const CACHE = "cyberscan-v3";
+const CACHE = "cyberscan-v7";
 const ENGINE = "cyberscan-engine-v1";
 const SHELL = [
   "offline.html", "styles.css", "tech.css", "icon.svg", "manifest.webmanifest",
-  "m/", "m/m.css", "m/m.js", "m/caps.js", "m/engine-worker.js", "m/manifest.webmanifest",
+  "get-app.css", "js/get-app.js",
+  "m/", "m/m.css", "m/m.js", "m/native.js", "m/caps.js", "m/viz.js", "m/report.js", "m/lookup.js", "m/privacy.html", "m/licenses.html", "m/doc.css", "m/doc.js", "m/engine-worker.js", "m/manifest.webmanifest",
   "m/icon-192.png", "m/icon-512.png", "m/icon-maskable-512.png", "m/apple-touch-icon.png",
 ];
 
@@ -75,6 +76,7 @@ self.addEventListener("fetch", (event) => {
 
   if (request.method === "POST" && url.pathname === "/m/share") { event.respondWith(receiveShare(request)); return; }
   if (request.method !== "GET") return;
+  if (url.pathname.startsWith("/downloads/")) return;   // the APK: always fresh from the server, never cached here
 
   // the on-device engine: versioned, cache once
   if (url.pathname.startsWith("/pyodide/") || (url.pathname === "/m/engine.zip" && url.searchParams.has("v"))) {

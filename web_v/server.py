@@ -434,7 +434,7 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
                 "Content-Security-Policy",
                 "default-src 'self'; img-src 'self' data: blob:; style-src 'self'; "
                 "script-src 'self' 'wasm-unsafe-eval'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; "
-                "frame-ancestors 'none'; base-uri 'none'; form-action 'self'",
+                "frame-ancestors 'self'; base-uri 'none'; form-action 'self'",  # 'self': the phone app shows its privacy page in a frame
             )
             for key, value in extra.items():
                 self.send_header(key, value)
@@ -562,7 +562,8 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
                 body = body.replace(b"__CYBERSCAN_TOKEN__", app.token.encode())
             types = {".js": "text/javascript", ".mjs": "text/javascript", ".webmanifest": "application/manifest+json",
                      ".svg": "image/svg+xml", ".wasm": "application/wasm", ".zip": "application/zip",
-                     ".vtt": "text/vtt", ".png": "image/png", ".json": "application/json"}
+                     ".vtt": "text/vtt", ".png": "image/png", ".json": "application/json",
+                     ".apk": "application/vnd.android.package-archive"}
             ctype = types.get(target.suffix) or mimetypes.guess_type(target.name)[0] or "application/octet-stream"
             if ctype.startswith("text/") or ctype.endswith(("javascript", "json", "svg+xml")):
                 ctype += "; charset=utf-8"
@@ -571,6 +572,10 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
             if rel.startswith("pyodide/") or rel == "m/engine.zip":
                 # versioned and large: the phone downloads the engine once
                 extra["Cache-Control"] = "public, max-age=31536000, immutable"
+            if target.suffix == ".apk":
+                # the signed Android app: always a download, never opened in the tab
+                extra["Content-Disposition"] = f"attachment; filename*=UTF-8''{quote(target.name)}"
+                extra["Cache-Control"] = "public, max-age=3600"
             self._send(HTTPStatus.OK, body, ctype, extra)
 
         # ---- scans ---------------------------------------------------

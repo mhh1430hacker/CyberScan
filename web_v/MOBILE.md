@@ -33,9 +33,12 @@ After the engine loads, one small real scan is timed; slow phones drop a tier.
 ## What runs on the phone
 
 Same engine and the same result format as the desktop (`web_v/server.py:serialize_result`), so a
-file gets the same verdict everywhere. Not available on the phone: YARA rules (compiled C library),
-public threat lookups (kept off so nothing leaves the device), and the learning model (it needs a
-model approved by fingerprint, which a phone doesn't have).
+file gets the same verdict everywhere. YARA rules run through a pure-Python reader
+(`web_v/yara_lite.py`, packed as `yara`), since the YARA library is compiled C. Public threat lookups
+are optional and only in the Android app (see `android/ANDROID.md`). Not available on the phone: the
+learning model (it needs a model approved by fingerprint, which a phone doesn't have).
+
+The same files also make the Android app: `web_v/android/ANDROID.md`.
 
 Measured in a desktop browser: engine start ≈ 4 s the first time (cached afterwards), a 2 MB
 program ≈ 1.3 s, memory ≈ 200 MB. Expect a recent phone to be 2–4× slower.
