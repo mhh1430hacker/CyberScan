@@ -63,15 +63,16 @@ web_v/android/
   store/                          Play listing text (EN/AR), Data safety answers, graphics
 ```
 
-## Tools (already installed on this PC, nothing system-wide)
+## Tools (in your user folder, nothing system-wide)
 
 ```
-C:\Users\mahdi\Android\jdk21          Temurin JDK 21 (Gradle needs 17–21; the system JDK 25 is too new)
-C:\Users\mahdi\Android\sdk            Android SDK: platform 36, build-tools 36, platform-tools
-C:\Users\mahdi\Android\gradle-8.14.3  Gradle
+%USERPROFILE%\Android\jdk21          Temurin JDK 21 (Gradle needs 17–21; JDK 25 is too new)
+%USERPROFILE%\Android\sdk            Android SDK: platform 36, build-tools 36, platform-tools
+%USERPROFILE%\Android\gradle-8.14.3  Gradle
 ```
 
-Avast scans HTTPS on this PC, so Java must trust the Windows certificate store:
+`release.ps1` looks there (or in `$env:CYBERSCAN_ANDROID_TOOLS`). If an antivirus scans HTTPS
+(Avast does), Java must trust the Windows certificate store:
 `JAVA_TOOL_OPTIONS=-Djavax.net.ssl.trustStoreType=Windows-ROOT` (only for the build command).
 
 ## Build
@@ -80,10 +81,10 @@ Avast scans HTTPS on this PC, so Java must trust the Windows certificate store:
 .venv\Scripts\python.exe web_v\build_mobile.py               # engine.zip (after engine changes)
 .venv\Scripts\python.exe web_v\build_android_www.py          # copy the app + engine into www/
 cd web_v\android; npx cap sync android; cd android
-$env:JAVA_HOME = "C:\Users\mahdi\Android\jdk21"
+$env:JAVA_HOME = "$HOME\Android\jdk21"
 $env:JAVA_TOOL_OPTIONS = "-Djavax.net.ssl.trustStoreType=Windows-ROOT"
-C:\Users\mahdi\Android\gradle-8.14.3\bin\gradle.bat assembleDebug    # test APK
-C:\Users\mahdi\Android\gradle-8.14.3\bin\gradle.bat bundleRelease    # signed .aab for Play
+& "$HOME\Android\gradle-8.14.3\bin\gradle.bat" assembleDebug    # test APK
+& "$HOME\Android\gradle-8.14.3\bin\gradle.bat" bundleRelease    # signed .aab for Play
 ```
 
 Outputs:

@@ -19,7 +19,7 @@ $ErrorActionPreference = "Continue"
 
 $Root    = Resolve-Path (Join-Path $PSScriptRoot "..\..")
 $Project = Join-Path $PSScriptRoot "android"
-$Tools   = "C:\Users\mahdi\Android"
+$Tools   = if ($env:CYBERSCAN_ANDROID_TOOLS) { $env:CYBERSCAN_ANDROID_TOOLS } else { Join-Path $env:USERPROFILE "Android" }   # jdk21, sdk, gradle-8.14.3
 $Jks     = if ($Keystore) { $Keystore } else { Join-Path $Project "cyberscan-upload.jks" }
 $Props   = Join-Path $Project "keystore.properties"
 $Out     = Join-Path $PSScriptRoot "release"
