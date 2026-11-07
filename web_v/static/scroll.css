@@ -44,11 +44,14 @@ body:not(.on-landing) .tint { display: none; }
 .hpin-count b { font-size: 44px; color: var(--text); font-weight: 800; margin-inline-end: 6px; }
 
 /* ---------- kinetic bands ---------- */
-.bands { padding: 80px 0 20px; overflow: hidden; display: grid; gap: 4px; }
-.band { white-space: nowrap; line-height: 1; direction: ltr; }
+.bands { padding: 80px 0 20px; overflow: hidden; display: grid; gap: 4px; grid-template-columns: minmax(0, 1fr); direction: ltr; }
+.band { white-space: nowrap; line-height: 1.15; direction: ltr; text-align: left; }   /* same motion in both languages */
 .band span { display: inline-block; font-size: clamp(56px, 10vw, 150px); font-weight: 900; letter-spacing: -.03em; will-change: transform; background: linear-gradient(90deg, #e0f2fe, #7dd3fc 40%, #c4b5fd); -webkit-background-clip: text; background-clip: text; color: transparent; }
-[dir="rtl"] .band span { letter-spacing: 0; }
-.band.outline span { background: none; color: transparent; -webkit-text-stroke: 1.5px rgba(148, 163, 184, .55); }
+/* the colour is painted inside the span's box: leave room above and below so Arabic dots and
+   descenders (ي ب ش ج) aren't cut off; a repeating gradient keeps the colours the same in any language */
+.band span { padding: .1em 0 .22em; background-size: 1400px 100%; background-repeat: repeat-x; }
+[dir="rtl"] .band span { letter-spacing: 0; font-weight: 800; font-family: "Segoe UI", "Noto Kufi Arabic", "Noto Sans Arabic", Tahoma, system-ui, sans-serif; }
+.band.outline span { background: none !important; -webkit-background-clip: border-box; background-clip: border-box; color: transparent; -webkit-text-stroke: 1.5px rgba(148, 163, 184, .55); }
 
 /* ---------- mask reveals ---------- */
 .cube-stage { clip-path: circle(0% at 50% 50%); will-change: clip-path, transform; }

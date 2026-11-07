@@ -499,8 +499,14 @@
     draw();
     raf = requestAnimationFrame(frame);
   }
+  /* The film is never silent: if the lo-fi music is off, the film switches it on
+   * and switches it off again when it stops. Music the visitor turned on, or
+   * touched during the film, is theirs: the film never turns it off. */
+  let filmMusic = false;
+  document.querySelectorAll(".sound-btn").forEach((b) => b.addEventListener("click", () => { filmMusic = false; }));
   function play() {
     if (time >= DURATION - 0.05) seek(0);
+    if (window.CSSound && !CSSound.on) { CSSound.set(true, false); filmMusic = true; }
     if (studioTrack()) { audioCtx(); studioTrack().cues.forEach((c) => clip(c.file)); } // unlock audio on the click, preload
     playing = true; last = performance.now();
     $("film-player").classList.add("playing");
@@ -513,6 +519,8 @@
     if (window.speechSynthesis) speechSynthesis.cancel();
     silence();
     window.CSSound && CSSound.setDuck(1);
+    if (filmMusic && window.CSSound && CSSound.on) CSSound.set(false, false);
+    filmMusic = false;
   }
   function seek(s) {
     time = clamp(s, 0, DURATION);

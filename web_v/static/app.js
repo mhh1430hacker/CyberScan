@@ -28,6 +28,11 @@ function applyLang() {
     if (typeof value === "string") node.textContent = value;
   });
   document.querySelectorAll("[data-i18n-ph]").forEach((node) => { node.placeholder = t(node.dataset.i18nPh); });
+  // accessible names for controls that show no text (screen readers read these)
+  document.querySelectorAll("[data-i18n-aria]").forEach((node) => {
+    const value = t(node.dataset.i18nAria);
+    if (typeof value === "string" && value !== node.dataset.i18nAria) node.setAttribute("aria-label", value);
+  });
   requestAnimationFrame(() => { moveInk(); moveNavInk(); });
   if (state.lastResult && !$("result").hidden) renderResult(state.lastResult, false);
   if (state.view === "history" && state.history) renderHistory(false);
