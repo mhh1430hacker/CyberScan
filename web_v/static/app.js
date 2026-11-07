@@ -271,7 +271,8 @@ $("form").addEventListener("submit", async (e) => {
     } else {
       job = await postJSON("/api/scan", { mode: state.mode, value: $(state.mode).value });
     }
-    poll(job.id);
+    // the online version answers with the finished scan; the local server with a job to follow
+    if (job.status) showJob(job, job.id); else poll(job.id);
   } catch (err) {
     showError(err.message);
   }
@@ -288,7 +289,12 @@ function scanPath(path) {
 
 function poll(id) {
   clearTimeout(state.polling);
-  api(`/api/scan/${id}`).then((job) => {
+  api(`/api/scan/${id}`).then((job) => showJob(job, id)).catch(() => showError(t("network")));
+}
+
+function showJob(job, id) {
+  {
+    if (!job.stages) { showError(job.error || t("network")); return; }
     renderStages(job.stages);
     if (job.status === "running") { state.polling = setTimeout(() => poll(id), 220); return; }
     if (job.status === "failed") { showError(job.error); return; }
@@ -303,7 +309,7 @@ function poll(id) {
       const p = plainOf(job.result);
       notify(job.result.target, p ? p.summary.headline : job.result.classification);
     }, wait);
-  }).catch(() => showError(t("network")));
+  }
 }
 
 function showProgress(label) {
@@ -634,6 +640,13 @@ function renderActions(r) {
   if (id && state.ai && state.ai.enabled && state.ai.state === "ready") buttons.push(actionButton("✦ " + t("aAi"), () => startAi(id)));
   if (id) buttons.push(actionButton(t("aExportTxt"), () => download(`/api/history/${id}/export?format=txt`)));
   if (id) buttons.push(actionButton(t("aExportJson"), () => download(`/api/history/${id}/export?format=json`)));
+  if (!id) {
+    // no saved record (the online version keeps none): build the files from the result in the browser
+    const base = String(r.target || "scan").split(/[\\/]/).pop().replace(/[^\w.\- ]/g, "_").slice(0, 80) || "scan";
+    const save = (text, name, type) => { const a = el("a"); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); };
+    if (r.report_text) buttons.push(actionButton(t("aExportTxt"), () => save(r.report_text, `${base}.cyberscan.txt`, "text/plain")));
+    buttons.push(actionButton(t("aExportJson"), () => save(JSON.stringify(r, null, 2), `${base}.cyberscan.json`, "application/json")));
+  }
   if (r.sha256) buttons.push(actionButton(t("aCopyHash"), async () => { await navigator.clipboard.writeText(r.sha256); toast(t("copied")); }));
   buttons.push(actionButton(t("copy"), async () => { await navigator.clipboard.writeText(r.report_text); toast(t("copied")); }));
   buttons.push(actionButton("⎙ " + t("pPrint"), () => { $("result").dataset.printed = new Date().toLocaleString(lang); window.print(); }));
@@ -862,7 +875,11 @@ document.querySelectorAll(".chip").forEach((chip) => chip.addEventListener("clic
 const settingInputs = [...document.querySelectorAll("#view-settings [data-key]")];
 
 async function loadSettings() {
-  try { state.settings = await api("/api/settings"); renderSettings(); applyPrefs(); watchEvents(); } catch { /* keep defaults */ }
+  try {
+    state.settings = await api("/api/settings");
+    document.body.classList.toggle("public-mode", !!state.settings.public);   // the online version
+    renderSettings(); applyPrefs(); watchEvents();
+  } catch { /* keep defaults */ }
 }
 
 function renderSettings() {
