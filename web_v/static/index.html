@@ -19,8 +19,11 @@
   <link rel="stylesheet" href="scroll.css">
   <link rel="stylesheet" href="cyber.css">
   <link rel="stylesheet" href="get-app.css">
+  <link rel="stylesheet" href="a11y.css">
+  <script src="js/a11y-early.js"></script>
 </head>
 <body class="on-landing">
+  <a class="skip-link" href="#top" data-i18n="skipLink">Skip to content</a>
   <canvas id="cells" class="cells" aria-hidden="true"></canvas>
   <div class="tint" id="tint" aria-hidden="true"></div>
   <canvas id="gl-hero" class="gl-hero" aria-hidden="true"></canvas>
@@ -163,7 +166,7 @@
         <div class="orbit o1" aria-hidden="true"></div>
         <div class="orbit o2" aria-hidden="true"></div>
       </div>
-      <a href="#how" class="scroll-cue" aria-hidden="true"><span></span></a>
+      <a href="#how" class="scroll-cue" aria-hidden="true" tabindex="-1"><span></span></a>
     </section>
 
     <section id="film" class="l-section film-sec" data-shape="ring" data-shape-fade="0.18" data-tint="#090620">
@@ -172,19 +175,23 @@
       <p class="l-sub center" data-reveal data-i18n="filmSub"></p>
       <div class="film" id="film-player" data-reveal>
         <div class="film-frame">
-          <canvas id="film-canvas" width="1280" height="720" aria-label="CyberScan explainer video"></canvas>
-          <button class="film-big" id="film-big" type="button" aria-label="Play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+          <canvas id="film-canvas" width="1280" height="720" role="img" aria-label="CyberScan explainer video" data-i18n-aria="ariaFilm"></canvas>
+          <button class="film-big" id="film-big" type="button" aria-label="Play" data-i18n-aria="ariaPlay"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
         </div>
         <div class="film-bar">
-          <button class="film-btn" id="film-play" type="button" aria-label="Play"><svg viewBox="0 0 24 24" class="i-play"><path d="M8 5v14l11-7z"/></svg><svg viewBox="0 0 24 24" class="i-pause"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg></button>
+          <button class="film-btn" id="film-play" type="button" aria-label="Play" data-i18n-aria="ariaPlay"><svg viewBox="0 0 24 24" class="i-play"><path d="M8 5v14l11-7z"/></svg><svg viewBox="0 0 24 24" class="i-pause"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg></button>
           <span class="film-time" id="film-time">0:00 / 1:26</span>
-          <div class="film-seek" id="film-seek" role="slider" tabindex="0" aria-label="Seek" aria-valuemin="0" aria-valuemax="86" aria-valuenow="0"><div class="film-chapters" id="film-chapters"></div><i id="film-fill"></i></div>
+          <div class="film-seek" id="film-seek" role="slider" tabindex="0" aria-label="Seek" data-i18n-aria="ariaSeek" aria-valuemin="0" aria-valuemax="86" aria-valuenow="0"><div class="film-chapters" id="film-chapters"></div><i id="film-fill"></i></div>
           <button class="film-btn film-tog on" id="film-voice" type="button" data-i18n="filmVoice">Voice</button>
           <button class="film-btn film-tog on" id="film-subs" type="button" data-i18n="filmSubs">Subtitles</button>
           <button class="film-btn" id="film-export" type="button" data-i18n="filmExport">Export video</button>
-          <button class="film-btn" id="film-full" type="button" aria-label="Fullscreen"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+          <button class="film-btn" id="film-full" type="button" aria-label="Fullscreen" data-i18n-aria="ariaFull"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
         </div>
         <ol class="film-chaps" id="film-chaps"></ol>
+        <details class="film-transcript">
+          <summary data-i18n="filmTranscript">Read the narration</summary>
+          <ol id="film-transcript"></ol>
+        </details>
       </div>
     </section>
 
@@ -283,6 +290,16 @@
     <footer class="l-foot">
       <div class="foot-word" aria-hidden="true">CyberScan</div>
       <div class="foot-row"><span>© 2026 CyberScan</span><span data-i18n="lFoot"></span></div>
+      <div class="foot-row foot-meta">
+        <address class="dev">
+          <span data-i18n="devBy">Built by</span> <b>Ainex</b> ·
+          <a href="mailto:mahdi-alhajji@zohomail.sa" class="dev-mail" dir="ltr">mahdi-alhajji@zohomail.sa</a>
+        </address>
+        <button class="motion-btn" type="button" id="motion-btn" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h3l2-5 4 10 2-5h5"/></svg>
+          <span data-i18n="motionReduce">Reduce motion</span>
+        </button>
+      </div>
     </footer>
   </div>
 
@@ -354,9 +371,9 @@
               </div>
               <div id="seen" class="seen" hidden aria-live="polite"></div>
             </div>
-            <input id="url" class="field" data-panel="url" type="url" hidden placeholder="https://example.com/download" data-i18n-ph="urlPh">
+            <input id="url" class="field" data-panel="url" type="url" hidden aria-label="Link to check" data-i18n-aria="ariaUrl" placeholder="https://example.com/download" data-i18n-ph="urlPh">
             <div data-panel="text" hidden class="text-panel">
-              <textarea id="text" class="field" rows="5" placeholder="" data-i18n-ph="textPh"></textarea>
+              <textarea id="text" class="field" rows="5" aria-label="Text to check" data-i18n-aria="ariaText" placeholder="" data-i18n-ph="textPh"></textarea>
               <button type="button" class="link-btn" id="sample" data-i18n="sample">Try a sample</button>
             </div>
             <button id="go" class="primary magnetic" type="submit" disabled><span data-i18n="scan">Start check</span></button>
@@ -454,7 +471,7 @@
             </div>
             <div class="rpanel" data-tab="structure" hidden>
               <p class="hint" data-i18n="structureHint"></p>
-              <div class="cube-stage app-cube"><canvas id="r-cube"></canvas><div class="cube-tip" id="r-cube-tip" hidden></div></div>
+              <div class="cube-stage app-cube"><canvas id="r-cube" role="img" aria-label="3D map of the file" data-i18n-aria="ariaCube"></canvas><div class="cube-tip" id="r-cube-tip" hidden></div></div>
               <ul class="legend" id="r-legend"></ul>
               <p class="empty-state" id="no-structure" hidden data-i18n="noStructure"></p>
             </div>
@@ -523,7 +540,7 @@
           </div>
           <div class="dist" id="dist" aria-hidden="true"></div>
           <div class="history-tools">
-            <input id="history-search" class="field search" type="search" data-i18n-ph="searchPh">
+            <input id="history-search" class="field search" type="search" aria-label="Search history" data-i18n-aria="ariaSearch" data-i18n-ph="searchPh">
             <div class="chips" role="group">
               <button type="button" class="chip active" data-filter="all" data-i18n="fAll">All</button>
               <button type="button" class="chip" data-filter="SUSPICIOUS" data-i18n="fBad">Suspicious</button>
@@ -637,7 +654,7 @@
           <h3 data-i18n="grpAi">AI explanation</h3>
           <div class="setting-group">
             <label class="setting"><span><b data-i18n="setAi"></b><small data-i18n="setAiHint"></small></span><input type="checkbox" class="switch" data-key="ai_summary_enabled"></label>
-            <div class="setting"><span><b data-i18n="setModel"></b><small id="ai-state"></small></span><select class="field select" id="ai-model"></select></div>
+            <div class="setting"><span><b data-i18n="setModel"></b><small id="ai-state"></small></span><select class="field select" id="ai-model" aria-label="AI model" data-i18n-aria="ariaModel"></select></div>
           </div>
 
           <h3 data-i18n="grpNotify">Notifications</h3>
@@ -655,9 +672,9 @@
           <h3 data-i18n="grpLimits">Limits</h3>
           <div class="setting-group">
             <label class="setting range"><span><b data-i18n="setSize"></b><small><output id="size-out"></output></small></span>
-              <input type="range" min="1" max="200" step="1" data-key="maximum_file_size" data-scale="1048576"></label>
+              <input type="range" min="1" max="200" step="1" aria-label="Largest file to check (MB)" data-i18n-aria="ariaMaxSize" data-key="maximum_file_size" data-scale="1048576"></label>
             <label class="setting range"><span><b data-i18n="setTime"></b><small><output id="time-out"></output></small></span>
-              <input type="range" min="5" max="300" step="5" data-key="analysis_timeout"></label>
+              <input type="range" min="5" max="300" step="5" aria-label="Time limit per check (seconds)" data-i18n-aria="ariaTimeout" data-key="analysis_timeout"></label>
           </div>
         </section>
       </div>
@@ -681,7 +698,7 @@
     <div class="pal-box" role="dialog" aria-modal="true" aria-label="Command palette">
       <div class="pal-search">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>
-        <input id="pal-input" type="text" autocomplete="off" spellcheck="false" role="combobox" aria-expanded="true" aria-controls="pal-list" data-i18n-ph="pPlaceholder">
+        <input id="pal-input" type="text" aria-label="Command" data-i18n-aria="ariaPalette" autocomplete="off" spellcheck="false" role="combobox" aria-expanded="true" aria-controls="pal-list" data-i18n-ph="pPlaceholder">
         <kbd>Esc</kbd>
       </div>
       <div class="pal-list" id="pal-list" role="listbox"></div>
@@ -724,6 +741,7 @@
   <script src="js/story.js"></script>
   <script src="js/landing.js"></script>
   <script src="js/get-app.js"></script>
+  <script src="js/a11y.js"></script>
   <script src="js/fx.js"></script>
   <script src="js/scroll.js"></script>
 </body>

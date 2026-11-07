@@ -140,7 +140,7 @@ body::after {
 .film:fullscreen { max-width: none; display: grid; align-content: center; background: #000; }
 
 /* ---------- tints in the new palette ---------- */
-.bands .band span { background-image: linear-gradient(90deg, #eaffff, #22e8ff 35%, #b46cff 70%, #ff4fd8) !important; }
+.bands .band:not(.outline) span { background-image: linear-gradient(90deg, #eaffff, #22e8ff 25%, #b46cff 50%, #ff4fd8 75%, #eaffff) !important; }
 .band.outline span { -webkit-text-stroke-color: rgba(180, 108, 255, .6); }
 .mw.key { color: color-mix(in srgb, rgba(226, 232, 240, .12), #22e8ff calc(var(--k) * 100%)); text-shadow: 0 0 calc(var(--k) * 26px) rgba(34, 232, 255, calc(var(--k) * .7)); }
 
