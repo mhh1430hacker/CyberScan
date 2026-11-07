@@ -12,12 +12,25 @@ so no other web page the user visits may drive it):
   * every /api/ call needs a random per-launch token, injected only into the
     page this server serves;
   * strict Content-Security-Policy: no inline or third-party scripts.
+
+Public mode (CYBERSCAN_PUBLIC=1, used by web_v/lambda_function.py on AWS Lambda):
+  * anyone may use it, so nothing that touches the server's own disk is
+    available: no scanning by path, no native file picker, no quarantine,
+    restore or reveal, no saved settings or keys, no local AI, no downloads
+    watch; nothing is written to a shared history (each visitor's results
+    stay in their browser);
+  * scans finish inside the request (Lambda freezes background threads);
+  * uploads are capped by Lambda's 6 MB request limit;
+  * the Origin must be the site itself; large static files (Pyodide, the
+    APK) are redirected to CYBERSCAN_ASSET_BASE (an S3 bucket).
 """
 from __future__ import annotations
 
+import base64
 import dataclasses
 import json
 import mimetypes
+import os
 import re
 import secrets
 import shutil
@@ -54,6 +67,16 @@ MAX_TEXT = 1024 * 1024
 HISTORY_LIMIT = 200
 HISTORY_DIR = Path(REPORT_DIR) / "history"
 ID = r"([0-9a-f]{32})"
+
+PUBLIC = os.environ.get("CYBERSCAN_PUBLIC") == "1"
+ASSET_BASE = os.environ.get("CYBERSCAN_ASSET_BASE", "").rstrip("/")
+PUBLIC_MAX_UPLOAD = 4 * 1024 * 1024        # Lambda accepts 6 MB per request, base64 included
+PUBLIC_TIMEOUT = 50.0                      # stays under the Lambda timeout
+# routes that would let a visitor reach the server's own disk or settings
+PUBLIC_DISABLED = {
+    "history_quarantine", "history_restore", "history_reveal", "history_ai", "ai_poll", "ai_stop",
+    "settings_put", "keys_put", "pick", "repair_path",
+}
 
 _MODEL_NAME = re.compile(r"^[\w.:/\-]{1,80}$")
 
@@ -101,6 +124,10 @@ def _settings_defaults() -> dict[str, Any]:
 
 
 def load_settings() -> dict[str, Any]:
+    if PUBLIC:
+        # the same safe settings for every visitor; nothing is read from or written to disk
+        return {**_settings_defaults(), "osint_enabled": False, "ai_summary_enabled": False, "monitoring_enabled": False,
+                "maximum_file_size": PUBLIC_MAX_UPLOAD, "analysis_timeout": PUBLIC_TIMEOUT}
     try:
         return STORE.load_settings(_settings_defaults())
     except ValueError:
@@ -111,6 +138,7 @@ def public_settings() -> dict[str, Any]:
     current = load_settings()
     out = {key: current[key] for key in EDITABLE_SETTINGS}
     out["monitor_state"] = "on" if MONITOR.monitor is not None else "off"
+    out["public"] = PUBLIC
     return out
 
 
@@ -362,7 +390,9 @@ class Job:
 
 class App:
     def __init__(self) -> None:
-        self.token = secrets.token_urlsafe(32)
+        # Public mode runs on many short-lived instances: the page must work with any of them,
+        # so the token is the same everywhere (it only stops other sites from driving the API).
+        self.token = os.environ.get("CYBERSCAN_TOKEN") or ("cyberscan-public" if PUBLIC else secrets.token_urlsafe(32))
         self.jobs: dict[str, Job] = {}
         self.lock = threading.Lock()
         self.upload_root = Path(tempfile.mkdtemp(prefix="cyberscan-web-"))
@@ -388,10 +418,11 @@ class App:
                 # Uploaded copies are not where the user keeps the file: present them by name.
                 shown_mode = "File" if mode == "File" else mode
                 job.result = serialize_result(result, display, shown_mode, raw, time.monotonic() - started)
-                try:
-                    job.result["record_id"] = record_history(result, display)
-                except (OSError, TypeError, ValueError) as exc:
-                    job.result["history_error"] = f"{type(exc).__name__}: {exc}"
+                if not PUBLIC:  # a public server keeps no shared history
+                    try:
+                        job.result["record_id"] = record_history(result, display)
+                    except (OSError, TypeError, ValueError) as exc:
+                        job.result["history_error"] = f"{type(exc).__name__}: {exc}"
                 job.result["exists"] = cleanup is None and mode == "File"
                 job.result["quarantined"] = False
                 job.status = "done"
@@ -402,7 +433,10 @@ class App:
                 if cleanup is not None:
                     shutil.rmtree(cleanup, ignore_errors=True)
 
-        threading.Thread(target=run, daemon=True).start()
+        if PUBLIC:
+            run()  # Lambda freezes background threads once the response is sent
+        else:
+            threading.Thread(target=run, daemon=True).start()
         return job
 
 
@@ -430,12 +464,18 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
             self.send_header("Referrer-Policy", "no-referrer")
             # 'wasm-unsafe-eval' only lets the page compile WebAssembly (the phone
             # app's on-device engine); it does not allow eval() of JavaScript.
+            # In public mode the large files come from the asset bucket.
+            assets = f" {ASSET_BASE}" if PUBLIC and ASSET_BASE else ""
             self.send_header(
                 "Content-Security-Policy",
                 "default-src 'self'; img-src 'self' data: blob:; style-src 'self'; "
-                "script-src 'self' 'wasm-unsafe-eval'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; "
+                f"script-src 'self' 'wasm-unsafe-eval'{assets}; connect-src 'self'{assets}; worker-src 'self'; manifest-src 'self'; "
                 "frame-ancestors 'self'; base-uri 'none'; form-action 'self'",  # 'self': the phone app shows its privacy page in a frame
             )
+            if PUBLIC:
+                self.send_header("Strict-Transport-Security", "max-age=31536000")
+                self.send_header("X-Frame-Options", "SAMEORIGIN")
+                self.send_header("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
             for key, value in extra.items():
                 self.send_header(key, value)
             self.end_headers()
@@ -445,6 +485,17 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
             self._send(status, json.dumps(value, ensure_ascii=False).encode(), "application/json; charset=utf-8")
 
         def _guard(self, api: bool) -> bool:
+            if PUBLIC:
+                # any host name AWS gives the function; the page may only be driven by itself
+                host = self.headers.get("Host", "")
+                origin = self.headers.get("Origin")
+                if origin is not None and origin not in (f"https://{host}", f"http://{host}"):
+                    self._json(HTTPStatus.FORBIDDEN, {"error": "bad origin"})
+                    return False
+                if api and not secrets.compare_digest(self.headers.get("X-CyberScan-Token", ""), app.token):
+                    self._json(HTTPStatus.UNAUTHORIZED, {"error": "bad token"})
+                    return False
+                return True
             if self.headers.get("Host", "") not in allowed_hosts:
                 self._json(HTTPStatus.FORBIDDEN, {"error": "bad host"})
                 return False
@@ -524,6 +575,9 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
                 if route_method != method:
                     continue
                 match = re.fullmatch(pattern, path)
+                if match and PUBLIC and getattr(handler, "route_name", "") in PUBLIC_DISABLED:
+                    self._json(HTTPStatus.FORBIDDEN, {"error": "This isn't available in the online version. Use the desktop app."})
+                    return
                 if match:
                     try:
                         handler(self, *match.groups(), query=parse_qs(query))
@@ -548,6 +602,13 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
 
         def _static(self, path: str) -> None:
             name = "index.html" if path in ("/", "/index.html") else unquote(path).lstrip("/")
+            if PUBLIC and ASSET_BASE and (name.startswith("pyodide/") or (name.startswith("downloads/") and name.endswith(".apk"))):
+                # larger than Lambda can return (6 MB): served by the asset bucket
+                if ".." in name or not re.fullmatch(r"[\w./\-]+", name):
+                    self._json(HTTPStatus.NOT_FOUND, {"error": "not found"})
+                    return
+                self._send(HTTPStatus.FOUND, b"", "text/plain", {"Location": f"{ASSET_BASE}/{name}", "Cache-Control": "public, max-age=3600"})
+                return
             target = (STATIC_DIR / name).resolve()
             if target.is_dir() and STATIC_DIR in target.parents:
                 if not path.endswith("/"):  # /m -> /m/ so relative links resolve
@@ -588,6 +649,8 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
                 raise ApiError(400, "expected {mode: url|text|path, value}") from exc
             if not value:
                 raise ApiError(400, "empty input")
+            if mode == "File" and PUBLIC:
+                raise ApiError(403, "Scanning files by path isn't available online. Upload the file instead.")
             if mode == "File":
                 file_path = Path(value.strip('"')).expanduser()
                 if not file_path.is_absolute() or not file_path.is_file():
@@ -597,7 +660,8 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
             else:
                 label = value if mode == "URL" else "Pasted text"
             job = app.start_job(value, mode, label[:1000], None)
-            self._json(HTTPStatus.ACCEPTED, {"id": job.id})
+            # public mode: the scan already finished, so the page gets the result at once
+            self._json(HTTPStatus.OK if PUBLIC else HTTPStatus.ACCEPTED, job.snapshot() if PUBLIC else {"id": job.id})
 
         def scan_upload(self, query: dict) -> None:
             limit = int(load_settings().get("maximum_file_size", 50 * 1024 * 1024))
@@ -608,7 +672,7 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
             file_path = folder / safe
             file_path.write_bytes(raw)
             job = app.start_job(str(file_path), "File", Path(original).name[:300], folder)
-            self._json(HTTPStatus.ACCEPTED, {"id": job.id})
+            self._json(HTTPStatus.OK if PUBLIC else HTTPStatus.ACCEPTED, job.snapshot() if PUBLIC else {"id": job.id})
 
         def scan_status(self, job_id: str, query: dict) -> None:
             job = app.jobs.get(job_id)
@@ -700,6 +764,9 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
 
         # ---- AI ------------------------------------------------------
         def ai_status(self, query: dict) -> None:
+            if PUBLIC:  # the AI summary needs a model on the user's own computer
+                self._json(HTTPStatus.OK, {"state": "no_server", "enabled": False, "models": []})
+                return
             settings = load_settings()
             status = services.ai_status(settings.get("ai_model", "qwen3:8b"))
             status["enabled"] = bool(settings.get("ai_summary_enabled", True))
@@ -749,6 +816,9 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
             self._json(HTTPStatus.OK, info)
 
         def events(self, query: dict) -> None:
+            if PUBLIC:
+                self._json(HTTPStatus.OK, {"events": [], "monitor": "off"})
+                return
             try:
                 since = int((query.get("since") or ["0"])[0])
             except ValueError:
@@ -766,7 +836,7 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
             self._json(HTTPStatus.OK, services.repair_open(file_path.read_bytes(), file_path.name, file_path.resolve()))
 
         def repair_upload(self, query: dict) -> None:
-            raw = self._raw_body(services.REPAIR_MAX)
+            raw = self._raw_body(PUBLIC_MAX_UPLOAD if PUBLIC else services.REPAIR_MAX)
             name = Path(unquote(self.headers.get("X-Filename", "upload.bin"))).name[:200] or "upload.bin"
             self._json(HTTPStatus.OK, services.repair_open(raw, name, None))
 
@@ -779,9 +849,14 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
             if not isinstance(keys, list) or not all(isinstance(k, str) for k in keys):
                 raise ApiError(400, "expected {keys: [...]}")
             try:
-                self._json(HTTPStatus.OK, services.repair_run(session, keys))
+                out = services.repair_run(session, keys)
             except ValueError as exc:
                 raise ApiError(400, str(exc)) from exc
+            if PUBLIC and out.get("ok") and session.output is not None:
+                # the next request may reach another instance: hand the copy over now
+                out["output_b64"] = base64.b64encode(session.output).decode("ascii")
+                out["output_name"] = session.output_name
+            self._json(HTTPStatus.OK, out)
 
         def repair_download(self, session_id: str, query: dict) -> None:
             session = services.REPAIRS.get(session_id)
@@ -795,7 +870,10 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
 
 
 def _route(method: str, pattern: str, name: str) -> tuple[str, str, Callable]:
-    return method, pattern, lambda handler, *groups, query: getattr(handler, name)(*groups, query=query)
+    def call(handler: Any, *groups: str, query: dict) -> None:
+        getattr(handler, name)(*groups, query=query)
+    call.route_name = name  # type: ignore[attr-defined]
+    return method, pattern, call
 
 
 ROUTES = [

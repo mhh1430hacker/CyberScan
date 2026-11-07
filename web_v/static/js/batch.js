@@ -119,9 +119,11 @@
         headers: { "X-Filename": encodeURIComponent(item.file.name), "Content-Type": "application/octet-stream" },
         body: item.file,
       });
+      let first = job.status ? job : null;   // the online version answers with the finished scan
       for (;;) {
-        await new Promise((r) => setTimeout(r, 300));
-        const s = await api(`/api/scan/${job.id}`);
+        if (!first) await new Promise((r) => setTimeout(r, 300));
+        const s = first || await api(`/api/scan/${job.id}`);
+        first = null;
         const done = s.stages.filter((x) => x.state === "complete").length;
         item.card.style.setProperty("--p", `${(done / 4) * 100}%`);
         if (s.status === "done") { finish(item, s.result, null); return; }

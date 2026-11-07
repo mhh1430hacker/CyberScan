@@ -175,7 +175,21 @@
   $("r-run").addEventListener("click", run);
   $("r-reset").addEventListener("click", reset);
   $("r-again").addEventListener("click", reset);
-  $("r-download").addEventListener("click", () => session && download(`/api/repair/${session.id}/download`).catch((e) => toast(e.message)));
+  $("r-download").addEventListener("click", () => {
+    if (!session) return;
+    const o = lastOutcome;
+    if (o && o.output_b64) {
+      // the online version sends the repaired copy with the result: save it from the browser
+      const bytes = Uint8Array.from(atob(o.output_b64), (c) => c.charCodeAt(0));
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([bytes], { type: "application/octet-stream" }));
+      a.download = o.output_name || "repaired-file";
+      document.body.append(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+      return;
+    }
+    download(`/api/repair/${session.id}/download`).catch((e) => toast(e.message));
+  });
 
   window.CS.onLang(() => {
     renderRules();

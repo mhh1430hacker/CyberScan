@@ -42,3 +42,8 @@ html.reduce-motion .band span { transform: none !important; }
   .cursor-ring, .cursor-dot { display: none !important; }
   body.has-cursor, body.has-cursor * { cursor: auto !important; }
 }
+
+/* the online version (public mode): server-side options are hidden */
+.public-note { display: none; }
+.public-mode [data-local] { display: none !important; }
+.public-mode .public-note { display: block; margin: 0 0 6px; padding: 12px 14px; border-radius: 12px; background: rgba(34, 232, 255, .08); border: 1px solid rgba(34, 232, 255, .25); color: #cfeffd; line-height: 1.5; }

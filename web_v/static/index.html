@@ -364,7 +364,7 @@
               </label>
               <div class="disk-row">
                 <span class="or" data-i18n="orDisk">or</span>
-                <button type="button" class="ghost" id="pick-disk">
+                <button type="button" class="ghost" id="pick-disk" data-local>
                   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
                   <span data-i18n="pickDisk">Choose from disk</span></button>
                 <small data-i18n="pickDiskHint"></small>
@@ -576,7 +576,7 @@
             </label>
             <div class="disk-row">
               <span class="or" data-i18n="orDisk">or</span>
-              <button type="button" class="ghost" id="r-pick"><span data-i18n="pickDisk">Choose from disk</span></button>
+              <button type="button" class="ghost" id="r-pick" data-local><span data-i18n="pickDisk">Choose from disk</span></button>
             </div>
             <ul class="rules" id="r-rules"></ul>
           </div>
@@ -620,21 +620,22 @@
             <span id="save-state" class="save-state" aria-live="polite"></span>
           </div>
           <p class="lede" data-i18n="settingsLede"></p>
+          <p class="public-note" data-i18n="publicNote"></p>
 
-          <h3 data-i18n="grpChecks">What to check</h3>
-          <div class="setting-group">
+          <h3 data-local data-i18n="grpChecks">What to check</h3>
+          <div class="setting-group" data-local>
             <label class="setting"><span><b data-i18n="setEntropy"></b><small data-i18n="setEntropyHint"></small></span><input type="checkbox" class="switch" data-key="entropy_analysis"></label>
             <label class="setting"><span><b data-i18n="setHeur"></b><small data-i18n="setHeurHint"></small></span><input type="checkbox" class="switch" data-key="heuristic_rules"></label>
             <label class="setting"><span><b data-i18n="setMl"></b><small data-i18n="setMlHint"></small></span><input type="checkbox" class="switch" data-key="ml_analysis"></label>
           </div>
 
-          <h3 data-i18n="grpOnline">Online</h3>
-          <div class="setting-group">
+          <h3 data-local data-i18n="grpOnline">Online</h3>
+          <div class="setting-group" data-local>
             <label class="setting"><span><b data-i18n="setOsint"></b><small data-i18n="setOsintHint"></small></span><input type="checkbox" class="switch" data-key="osint_enabled"></label>
           </div>
 
-          <h3 data-i18n="grpKeys">Online lookup keys</h3>
-          <div class="setting-group">
+          <h3 data-local data-i18n="grpKeys">Online lookup keys</h3>
+          <div class="setting-group" data-local>
             <div class="setting keys">
               <span><small data-i18n="keysHint"></small></span>
               <div class="key-fields">
@@ -645,14 +646,14 @@
             </div>
           </div>
 
-          <h3 data-i18n="grpWatch">Downloads watch</h3>
-          <div class="setting-group">
+          <h3 data-local data-i18n="grpWatch">Downloads watch</h3>
+          <div class="setting-group" data-local>
             <label class="setting"><span><b data-i18n="setWatch"></b><small data-i18n="setWatchHint"></small></span><input type="checkbox" class="switch" data-key="monitoring_enabled"></label>
             <div class="setting"><span><b data-i18n="setFolder"></b><small id="folder-out" class="mono"></small></span><button class="ghost" type="button" id="pick-folder" data-i18n="choose">Choose…</button></div>
           </div>
 
-          <h3 data-i18n="grpAi">AI explanation</h3>
-          <div class="setting-group">
+          <h3 data-local data-i18n="grpAi">AI explanation</h3>
+          <div class="setting-group" data-local>
             <label class="setting"><span><b data-i18n="setAi"></b><small data-i18n="setAiHint"></small></span><input type="checkbox" class="switch" data-key="ai_summary_enabled"></label>
             <div class="setting"><span><b data-i18n="setModel"></b><small id="ai-state"></small></span><select class="field select" id="ai-model" aria-label="AI model" data-i18n-aria="ariaModel"></select></div>
           </div>
@@ -664,13 +665,13 @@
 
           <h3 data-i18n="grpDisplay">Display</h3>
           <div class="setting-group">
-            <label class="setting"><span><b data-i18n="setLarge"></b></span><input type="checkbox" class="switch" data-key="large_text"></label>
-            <label class="setting"><span><b data-i18n="setAnim"></b></span><input type="checkbox" class="switch" data-key="animated_background"></label>
+            <label class="setting" data-local><span><b data-i18n="setLarge"></b></span><input type="checkbox" class="switch" data-key="large_text"></label>
+            <label class="setting" data-local><span><b data-i18n="setAnim"></b></span><input type="checkbox" class="switch" data-key="animated_background"></label>
             <label class="setting"><span><b data-i18n="setUiSound"></b><small data-i18n="setUiSoundHint"></small></span><input type="checkbox" class="switch" id="ui-sound-toggle"></label>
           </div>
 
-          <h3 data-i18n="grpLimits">Limits</h3>
-          <div class="setting-group">
+          <h3 data-local data-i18n="grpLimits">Limits</h3>
+          <div class="setting-group" data-local>
             <label class="setting range"><span><b data-i18n="setSize"></b><small><output id="size-out"></output></small></span>
               <input type="range" min="1" max="200" step="1" aria-label="Largest file to check (MB)" data-i18n-aria="ariaMaxSize" data-key="maximum_file_size" data-scale="1048576"></label>
             <label class="setting range"><span><b data-i18n="setTime"></b><small><output id="time-out"></output></small></span>
