@@ -73,6 +73,10 @@ ASSET_BASE = os.environ.get("CYBERSCAN_ASSET_BASE", "").rstrip("/")
 PUBLIC_MAX_UPLOAD = 4 * 1024 * 1024        # Lambda accepts 6 MB per request, base64 included
 PUBLIC_TIMEOUT = 50.0                      # stays under the Lambda timeout
 # routes that would let a visitor reach the server's own disk or settings
+# Behind CloudFront, Lambda sees its own address as Host while the browser's Origin is
+# the real domain: list the site's addresses here (comma-separated), e.g.
+# CYBERSCAN_SITE_ORIGINS=https://ainex-ai.xyz,https://www.ainex-ai.xyz
+SITE_ORIGINS = {o.strip().rstrip("/") for o in os.environ.get("CYBERSCAN_SITE_ORIGINS", "").split(",") if o.strip()}
 PUBLIC_DISABLED = {
     "history_quarantine", "history_restore", "history_reveal", "history_ai", "ai_poll", "ai_stop",
     "settings_put", "keys_put", "pick", "repair_path",
@@ -479,7 +483,8 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
             for key, value in extra.items():
                 self.send_header(key, value)
             self.end_headers()
-            self.wfile.write(body)
+            if self.command != "HEAD":   # HEAD: the same headers, no body
+                self.wfile.write(body)
 
         def _json(self, status: int, value: Any) -> None:
             self._send(status, json.dumps(value, ensure_ascii=False).encode(), "application/json; charset=utf-8")
@@ -489,7 +494,11 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
                 # any host name AWS gives the function; the page may only be driven by itself
                 host = self.headers.get("Host", "")
                 origin = self.headers.get("Origin")
-                if origin is not None and origin not in (f"https://{host}", f"http://{host}"):
+                forwarded = self.headers.get("X-Forwarded-Host", "")
+                allowed = {f"https://{host}", f"http://{host}"} | SITE_ORIGINS
+                if forwarded:
+                    allowed.add(f"https://{forwarded}")
+                if origin is not None and origin.rstrip("/") not in allowed:
                     self._json(HTTPStatus.FORBIDDEN, {"error": "bad origin"})
                     return False
                 if api and not secrets.compare_digest(self.headers.get("X-CyberScan-Token", ""), app.token):
@@ -597,6 +606,13 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
         def do_PUT(self) -> None:  # noqa: N802
             self._dispatch("PUT")
 
+        def do_HEAD(self) -> None:  # noqa: N802 - CDNs and download managers ask before fetching
+            path = self.path.partition("?")[0]
+            if path.startswith("/api/"):
+                self._json(HTTPStatus.METHOD_NOT_ALLOWED, {"error": "method not allowed"})
+                return
+            self._dispatch("GET")
+
         def do_DELETE(self) -> None:  # noqa: N802
             self._dispatch("DELETE")
 
@@ -610,6 +626,10 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
                 self._send(HTTPStatus.FOUND, b"", "text/plain", {"Location": f"{ASSET_BASE}/{name}", "Cache-Control": "public, max-age=3600"})
                 return
             target = (STATIC_DIR / name).resolve()
+            if PUBLIC and not ASSET_BASE and not target.is_file() and (name.startswith("pyodide/") or name.endswith(".apk")):
+                # the Lambda package doesn't contain these: say what's missing instead of a bare 404
+                self._json(HTTPStatus.NOT_FOUND, {"error": "not found: set CYBERSCAN_ASSET_BASE to the S3 bucket that holds pyodide/ and downloads/"})
+                return
             if target.is_dir() and STATIC_DIR in target.parents:
                 if not path.endswith("/"):  # /m -> /m/ so relative links resolve
                     self._send(HTTPStatus.MOVED_PERMANENTLY, b"", "text/plain", {"Location": path + "/"})
@@ -630,7 +650,16 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
                 ctype += "; charset=utf-8"
             extra = {}
             rel = target.relative_to(STATIC_DIR).as_posix()
-            if rel.startswith("pyodide/") or rel == "m/engine.zip":
+            if PUBLIC:
+                # Let the browser and the CDN (CloudFront) keep the site's files: without this every
+                # visit runs the function once per file. After a deploy, invalidate "/*" in CloudFront.
+                if rel == "sw.js":
+                    extra["Cache-Control"] = "no-cache"
+                elif rel.startswith("downloads/") or rel == "m/engine.version":
+                    extra["Cache-Control"] = "public, max-age=300, s-maxage=300"
+                else:
+                    extra["Cache-Control"] = "public, max-age=600, s-maxage=86400, stale-while-revalidate=86400"
+            elif rel.startswith("pyodide/") or rel == "m/engine.zip":
                 # versioned and large: the phone downloads the engine once
                 extra["Cache-Control"] = "public, max-age=31536000, immutable"
             if target.suffix == ".apk":

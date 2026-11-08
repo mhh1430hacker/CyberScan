@@ -62,7 +62,12 @@ The asset base URL is `https://cyberscan-assets.s3.<region>.amazonaws.com` (no t
 3. Runtime settings › Handler: **`lambda_function.handler`**.
 4. Configuration › General: **Memory 2048 MB**, **Timeout 1 min**, Ephemeral storage 1024 MB.
 5. Configuration › Environment variables:
-   - `CYBERSCAN_ASSET_BASE` = `https://cyberscan-assets.s3.<region>.amazonaws.com`
+   - `CYBERSCAN_ASSET_BASE` = `https://cyberscan-assets.s3.<region>.amazonaws.com` (**required**:
+     without it the phone engine and the APK return 404)
+   - `CYBERSCAN_SITE_ORIGINS` = your site's addresses, comma-separated, e.g.
+     `https://ainex-ai.xyz,https://www.ainex-ai.xyz` (**required behind CloudFront or a custom
+     domain**: Lambda sees its own address as Host, so without this every scan fails with
+     "bad origin")
    - optional `CYBERSCAN_TOKEN` = any random string
 6. Configuration › **Function URL** › Create: Auth type **NONE** (a public website). Leave CORS off
    (pages and API share the same address).
@@ -74,9 +79,16 @@ work from there.
 
 ## 3. Optional but recommended
 
-- **Your own domain + HTTPS**: CloudFront in front of the Function URL (origin = the URL's host,
-  "Origin protocol policy: HTTPS only", forward the `Origin`, `X-CyberScan-Token`, `X-Filename` and
-  `Content-Type` headers, caching disabled for `/api/*`), then Route 53 / your DNS.
+- **Your own domain + HTTPS**: CloudFront in front of the Function URL, then Route 53 / your DNS.
+  - Origin: the Function URL's host, protocol HTTPS only.
+  - Default behaviour: allowed methods GET, HEAD, OPTIONS, PUT, POST, PATCH, DELETE;
+    cache policy **UseOriginCacheControlHeaders** (the site sets how long each file may be kept);
+    origin request policy **AllViewerExceptHostHeader** (forwards `Origin`, `X-CyberScan-Token`,
+    `X-Filename`, `Content-Type`).
+  - Behaviour for `/api/*`: cache policy **CachingDisabled**, same origin request policy.
+  - Set `CYBERSCAN_SITE_ORIGINS` on the function (step 2.5).
+  - After every new upload of the code: CloudFront › Invalidations › create `/*`, so visitors get
+    the new files (they're cached for up to a day).
 - **AWS WAF** on CloudFront with a rate-based rule (e.g. 100 requests / 5 min per IP).
 - **Budget alert** in AWS Billing.
 
