@@ -110,3 +110,22 @@ is empty):
 ```powershell
 $env:CYBERSCAN_PUBLIC = "1"; .venv\Scripts\python.exe web_v\run.py --port 8766
 ```
+
+## The scan app on its own subdomain (scan.ainex-ai.xyz)
+
+The landing and the scan app are two pages: the server builds the scan page from `index.html`
+without the landing's heavy parts, at `/app.html` and on any `scan.` host.
+
+1. Certificate (ACM, **us-east-1**) for `ainex-ai.xyz` and `*.ainex-ai.xyz`, validated by DNS.
+2. CloudFront: add `scan.ainex-ai.xyz` to the alternate domain names, use that certificate, and
+   attach the CloudFront Function `cyberscan-host-router` (`web_v/aws/cloudfront-host-router.js`,
+   runtime cloudfront-js-2.0) as **viewer request** to the default behaviour and `/api/*`. It passes
+   the visitor's host on as `X-Forwarded-Host` and serves `/app.html` for `scan.…/`.
+3. Route 53: an **A alias** record `scan.ainex-ai.xyz` → the distribution.
+4. Lambda environment:
+   - `CYBERSCAN_SCAN_URL` = `https://scan.ainex-ai.xyz/` (where "Open the app" leads)
+   - `CYBERSCAN_HOME_URL` = `https://ainex-ai.xyz/` (where the scan page's logo leads)
+   - add `https://scan.ainex-ai.xyz` to `CYBERSCAN_SITE_ORIGINS`
+5. Invalidate `/*`.
+
+Old links such as `ainex-ai.xyz/#/scan` redirect to the scan app.
