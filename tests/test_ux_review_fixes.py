@@ -148,7 +148,8 @@ def test_links_and_fingerprints_get_no_cube_and_an_honest_verdict(window, qappli
     window.lens.scan_button.click()
     assert not window.sonar.isVisibleTo(window.journey_view)
     assert wait_for(qapplication, lambda: window.view == "result", 30)
-    assert panel.headline.text() == "We only checked how the link looks"
+    # it borrows the name microsoft on another site, which core/protection.py now flags
+    assert panel.headline.text() == "Take a second look"
     assert "example.com" in panel.notice_text.text()
 
 
