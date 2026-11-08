@@ -77,6 +77,47 @@ PUBLIC_TIMEOUT = 50.0                      # stays under the Lambda timeout
 # the real domain: list the site's addresses here (comma-separated), e.g.
 # CYBERSCAN_SITE_ORIGINS=https://ainex-ai.xyz,https://www.ainex-ai.xyz
 SITE_ORIGINS = {o.strip().rstrip("/") for o in os.environ.get("CYBERSCAN_SITE_ORIGINS", "").split(",") if o.strip()}
+# Two pages from one file: the landing (index.html) and the scan app, served at /app.html and on
+# any host that starts with "scan." (e.g. scan.ainex-ai.xyz). The scan page is index.html without
+# the landing and its heavy scripts (particle field, film, scroll scenes…).
+SCAN_URL = os.environ.get("CYBERSCAN_SCAN_URL", "app.html")    # where the landing sends people
+HOME_URL = os.environ.get("CYBERSCAN_HOME_URL", "/")           # where the scan page's logo leads
+LANDING_ONLY_CSS = ("landing.css", "scroll.css", "get-app.css")
+LANDING_ONLY_JS = ("js/gl-hero.js", "js/pipeline.js", "js/film.js", "js/story.js", "js/landing.js",
+                   "js/get-app.js", "js/scroll.js", "js/sound.js")
+
+
+def _cut(html: str, start: str, end: str) -> str:
+    """Remove from the first `start` up to and including the next `end`."""
+    i = html.find(start)
+    if i < 0:
+        return html
+    j = html.find(end, i + len(start))
+    return html if j < 0 else html[:i] + html[j + len(end):]
+
+
+def page_html(raw: bytes, token: str, scan: bool) -> bytes:
+    html = raw.decode("utf-8")
+    html = html.replace("__CYBERSCAN_TOKEN__", token).replace("__CYBERSCAN_SCAN_URL__", SCAN_URL).replace("__CYBERSCAN_HOME_URL__", HOME_URL)
+    if not scan:
+        return html.encode("utf-8")
+    html = _cut(html, "<!-- ===================================================== LANDING -->", "<!-- ===================================================== APP -->")
+    html = _cut(html, '<nav class="side-dots"', "</nav>")
+    html = _cut(html, '<div id="preloader"', "</div>\n  </div>")
+    for line in ('<canvas id="gl-hero" class="gl-hero" aria-hidden="true"></canvas>', '<div class="tint" id="tint" aria-hidden="true"></div>',
+                 '<div class="scroll-progress" aria-hidden="true"><i></i></div>'):
+        html = html.replace(line, "")
+    for css in LANDING_ONLY_CSS:
+        html = html.replace(f'<link rel="stylesheet" href="{css}">', "")
+    for js in LANDING_ONLY_JS:
+        html = html.replace(f'<script src="{js}"></script>', "")
+    html = html.replace('<body class="on-landing">', "<body>", 1)
+    html = html.replace("<title>CyberScan</title>", "<title>CyberScan · Scan</title>", 1)
+    html = html.replace('<a class="skip-link" href="#top"', '<a class="skip-link" href="#app"', 1)
+    html = html.replace('<a class="brand" href="#/" title="Home">', f'<a class="brand" href="{HOME_URL}" title="Home">', 1)
+    return html.encode("utf-8")
+
+
 PUBLIC_DISABLED = {
     "history_quarantine", "history_restore", "history_reveal", "history_ai", "ai_poll", "ai_stop",
     "settings_put", "keys_put", "pick", "repair_path",
@@ -617,7 +658,8 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
             self._dispatch("DELETE")
 
         def _static(self, path: str) -> None:
-            name = "index.html" if path in ("/", "/index.html") else unquote(path).lstrip("/")
+            self._scan_page = path in ("/app.html", "/scan", "/scan/")
+            name = "index.html" if path in ("/", "/index.html") or self._scan_page else unquote(path).lstrip("/")
             if PUBLIC and ASSET_BASE and (name.startswith("pyodide/") or (name.startswith("downloads/") and name.endswith(".apk"))):
                 # larger than Lambda can return (6 MB): served by the asset bucket
                 if ".." in name or not re.fullmatch(r"[\w./\-]+", name):
@@ -640,7 +682,8 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
                 return
             body = target.read_bytes()
             if name == "index.html":
-                body = body.replace(b"__CYBERSCAN_TOKEN__", app.token.encode())
+                host = (self.headers.get("X-Forwarded-Host") or self.headers.get("Host") or "").lower()
+                body = page_html(body, app.token, scan=self._scan_page or host.startswith("scan."))
             types = {".js": "text/javascript", ".mjs": "text/javascript", ".webmanifest": "application/manifest+json",
                      ".svg": "image/svg+xml", ".wasm": "application/wasm", ".zip": "application/zip",
                      ".vtt": "text/vtt", ".png": "image/png", ".json": "application/json",

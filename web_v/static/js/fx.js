@@ -12,8 +12,8 @@
   let seen = false;
   try { seen = sessionStorage.getItem("cs-intro") === "1"; } catch { /* storage off */ }
   const onLandingNow = !/^#\/(scan|history|repair|settings)/.test(location.hash);
-  if (reduced || seen || !onLandingNow) {
-    pre.remove();
+  if (!pre || reduced || seen || !onLandingNow) {
+    if (pre) pre.remove();
     document.body.classList.add("intro-done");
   } else {
     document.body.classList.add("intro");
@@ -95,6 +95,9 @@
     b.append(s);
     s.addEventListener("animationend", () => s.remove());
   });
+
+  // the scan page (scan.ainex-ai.xyz) has no landing: cursor and ripples only
+  if (!landing) return;
 
   /* ---------------- in-page links scroll without touching the router ---------------- */
   landing.addEventListener("click", (e) => {

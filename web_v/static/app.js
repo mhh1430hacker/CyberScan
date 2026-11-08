@@ -94,12 +94,28 @@ const cells = window.CyberCells ? CyberCells.create($("cells"), { mode: "hero" }
 /* ---------------- routing ---------------- */
 const VIEWS = ["scan", "history", "repair", "settings"];
 let entered = false;
+/* Two pages: the landing (ainex-ai.xyz) and the scan app (scan.ainex-ai.xyz),
+ * which the server builds from this page without the landing and its heavy
+ * scripts. The server writes their addresses into these meta tags. */
+const SCAN_PAGE = !$("landing");
+const metaUrl = (name, fallback) => {
+  const v = (document.querySelector(`meta[name="${name}"]`) || {}).content || "";
+  return v && !v.startsWith("__") ? v : fallback;
+};
+const SCAN_URL = metaUrl("cyberscan-scan-url", "app.html");
+const HOME_URL = metaUrl("cyberscan-home-url", "/");
+function openScanPage(view) {
+  location.href = `${SCAN_URL}#/${view || "scan"}`;
+}
 function route() {
   const hash = location.hash.replace(/^#\/?/, "");
-  const view = VIEWS.includes(hash.split("/")[0]) ? hash.split("/")[0] : null;
+  let view = VIEWS.includes(hash.split("/")[0]) ? hash.split("/")[0] : null;
+  if (SCAN_PAGE && !view) view = "scan";
+  // old links such as ainex-ai.xyz/#/scan: the app now lives on its own page
+  if (!SCAN_PAGE && view) { location.replace(`${SCAN_URL}#/${view}`); return; }
   const onLanding = !view;
   document.body.classList.toggle("on-landing", onLanding);
-  $("landing").hidden = !onLanding;
+  if ($("landing")) $("landing").hidden = !onLanding;
   $("app").hidden = onLanding;
   if (cells) cells.setMode(onLanding ? "hero" : "ambient");
   if (onLanding) { state.view = null; window.dispatchEvent(new Event("cs:landing")); return; }
@@ -113,6 +129,18 @@ function route() {
 window.addEventListener("hashchange", route);
 
 async function enterApp(x, y) {
+  if (!SCAN_PAGE) {
+    // a short warp, then the scan page
+    const v = document.querySelector(".warp-veil");
+    if (v) {
+      v.style.setProperty("--wx", `${x ?? innerWidth / 2}px`);
+      v.style.setProperty("--wy", `${y ?? innerHeight / 2}px`);
+      v.classList.remove("go"); void v.offsetWidth; v.classList.add("go");
+      await new Promise((r) => setTimeout(r, 420));
+    }
+    openScanPage("scan");
+    return;
+  }
   const veil = document.querySelector(".warp-veil");
   veil.style.setProperty("--wx", `${x ?? innerWidth / 2}px`);
   veil.style.setProperty("--wy", `${y ?? innerHeight / 2}px`);
