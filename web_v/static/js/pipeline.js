@@ -99,7 +99,10 @@
       p.setAttribute("class", "wire");
       p.style.setProperty("--hue", byId[engine] ? byId[engine].hue : "#94a3b8");
       svg.append(p);
-      const wire = { a, b, engine, el: p, len: p.getTotalLength() };
+      const len = p.getTotalLength();
+      const pts = [];
+      for (let k = 0; k <= 48; k++) { const q = p.getPointAtLength((k / 48) * len); pts.push(q.x, q.y); }
+      const wire = { a, b, engine, el: p, len, pts };
       wires.push(wire);
       return wire;
     };
@@ -131,18 +134,20 @@
     const c = document.createElementNS(NS, "circle");
     c.setAttribute("r", "3.6");
     c.setAttribute("class", "packet");
-    c.setAttribute("filter", "url(#pglow)");
+    c.setAttribute("stroke-width", "4");
+    c.style.stroke = "color-mix(in srgb, currentColor 35%, transparent)";
     c.style.fill = nodes[prefer + 1].hue;
+    c.style.color = nodes[prefer + 1].hue;
     svg.append(c);
     packets.push({ el: c, legs, leg: 0, s: 0, speed: 0.45 + Math.random() * 0.25, engine: prefer });
   }
 
   function frame(now) {
     raf = requestAnimationFrame(frame);
-    if (!visible) { last = now; return; }
+    if (!visible || document.hidden) { last = now; return; }
     const dt = Math.min(0.05, (now - last) / 1000 || 0); last = now;
     spawnT += dt; cycleT += dt;
-    if (spawnT > 0.16 && packets.length < 42) { spawnT = 0; spawn(); }
+    if (spawnT > 0.16 && packets.length < 26) { spawnT = 0; spawn(); }
     if (!hovered && cycleT > 3.4) { cycleT = 0; select((active + 1) % nodes.length); }
     for (let i = packets.length - 1; i >= 0; i--) {
       const p = packets[i];
@@ -155,9 +160,9 @@
         if (p.leg === 2) p.el.style.fill = "#c4b5fd";
         if (p.leg >= 3) { p.el.remove(); packets.splice(i, 1); continue; }
       }
-      const pt = p.legs[p.leg].el.getPointAtLength(p.s * p.legs[p.leg].len);
-      p.el.setAttribute("cx", pt.x.toFixed(1));
-      p.el.setAttribute("cy", pt.y.toFixed(1));
+      const pts = p.legs[p.leg].pts, f = p.s * 48, k = Math.min(47, f | 0), u = f - k;
+      p.el.setAttribute("cx", (pts[2 * k] + (pts[2 * k + 2] - pts[2 * k]) * u).toFixed(1));
+      p.el.setAttribute("cy", (pts[2 * k + 1] + (pts[2 * k + 3] - pts[2 * k + 1]) * u).toFixed(1));
     }
     nodes.forEach((n) => {
       if (n.flash > 0.01) { n.flash *= 0.9; n.el.style.setProperty("--flash", n.flash.toFixed(2)); }

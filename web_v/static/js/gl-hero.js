@@ -269,7 +269,8 @@
   let lastScroll = scrollY, running = true, raf = 0;
 
   function resize() {
-    dpr = Math.min(window.devicePixelRatio || 1, small ? 1.5 : 2);
+    // 1.5x is plenty for soft dots; performance mode (js/perf.js) draws at 1x
+    dpr = window.CSPerf ? window.CSPerf.dpr(1.5) : Math.min(window.devicePixelRatio || 1, 1.5);
     W = canvas.clientWidth; H = canvas.clientHeight;
     canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
     gl.viewport(0, 0, canvas.width, canvas.height);
@@ -379,10 +380,12 @@
     gl.uniform3fv(U.uColA, colA);
     gl.uniform3fv(U.uColB, colB);
     gl.uniform3f(U.uColHot, 0.75, 0.98, 1.0);
-    gl.drawArrays(gl.POINTS, 0, N);
+    // particles are sampled at random, so drawing fewer keeps every shape whole
+    gl.drawArrays(gl.POINTS, 0, window.CSPerf ? window.CSPerf.particles(N) : N);
   }
 
   window.addEventListener("resize", resize);
+  window.addEventListener("cs:perf", resize);
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) { running = false; cancelAnimationFrame(raf); }
     else if (!running) { running = true; raf = requestAnimationFrame(frame); }

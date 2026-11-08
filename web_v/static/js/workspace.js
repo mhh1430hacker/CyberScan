@@ -19,6 +19,14 @@
     return [ctx, w, h];
   };
 
+  // Is this canvas on screen? (reading offsetParent every frame forced a full layout)
+  const onScreen = new WeakMap();
+  const watch = (node) => {
+    onScreen.set(node, false);
+    if (window.IntersectionObserver) new IntersectionObserver((es) => es.forEach((e) => onScreen.set(e.target, e.isIntersecting))).observe(node);
+    else onScreen.set(node, true);
+  };
+
   /* ================= drop-zone swarm ================= */
   const drop = $("drop"), fx = $("drop-fx");
   const swarm = Array.from({ length: 110 }, () => ({ a: Math.random() * Math.PI * 2, r: 0.3 + Math.random() * 0.7, s: 0.2 + Math.random() * 0.8, z: Math.random(), x: 0, y: 0 }));
@@ -28,7 +36,7 @@
   let suck = 0, ring = 0;
   function dropFrame(now) {
     requestAnimationFrame(dropFrame);
-    if (!drop.offsetParent) return;
+    if (!onScreen.get(fx) || document.hidden) return;
     const [ctx, w, h] = fit(fx);
     ctx.clearRect(0, 0, w, h);
     suck += ((drop.classList.contains("over") ? 1 : 0) - suck) * 0.08;
@@ -49,6 +57,7 @@
       ctx.beginPath(); ctx.arc(p.x, p.y, s, 0, Math.PI * 2); ctx.fill();
     }
   }
+  watch(fx);
   requestAnimationFrame(dropFrame);
 
   /* ================= scan theater ================= */
@@ -89,7 +98,7 @@
 
   function theaterFrame(now) {
     requestAnimationFrame(theaterFrame);
-    if (!theater.offsetParent) return;
+    if (!onScreen.get(theater) || document.hidden) return;
     const [ctx, w, h] = fit(theater);
     ctx.clearRect(0, 0, w, h);
     const cx = w / 2, cy = h / 2, R = Math.min(w, h) * 0.34;
@@ -147,6 +156,7 @@
       ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, R * 0.74, 0, Math.PI * 2); ctx.fill();
     }
   }
+  watch(theater);
   requestAnimationFrame(theaterFrame);
 
   /* ================= result details ================= */

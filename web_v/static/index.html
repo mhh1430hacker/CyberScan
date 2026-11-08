@@ -21,6 +21,7 @@
   <link rel="stylesheet" href="get-app.css">
   <link rel="stylesheet" href="a11y.css">
   <script src="js/a11y-early.js"></script>
+  <script src="js/perf.js"></script>
 </head>
 <body class="on-landing">
   <a class="skip-link" href="#top" data-i18n="skipLink">Skip to content</a>
@@ -295,10 +296,16 @@
           <span data-i18n="devBy">Built by</span> <b>Ainex</b> ·
           <a href="mailto:mahdi-alhajji@zohomail.sa" class="dev-mail" dir="ltr">mahdi-alhajji@zohomail.sa</a>
         </address>
-        <button class="motion-btn" type="button" id="motion-btn" aria-pressed="false">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h3l2-5 4 10 2-5h5"/></svg>
-          <span data-i18n="motionReduce">Reduce motion</span>
-        </button>
+        <div class="foot-switches">
+          <button class="perf-btn" type="button" id="perf-btn" aria-pressed="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>
+            <span data-i18n="perfLight">Light mode</span>
+          </button>
+          <button class="motion-btn" type="button" id="motion-btn" aria-pressed="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h3l2-5 4 10 2-5h5"/></svg>
+            <span data-i18n="motionReduce">Reduce motion</span>
+          </button>
+        </div>
       </div>
     </footer>
   </div>

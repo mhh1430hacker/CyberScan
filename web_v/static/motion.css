@@ -54,7 +54,7 @@ body:not(.has-gl) .gl-hint { display: none; }
 .pipe-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
 .pipe-nodes { position: absolute; inset: 0; pointer-events: none; }
 .wire { fill: none; stroke: color-mix(in srgb, var(--hue) 30%, transparent); stroke-width: 1.4; transition: stroke .4s, stroke-width .4s; }
-.wire.lit { stroke: var(--hue); stroke-width: 2.4; filter: drop-shadow(0 0 6px var(--hue)); stroke-dasharray: 6 6; animation: wire-flow 1s linear infinite; }
+.wire.lit { stroke: var(--hue); stroke-width: 2.4; stroke-dasharray: 6 6; animation: wire-flow 1s linear infinite; }
 @keyframes wire-flow { to { stroke-dashoffset: -24; } }
 [dir="rtl"] .wire.lit { animation-direction: reverse; }
 .packet { pointer-events: none; }
