@@ -4,6 +4,7 @@
 
 Writes web_v/aws/out/:
   cyberscan-lambda.zip   the function: website + engine + Linux libraries (Python 3.13, x86_64)
+                         + protection data (intel/fetch.py: YARA-Forge, URLhaus, Phishing.Database, gitleaks)
   cyberscan-assets.zip   files larger than Lambda may return: Pyodide and the APK (upload to S3)
 
 Everything comes from the last commit (git), so local data, keys, history and
@@ -28,7 +29,10 @@ OUT = HERE / "out"
 BUILD = OUT / "build"
 PYTHON = "3.13"
 PLATFORM = "manylinux2014_x86_64"
-LIBS = ["numpy", "pefile", "cryptography", "capstone"]   # yara: pure-Python reader, see yara_lite.py
+PLATFORM_NEW = "manylinux_2_28_x86_64"   # Lambda's Python 3.13 runs on Amazon Linux 2023 (glibc 2.34)
+# yara: pure-Python reader for the bundled rules (yara_lite.py); yara-x runs YARA-Forge (core/protection.py)
+YARA_X = "yara-x==1.23.0"
+LIBS = ["numpy", "pefile", "cryptography", "capstone", YARA_X]
 ASSET_PREFIXES = ("web_v/static/pyodide/",)
 
 
@@ -76,11 +80,20 @@ def main() -> None:
     # ---------------------------------------------------------------- Linux libraries
     subprocess.run([
         sys.executable, "-m", "pip", "install", "--quiet", "--disable-pip-version-check", "--no-compile",
-        "--target", str(BUILD), "--platform", PLATFORM, "--implementation", "cp", "--python-version", PYTHON,
+        "--target", str(BUILD), "--platform", PLATFORM, "--platform", PLATFORM_NEW,
+        "--implementation", "cp", "--python-version", PYTHON,
         "--only-binary=:all:", *LIBS,
     ], check=True)
     for junk in list(BUILD.rglob("__pycache__")) + list(BUILD.glob("numpy/**/tests")) + list(BUILD.glob("bin")):
         shutil.rmtree(junk, ignore_errors=True)
+
+    # ---------------------------------------------------------------- protection data
+    # YARA-Forge rules (compiled with yara-x), threat lists and secret patterns: fresh on every
+    # build, so the daily scheduled deploy keeps them current. Needs yara-x here too.
+    fetch = OUT / "fetch_intel.py"
+    fetch.write_bytes(show("intel/fetch.py"))
+    subprocess.run([sys.executable, "-I", str(fetch), "--out", str(BUILD / "intel" / "data")], check=True)
+    fetch.unlink()
 
     # ---------------------------------------------------------------- zips
     lam = OUT / "cyberscan-lambda.zip"

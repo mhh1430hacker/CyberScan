@@ -96,7 +96,7 @@ def _cut(html: str, start: str, end: str) -> str:
     return html if j < 0 else html[:i] + html[j + len(end):]
 
 
-APP_ONLY_JS = ("js/repair.js", "js/batch.js", "js/palette.js", "js/pwa.js", "js/insights.js", "js/workspace.js")
+APP_ONLY_JS = ("js/repair.js", "js/tools.js", "js/batch.js", "js/palette.js", "js/pwa.js", "js/insights.js", "js/workspace.js")
 
 
 def landing_page(html: str) -> str:
@@ -113,7 +113,7 @@ def landing_page(html: str) -> str:
 
 
 def page_html(raw: bytes, token: str, scan: bool) -> bytes:
-    html = raw.decode("utf-8")
+    html = raw.decode("utf-8").replace("\r\n", "\n")   # a Windows checkout has CRLF line ends
     html = html.replace("__CYBERSCAN_TOKEN__", token).replace("__CYBERSCAN_SCAN_URL__", SCAN_URL).replace("__CYBERSCAN_HOME_URL__", HOME_URL)
     if not scan:
         return landing_page(html).encode("utf-8")
@@ -536,7 +536,7 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
             self.send_header(
                 "Content-Security-Policy",
                 "default-src 'self'; img-src 'self' data: blob:; style-src 'self'; "
-                f"script-src 'self' 'wasm-unsafe-eval'{assets}; connect-src 'self'{assets}; worker-src 'self'; manifest-src 'self'; "
+                f"script-src 'self' 'wasm-unsafe-eval'{assets}; connect-src 'self'{assets} https://api.pwnedpasswords.com; worker-src 'self'; manifest-src 'self'; "
                 "frame-ancestors 'self'; base-uri 'none'; form-action 'self'",  # 'self': the phone app shows its privacy page in a frame
             )
             if PUBLIC:
@@ -856,6 +856,17 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
             )
             self._json(HTTPStatus.OK, out)
 
+        def protection_info(self, query: dict) -> None:
+            from core import protection  # noqa: PLC0415
+
+            info = protection.manifest()
+            self._json(HTTPStatus.OK, {
+                "forge": protection.forge_available(), "lists": protection.lists_available(),
+                "secrets": bool(info.get("secret_rules")), "updated": info.get("updated"),
+                "forge_rules": info.get("forge_rules", 0), "urlhaus": info.get("urlhaus", 0),
+                "phishing": info.get("phishing", 0), "secret_rules": info.get("secret_rules", 0),
+            })
+
         # ---- AI ------------------------------------------------------
         def ai_status(self, query: dict) -> None:
             if PUBLIC:  # the AI summary needs a model on the user's own computer
@@ -984,6 +995,7 @@ ROUTES = [
     _route("POST", rf"/api/history/{ID}/reveal", "history_reveal"),
     _route("POST", rf"/api/history/{ID}/ai", "history_ai"),
     _route("GET", r"/api/stats", "stats"),
+    _route("GET", r"/api/protection", "protection_info"),
     _route("GET", r"/api/ai/status", "ai_status"),
     _route("GET", rf"/api/ai/{ID}", "ai_poll"),
     _route("POST", rf"/api/ai/{ID}/stop", "ai_stop"),

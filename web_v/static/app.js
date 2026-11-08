@@ -92,7 +92,7 @@ function confirmDialog(title, body, okLabel) {
 const cells = window.CyberCells ? CyberCells.create($("cells"), { mode: "hero" }) : null;
 
 /* ---------------- routing ---------------- */
-const VIEWS = ["scan", "history", "repair", "settings"];
+const VIEWS = ["scan", "tools", "history", "repair", "settings"];
 let entered = false;
 /* Two pages: the landing (ainex-ai.xyz) and the scan app (scan.ainex-ai.xyz),
  * which the server builds from this page without the landing and its heavy

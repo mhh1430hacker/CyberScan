@@ -129,3 +129,22 @@ without the landing's heavy parts, at `/app.html` and on any `scan.` host.
 5. Invalidate `/*`.
 
 Old links such as `ainex-ai.xyz/#/scan` redirect to the scan app.
+
+## Protection data (YARA-Forge, threat lists, secret patterns)
+
+Every build runs `intel/fetch.py`, which downloads and prepares (needs `pip install yara-x==1.23.0`):
+
+| what | source | licence |
+|---|---|---|
+| ~5,000 YARA rules, compiled with YARA-X | YARA-Forge core package | per rule (DRL 1.1, CC BY-SA 4.0…); authors credited with each match |
+| live malware download links | URLhaus (abuse.ch) via urlhaus-filter | CC0 |
+| active phishing domains | Phishing.Database | MIT |
+| API key / token / private key patterns | gitleaks | MIT |
+
+The workflow also runs **daily** (03:17 UTC) so the lists stay fresh. With the data the package is
+larger than a direct upload allows, so it goes through the asset bucket (`deploy/cyberscan-lambda.zip`,
+private: CloudFront only serves `assets/`). `GET /api/protection` shows what is loaded.
+
+Locally: `.venv\Scripts\python.exe intel\fetch.py` fills `intel/data/` (not committed).
+The leaked-password check runs in the visitor's browser against `api.pwnedpasswords.com`
+(k-anonymity: only 5 characters of the password's SHA-1 leave the browser).
