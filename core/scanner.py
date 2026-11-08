@@ -14,6 +14,7 @@ from core.file_analyzer import analyze_file
 from core.mitre_mapper import map_findings_to_mitre
 from core.models import Finding, ScanResult
 from core.risk_engine import finalize_result
+from core import protection
 from core.text_analyzer import analyze_text_target
 from core.url_analyzer import analyze_url
 
@@ -259,7 +260,7 @@ def scan_target(
         data = analyze_url(target, enable_heuristics=settings.get("heuristic_rules", True))
         techniques = map_findings_to_mitre(findings=[str(item.get("label", "")) for item in data.get("findings", [])])
         findings = [
-            Finding("url", str(item.get("severity", "info")), str(item["label"]), str(item["label"]), int(item.get("contribution", 0)))
+            Finding("url", str(item.get("severity", "info")), str(item["label"]), str(item.get("detail") or item["label"]), int(item.get("contribution", 0)))
             for item in data.get("findings", [])
         ]
         result = ScanResult(
@@ -274,7 +275,7 @@ def scan_target(
             limitations="Static analysis active; trained structural classifier not available.",
             summary=f"URL checked with static heuristics; classification: {data['classification']}.",
             mitre_techniques=techniques,
-            engine_status={"Heuristics": "enabled" if settings.get("heuristic_rules", True) else "disabled", "OSINT": "not requested"},
+            engine_status={"Heuristics": "enabled" if settings.get("heuristic_rules", True) else "disabled", "OSINT": "not requested", **protection.status()},
         )
         return finalize_result(
             result,
@@ -284,7 +285,7 @@ def scan_target(
     data = analyze_text_target(target, enable_heuristics=settings.get("heuristic_rules", True))
     techniques = map_findings_to_mitre(findings=[str(item.get("label", "")) for item in data.get("findings", [])])
     findings = [
-        Finding("text", str(item.get("severity", "info")), str(item["label"]), str(item["label"]), int(item.get("contribution", 0)))
+        Finding("text", str(item.get("severity", "info")), str(item["label"]), str(item.get("detail") or item["label"]), int(item.get("contribution", 0)))
         for item in data.get("findings", [])
     ]
     result = ScanResult(
@@ -299,7 +300,7 @@ def scan_target(
         limitations="Static analysis active; trained structural classifier not available.",
         summary=str(data["summary"]),
         mitre_techniques=techniques,
-        engine_status={"Heuristics": "enabled" if settings.get("heuristic_rules", True) else "disabled", "OSINT": "not requested"},
+        engine_status={"Heuristics": "enabled" if settings.get("heuristic_rules", True) else "disabled", "OSINT": "not requested", **protection.status()},
     )
     return finalize_result(
         result,

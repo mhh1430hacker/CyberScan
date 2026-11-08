@@ -19,6 +19,8 @@ on:
     branches: [main]
     paths: ["web_v/**", "core/**", "repair_engine/**", "rules/**", "ml/**", "ui/**", "reports/**", "monitoring/**", "config.py", ".github/workflows/deploy-aws.yml"]
   workflow_dispatch:
+  schedule:
+    - cron: "17 3 * * *"   # daily: fresh YARA-Forge rules, malware links and phishing lists
 
 permissions:
   contents: read
@@ -41,6 +43,7 @@ jobs:
       - name: Build the Lambda and asset packages
         run: |
           python -m pip install --quiet --upgrade pip
+          python -m pip install --quiet "yara-x==1.23.0"   # compiles the YARA-Forge rules (same version as packed)
           python web_v/aws/build_lambda.py
           ls -la web_v/aws/out
 
@@ -75,8 +78,12 @@ jobs:
         env:
           FN: ${{ vars.LAMBDA_FUNCTION }}
           ALIAS: ${{ vars.LAMBDA_ALIAS }}
+          BUCKET: ${{ vars.ASSET_BUCKET }}
         run: |
-          aws lambda update-function-code --function-name "$FN" --zip-file fileb://web_v/aws/out/cyberscan-lambda.zip --query 'LastModified' --output text
+          # through S3: the package (with the protection data) can be larger than a direct upload allows
+          KEY="deploy/cyberscan-lambda.zip"
+          aws s3 cp web_v/aws/out/cyberscan-lambda.zip "s3://$BUCKET/$KEY" --only-show-errors
+          aws lambda update-function-code --function-name "$FN" --s3-bucket "$BUCKET" --s3-key "$KEY" --query 'LastModified' --output text
           aws lambda wait function-updated --function-name "$FN"
           if [ -n "$ALIAS" ]; then
             VERSION=$(aws lambda publish-version --function-name "$FN" --description "${GITHUB_SHA::7}" --query Version --output text)
@@ -100,6 +107,7 @@ jobs:
                 -H "Origin: $SITE" -d '{"mode":"text","value":"powershell -enc SQBFAFgA"}')
           echo "$out" | head -c 160; echo
           echo "$out" | grep -q '"status": "done"'
+          curl -sf -H 'X-CyberScan-Token: cyberscan-public' "$SITE/api/protection" | tee /dev/stderr | grep -q '"forge": true'
           code=$(curl -s -L -o /dev/null -w '%{http_code}' "$SITE/pyodide/pyodide.js")
           echo "pyodide -> $code"; test "$code" = 200
           code=$(curl -s -L -r 0-1023 -o /dev/null -w '%{http_code}' "$SITE/downloads/CyberScan-1.0.0.apk")

@@ -9,6 +9,7 @@ try:
 except Exception:  # pragma: no cover - optional dependency
     yara = None
 
+from core import protection
 from core.heuristic_engine import evaluate_heuristics
 
 RULES_DIR = Path(__file__).resolve().parents[1] / "rules"
@@ -29,6 +30,34 @@ def load_yara_rules(rules_dir: str | Path | None = None) -> list[Path]:
     return discover_yara_rules(rules_dir)
 
 
+_compiled: dict[tuple, Any] = {}
+
+
+def _compile(rule_files: list[Path]) -> Any:
+    """Compile once per set of rule files (and their change times), not on every scan."""
+    key = tuple((str(p), p.stat().st_mtime_ns) for p in rule_files)
+    if key not in _compiled:
+        _compiled.clear()
+        _compiled[key] = yara.compile(filepaths={path.stem: str(path) for path in rule_files})
+    return _compiled[key]
+
+
+def _with_forge(result: dict[str, Any], data: bytes, timeout_seconds: int) -> dict[str, Any]:
+    """Add the YARA-Forge rule set (YARA-X) when this installation has it."""
+    forge = protection.forge_scan(data, timeout_seconds)
+    if not forge["available"]:
+        return result
+    seen = {m["rule_name"] for m in result["matches"]}
+    result["matches"] += [m for m in forge["matches"] if m["rule_name"] not in seen]
+    result["rules_loaded"] = int(result.get("rules_loaded") or 0) + int(forge["rules_loaded"] or 0)
+    result["available"] = True
+    if forge["error"] and not result.get("error"):
+        result["error"] = forge["error"]
+    elif result.get("error") and result["error"].startswith("yara-python is not installed"):
+        result["error"] = None   # the bundled rules need yara-python; YARA-Forge ran without it
+    return result
+
+
 def scan_bytes_with_yara(
     data: bytes,
     rules_dir: str | Path | None = None,
@@ -36,12 +65,12 @@ def scan_bytes_with_yara(
     timeout_seconds: int = 10,
 ) -> dict[str, Any]:
     if yara is None:
-        return {
+        return _with_forge({
             "available": False,
             "error": "yara-python is not installed.",
             "matches": [],
             "rules_loaded": 0,
-        }
+        }, data, timeout_seconds)
 
     rule_files = discover_yara_rules(rules_dir)
     if not rule_files:
@@ -53,7 +82,7 @@ def scan_bytes_with_yara(
         }
 
     try:
-        compiled = yara.compile(filepaths={path.stem: str(path) for path in rule_files})
+        compiled = _compile(rule_files)
         matches = compiled.match(data=data, timeout=timeout_seconds)
     except Exception as exc:  # pragma: no cover - runtime dependency issue
         return {
@@ -77,12 +106,12 @@ def scan_bytes_with_yara(
             "meta": dict(metadata),
         })
 
-    return {
+    return _with_forge({
         "available": True,
         "error": None,
         "matches": structured_matches,
         "rules_loaded": len(rule_files),
-    }
+    }, data, timeout_seconds)
 
 
 def scan_file_for_yara(

@@ -323,6 +323,9 @@
         <a class="nav-btn" href="#/scan" data-view="scan">
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>
           <span data-i18n="navScan">Scan</span></a>
+        <a class="nav-btn" href="#/tools" data-view="tools">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4.5 6v5.5c0 4.6 3.2 8.4 7.5 9.5 4.3-1.1 7.5-4.9 7.5-9.5V6z"/><path d="m9 12 2.2 2.2L15.5 10"/></svg>
+          <span data-i18n="navTools">Protection</span></a>
         <a class="nav-btn" href="#/history" data-view="history">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 12a8.5 8.5 0 1 0 2.5-6M3.5 4v4h4"/><path d="M12 7.5V12l3 2"/></svg>
           <span data-i18n="navHistory">History</span></a>
@@ -524,6 +527,54 @@
             </div>
           </div>
           <p class="limits" id="limits"></p>
+        </section>
+      </div>
+
+      <!-- ================= PROTECTION TOOLS ================= -->
+      <div class="view" id="view-tools" hidden>
+        <section class="card tools">
+          <div class="view-head">
+            <div>
+              <h1 data-i18n="toolsTitle">Protection tools</h1>
+              <p class="lede" data-i18n="toolsLede"></p>
+            </div>
+          </div>
+          <div class="tool-grid">
+            <a class="tool" href="#/scan" data-tool-mode="file">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 14l2 2 4-4"/></svg>
+              <b data-i18n="tFileT">File scan</b><small data-i18n="tFileD"></small><em class="tool-src" data-src="forge"></em></a>
+            <a class="tool" href="#/scan" data-tool-mode="url">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>
+              <b data-i18n="tLinkT">Link and phishing check</b><small data-i18n="tLinkD"></small><em class="tool-src" data-src="lists"></em></a>
+            <a class="tool" href="#/scan" data-tool-mode="text">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="m11 12 9-9M17 6l3 3M15 8l2 2"/></svg>
+              <b data-i18n="tSecretT">Exposed keys and secrets</b><small data-i18n="tSecretD"></small><em class="tool-src" data-src="secrets"></em></a>
+            <button class="tool" type="button" id="pw-open">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v2"/></svg>
+              <b data-i18n="tPwT">Leaked password check</b><small data-i18n="tPwD"></small><em class="tool-src">Have I Been Pwned</em></button>
+            <a class="tool" href="#/repair">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L3.5 17.3a1.8 1.8 0 0 0 2.5 2.5l5.8-5.8a4 4 0 0 0 5.2-5.4l-2.6 2.6-2.3-.5-.5-2.3z"/></svg>
+              <b data-i18n="tRepairT">File repair</b><small data-i18n="tRepairD"></small></a>
+            <a class="tool" href="m/">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M11 18.5h2"/></svg>
+              <b data-i18n="tPhoneT">On-device scan</b><small data-i18n="tPhoneD"></small></a>
+          </div>
+
+          <form class="pw-panel" id="pw-panel" hidden autocomplete="off">
+            <h2 data-i18n="tPwT">Leaked password check</h2>
+            <p class="hint" data-i18n="pwHow"></p>
+            <div class="pw-row">
+              <input id="pw-input" class="field" type="password" autocomplete="off" spellcheck="false" aria-label="Password" data-i18n-aria="pwLabel" data-i18n-ph="pwPh">
+              <button class="ghost" type="button" id="pw-show" data-i18n="pwShow">Show</button>
+              <button class="primary" type="submit" id="pw-go"><span data-i18n="pwCheck">Check</span></button>
+            </div>
+            <div class="pw-meter" aria-hidden="true"><i id="pw-bar"></i></div>
+            <p class="pw-out" id="pw-out" aria-live="polite"></p>
+          </form>
+
+          <h3 data-i18n="srcTitle">Where the protection comes from</h3>
+          <ul class="src-list" id="src-list"></ul>
+          <p class="hint"><span id="src-updated"></span> <a href="m/licenses.html" target="_blank" rel="noopener" data-i18n="srcLicences">Licences and credits</a></p>
         </section>
       </div>
 
@@ -738,6 +789,7 @@
   <script src="app.js"></script>
   <script src="js/lang-gate.js"></script>
   <script src="js/repair.js"></script>
+  <script src="js/tools.js"></script>
   <script src="js/batch.js"></script>
   <script src="js/palette.js"></script>
   <script src="js/pwa.js"></script>

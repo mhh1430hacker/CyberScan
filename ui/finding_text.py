@@ -189,10 +189,78 @@ def _patterns(text: str, language: str) -> str:
     return ("، " if language == "ar" else ", ").join(words)
 
 
+_add(
+    ("Known malware download link (URLhaus)",),
+    ("Known malware link", "This exact link is on URLhaus, a public list of links that are serving malware right now."),
+    ("رابط برمجيات خبيثة معروف", "هذا الرابط نفسه مُدرج في URLhaus، وهي قائمة عامة بالروابط التي تنشر برمجيات خبيثة حاليًا."),
+)
+_add(
+    ("Known malware host (URLhaus)",),
+    ("Site known for malware", "This site is on URLhaus, a public list of sites that serve malware."),
+    ("موقع معروف بنشر البرمجيات الخبيثة", "هذا الموقع مُدرج في URLhaus، وهي قائمة عامة بالمواقع التي تنشر برمجيات خبيثة."),
+)
+_add(
+    ("Known phishing site (Phishing.Database)",),
+    ("Known phishing site", "This site is on Phishing.Database, a public list of active phishing sites that steal passwords and card details."),
+    ("موقع تصيّد معروف", "هذا الموقع مُدرج في Phishing.Database، وهي قائمة عامة بمواقع التصيّد النشطة التي تسرق كلمات المرور وبيانات البطاقات."),
+)
+_add(
+    ("International (punycode) domain name",),
+    ("Domain in another alphabet", "The site name uses letters from a non-Latin alphabet. Usually fine, but make sure it is the site you expect."),
+    ("نطاق بحروف أبجدية أخرى", "اسم الموقع يستخدم حروفًا من أبجدية غير لاتينية. غالبًا لا بأس، لكن تأكد أنه الموقع الذي تقصده."),
+)
+
+# Findings that name a site or a key type: "Lookalike of paypal.com", "Exposed secret: GitHub access token".
+_NAMED = [
+    (re.compile(r"^Lookalike letters imitating (.+)$"),
+     ("Fake letters imitating {0}", "The address uses letters from other alphabets that look like {0}. This is a classic phishing trick."),
+     ("حروف مزيّفة تقلّد {0}", "يستخدم العنوان حروفًا من أبجديات أخرى تشبه {0}. هذه حيلة تصيّد معروفة.")),
+    (re.compile(r"^Lookalike of (.+)$"),
+     ("Imitates {0}", "The address swaps letters for look-alikes (such as 1 for l) to pass for {0}."),
+     ("يقلّد {0}", "يستبدل العنوان حروفًا بأخرى مشابهة (مثل 1 بدل l) ليبدو كأنه {0}.")),
+    (re.compile(r"^Possible misspelling of (.+)$"),
+     ("Looks like a misspelling of {0}", "The site name is one letter away from {0}, a common way to imitate a real site."),
+     ("يشبه {0} مع خطأ إملائي", "اسم الموقع يختلف بحرف واحد عن {0}، وهي طريقة شائعة لتقليد المواقع الحقيقية.")),
+    (re.compile(r"^Uses the name (.+) on another site$"),
+     ("Borrows the name {0}", "The address mentions {0}, but the site belongs to someone else."),
+     ("يستعير اسم {0}", "يذكر العنوان {0}، لكن الموقع يعود لجهة أخرى.")),
+    (re.compile(r"^Exposed secret: (.+)$"),
+     ("Exposed key: {0}", "The text contains what looks like a real {0}. Anyone who sees it can use it: if it is real, revoke it and create a new one."),
+     ("مفتاح مكشوف: {0}", "يحتوي النص على ما يبدو أنه {0} حقيقي. أي شخص يراه يستطيع استخدامه: إن كان حقيقيًا فألغِه وأنشئ واحدًا جديدًا.")),
+]
+_FOUND = re.compile(r"Found: (\S+)\.")
+_FORGE = re.compile(r"^(.*) \(YARA-Forge(?: rule by (.+))?\)$", re.S)
+
+
+def _named(title: str, explanation: str, ar: bool, language: str) -> PlainText | None:
+    for pattern, en, arabic in _NAMED:
+        match = pattern.match(title.strip())
+        if match:
+            name = isolate(match.group(1), language) if ar else match.group(1)
+            plain_title, body = (arabic if ar else en)
+            body = body.format(name)
+            found = _FOUND.search(explanation)
+            if found:
+                body += f" ({'القيمة' if ar else 'Value'}: {isolate(found.group(1), language) if ar else found.group(1)})"
+            return PlainText(plain_title.format(name), body, True)
+    forge = _FORGE.match(explanation.strip())
+    if forge:
+        rule = humanize_title(title)
+        author = forge.group(2) or "YARA-Forge"
+        if ar:
+            return PlainText(f"قاعدة برمجيات خبيثة: {isolate(rule, language)}",
+                             f"طابقت قاعدة من YARA-Forge (كتبها {isolate(author, language)}) هذا الملف: {isolate(forge.group(1), language)}", True)
+        return PlainText(f"Malware rule: {rule}", f"A YARA-Forge rule by {author} matched this file: {forge.group(1)}", True)
+    return None
+
+
 def plain(title: str, explanation: str, language: str) -> PlainText:
     """Plain title and body for one engine finding, in ``language``."""
     ar = language == "ar"
     key = title.strip().casefold()
+    named = _named(title, explanation, ar, language)
+    if named is not None:
+        return named
     if key.startswith("zip structure"):
         members = _MEMBERS.search(explanation)
         count = members.group(1) if members else "?"
