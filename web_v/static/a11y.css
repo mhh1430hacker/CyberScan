@@ -58,3 +58,5 @@ html.perf-low .grain, html.perf-low .scanlines { display: none !important; }
 .perf-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .perf-btn.on { border-color: #3ddc84; color: #3ddc84; }
 .foot-switches { display: flex; gap: 8px; flex-wrap: wrap; }
+/* online: the "choose from disk" row has nothing left to offer */
+.public-mode .disk-row { display: none !important; }
