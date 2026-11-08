@@ -96,11 +96,27 @@ def _cut(html: str, start: str, end: str) -> str:
     return html if j < 0 else html[:i] + html[j + len(end):]
 
 
+APP_ONLY_JS = ("js/repair.js", "js/batch.js", "js/palette.js", "js/pwa.js", "js/insights.js", "js/workspace.js")
+
+
+def landing_page(html: str) -> str:
+    """The presentation site: index.html without the scan app (it lives on its own page)."""
+    # the app, then its confirm dialog (the next </dialog>); the messages box after it stays
+    html = _cut(html, "<!-- ===================================================== APP -->", "</dialog>")
+    html = _cut(html, '<div id="palette"', "</div>\n  </div>")
+    html = _cut(html, '<dialog id="shortcuts"', "</dialog>")
+    html = _cut(html, '<div id="drop-veil"', "</div>\n  </div>")
+    for js in APP_ONLY_JS:
+        html = html.replace(f'<script src="{js}"></script>', "")
+    # the landing's own small core instead of the scan app's script
+    return html.replace('<script src="app.js"></script>', '<script src="js/site.js"></script>', 1)
+
+
 def page_html(raw: bytes, token: str, scan: bool) -> bytes:
     html = raw.decode("utf-8")
     html = html.replace("__CYBERSCAN_TOKEN__", token).replace("__CYBERSCAN_SCAN_URL__", SCAN_URL).replace("__CYBERSCAN_HOME_URL__", HOME_URL)
     if not scan:
-        return html.encode("utf-8")
+        return landing_page(html).encode("utf-8")
     html = _cut(html, "<!-- ===================================================== LANDING -->", "<!-- ===================================================== APP -->")
     html = _cut(html, '<nav class="side-dots"', "</nav>")
     html = _cut(html, '<div id="preloader"', "</div>\n  </div>")
@@ -111,7 +127,13 @@ def page_html(raw: bytes, token: str, scan: bool) -> bytes:
         html = html.replace(f'<link rel="stylesheet" href="{css}">', "")
     for js in LANDING_ONLY_JS:
         html = html.replace(f'<script src="{js}"></script>', "")
-    html = html.replace('<body class="on-landing">', "<body>", 1)
+    # a calm working layout: its own stylesheet, no backdrop particles, grain or custom cursor
+    for piece in ('<canvas id="cells" class="cells" aria-hidden="true"></canvas>', '<div class="glow-cursor" aria-hidden="true"></div>',
+                  '<div class="grain" aria-hidden="true"></div>', '<div class="cursor-ring" aria-hidden="true"><span></span></div>',
+                  '<div class="cursor-dot" aria-hidden="true"></div>', '<script src="js/cells.js"></script>', '<script src="js/fx.js"></script>'):
+        html = html.replace(piece, "")
+    html = html.replace('<link rel="stylesheet" href="a11y.css">', '<link rel="stylesheet" href="a11y.css">\n  <link rel="stylesheet" href="scan.css">', 1)
+    html = html.replace('<body class="on-landing">', '<body class="page-scan">', 1)
     html = html.replace("<title>CyberScan</title>", "<title>CyberScan · Scan</title>", 1)
     html = html.replace('<a class="skip-link" href="#top"', '<a class="skip-link" href="#app"', 1)
     html = html.replace('<a class="brand" href="#/" title="Home">', f'<a class="brand" href="{HOME_URL}" title="Home">', 1)
