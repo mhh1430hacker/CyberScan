@@ -70,7 +70,7 @@
     }
 
     function resize() {
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      dpr = window.CSPerf ? window.CSPerf.dpr(1.5) : Math.min(window.devicePixelRatio || 1, 1.5);
       width = canvas.clientWidth || window.innerWidth;
       height = canvas.clientHeight || window.innerHeight;
       canvas.width = Math.round(width * dpr);

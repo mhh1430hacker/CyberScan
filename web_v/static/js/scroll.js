@@ -81,97 +81,143 @@
   const tinted = [...document.querySelectorAll("[data-tint]")];
   const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
 
-  /* ================= per-frame ================= */
+  /* ================= per-frame =================
+   * Performance rules (this ran at 17 ms a frame before):
+   *   - work only while the page moves (scroll, glide, settling speed);
+   *   - section positions are measured once (and again on resize), then each
+   *     frame uses scrollY only: no layout reads in the loop, except for the
+   *     sticky cards and the sideways steps, and only while they're on screen;
+   *   - every style write is skipped when the value didn't change. */
   const cube = document.querySelector(".cube-stage");
   const bytes = $("bytes-demo");
   const bands = [...document.querySelectorAll(".band")];
   const bandsBox = document.querySelector(".bands");
   const skewables = [...document.querySelectorAll(".skewable")];
-  let lastY = scrollY, velocity = 0, skew = 0;
+  const privGrid = $("priv-grid");
+  let lastY = scrollY, velocity = 0, skew = 0, dirty = true;
+  // page positions (top, height) measured in layout()
+  const pos = new Map();
+  const measure = (node) => { if (!node) return; const r = node.getBoundingClientRect(); pos.set(node, { top: r.top + scrollY, height: r.height }); };
+  const stepOffsets = [];
+  // last written values, so unchanged ones are not written again
+  const written = new WeakMap();
+  const put = (node, prop, value) => {
+    let m = written.get(node); if (!m) { m = {}; written.set(node, m); }
+    if (m[prop] === value) return;
+    m[prop] = value;
+    if (prop.startsWith("--")) node.style.setProperty(prop, value); else node.style[prop] = value;
+  };
+  const near = (p, vh, margin) => p && p.top - scrollY < vh + margin && p.top + p.height - scrollY > -margin;
+
+  window.addEventListener("scroll", () => { dirty = true; }, { passive: true });
 
   function frame() {
     requestAnimationFrame(frame);
+    if (!visibleLanding()) return;
+    const moving = dirty || gliding || Math.abs(velocity) > 0.05 || Math.abs(skew) > 0.01;
+    if (!moving) return;
+    dirty = false;
     tick();
   }
   function tick() {
     if (!visibleLanding()) return;
-    const vh = innerHeight;
-    const dy = scrollY - lastY; lastY = scrollY;
+    const vh = innerHeight, y = scrollY;
+    const dy = y - lastY; lastY = y;
     velocity = lerp(velocity, dy, 0.2);
+    if (Math.abs(velocity) < 0.05) velocity = 0;
 
     // manifesto: words light in reading order
-    const mr = mfSec.getBoundingClientRect();
-    const mp = clamp(-mr.top / Math.max(1, mr.height - vh));
-    const lit = mp * mfWords.length * 1.12;
-    mfWords.forEach((w, i) => {
-      const k = clamp(lit - i);
-      w.style.setProperty("--k", k.toFixed(3));
-    });
-    mfBar.style.transform = `scaleX(${mp})`;
+    const mpos = pos.get(mfSec);
+    if (near(mpos, vh, vh)) {
+      const mp = clamp((y - mpos.top) / Math.max(1, mpos.height - vh));
+      const lit = mp * mfWords.length * 1.12;
+      for (let i = 0; i < mfWords.length; i++) put(mfWords[i], "--k", clamp(lit - i).toFixed(2));
+      put(mfBar, "transform", `scaleX(${mp.toFixed(3)})`);
+    }
 
     // horizontal steps
-    const hr = how.getBoundingClientRect();
-    const hp = clamp(-hr.top / Math.max(1, hr.height - vh));
-    const x = (rtl() ? 1 : -1) * travel * clamp(hp * 1.15 - 0.075);
-    track.style.transform = `translate3d(${x.toFixed(1)}px,0,0)`;
-    const step = Math.min(4, 1 + Math.floor(clamp(hp * 1.15 - 0.075) * 4 * 0.999));
-    $("how-n").textContent = String(step).padStart(2, "0");
-    track.querySelectorAll("li").forEach((li) => {
-      const r = li.getBoundingClientRect();
-      const center = (r.left + r.width / 2) / innerWidth - 0.5;
-      li.style.setProperty("--off", center.toFixed(3));
-    });
+    if (!stepOffsets.length && track && track.children.length) measureAll();   // measured before the steps existed
+    const hpos = pos.get(how);
+    if (near(hpos, vh, vh * 0.5)) {
+      const hp = clamp((y - hpos.top) / Math.max(1, hpos.height - vh));
+      const x = (rtl() ? 1 : -1) * travel * clamp(hp * 1.15 - 0.075);
+      put(track, "transform", `translate3d(${x.toFixed(1)}px,0,0)`);
+      const step = Math.min(4, 1 + Math.floor(clamp(hp * 1.15 - 0.075) * 4 * 0.999));
+      const n = String(step).padStart(2, "0");
+      const howN = $("how-n");
+      if (howN.textContent !== n) howN.textContent = n;
+      stepOffsets.forEach(([li, center]) => put(li, "--off", ((center + x) / innerWidth - 0.5).toFixed(3)));
+    }
 
     // tint: blend the colours of the sections around the middle of the screen
     let a = tinted[0], b = tinted[0], k = 0;
     for (let i = 0; i < tinted.length; i++) {
-      const r = tinted[i].getBoundingClientRect();
-      if (r.top <= vh * 0.5) { a = tinted[i]; b = tinted[i + 1] || tinted[i]; k = clamp((vh * 0.5 - r.top - (r.height - vh * 0.6)) / (vh * 0.6)); }
+      const p = pos.get(tinted[i]); if (!p) continue;
+      const top = p.top - y;
+      if (top <= vh * 0.5) { a = tinted[i]; b = tinted[i + 1] || tinted[i]; k = clamp((vh * 0.5 - top - (p.height - vh * 0.6)) / (vh * 0.6)); }
     }
     const ca = hex(a.dataset.tint), cb = hex(b.dataset.tint);
-    tint.style.background = `rgb(${ca.map((c, i) => Math.round(lerp(c, cb[i], k))).join(",")})`;
+    put(tint, "background", `rgb(${ca.map((c, i) => Math.round(lerp(c, cb[i], k))).join(",")})`);
 
     // mask reveals
-    if (cube) {
-      const r = cube.getBoundingClientRect();
-      const e = clamp((vh - r.top) / (vh * 0.75));
-      cube.style.clipPath = `circle(${(e * 78).toFixed(1)}% at 50% 50%)`;
-      cube.style.transform = `scale(${(0.86 + e * 0.14).toFixed(3)})`;
+    const cpos = pos.get(cube);
+    if (cube && near(cpos, vh, vh)) {
+      const e = clamp((vh - (cpos.top - y)) / (vh * 0.75));
+      put(cube, "clipPath", `circle(${(e * 78).toFixed(1)}% at 50% 50%)`);
+      put(cube, "transform", `scale(${(0.86 + e * 0.14).toFixed(3)})`);
     }
-    if (bytes) {
-      const r = bytes.getBoundingClientRect();
-      const e = clamp((vh - r.top) / (vh * 0.7));
+    const bpos = pos.get(bytes);
+    if (bytes && near(bpos, vh, vh)) {
+      const e = clamp((vh - (bpos.top - y)) / (vh * 0.7));
       const hide = ((1 - e) * 100).toFixed(1);
-      bytes.style.clipPath = rtl() ? `inset(0 0 0 ${hide}% round 22px)` : `inset(0 ${hide}% 0 0 round 22px)`;
+      put(bytes, "clipPath", rtl() ? `inset(0 0 0 ${hide}% round 22px)` : `inset(0 ${hide}% 0 0 round 22px)`);
     }
 
     // kinetic bands
-    if (bandsBox) {
-      const r = bandsBox.getBoundingClientRect();
-      if (r.bottom > -200 && r.top < vh + 200) {
-        const base = (vh - r.top) * 0.55;
-        bands.forEach((band) => {
-          const s = Number(band.dataset.speed);
-          band.firstElementChild.style.transform = `translate3d(${(s * base - (s > 0 ? 600 : 0)).toFixed(1)}px,0,0) skewX(${clamp(-velocity * 0.25 * s, -8, 8).toFixed(2)}deg)`;
-        });
-      }
+    const kpos = pos.get(bandsBox);
+    if (bandsBox && near(kpos, vh, 200)) {
+      const base = (vh - (kpos.top - y)) * 0.55;
+      bands.forEach((band) => {
+        const s = Number(band.dataset.speed);
+        put(band.firstElementChild, "transform", `translate3d(${(s * base - (s > 0 ? 600 : 0)).toFixed(1)}px,0,0) skewX(${clamp(-velocity * 0.25 * s, -8, 8).toFixed(2)}deg)`);
+      });
     }
 
-    // stacking cards
-    const cards = [...document.querySelectorAll("#priv-grid .priv")];
-    const rects = cards.map((c) => c.getBoundingClientRect());
-    cards.forEach((c, i) => {
-      let covered = 0;
-      for (let j = i + 1; j < cards.length; j++) covered += clamp((rects[i].bottom - rects[j].top) / rects[i].height);
-      c.style.setProperty("--covered", covered.toFixed(3));
-    });
+    // stacking cards (sticky: their real positions are read, but only while on screen)
+    if (privGrid && near(pos.get(privGrid), vh, 100)) {
+      const cards = [...privGrid.querySelectorAll(".priv")];
+      const rects = cards.map((c) => c.getBoundingClientRect());
+      cards.forEach((c, i) => {
+        let covered = 0;
+        for (let j = i + 1; j < cards.length; j++) covered += clamp((rects[i].bottom - rects[j].top) / rects[i].height);
+        put(c, "--covered", covered.toFixed(2));
+      });
+    }
 
     // skew with speed
     skew = lerp(skew, clamp(velocity * 0.12, -5, 5), 0.15);
-    if (Math.abs(skew) > 0.01) skewables.forEach((s) => s.style.setProperty("--skew", `${skew.toFixed(2)}deg`));
+    if (Math.abs(skew) < 0.01) skew = 0;
+    const sk = `${skew.toFixed(2)}deg`;
+    skewables.forEach((s) => put(s, "--skew", sk));
   }
 
-  function layout() { layoutHow(); }
+  function measureAll() {
+    pos.clear();
+    [mfSec, how, cube, bytes, bandsBox, privGrid, ...tinted].forEach(measure);
+    // the steps' centres with the track at rest (x = 0)
+    stepOffsets.length = 0;
+    if (track) {
+      const saved = track.style.transform;
+      track.style.transform = "none";
+      const base = track.getBoundingClientRect().left;
+      track.querySelectorAll("li").forEach((li) => { const r = li.getBoundingClientRect(); stepOffsets.push([li, base + (r.left - base) + r.width / 2]); });
+      track.style.transform = saved;
+    }
+    dirty = true;
+  }
+  function layout() { layoutHow(); measureAll(); }
+  // fonts, images and translations change the page height: measure again
+  if (window.ResizeObserver) new ResizeObserver(() => requestAnimationFrame(measureAll)).observe(landing);
   window.addEventListener("resize", layout);
   window.CS.onLang(() => { buildManifesto(); buildBands(); requestAnimationFrame(layout); });
   window.addEventListener("cs:landing", () => requestAnimationFrame(layout));
@@ -182,5 +228,5 @@
     mfWords.forEach((w) => w.style.setProperty("--k", "1"));
   }
   requestAnimationFrame(frame);
-  window.CSScroll = { tick, layout };
+  window.CSScroll = { tick, layout, measure: measureAll };
 })();

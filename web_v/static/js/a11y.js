@@ -33,6 +33,19 @@
     if (y) { sessionStorage.removeItem("cs-scroll"); requestAnimationFrame(() => window.scrollTo(0, Number(y))); }
   } catch { /* ignore */ }
 
+  /* ---------------- light mode (js/perf.js) ---------------- */
+  const perfBtn = $("perf-btn");
+  function perfLabel() {
+    if (!perfBtn || !window.CSPerf) return;
+    const on = window.CSPerf.low;
+    perfBtn.setAttribute("aria-pressed", String(on));
+    perfBtn.classList.toggle("on", on);
+    perfBtn.title = t("perfHint");
+    perfBtn.querySelector("span").textContent = t(on ? "perfLightOn" : "perfLight");
+  }
+  if (perfBtn && window.CSPerf) perfBtn.addEventListener("click", () => window.CSPerf.set(!window.CSPerf.low, true));
+  window.addEventListener("cs:perf", perfLabel);
+
   /* ---------------- film transcript ---------------- */
   const list = $("film-transcript");
   const cache = {};
@@ -72,7 +85,7 @@
   }
   if (player) new MutationObserver(playNames).observe(player, { attributes: true, attributeFilter: ["class"] });
 
-  function onLang() { label(); transcript(); playNames(); }
+  function onLang() { label(); perfLabel(); transcript(); playNames(); }
   if (CS && CS.onLang) CS.onLang(onLang);
   onLang();
 })();

@@ -47,3 +47,14 @@ html.reduce-motion .band span { transform: none !important; }
 .public-note { display: none; }
 .public-mode [data-local] { display: none !important; }
 .public-mode .public-note { display: block; margin: 0 0 6px; padding: 12px 14px; border-radius: 12px; background: rgba(34, 232, 255, .08); border: 1px solid rgba(34, 232, 255, .25); color: #cfeffd; line-height: 1.5; }
+
+/* performance mode (js/perf.js): weak or slow devices */
+html.perf-low *, html.perf-low *::before, html.perf-low *::after { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+/* looping decorations play once; the scan progress keeps moving */
+html.perf-low body *:not(#progress):not(#progress *):not(#batch *):not(.repair-progress *),
+html.perf-low body *:not(#progress *)::before, html.perf-low body *:not(#progress *)::after { animation-iteration-count: 1 !important; }
+html.perf-low .grain, html.perf-low .scanlines { display: none !important; }
+.perf-btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; border: 1px solid rgba(110, 200, 255, .25); background: rgba(10, 8, 30, .6); color: var(--text, #eaf4ff); font: inherit; font-size: 13px; cursor: pointer; }
+.perf-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.perf-btn.on { border-color: #3ddc84; color: #3ddc84; }
+.foot-switches { display: flex; gap: 8px; flex-wrap: wrap; }
