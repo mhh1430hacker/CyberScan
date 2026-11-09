@@ -174,9 +174,14 @@
     return box;
   }
 
+  // Typing effects only change the page while their card can be seen (js/lite.js marks the
+  // blocks that are off screen); otherwise they check back twice a second.
+  const onScreen = (node) => !node.closest(".cs-off") && !document.hidden;
+
   function typeLoop(node, texts, speed = 38, hold = 1700) {
     let ti = 0, ci = 0, del = false;
     const step = () => {
+      if (!onScreen(node)) { bentoTimers.push(setTimeout(step, 500)); return; }
       const text = texts[ti % texts.length];
       node.textContent = text.slice(0, ci);
       if (!del && ci < text.length) ci++;
@@ -214,6 +219,7 @@
       vi++;
       let ci = 0;
       const step = () => {
+        if (!onScreen(verdictNode)) { bentoTimers.push(setTimeout(step, 500)); return; }
         verdictNode.textContent = text.slice(0, ++ci);
         if (ci < text.length) bentoTimers.push(setTimeout(step, 34));
         else bentoTimers.push(setTimeout(typeVerdict, 2200));
@@ -320,11 +326,15 @@
     const glow = document.querySelector(".glow-cursor");
     let gx = innerWidth / 2, gy = innerHeight / 2, tx = gx, ty = gy;
     window.addEventListener("pointermove", (e) => { tx = e.clientX; ty = e.clientY; }, { passive: true });
+    // Eases toward the pointer and stops once there; the next move wakes it.
+    let glowRaf = 0;
     const follow = () => {
       gx += (tx - gx) * 0.12; gy += (ty - gy) * 0.12;
-      glow.style.transform = `translate(${gx}px, ${gy}px)`;
-      requestAnimationFrame(follow);
+      if (Math.abs(tx - gx) < 0.3 && Math.abs(ty - gy) < 0.3) { gx = tx; gy = ty; glowRaf = 0; }
+      else glowRaf = requestAnimationFrame(follow);
+      glow.style.transform = `translate(${gx.toFixed(1)}px, ${gy.toFixed(1)}px)`;
     };
+    window.addEventListener("pointermove", () => { if (!glowRaf) glowRaf = requestAnimationFrame(follow); }, { passive: true });
     follow();
   }
 
@@ -420,6 +430,6 @@
   }
   window.addEventListener("cs:landing", arrive);
   window.CS.onLang(() => { build(); if (!landing.hidden) { landing.classList.add("ready"); scramble(landing.querySelector("[data-scramble]")); } });
-  setInterval(() => { if (!landing.hidden && !document.hidden) playCard(); }, 9000);
+  setInterval(() => { if (!landing.hidden && !document.hidden && !landing.querySelector(".hero").classList.contains("cs-off")) playCard(); }, 9000);
   build();
 })();

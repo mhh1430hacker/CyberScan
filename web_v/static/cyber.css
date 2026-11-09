@@ -159,8 +159,10 @@ body.has-cursor, body.has-cursor * { cursor: none !important; }
 body.has-cursor input:not([type=checkbox]):not([type=range]), body.has-cursor textarea, body.has-cursor [contenteditable] { cursor: text !important; }
 body.has-cursor select { cursor: default !important; }
 /* a modal dialog sits above everything: give the real cursor back there */
-body.has-cursor:has(dialog[open]) * { cursor: auto !important; }
-body:has(dialog[open]) .cursor-ring, body:has(dialog[open]) .cursor-dot { opacity: 0 !important; }
+/* .dialog-open is set by js/fx.js while a <dialog> is open. (A body:has(dialog[open]) selector here
+   made every text change on the page restyle the whole document: ~10 ms per typed letter.) */
+body.has-cursor.dialog-open * { cursor: auto !important; }
+body.dialog-open .cursor-ring, body.dialog-open .cursor-dot { opacity: 0 !important; }
 .cursor-ring { width: 0; height: 0; margin: 0; z-index: 200; }
 .cursor-ring::before { display: none !important; }
 .cursor-dot { z-index: 201; width: 4px; height: 4px; margin: -2px 0 0 -2px; border-radius: 0; background: #eaffff; box-shadow: 0 0 8px #22e8ff, 0 0 2px #fff; }

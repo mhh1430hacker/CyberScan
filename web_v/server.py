@@ -59,6 +59,7 @@ from ui.persistence import LocalUiStore  # noqa: E402
 from ui.scan_service import ScanService  # noqa: E402
 
 import services  # noqa: E402
+import assistant  # noqa: E402
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 STAGES = 4
@@ -82,9 +83,9 @@ SITE_ORIGINS = {o.strip().rstrip("/") for o in os.environ.get("CYBERSCAN_SITE_OR
 # the landing and its heavy scripts (particle field, film, scroll scenes…).
 SCAN_URL = os.environ.get("CYBERSCAN_SCAN_URL", "app.html")    # where the landing sends people
 HOME_URL = os.environ.get("CYBERSCAN_HOME_URL", "/")           # where the scan page's logo leads
-LANDING_ONLY_CSS = ("landing.css", "scroll.css", "science.css", "get-app.css")
+LANDING_ONLY_CSS = ("landing.css", "scroll.css", "science.css", "theme.css", "ask.css", "get-app.css")
 LANDING_ONLY_JS = ("js/gl-hero.js", "js/pipeline.js", "js/film.js", "js/story.js", "js/landing.js",
-                   "js/get-app.js", "js/scroll.js", "js/science.js", "js/sound.js")
+                   "js/get-app.js", "js/lite.js", "js/scroll.js", "js/science.js", "js/ask.js", "js/sound.js")
 
 
 def _cut(html: str, start: str, end: str) -> str:
@@ -873,6 +874,23 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
                 "phishing": info.get("phishing", 0), "secret_rules": info.get("secret_rules", 0),
             })
 
+        # ---- Ask the AI about CyberScan (web_v/assistant.py) -----------
+        def assistant_ask(self, query: dict) -> None:
+            data = self._json_body(16 * 1024)
+            if not isinstance(data, dict):
+                raise ApiError(400, "expected {question, history}")
+            # behind CloudFront the visitor is the first X-Forwarded-For address
+            forwarded = self.headers.get("X-Forwarded-For", "") if PUBLIC else ""
+            client = forwarded.split(",")[0].strip() or self.client_address[0]
+            if not assistant.LIMITER.allow(client):
+                raise ApiError(429, "Too many questions at once. Please wait a few minutes.")
+            model = "qwen3:8b" if PUBLIC else str(load_settings().get("ai_model", "qwen3:8b"))
+            try:
+                result = assistant.ask(data.get("question"), data.get("history"), local=not PUBLIC, ollama_model=model)
+            except assistant.AskError as exc:
+                raise ApiError(400, str(exc)) from exc
+            self._json(HTTPStatus.OK, result)
+
         # ---- AI ------------------------------------------------------
         def ai_status(self, query: dict) -> None:
             if PUBLIC:  # the AI summary needs a model on the user's own computer
@@ -1002,6 +1020,7 @@ ROUTES = [
     _route("POST", rf"/api/history/{ID}/ai", "history_ai"),
     _route("GET", r"/api/stats", "stats"),
     _route("GET", r"/api/protection", "protection_info"),
+    _route("POST", r"/api/assistant", "assistant_ask"),
     _route("GET", r"/api/ai/status", "ai_status"),
     _route("GET", rf"/api/ai/{ID}", "ai_poll"),
     _route("POST", rf"/api/ai/{ID}/stop", "ai_stop"),

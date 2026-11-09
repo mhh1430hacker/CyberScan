@@ -50,6 +50,11 @@
     const mid = ring.querySelector(".cb-mid");
     let x = innerWidth / 2, y = innerHeight / 2, rx = x, ry = y;
     document.body.classList.add("has-cursor");
+    // The native cursor comes back while a dialog is open (see cyber.css .dialog-open).
+    const dialogs = [...document.querySelectorAll("dialog")];
+    const syncDialogs = () => document.body.classList.toggle("dialog-open", dialogs.some((d) => d.open));
+    const dialogWatch = new MutationObserver(syncDialogs);
+    dialogs.forEach((d) => dialogWatch.observe(d, { attributes: true, attributeFilter: ["open"] }));
     const CLICKABLE = "a, button, [role=button], .row, label.drop, label.setting, .chip, .bento-card, .pal-item, .pipe-node, .lg-opt, .film-seek, #film-canvas";
     window.addEventListener("pointermove", (e) => {
       x = e.clientX; y = e.clientY;
@@ -70,11 +75,15 @@
     document.addEventListener("pointerleave", () => { ring.style.opacity = "0"; dot.style.opacity = "0"; });
     document.addEventListener("pointerenter", () => { ring.style.opacity = ""; dot.style.opacity = ""; });
     if (!reduced) {
+      // Trails the pointer and stops once it has caught up; the next move wakes it again.
+      let following = 0;
       const follow = () => {
         rx += (x - rx) * 0.32; ry += (y - ry) * 0.32;
+        if (Math.abs(x - rx) < 0.1 && Math.abs(y - ry) < 0.1) { rx = x; ry = y; following = 0; }
+        else following = requestAnimationFrame(follow);
         ring.style.transform = `translate(${rx.toFixed(1)}px, ${ry.toFixed(1)}px)`;
-        requestAnimationFrame(follow);
       };
+      window.addEventListener("pointermove", () => { if (!following) following = requestAnimationFrame(follow); }, { passive: true });
       follow();
     }
   }
@@ -144,20 +153,26 @@
 
   if (!reduced && track) {
     track.style.animation = "none";
+    // Runs only while the band is on screen; its width is measured on resize, not every frame.
+    let marqueeOn = false, marqueeRaf = 0, half = track.scrollWidth / 2 || 1;
+    new ResizeObserver(() => { half = track.scrollWidth / 2 || 1; }).observe(track);
+    new IntersectionObserver((entries) => {
+      marqueeOn = entries[0].isIntersecting;
+      if (marqueeOn && !marqueeRaf) { lastT = performance.now(); lastY = scrollY; marqueeRaf = requestAnimationFrame(loop); }
+    }).observe(track);
     const loop = (now) => {
-      requestAnimationFrame(loop);
-      if (landing.hidden) return;
+      marqueeRaf = 0;
+      if (!marqueeOn || landing.hidden || document.hidden) return;
+      marqueeRaf = requestAnimationFrame(loop);
       const dt = Math.min(64, now - lastT); lastT = now;
       const dy = scrollY - lastY; lastY = scrollY;
       velocity += (dy - velocity) * 0.12;
       const dir = document.documentElement.dir === "rtl" ? 1 : -1;
       offset += dir * (0.045 * dt + Math.abs(velocity) * 0.9);
-      const half = track.scrollWidth / 2 || 1;
       if (Math.abs(offset) > half) offset += offset > 0 ? -half : half;
       const skew = Math.max(-12, Math.min(12, velocity * 0.35));
       track.style.transform = `translateX(${offset}px) skewX(${-skew}deg)`;
     };
-    requestAnimationFrame(loop);
   }
 
   /* ---------------- headings that rise word by word ---------------- */

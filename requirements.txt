@@ -12,3 +12,4 @@ yara-python>=4.5.1
 yara-x>=1.23.0  # optional: runs the YARA-Forge rules (intel/fetch.py)
 pefile>=2023.2.7
 cryptography>=42.0.8
+anthropic>=2.6.0  # optional: the website's "Ask the AI" assistant (web_v/assistant.py)

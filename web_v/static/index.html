@@ -21,6 +21,8 @@
   <link rel="stylesheet" href="scroll.css">
   <link rel="stylesheet" href="science.css">
   <link rel="stylesheet" href="cyber.css">
+  <link rel="stylesheet" href="theme.css">
+  <link rel="stylesheet" href="ask.css">
   <link rel="stylesheet" href="get-app.css">
   <link rel="stylesheet" href="a11y.css">
   <script src="js/a11y-early.js"></script>
@@ -132,7 +134,7 @@
       </div>
     </header>
 
-    <section class="hero" id="top" data-shape="shield" data-shape-x="0.42" data-tint="#050912">
+    <section class="hero" id="top" data-shape="shield" data-shape-x="0.42" data-tint="#07040f">
       <div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
       <div class="hero-copy">
         <span class="eyebrow" data-reveal><i class="dot"></i><span data-i18n="lEyebrow" data-scramble>Static analysis</span></span>
@@ -201,7 +203,7 @@
       </div>
     </section>
 
-    <section id="manifesto" class="manifesto" data-shape="sphere" data-shape-fade="0.22" data-tint="#0b1026">
+    <section id="manifesto" class="manifesto" data-shape="sphere" data-shape-fade="0.22" data-tint="#0d0722">
       <div class="mf-pin">
         <span class="mf-kicker" data-i18n="mfKicker">Why CyberScan</span>
         <p class="mf-text" id="mf-text"></p>
@@ -209,7 +211,7 @@
       </div>
     </section>
 
-    <section id="how" class="how hpin" data-shape="ring" data-shape-fade="0.22" data-tint="#07131f">
+    <section id="how" class="how hpin" data-shape="ring" data-shape-fade="0.22" data-tint="#0b0619">
       <div class="hpin-sticky">
         <div class="how-head">
           <h2 class="l-h2" data-i18n="lHowTitle"></h2>
@@ -221,7 +223,7 @@
       </div>
     </section>
 
-    <section id="story" class="story" data-shape="file" data-shape-fade="0.12" data-tint="#04070e">
+    <section id="story" class="story" data-shape="file" data-shape-fade="0.12" data-tint="#05030b">
       <div class="story-pin">
         <canvas id="story-canvas" aria-hidden="true"></canvas>
         <div class="story-copy">
@@ -238,7 +240,7 @@
       </div>
     </section>
 
-    <section id="pipeline" class="l-section pipe-sec" data-shape="helix" data-shape-fade="0.2" data-tint="#0a0f22">
+    <section id="pipeline" class="l-section pipe-sec" data-shape="helix" data-shape-fade="0.2" data-tint="#0c0720">
       <h2 class="l-h2 center" data-i18n="pipeTitle"></h2>
       <p class="l-sub center" data-reveal data-i18n="pipeSub"></p>
       <div class="pipe" id="pipe" data-reveal>
@@ -256,12 +258,13 @@
     </section>
 
     <!-- ============ THE SCIENCE BEHIND CYBERSCAN (science.css, js/science.js, data/science.json) ============ -->
-    <section id="science" class="sci" lang="en" dir="ltr" aria-labelledby="sci-title" data-shape="hex" data-shape-fade="0.08" data-tint="#050a14">
+    <section id="science" class="sci" lang="en" dir="ltr" aria-labelledby="sci-title" data-shape="hex" data-shape-fade="0.08" data-tint="#080512">
       <header class="sci-head">
         <span class="sec-tag">// The science</span>
         <h2 class="l-h2 center" id="sci-title">The science behind CyberScan</h2>
         <p class="sci-sub">Beyond detection. Into the science of threat characterization.</p>
         <p class="sci-lede">CyberScan never runs the file it examines. Everything below is measured from the bytes at rest: how information is distributed, what the code's branches look like, which capabilities the program declares, and what public intelligence says about its fingerprint. Each step shows the method in the code, its maths, and real output from the engine on a harmless demo file.</p>
+        <aside class="sci-plain sci-plain-intro"><b data-i18n="sciPlainTitle">In plain words</b><p dir="auto" data-i18n="sciPlainIntro">In one sentence: CyberScan reads a file the way a careful detective reads a suspicious letter, studying the envelope, the handwriting and what the letter asks for, without ever doing what it says.</p></aside>
         <div class="sci-intro" aria-hidden="true">
           <svg viewBox="0 0 720 64" class="sci-intro-svg">
             <g class="sci-intro-bytes"></g>
@@ -292,6 +295,7 @@
             <div class="sci-text sci-rv">
               <p class="sci-kicker">Stage 01 · <span class="sci-status ok">Implemented</span></p>
               <h3 id="sci-structure-h">Static structural analysis</h3>
+              <aside class="sci-plain"><b data-i18n="sciPlainTitle">In plain words</b><p dir="auto" data-i18n="sciPlain1">A Windows program is like a parcel with a label and a packing list. CyberScan reads the label (what the program says it is), the packing list (the system functions it asks for) and the seal (its digital signature) without opening the parcel. A 'photo viewer' that asks for the tools to watch the keyboard doesn't add up.</p></aside>
               <p>A Windows program (PE file) is a documented data structure. CyberScan parses it with <code>pefile</code>: the header, each section's flags and size, the import table, the version resource, and the Authenticode signature. Nothing is loaded or executed.</p>
               <dl class="sci-io">
                 <div><dt>Input</dt><dd>File bytes, SHA-256, magic bytes</dd></div>
@@ -320,6 +324,7 @@
             <div class="sci-text sci-rv">
               <p class="sci-kicker">Stage 02 · <span class="sci-status ok">Implemented</span></p>
               <h3 id="sci-entropy-h">Entropy topography</h3>
+              <aside class="sci-plain"><b data-i18n="sciPlainTitle">In plain words</b><p dir="auto" data-i18n="sciPlain2">Entropy measures how predictable the bytes are. A page of text repeats letters and words, empty space is all the same, and encrypted data looks like pure noise. CyberScan draws this level along the whole file; a sudden jump from ordinary content to noise is often where something packed or hidden begins.</p></aside>
               <p>The project calls this "thermodynamic entropy topography", but the quantity is Shannon's <em>information</em> entropy, not physical entropy. For each window of <i>n</i> bytes with byte counts <i>c</i><sub>x</sub>:</p>
               <p class="sci-formula" aria-label="H equals minus the sum of p x log base 2 p x, which equals log base 2 of n minus one over n times the sum of c x log base 2 c x">H = −Σ p<sub>x</sub> log<sub>2</sub> p<sub>x</sub> = log<sub>2</sub> n − <sup>1</sup>⁄<sub>n</sub> Σ c<sub>x</sub> log<sub>2</sub> c<sub>x</sub></p>
               <p>The window slides through the file, and the engine updates the counts incrementally (only bytes entering and leaving the window change the sum). The result is a curve of bits per byte: 0 for constant filler, around 4–5 for text and code, close to 8 for compressed or encrypted data.</p>
@@ -357,6 +362,7 @@
             <div class="sci-text sci-rv">
               <p class="sci-kicker">Stage 03 · <span class="sci-status ok">Implemented · programs only</span></p>
               <h3 id="sci-surprise-h">Positional surprise</h3>
+              <aside class="sci-plain"><b data-i18n="sciPlainTitle">In plain words</b><p dir="auto" data-i18n="sciPlain3">Noise-like data is normal in some places and not in others: a compressed photo inside a program's resources is fine, the same noise inside its code is not. CyberScan learned what honest programs keep in each part and points out pieces that are out of place.</p></aside>
               <p>Entropy alone cannot tell a compressed picture in the resource section (normal) from encrypted bytes in the code section (not normal): both are close to 8 bits per byte. What differs is <em>where</em> they are. CyberScan learned, from benign programs only, the byte distribution <i>Q</i> of each part of a program (header, code, data, resources, overlay). For every 4 KiB window it measures the Kullback–Leibler divergence from that part's distribution:</p>
               <p class="sci-formula" aria-label="D K L of P given Q equals sum of p x log base 2 of p x over q x">D<sub>KL</sub>(P ‖ Q) = Σ p<sub>x</sub> log<sub>2</sub> (p<sub>x</sub> ⁄ q<sub>x</sub>)</p>
               <p>That is the extra bits per byte needed to compress the window with a code built for honest content of its kind. A window above the benign 99.9th percentile for its part (and at least 0.75 bits) is flagged as foreign.</p>
@@ -383,6 +389,7 @@
             <div class="sci-text sci-rv">
               <p class="sci-kicker">Stage 04 · <span class="sci-status ok">Implemented · x86 / x86-64</span></p>
               <h3 id="sci-cfg-h">Control-flow graph reconstruction</h3>
+              <aside class="sci-plain"><b data-i18n="sciPlainTitle">In plain words</b><p dir="auto" data-i18n="sciPlain4">Without running the program, CyberScan translates its machine code into instructions and maps how it can jump between them, like drawing a city's road map without driving. One road shape is telling: a tight loop that rewrites memory piece by piece, which is how hidden code decrypts itself.</p></aside>
               <p>The code section is decoded with the Capstone disassembler in a linear sweep. An instruction starts a new <b>basic block</b> if it is the first, the target of a branch, or follows a branch, call or return. Edges connect a block to its branch target and, unless it ends in an unconditional jump or return, to the block that follows.</p>
               <p class="sci-formula" aria-label="cyclomatic complexity M equals E minus N plus 2 P">M = E − N + 2P</p>
               <p>Cyclomatic complexity counts independent paths (<i>E</i> edges, <i>N</i> blocks, <i>P</i> connected components). An edge to an earlier block is a <b>back edge</b>, meaning a loop. The warning pattern is deliberately strict: a short loop (≤ 48 instructions) that XORs <em>into memory</em> while stepping a counter, which is the shape of an in-place decryption stub. In a program, it also requires somewhere to decrypt into (a writable + executable or high-entropy section).</p>
@@ -418,6 +425,7 @@
             <div class="sci-text sci-rv">
               <p class="sci-kicker">Stage 05 · <span class="sci-status partial">Implemented · classifier inactive without an approved model</span></p>
               <h3 id="sci-latent-h">The 4096-dimensional representation</h3>
+              <aside class="sci-plain"><b data-i18n="sciPlainTitle">In plain words</b><p dir="auto" data-i18n="sciPlain5">All the measurements are packed into one list of 4,096 numbers, a fingerprint of the file's shape. Files built alike get similar fingerprints, which is what a learning model needs. It is a fixed recipe, not a 'brain', and the model that would read it stays off until someone installs one they have reviewed.</p></aside>
               <p>Every measurement above is folded into one fixed-length vector of 4096 numbers: four channels of 1024. Variable-size features (byte n-grams, opcodes, graph edges, imports) are placed by <b>feature hashing</b>: a BLAKE2b digest of the feature's name picks its coordinate, so any file maps to the same space without a vocabulary.</p>
               <ol class="sci-channels">
                 <li><b>0–1023</b> byte histogram (256) + hashed 2/3/4-byte n-grams and opcode frequencies</li>
@@ -455,6 +463,7 @@
             <div class="sci-text sci-rv">
               <p class="sci-kicker">Stage 06 · <span class="sci-status partial">Implemented · online lookups off by default</span></p>
               <h3 id="sci-intel-h">Intelligence correlation</h3>
+              <aside class="sci-plain"><b data-i18n="sciPlainTitle">In plain words</b><p dir="auto" data-i18n="sciPlain6">Security researchers publish lists of known harmful files and links. If you allow it, CyberScan asks three of these services at the same time whether they have seen this file's fingerprint, without sending the file itself. A match is someone else's report, not proof; no match doesn't mean safe.</p></aside>
               <p><b>Offline, always:</b> YARA rules (YARA-Forge via YARA-X when installed), the URLhaus malware-link list, Phishing.Database, gitleaks secret patterns and lookalike-domain checks run against local data.</p>
               <p><b>Online, opt-in:</b> when enabled, only the file's SHA-256 (or the URL) is sent, never its contents. Three feeds are queried <em>concurrently</em> with <code>asyncio</code>: ThreatFox, URLhaus and AlienVault OTX. Fast feeds get 450 ms, and a shared deadline cancels stragglers. Every answer is normalized to one schema, and results are cached for 5 minutes.</p>
               <p>The indicator type is inferred first (SHA-256/SHA-1/MD5 by length, IP, URL, domain), and each feed is asked only what it supports. Overall status follows a fixed precedence: any match → <code>matched</code>; else all unavailable → <code>unavailable</code>; else any timeout → <code>partial_timeout</code>; else <code>no_match</code>.</p>
@@ -490,6 +499,7 @@
             <div class="sci-text sci-rv">
               <p class="sci-kicker">Stage 07 · <span class="sci-status ok">Implemented</span></p>
               <h3 id="sci-explain-h">From evidence to explanation</h3>
+              <aside class="sci-plain"><b data-i18n="sciPlainTitle">In plain words</b><p dir="auto" data-i18n="sciPlain7">Every warning comes with a sentence you can check and a weight. The final score is the strongest single warning, not a pile of small ones, so many weak hints can't add up to a scary number. 0 means nothing was found (not 'safe'), 1–49 means take a look, 50 or more means be careful.</p></aside>
               <p>Each finding carries a severity, a sentence a person can check, and a contribution from 0 to 100. The verdict score is the <b>largest</b> contribution, not the sum, so ten weak hints never add up to one strong one. A supervised model can only be blended in with an explicit weight, which defaults to zero.</p>
               <p class="sci-formula" aria-label="score equals max of the strongest finding and the weighted heuristic and model scores">score = max( max<sub>i</sub> contribution<sub>i</sub>, w<sub>h</sub>·heuristic + w<sub>m</sub>·model )</p>
               <p>Bands: <b>0</b> no indicators observed · <b>1–49</b> review · <b>≥ 50</b> suspicious. Findings are also mapped to MITRE ATT&amp;CK techniques by keyword rules, so a reviewer can see what a behaviour is called in the shared vocabulary.</p>
@@ -511,10 +521,11 @@
           </article>
         </div>
       </div>
+      <div class="sci-ask"><button type="button" class="ghost big" data-ask-open="" data-i18n="sciAskCta">Still curious? Ask the AI about any of this</button></div>
       <p class="sci-foot">CyberScan is static analysis. It describes structure and evidence; it does not observe behaviour at run time, and a clean result is not a guarantee of safety.</p>
     </section>
 
-    <section id="features" class="l-section skewable" data-shape="hex" data-shape-fade="0.18" data-tint="#06141a">
+    <section id="features" class="l-section skewable" data-shape="hex" data-shape-fade="0.18" data-tint="#0b0517">
       <h2 class="l-h2 center" data-reveal data-i18n="lFeatTitle"></h2>
       <p class="l-sub center" data-reveal data-i18n="lFeatSub"></p>
       <div class="bento" id="feat-grid"></div>
@@ -537,12 +548,12 @@
       </div>
     </section>
 
-    <section id="privacy" class="l-section stack-sec" data-shape="sphere" data-shape-fade="0.22" data-tint="#0a1020">
+    <section id="privacy" class="l-section stack-sec" data-shape="sphere" data-shape-fade="0.22" data-tint="#0c0820">
       <h2 class="l-h2 center" data-i18n="lPrivTitle"></h2>
       <div class="priv-grid stack" id="priv-grid"></div>
     </section>
 
-    <section class="l-section stats-sec skewable" data-shape="ring" data-shape-fade="0.25" data-tint="#081a14">
+    <section class="l-section stats-sec skewable" data-shape="ring" data-shape-fade="0.25" data-tint="#0e0619">
       <h2 class="l-h2 center" data-reveal data-i18n="lStatsTitle"></h2>
       <div class="stats-grid" id="stats-grid"></div>
     </section>
@@ -1068,7 +1079,9 @@
   <script src="js/get-app.js"></script>
   <script src="js/a11y.js"></script>
   <script src="js/fx.js"></script>
+  <script src="js/lite.js"></script>
   <script src="js/scroll.js"></script>
   <script src="js/science.js"></script>
+  <script src="js/ask.js"></script>
 </body>
 </html>

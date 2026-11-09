@@ -1,0 +1,150 @@
+/* ===================== CyberScan landing: purple cyberpunk, glass, and lightness =====================
+ * Loaded after the other landing stylesheets. Three jobs:
+ *   1. identity  violet first, magenta and cyan as accents, deep violet-black backgrounds;
+ *   2. glass     translucent surfaces with a soft blur, a light edge and an inner highlight;
+ *   3. lightness every endless animation pauses off screen (js/lite.js adds .cs-off), and the
+ *                ones that animated paint properties (box-shadow, top, background-position, a
+ *                conic-gradient angle) now animate transform / opacity, which the GPU composites
+ *                without restyling the page. Measured before: the main thread was ~100% busy at
+ *                idle, ~70% of it restyling for these animations.
+ * Performance mode (html.perf-low, js/perf.js) already removes every backdrop blur (a11y.css). */
+
+:root {
+  --bg: #07040f;
+  --surface: rgba(24, 13, 48, .55);
+  --surface-2: rgba(44, 24, 84, .45);
+  --line: rgba(196, 160, 255, .16);
+  --text: #f3eeff;
+  --muted: #ab9fcc;
+  --accent: #b46cff;
+  --accent-2: #22e8ff;
+  --pink: #ff4fd8;
+  --violet-deep: #7c3aed;
+  --neon-glow: 0 0 6px rgba(180, 108, 255, .85), 0 0 20px rgba(180, 108, 255, .38);
+  --bracket: rgba(180, 108, 255, .75);
+  --glass: linear-gradient(150deg, rgba(255, 255, 255, .085), rgba(255, 255, 255, .015) 48%, rgba(180, 108, 255, .05)), rgba(17, 9, 36, .52);
+  --glass-strong: linear-gradient(150deg, rgba(255, 255, 255, .1), rgba(255, 255, 255, .02) 50%), rgba(14, 7, 30, .72);
+  --glass-line: rgba(206, 170, 255, .22);
+  --glass-hi: inset 0 1px 0 rgba(255, 255, 255, .1), inset 0 0 0 1px rgba(255, 255, 255, .015);
+  --glass-shadow: 0 24px 60px -32px rgba(0, 0, 0, .85), 0 0 40px -28px rgba(180, 108, 255, .45);
+  --glass-blur: blur(10px);  /* one filter pass; saturate() added a second, measurably on scroll */
+}
+body { background: var(--bg); }
+::selection { background: rgba(180, 108, 255, .45); }
+
+/* ---------- 3. lightness ---------- */
+.cs-off, .cs-off *, .cs-off *::before, .cs-off *::after,
+.cs-hidden *, .cs-hidden *::before, .cs-hidden *::after { animation-play-state: paused !important; }
+
+/* scanlines: same texture, without a full-screen blend mode or a flicker that repaints the page */
+body::after { animation: none !important; mix-blend-mode: normal; opacity: .2; }
+
+/* the hero floor grid moves along its own plane (transform) instead of re-painting its background */
+.hero::after { animation: grid-glide 4s linear infinite; background-position: 0 0, 0 0; }
+@keyframes grid-glide {
+  from { transform: perspective(520px) rotateX(64deg) translateY(-70px); }
+  to { transform: perspective(520px) rotateX(64deg) translateY(0); }
+}
+
+/* status dot: a ring that scales and fades, not an animated box-shadow */
+.eyebrow .dot { animation: none; position: relative; }
+.eyebrow .dot::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: var(--ok); animation: ring-out 2s ease-out infinite; }
+@keyframes ring-out { from { transform: scale(1); opacity: .55; } to { transform: scale(2.6); opacity: 0; } }
+
+/* the film's play button glow: opacity of a pre-drawn glow, not an animated box-shadow */
+#film-big { animation: none; }
+#film-big::before { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; box-shadow: 0 0 0 2px rgba(255, 79, 216, .8), 0 0 60px rgba(255, 79, 216, .5); opacity: 0; animation: glow-breathe 2.4s ease-in-out infinite; }
+@keyframes glow-breathe { 50% { opacity: 1; } }
+
+/* the scan beam slides with transform, not by changing top */
+.sc-beam { top: 0; animation: beam-slide 3.2s cubic-bezier(.6, 0, .4, 1) infinite; }
+@keyframes beam-slide { 0% { transform: translateY(-100%); } 60%, 100% { transform: translateY(275%); } }
+
+/* a light running round a card's border: only while that card is hovered (it was invisible
+   yet animating on every card all the time) */
+.bento-card::after { animation: none; }
+.bento-card:hover::after { animation: beam-spin 4s linear infinite; }
+
+/* the title shimmer: one slow pass when the page opens, then still */
+.grad, .grad .w, .grad .ch { animation-iteration-count: 1; animation-duration: 3.2s; }
+
+/* ---------- 1. identity ---------- */
+.sec-tag, .eyebrow, .mf-kicker, .story-kicker, .pp-kicker { color: #d3b0ff; }
+.eyebrow { border-color: rgba(180, 108, 255, .5); background: rgba(180, 108, 255, .08); box-shadow: inset 0 0 14px rgba(180, 108, 255, .16); }
+.logo { stroke: var(--accent); filter: drop-shadow(0 0 6px rgba(180, 108, 255, .9)); }
+.l-links a::after { background: linear-gradient(90deg, var(--accent), var(--pink)); }
+.l-h2 { background: linear-gradient(95deg, #faf6ff 8%, #dcbcff 42%, #ff9be9 72%, #9df4ff 100%); -webkit-background-clip: text; background-clip: text; color: transparent; filter: none; }
+.l-sub, .hero-sub { color: #bfb3dd; }
+/* no glow on the title: a text-shadow on letters that lift under the cursor drew a hazy box */
+.hero-title, .hero-title * { text-shadow: none; }
+/* the particles draw on the right on wide screens: give the headline room for its lines */
+@media (min-width: 1001px) { body.has-gl .hero { grid-template-columns: 1.45fr .55fr; } }
+.grad, .grad .ch { background-image: linear-gradient(100deg, #c084fc 0%, #f0abfc 30%, #ff6fd8 50%, #a78bfa 70%, #67e8f9 100%); }
+.hero-title .w:not(.grad .w) .ch { color: color-mix(in srgb, #f6f1ff, #d8b4fe calc(var(--f) * 100%)); }
+
+.primary {
+  color: #fff;
+  background: linear-gradient(110deg, #7c3aed, #a21caf 55%, #c026d3);
+  background-size: 200% 100%;
+  filter: drop-shadow(0 0 14px rgba(180, 108, 255, .45));
+}
+.primary:hover:not(:disabled) { background-position: 100% 0; filter: drop-shadow(0 0 22px rgba(255, 79, 216, .55)); }
+.ghost { border-color: rgba(196, 160, 255, .3); background: rgba(20, 10, 40, .55); }
+.ghost:hover:not(:disabled) { border-color: var(--accent); background: rgba(180, 108, 255, .1); box-shadow: 0 0 16px -4px rgba(180, 108, 255, .7); }
+:focus-visible { outline-color: #d8b4fe; }
+.scroll-progress i { background: linear-gradient(90deg, #7c3aed, var(--accent), var(--pink)); box-shadow: 0 0 12px rgba(180, 108, 255, .8); }
+.side-dots a.on { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 12px rgba(180, 108, 255, .9); }
+.side-dots a span { background: rgba(16, 8, 34, .92); }
+
+/* ---------- 2. glass ---------- */
+.l-top.scrolled { background: rgba(12, 6, 26, .58); border-bottom-color: var(--glass-line); box-shadow: 0 10px 40px -24px rgba(180, 108, 255, .45); }
+
+.bento-card, .priv, .stat, .l-steps li, .scan-card, .bytes-demo, .get-app-panel {
+  background: var(--glass);
+  border: 1px solid var(--glass-line);
+  box-shadow: var(--glass-hi), var(--glass-shadow);
+  -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
+}
+.scan-card { background: var(--glass-strong); }
+.bento-card:hover, .priv:hover, .stat:hover { border-color: rgba(214, 180, 255, .45); box-shadow: var(--glass-hi), 0 30px 70px -30px rgba(180, 108, 255, .5); }
+.bento-card::before { background: radial-gradient(420px circle at var(--mx) var(--my), rgba(180, 108, 255, .2), transparent 45%); }
+.bento-card::after { background: conic-gradient(from var(--beam, 0deg), transparent 0 70%, rgba(216, 180, 254, .95) 80%, rgba(255, 111, 216, .9) 86%, transparent 92%); }
+.pipe-panel { background: linear-gradient(160deg, color-mix(in srgb, var(--hue) 14%, rgba(16, 8, 34, .7)), rgba(12, 6, 26, .66)); -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur); box-shadow: var(--glass-hi), 0 30px 80px -30px color-mix(in srgb, var(--hue) 45%, #000); }
+.film-frame { box-shadow: 0 0 0 1px rgba(196, 160, 255, .3), 0 30px 90px -30px rgba(180, 108, 255, .6); }
+.l-steps li .num { background: linear-gradient(180deg, rgba(196, 160, 255, .55), rgba(196, 160, 255, 0)); -webkit-background-clip: text; background-clip: text; }
+.l-steps li.lit .num { background: linear-gradient(180deg, var(--accent), rgba(255, 79, 216, .1)); -webkit-background-clip: text; background-clip: text; }
+
+/* the science section keeps its calm lab register, in violet */
+.sci {
+  --s-bg: #0a0618; --s-panel: rgba(18, 10, 38, .62); --s-panel-2: rgba(30, 16, 60, .5);
+  --s-line: rgba(196, 160, 255, .16); --s-line-2: rgba(196, 160, 255, .3);
+  --s-text: #f1ecff; --s-muted: #a89cc8; --s-cyan: #c4a1ff;
+}
+.sci .sci-card { background: var(--glass); border-color: var(--glass-line); box-shadow: var(--glass-hi), var(--glass-shadow); -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur); }
+.sci .sci-ent-chart .curve { stroke: #c4a1ff; }
+.sci .sci-ent-chart .area { fill: rgba(180, 108, 255, .1); }
+
+/* glass falls back to a solid surface where blur is unavailable or switched off */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .bento-card, .priv, .stat, .l-steps li, .scan-card, .bytes-demo, .get-app-panel, .sci .sci-card { background: rgba(18, 9, 38, .9); }
+}
+html.perf-low .bento-card, html.perf-low .priv, html.perf-low .stat, html.perf-low .l-steps li,
+html.perf-low .scan-card, html.perf-low .sci .sci-card { background: rgba(18, 9, 38, .9); }
+#film-big { background: radial-gradient(circle, rgba(180, 108, 255, .3), rgba(255, 79, 216, .18)); box-shadow: 0 0 0 2px rgba(196, 160, 255, .75), 0 0 40px rgba(180, 108, 255, .5); }
+
+/* "In plain words": the everyday idea before the technical detail */
+.sci-plain { margin: 4px 0 18px; padding: 14px 16px; border-radius: 14px; border: 1px solid rgba(214, 180, 255, .25); border-inline-start: 3px solid #c084fc;
+  background: linear-gradient(135deg, rgba(180, 108, 255, .14), rgba(255, 79, 216, .05)); }
+.sci-plain b { display: block; font: 600 11.5px Consolas, ui-monospace, monospace; letter-spacing: .1em; text-transform: uppercase; color: #e9d5ff; margin-bottom: 6px; }
+.sci-plain p { margin: 0 !important; color: #f1eaff !important; font-size: 15.5px; line-height: 1.7; }
+.sci-plain p:dir(rtl) { font-family: "Segoe UI", "Noto Sans Arabic", Tahoma, sans-serif; font-size: 16.5px; }
+.sci-plain-intro { max-width: 760px; margin: 0 auto 26px; text-align: start; }
+
+/* Real blur only where something moves behind the glass (header, hero card, pipeline panel,
+   the assistant). The many cards further down sit over a faint particle field, where a blur
+   pass per card cost scroll smoothness for almost no visible difference: they keep the glass
+   look (translucent gradient, light edge, inner highlight) without the filter. */
+.bento-card, .priv, .stat, .l-steps li, .bytes-demo, .sci .sci-card {
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+  background: linear-gradient(150deg, rgba(255, 255, 255, .085), rgba(255, 255, 255, .015) 48%, rgba(180, 108, 255, .06)), rgba(17, 9, 36, .74);
+}

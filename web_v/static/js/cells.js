@@ -47,7 +47,7 @@
 
     function capacity() {
       const area = width * height;
-      const base = Math.min(170, Math.max(42, Math.round(area / 8200)));
+      const base = Math.min(120, Math.max(36, Math.round(area / 10500)));
       return Math.round(base * (width < 700 ? 0.7 : 1));
     }
 
@@ -245,13 +245,22 @@
       }
     }
 
+    // Hidden behind the WebGL field on the landing page (motion.css sets opacity 0): no work at
+    // all then, just a cheap check twice a second. Otherwise 30 fps is plenty for a backdrop.
+    const covered = () => document.body.classList.contains("has-gl") && document.body.classList.contains("on-landing");
+    let sleeping = 0;
     function frame(now) {
       if (!running) return;
+      if (covered() && !warping) {
+        sleeping = setTimeout(() => { sleeping = 0; last = performance.now(); raf = requestAnimationFrame(frame); }, 500);
+        return;
+      }
+      raf = requestAnimationFrame(frame);
+      if (!warping && now - last < 31) return;
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
       update(dt, now);
       draw(now);
-      raf = requestAnimationFrame(frame);
     }
 
     function onMove(e) {
@@ -261,7 +270,7 @@
     }
     function onLeave() { mouse.active = false; mouse.x = mouse.y = -9999; }
     function onVisibility() {
-      if (document.hidden) { running = false; cancelAnimationFrame(raf); }
+      if (document.hidden) { running = false; cancelAnimationFrame(raf); clearTimeout(sleeping); }
       else if (!reduced && !running) { running = true; last = performance.now(); raf = requestAnimationFrame(frame); }
     }
 
@@ -301,6 +310,7 @@
       destroy() {
         running = false;
         cancelAnimationFrame(raf);
+        clearTimeout(sleeping);
         window.removeEventListener("resize", resize);
         window.removeEventListener("pointermove", onMove);
         document.removeEventListener("pointerleave", onLeave);

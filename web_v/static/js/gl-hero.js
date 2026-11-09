@@ -1,6 +1,6 @@
 /* A WebGL2 particle field that takes the shape of the page you're reading.
  *
- * ~28k particles live on the GPU. Each section of the landing page names a
+ * ~13k particles live on the GPU (5.5k on small screens). Each section of the landing page names a
  * shape (data-shape="shield" | "helix" | "sphere" | "hex" | "file" | "ring" |
  * "word"); scrolling morphs the particles from one to the next with a
  * per-particle delay. The cursor parts them and stirs a swirl; holding the
@@ -19,7 +19,8 @@
   document.body.classList.add("has-gl");
 
   const small = Math.min(innerWidth, innerHeight) < 700;
-  const N = small ? 11000 : 28000;
+  // Fewer, slightly larger points: the shapes read the same and the GPU does half the work.
+  const N = small ? 5500 : 13000;
 
   /* ---------------- shaders ---------------- */
   const VS = `#version 300 es
@@ -74,7 +75,7 @@
     shift.x /= uAspect;
     gl_Position = vec4(ndc + shift, 0.0, 1.0);
 
-    float size = (1.2 + aSeed.w * 2.4) * uPixel * (5.0 / z);
+    float size = (1.5 + aSeed.w * 2.8) * uPixel * (5.0 / z);
     vGlow = push * 0.45;
     gl_PointSize = size * (1.0 + vGlow * 0.6);
     vTone = aSeed.y;
@@ -223,14 +224,15 @@
       x.fillText("CyberScan", w / 2, h / 2);
     }, 900, 200, 0.08, 5.2),
   };
+  // violet first, with cyan and magenta accents (the site's purple cyberpunk identity)
   const PALETTE = {
-    shield: [[0.13, 0.91, 1.0], [0.71, 0.42, 1.0]],
-    helix: [[0.13, 0.91, 1.0], [1.0, 0.31, 0.85]],
-    sphere: [[0.71, 0.42, 1.0], [0.13, 0.91, 1.0]],
-    hex: [[0.13, 0.91, 1.0], [0.45, 0.55, 1.0]],
-    file: [[0.71, 0.42, 1.0], [1.0, 0.31, 0.85]],
-    ring: [[0.13, 0.91, 1.0], [0.71, 0.42, 1.0]],
-    word: [[0.13, 0.91, 1.0], [1.0, 0.31, 0.85]],
+    shield: [[0.66, 0.33, 1.0], [0.13, 0.85, 1.0]],
+    helix: [[0.66, 0.33, 1.0], [1.0, 0.31, 0.85]],
+    sphere: [[0.55, 0.36, 1.0], [0.13, 0.85, 1.0]],
+    hex: [[0.66, 0.33, 1.0], [0.45, 0.55, 1.0]],
+    file: [[0.78, 0.40, 1.0], [1.0, 0.31, 0.85]],
+    ring: [[0.62, 0.35, 1.0], [0.13, 0.85, 1.0]],
+    word: [[0.70, 0.36, 1.0], [1.0, 0.31, 0.85]],
   };
 
   const cache = {};
@@ -311,12 +313,19 @@
   }, { passive: true });
 
   /* which section is in charge of the shape */
+  // Visible height per section comes from an IntersectionObserver: no layout reads while scrolling.
   const sections = [...document.querySelectorAll("[data-shape]")];
+  const seen = new Map();
+  const steps = Array.from({ length: 21 }, (_, i) => i / 20);
+  const sectionObserver = new IntersectionObserver((entries) => {
+    for (const e of entries) seen.set(e.target, e.isIntersecting ? e.intersectionRect.height : 0);
+    pickShape();
+  }, { threshold: steps });
+  sections.forEach((s) => sectionObserver.observe(s));
   function pickShape() {
     let best = null, bestScore = -1;
     for (const s of sections) {
-      const r = s.getBoundingClientRect();
-      const visible = Math.min(r.bottom, innerHeight) - Math.max(r.top, 0);
+      const visible = seen.get(s) || 0;
       if (visible > bestScore) { bestScore = visible; best = s; }
     }
     if (best) {
@@ -330,7 +339,6 @@
   window.addEventListener("scroll", () => {
     turb = Math.min(1, turb + Math.abs(scrollY - lastScroll) * 0.0012);
     lastScroll = scrollY;
-    pickShape();
   }, { passive: true });
 
   /* ---------------- frame ---------------- */
@@ -339,9 +347,16 @@
   gl.clearColor(0, 0, 0, 0);
   const t0 = performance.now();
 
+  // Full rate only while something moves (a morph, scrolling, the cursor); a calm field is
+  // drawn at 30 fps, and a faint one (behind text-heavy sections) at 20 fps.
+  let lastDraw = 0;
   function frame(now) {
     raf = requestAnimationFrame(frame);
     if (!onLanding()) return;
+    const busy = (now - mixStart) < mixMs + 200 || turb > 0.03 || Math.abs(mouse.tx - mouse.x) + Math.abs(mouse.ty - mouse.y) > 0.004 || Math.abs(targetFade - fade) > 0.01;
+    const gap = busy ? 0 : fade < 0.15 ? 48 : 31;
+    if (now - lastDraw < gap) return;
+    lastDraw = now;
     const dt = 1 / 60;
     mix = Math.min(1, (now - mixStart) / mixMs);
     mouse.x += (mouse.tx - mouse.x) * 0.14;
@@ -393,6 +408,9 @@
   canvas.addEventListener("webglcontextlost", (e) => { e.preventDefault(); cancelAnimationFrame(raf); canvas.remove(); document.body.classList.remove("has-gl"); });
 
   resize();
+  const idle = window.requestIdleCallback || ((fn) => setTimeout(fn, 200));
+  const pending = Object.keys(SHAPES).filter((k) => k !== "shield");
+  (function prebuild() { const k = pending.shift(); if (!k) return; shape(k); idle(prebuild, { timeout: 2000 }); })();
   if (reduced) { mix = 1; mixStart = -1e9; requestAnimationFrame((n) => { frame(n); cancelAnimationFrame(raf); }); }
   else raf = requestAnimationFrame(frame);
   window.addEventListener("cs:landing", () => { mixStart = performance.now(); mixMs = 2600; pickShape(); });
