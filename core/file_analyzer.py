@@ -1,3 +1,4 @@
+# Claude (AI assistant, Anthropic) worked on this file, 2026-11-06: heuristics read the strings of the whole file; warnings use evidence_patterns only.
 from __future__ import annotations
 
 import hashlib
@@ -12,7 +13,7 @@ from core.feature_extractor import extract_file_features
 from core.mitre_mapper import map_findings_to_mitre
 from core.pe_decompiler import analyze_pe_file
 from core.yara_engine import scan_file_for_yara
-from core.heuristic_engine import evaluate_heuristics
+from core.heuristic_engine import PIECE_SEPARATOR, evaluate_heuristics, strings_beyond
 from core.magic_bytes import naturally_compressed
 from core.authenticode import verify as verify_signature
 from core.models import Finding, ScanResult
@@ -199,11 +200,16 @@ def analyze_file(
     if topography:
         features["entropy_topography"] = topography
     check_deadline()
-    heuristic = (
-        evaluate_heuristics(scanned_data.decode("latin-1"), file_name=os.path.basename(path))
-        if settings.get("heuristic_rules", True)
-        else {"score": 0, "findings": []}
-    )
+    if settings.get("heuristic_rules", True):
+        # The head as it is, then the strings of everything after it: an indicator placed
+        # behind megabytes of padding is still read.
+        heuristic_text = scanned_data.decode("latin-1")
+        if file_size > scan_limit:
+            tail_strings, features["string_scan"] = strings_beyond(file_data, scan_limit)
+            heuristic_text += PIECE_SEPARATOR + tail_strings
+        heuristic = evaluate_heuristics(heuristic_text, file_name=os.path.basename(path))
+    else:
+        heuristic = {"score": 0, "findings": []}
     score = heuristic["score"]
 
     remaining = max(0.0, timeout - (time.monotonic() - started_at))
@@ -307,8 +313,9 @@ def analyze_file(
     if pe_result.get("status") == "ok" and injection_chain(pe_result.get("suspicious_imports") or []):
         findings.append(Finding("pe", "high", "Suspicious PE imports", "The binary imports APIs commonly associated with memory manipulation and process injection.", 35))
     cfg_topology = pe_result.get("cfg_topology", {})
-    if pe_result.get("status") == "ok" and meaningful_patterns(cfg_topology.get("detected_patterns")) and not signed:
-        patterns = ", ".join(meaningful_patterns(cfg_topology.get("detected_patterns")))
+    # Only the strict evidence patterns warn: the descriptive ones fire on most honest programs.
+    if pe_result.get("status") == "ok" and cfg_topology.get("evidence_patterns") and not signed:
+        patterns = ", ".join(cfg_topology["evidence_patterns"])
         findings.append(Finding(
             "pe",
             "medium",

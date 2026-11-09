@@ -1,3 +1,4 @@
+# Claude (AI assistant, Anthropic) worked on this file, 2026-11-06: layered de-obfuscation views, UTF-16LE/BE, short Base64, tab/space letters, whole-file strings, stricter credential-URL rule.
 from __future__ import annotations
 
 import base64
@@ -32,36 +33,53 @@ URL_PATTERNS = [
     # Bounded on both sides: "t.co" must not match inside words such as "chat.com".
     (r"(?<![\w.-])(?:bit\.ly|tinyurl\.com|t\.co|is\.gd|rb\.gy|cutt\.ly)(?=[/\s\"'<>)\]]|$)", 20, "URL shortener domain"),
     (r"discordapp\.com/attachments|api\.telegram\.org/bot", 35, "Webhook or bot API exfiltration link"),
-    (r"https?://[^/\s@]*@", 15, "Embedded credential marker in URL"),
+    # user[:password]@host, in URL characters only: "[^/\s@]*" spanned binary bytes and
+    # fired on audio files whose metadata held an unrelated "http://" and a later "@".
+    (r"https?://[A-Za-z0-9._~%!$&'()*+,;=:-]{1,128}@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}", 15, "Embedded credential marker in URL"),
 ]
 
-_BASE64 = re.compile(r"[A-Za-z0-9+/]{40,}={0,2}")
-# Single characters each followed by one space, at least three in a row: "r e g", "c m d . e x e".
-# Collapsing only matters if a real indicator then appears, so ordinary text is not affected.
-_SPACED = re.compile(r"(?<!\S)(?:\S ){2,}\S(?!\S)")
-# UTF-16 text inside otherwise 8-bit content: printable characters each followed by a zero byte.
+# 16 characters encode 12 bytes: short commands such as "wmic shadowcopy delete" (32 characters
+# of Base64) must be reachable. A token only matters if its decoding then matches an indicator.
+_BASE64 = re.compile(r"[A-Za-z0-9+/]{16,}={0,2}")
+MAX_BASE64_TOKENS = 2000
+# Text with a space after every character ("c m d   / c"): every other character is a space,
+# and an original space shows as three. Six or more such pairs; ordinary prose has none.
+_SPACED = re.compile(r"(?:[^\r\n][ \t]){6,}[^\r\n]?")
+# UTF-16 text inside otherwise 8-bit content: printable characters each followed by a zero byte
+# (little-endian, as Windows writes it) or preceded by one (big-endian).
 _UTF16_RUN = re.compile("(?:[\\x20-\\x7e]\\x00){6,}")
+_UTF16BE_RUN = re.compile("(?:\\x00[\\x20-\\x7e]){6,}")
 _CONCAT = re.compile(r"[\"']\s*\+\s*[\"']")
-MAX_VIEW_CHARACTERS = 400_000
+MAX_VIEW_CHARACTERS = 3_000_000
+# Separator between pieces taken from different places: like a C string terminator, it keeps
+# "VirtualAlloc\0WriteProcessMemory" matchable (``.`` matches it) without inventing new words.
+PIECE_SEPARATOR = "\x00"
 
 
-def _views(text: str) -> list[tuple[str, str]]:
-    """The same content as an attacker might hide it: each view undoes one trick.
+def _undo_utf16(text: str) -> str | None:
+    """UTF-16 text decoded as Latin-1 ("p\\0o\\0w\\0..."), even a short phrase."""
+    runs = _UTF16_RUN.findall(text) + _UTF16BE_RUN.findall(text)
+    return PIECE_SEPARATOR.join(run.replace(chr(0), "") for run in runs) if runs else None
 
-    Returned as (name, text); the first is the content as it is.
-    """
-    views = [("as written", text)]
-    runs = _UTF16_RUN.findall(text)  # UTF-16 text decoded as Latin-1, even a short phrase
-    if runs:
-        views.append(("UTF-16", "\n".join(run.replace(chr(0), "") for run in runs)))
-    if "^" in text:  # cmd's escape character between letters: p^o^w^e^r^s^h^e^l^l
-        views.append(("escape characters", text.replace("^", "")))
-    if _SPACED.search(text):  # p o w e r s h e l l
-        views.append(("spaced letters", _SPACED.sub(lambda m: m.group(0).replace(" ", ""), text)))
-    if _CONCAT.search(text):  # "power" + "shell"
-        views.append(("joined strings", _CONCAT.sub("", text)))
+
+def _undo_escapes(text: str) -> str | None:
+    """cmd's escape character between letters: p^o^w^e^r^s^h^e^l^l."""
+    return text.replace("^", "") if "^" in text else None
+
+
+def _undo_spacing(text: str) -> str | None:
+    """p o w e r s h e l l: keep every other character."""
+    return _SPACED.sub(lambda m: m.group(0)[::2], text) if _SPACED.search(text) else None
+
+
+def _undo_concatenation(text: str) -> str | None:
+    """"power" + "shell"."""
+    return _CONCAT.sub("", text) if _CONCAT.search(text) else None
+
+
+def _undo_base64(text: str) -> str | None:
     decoded = []
-    for token in _BASE64.findall(text)[:50]:
+    for token in _BASE64.findall(text)[:MAX_BASE64_TOKENS]:
         try:
             raw = base64.b64decode(token + "=" * (-len(token) % 4), validate=False)
         except (binascii.Error, ValueError):
@@ -69,9 +87,94 @@ def _views(text: str) -> list[tuple[str, str]]:
         piece = raw.decode("utf-16-le", "ignore") if raw[1:2] == b"\x00" else raw.decode("latin-1")
         if sum(32 <= ord(c) < 127 for c in piece) >= 0.8 * max(1, len(piece)):
             decoded.append(piece)
-    if decoded:
-        views.append(("Base64", "\n".join(decoded)))
-    return [(name, value[:MAX_VIEW_CHARACTERS]) for name, value in views]
+    return "\n".join(decoded) if decoded else None
+
+
+UNDO = (
+    ("UTF-16", _undo_utf16),
+    ("escape characters", _undo_escapes),
+    ("spaced letters", _undo_spacing),
+    ("joined strings", _undo_concatenation),
+    ("Base64", _undo_base64),
+)
+MAX_LAYERS = 2  # tricks stacked on each other: "p ^ o ^ w ..." is escapes, then spacing
+MAX_VIEWS = 16
+
+
+def _views(text: str) -> list[tuple[str, str]]:
+    """The same content as an attacker might hide it, each view undoing one or more tricks.
+
+    Tricks stack (escape characters, then a space after every character), so the
+    undo steps are applied to each other's output too, up to ``MAX_LAYERS``
+    deep. Returned as (name, text); the first is the content as it is.
+    """
+    views = [("as written", text[:MAX_VIEW_CHARACTERS])]
+    seen = {views[0][1]}
+    frontier = list(views)
+    for _layer in range(MAX_LAYERS):
+        following = []
+        for name, value in frontier:
+            for step, undo in UNDO:
+                if len(views) >= MAX_VIEWS:
+                    return views
+                undone = undo(value)
+                if undone is None:
+                    continue
+                undone = undone[:MAX_VIEW_CHARACTERS]
+                if undone in seen:
+                    continue
+                seen.add(undone)
+                view = (step if name == "as written" else f"{name}, then {step}", undone)
+                views.append(view)
+                following.append(view)
+        frontier = following
+    return views
+
+
+_ASCII_STRING = re.compile(rb"[\x20-\x7e\t]{6,}")
+_UTF16_STRING = re.compile(rb"(?:[\x20-\x7e]\x00){6,}")
+_UTF16BE_STRING = re.compile(rb"(?:\x00[\x20-\x7e]){6,}")
+MAX_TAIL_STRING_CHARACTERS = 2_000_000
+CHUNK_CHARACTERS = 1024
+CHUNK_OVERLAP = 256  # longer than any indicator pattern, so none is cut in two everywhere
+
+
+def strings_beyond(data: bytes, start: int, budget: int = MAX_TAIL_STRING_CHARACTERS) -> tuple[str, dict[str, int | bool]]:
+    """Printable strings (ASCII and UTF-16LE, 6+ characters) from ``data[start:]``.
+
+    Reading only a file's first bytes lets anyone hide an indicator by putting
+    megabytes of padding in front of it. Its strings, like the ``strings`` tool
+    shows them, cover the whole file at a fraction of its size. Long runs are cut
+    into overlapping chunks and every repeated chunk is kept once, so filler text
+    repeated to fill the budget ("lorem ipsum " x 1,000,000) collapses to a few
+    chunks instead of pushing real text out. Distinct junk can still fill it, and
+    ``truncated`` then says so.
+    """
+    seen: set[bytes] = set()
+    pieces: list[str] = []
+    used = 0
+    truncated = False
+    tail = data[start:]
+    for pattern, encoding, unit in ((_ASCII_STRING, "latin-1", 1), (_UTF16_STRING, "utf-16-le", 2), (_UTF16BE_STRING, "utf-16-be", 2)):
+        for match in pattern.finditer(tail):
+            raw = match.group(0)
+            size, step = CHUNK_CHARACTERS * unit, (CHUNK_CHARACTERS - CHUNK_OVERLAP) * unit
+            chunks = [raw] if len(raw) <= size else [raw[at:at + size] for at in range(0, len(raw) - CHUNK_OVERLAP * unit, step)]
+            for chunk in chunks:
+                if chunk in seen:
+                    continue
+                seen.add(chunk)
+                piece = chunk.decode(encoding, "replace")
+                if used + len(piece) > budget:
+                    truncated = True
+                    break
+                pieces.append(piece)
+                used += len(piece) + 1
+            if truncated:
+                break
+        if truncated:
+            break
+    return PIECE_SEPARATOR.join(pieces), {"start": start, "strings": len(pieces), "characters": used, "truncated": truncated}
 
 
 def _mostly_text(text: str) -> bool:

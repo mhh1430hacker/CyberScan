@@ -28,7 +28,8 @@
     landing.querySelectorAll(".word-wrap").forEach((wrap) => {
       const words = t(wrap.dataset.i18n).split(/\s+/);
       wrap.replaceChildren();
-      const arabic = window.CS.lang === "ar";
+      // only alphabets whose letters stand alone may be split; joined scripts (Arabic, Devanagari, Thai…) stay whole
+      const arabic = !["en", "es", "fr", "de", "it", "pt", "nl", "pl", "tr", "vi", "id", "ms", "fil", "sw", "ru", "uk"].includes(window.CS.lang);
       let c = 0;
       words.forEach((word, n) => {
         const w = el("span", "w");

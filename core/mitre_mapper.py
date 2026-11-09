@@ -1,3 +1,4 @@
+# Claude (AI assistant, Anthropic) worked on this file, 2026-11-06: ATT&CK mapping uses evidence_patterns only.
 from __future__ import annotations
 
 from typing import Any, Iterable
@@ -50,7 +51,8 @@ def map_findings_to_mitre(
         combined.extend(pe_summary.get("import_names", []))
         cfg = pe_summary.get("cfg_topology", {})
         if isinstance(cfg, dict):
-            combined.extend(cfg.get("detected_patterns", []))
+            # Only patterns strict enough to be evidence: the descriptive ones fire on most programs.
+            combined.extend(cfg.get("evidence_patterns", []))
 
     for indicator in combined:
         if not indicator:

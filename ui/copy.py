@@ -1,3 +1,4 @@
+# Claude (AI assistant, Anthropic) worked on this file, 2026-11-06: added three missing Arabic translations.
 """Every sentence the interface says, in English and Arabic.
 
 Lookups are exact: a string is either in the catalogue or returned unchanged,
@@ -6,6 +7,8 @@ English sentences themselves. Engine output (finding titles, explanations,
 raw statuses) is never passed through here.
 """
 from __future__ import annotations
+
+from ui.i18n import count as count_in, translate  # noqa: E402
 
 AR: dict[str, str] = {
     # --- shell ---------------------------------------------------------------
@@ -168,6 +171,9 @@ AR: dict[str, str] = {
     "Parts of the program": "أجزاء البرنامج",
     "Known patterns": "أنماط معروفة",
     "What's inside the archive": "محتويات الملف المضغوط",
+    "We looked at the list of files inside ({count}) but did not scan each one.": "اطّلعنا على قائمة الملفات الموجودة بداخله ({count}) لكننا لم نفحص كلًّا منها.",
+    "Malware rule: {rule}": "قاعدة برمجيات خبيثة: {rule}",
+    "A YARA-Forge rule by {author} matched this file: {description}": "طابقت قاعدةٌ من YARA-Forge كتبها {author} هذا الملف: {description}",
     "Test marker": "علامة اختبار",
     "Online reports": "تقارير عبر الإنترنت",
     "Other": "أخرى",
@@ -177,6 +183,9 @@ AR: dict[str, str] = {
     "Archive contents": "محتويات الملف المضغوط",
     "Online lookups": "البحث عبر الإنترنت",
     "Warning-sign rules": "قواعد علامات التحذير",
+    "Claim versus abilities": "الادعاء مقابل القدرات",
+    "Out-of-place content": "محتوى في غير موضعه",
+    "What it claims versus what it can do": "ما يدّعيه مقابل ما يستطيع فعله",
     "Checked": "فُحص",
     "Doesn't apply here": "لا ينطبق هنا",
     "Turned off in your settings": "مُطفأ من إعداداتك",
@@ -501,13 +510,17 @@ _COUNT_FORMS = {
 
 
 def tr(text: str, language: str) -> str:
-    if language != "ar":
+    if language == "ar":
+        return AR.get(text, text)
+    if language in ("en", "", None):
         return text
-    return AR.get(text, text)
+    return translate(text, language)   # the other languages: ui/lang/<code>.json
 
 
 def count_phrase(key: str, count: int, language: str) -> str:
     en_one, en_many, ar_one, ar_two, ar_few, ar_many = _COUNT_FORMS[key]
+    if language not in ("ar", "en", "", None):
+        return count_in(key, count, language, (en_one, en_many))
     if language != "ar":
         return en_one if count == 1 else en_many.format(n=count)
     if count == 1:

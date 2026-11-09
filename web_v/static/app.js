@@ -9,8 +9,8 @@ const $ = (id) => document.getElementById(id);
 const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text !== undefined) n.textContent = text; return n; };
 
 let lang = "en";
-try { lang = localStorage.getItem("cyberscan-lang") === "ar" ? "ar" : "en"; } catch { /* storage off */ }
-const t = (key) => (I18N[lang][key] !== undefined ? I18N[lang][key] : I18N.en[key]);
+try { const saved = localStorage.getItem("cyberscan-lang"); if (saved && CS_LANGS.has(saved)) lang = saved; } catch { /* storage off */ }
+const t = (key) => (I18N[lang] && I18N[lang][key] !== undefined ? I18N[lang][key] : I18N.en[key]);
 
 const state = {
   mode: "file", file: null, diskPath: null, lastResult: null, polling: null,
@@ -21,7 +21,8 @@ const state = {
 const langListeners = [];
 function applyLang() {
   document.documentElement.lang = lang;
-  document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+  document.documentElement.dir = CS_LANGS.dir(lang);
+  document.querySelectorAll(".lang-btn").forEach((b) => { b.textContent = CS_LANGS.names[lang]; b.setAttribute("aria-label", `Language: ${CS_LANGS.names[lang]}`); });
   document.querySelectorAll("[data-i18n]").forEach((node) => {
     if (node.dataset.keep) return;
     const value = t(node.dataset.i18n);
@@ -40,14 +41,20 @@ function applyLang() {
   renderLegend($("r-legend"));
   langListeners.forEach((fn) => fn());
 }
-document.querySelectorAll(".lang-btn").forEach((b) => b.addEventListener("click", () => {
-  lang = lang === "en" ? "ar" : "en";
+async function setLang(code) {
+  if (!CS_LANGS.has(code)) return;
+  try { await CS_LANGS.load(code); } catch { toast("Language file could not be loaded."); return; }
+  lang = code;
   try { localStorage.setItem("cyberscan-lang", lang); } catch { /* storage off */ }
   applyLang();
-}));
+}
+function openLangMenu(anchor) {
+  CS_LANGS.openMenu(anchor || document.querySelector(".top .lang-btn") || document.querySelector(".lang-btn"), lang, setLang);
+}
+document.querySelectorAll(".lang-btn").forEach((b) => b.addEventListener("click", () => openLangMenu(b)));
 
 async function api(path, options = {}) {
-  const res = await fetch(path, { ...options, headers: { "X-CyberScan-Token": TOKEN, ...(options.headers || {}) } });
+  const res = await fetch(path, { ...options, headers: { "X-CyberScan-Token": TOKEN, "X-CyberScan-Lang": lang, ...(options.headers || {}) } });
   const body = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`);
   return body;
@@ -122,7 +129,7 @@ function route() {
   if (!entered) { entered = true; $("app").classList.add("enter"); showView(view); return; }
   if (document.startViewTransition && state.view && state.view !== view && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
     const order = VIEWS.indexOf(view) - VIEWS.indexOf(state.view);
-    document.documentElement.dataset.vtDir = (order > 0) !== (lang === "ar") ? "fwd" : "back";
+    document.documentElement.dataset.vtDir = (order > 0) !== CS_LANGS.rtl.has(lang) ? "fwd" : "back";
     document.startViewTransition(() => showView(view));
   } else showView(view);
 }
@@ -774,7 +781,7 @@ const TRASH = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 1
 function formatWhen(iso, full) {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "";
-  return new Intl.DateTimeFormat(lang === "ar" ? "ar" : "en", full ? { dateStyle: "medium", timeStyle: "short" } : { hour: "2-digit", minute: "2-digit" }).format(d);
+  return new Intl.DateTimeFormat(lang, full ? { dateStyle: "medium", timeStyle: "short" } : { hour: "2-digit", minute: "2-digit" }).format(d);
 }
 function groupOf(iso) {
   const d = new Date(iso);
@@ -1060,10 +1067,11 @@ window.CS = {
   onLang: (fn) => langListeners.push(fn), get lang() { return lang; },
   get settings() { return state.settings; }, state, openRecord, showResult, notify, notificationsOn,
   newScan, chooseFiles, setMode: (m) => tabs.find((x) => x.dataset.mode === m)?.click(),
-  toggleLang: () => document.querySelector(".lang-btn").click(),
+  toggleLang: () => openLangMenu(), setLang,
 };
 document.addEventListener("DOMContentLoaded", () => {
   applyLang();
+  if (!I18N[lang]) CS_LANGS.load(lang).then(applyLang).catch(() => { lang = "en"; applyLang(); });
   route();
   loadSettings();
   loadAiStatus();

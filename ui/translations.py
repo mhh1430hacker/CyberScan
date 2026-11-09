@@ -184,6 +184,7 @@ AR_TRANSLATIONS: Mapping[str, str] = {
     "Byte-stream baseline for ": "خط أساس تدفق البايتات لـ ",
     "Entropy discontinuities were measured at byte ranges ": "قِيست انقطاعات الإنتروبيا عند نطاقات البايت ",
     "Text-like content was detected; x86 disassembly was intentionally skipped to avoid treating prose as executable structure.": "تم رصد محتوى نصي؛ تم تجاوز تفكيك x86 عمدًا كي لا يُعامل النص كتعليمات تنفيذية.",
+    "The input has no program header (MZ or ELF); x86 disassembly was skipped because only programs contain machine code to decode.": "لا يحتوي الملف على ترويسة برنامج (MZ أو ELF)؛ تم تجاوز تفكيك x86 لأن البرامج وحدها تحتوي على تعليمات آلية قابلة للتفكيك.",
     "Capstone was unavailable; control flow was not disassembled, and only raw-byte frequency patterns were measured.": "مكتبة Capstone غير متاحة؛ لم يُفكك تدفق التحكم واقتصر القياس على تكرار البايتات الخام.",
     "No sharp entropy discontinuity met the configured threshold in the measured byte stream.": "لم يبلغ أي انقطاع إنتروبيا العتبة المحددة في تدفق البايتات.",
     "No risk probability": "لا تمثل احتمالًا للمخاطر",

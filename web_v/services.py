@@ -22,10 +22,16 @@ from core.models import ScanResult
 from ui import plain_language
 from ui.copy import tr
 from ui.file_kind import kind_for_target
+from ui.i18n import supported
 from ui.result_view import build_result_view
 from ui.structure import build_structure
 
-LANGS = ("en", "ar")
+LANGS = ("en", "ar")   # always sent; the visitor's own language is added (ui/i18n.py)
+
+
+def langs_for(extra: str | None = None) -> tuple[str, ...]:
+    code = supported(extra)
+    return LANGS + ((code,) if code and code not in LANGS else ())
 MAX_CELLS_SENT = 4096
 
 
@@ -40,7 +46,8 @@ def _mode_for(target: str, mode: str | None) -> str:
     return "Text"
 
 
-def present(result: ScanResult, target: str, mode: str | None, raw: bytes | None, elapsed: float | None) -> dict[str, Any]:
+def present(result: ScanResult, target: str, mode: str | None, raw: bytes | None, elapsed: float | None,
+            lang: str | None = None) -> dict[str, Any]:
     """Plain-language summary and details in both languages, plus the
     structure cube, for one scan result."""
     mode = _mode_for(target, mode)
@@ -48,7 +55,7 @@ def present(result: ScanResult, target: str, mode: str | None, raw: bytes | None
     view = build_result_view(result, nextgen)
     kind = kind_for_target(target, mode)
     out: dict[str, Any] = {"mode": mode, "kind": kind.key, "kind_hue": kind.hue, "plain": {}}
-    for lang in LANGS:
+    for lang in langs_for(lang):
         try:
             s = plain_language.summary(view, kind, elapsed, lang, mode=mode, target=target)
             d = plain_language.details(view, kind, lang)
@@ -349,16 +356,17 @@ def _repair_summary(key: str, lang: str, fallback: str) -> str:
     english = REPAIR_SUMMARIES.get(key)
     if english:
         return tr(english, lang)
-    return tr(fallback, lang) if lang == "ar" else fallback
+    return tr(fallback, lang) if lang != "en" else fallback
 
 
-def repair_open(data: bytes, name: str, path: Path | None) -> dict[str, Any]:
+def repair_open(data: bytes, name: str, path: Path | None, lang: str | None = None) -> dict[str, Any]:
     from repair_engine.analyze import analyze
 
     if len(data) > REPAIR_MAX:
         raise ValueError("This file is larger than 200 MB, which Repair doesn't handle yet.")
     session = RepairSession(data, name, path)
     session.report = analyze(data, name)
+    session.langs = langs_for(lang)
     now = time.time()
     for key in [k for k, s in REPAIRS.items() if now - s.created > 3600]:
         REPAIRS.pop(key, None)
@@ -367,6 +375,7 @@ def repair_open(data: bytes, name: str, path: Path | None) -> dict[str, Any]:
 
 
 def repair_describe(session: RepairSession) -> dict[str, Any]:
+    langs = getattr(session, "langs", LANGS)
     report = session.report
     findings = []
     for f in report.findings:
@@ -379,10 +388,10 @@ def repair_describe(session: RepairSession) -> dict[str, Any]:
             "start": f.start,
             "end": f.end,
             "rename_to": f.rename_to,
-            "title": {lang: tr(f.title, lang) for lang in LANGS},
-            "body": {lang: _repair_summary(f.kind, lang, f.detail) for lang in LANGS},
+            "title": {lang: tr(f.title, lang) for lang in langs},
+            "body": {lang: _repair_summary(f.kind, lang, f.detail) for lang in langs},
             "detail": f.detail,
-            "reason": {lang: tr(f.reason, lang) if f.reason else "" for lang in LANGS},
+            "reason": {lang: tr(f.reason, lang) if f.reason else "" for lang in langs},
         })
     regions = []
     for r in getattr(report.regions, "regions", []) or []:

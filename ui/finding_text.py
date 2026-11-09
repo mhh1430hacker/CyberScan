@@ -15,6 +15,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
+from ui.copy import tr
 from ui.plain_language import humanize_title, isolate
 
 
@@ -185,7 +186,8 @@ _MEMBERS = re.compile(r"recorded (\d+) member\(s\)")
 def _patterns(text: str, language: str) -> str:
     names = re.findall(r"[A-Z][A-Z0-9_]{3,}", text)
     index = 1 if language == "ar" else 0
-    words = [_PATTERNS[name][index] if name in _PATTERNS else humanize_title(name).lower() for name in names]
+    words = [(_PATTERNS[name][index] if language in ("en", "ar") else tr(_PATTERNS[name][0], language))
+             if name in _PATTERNS else humanize_title(name).lower() for name in names]
     return ("، " if language == "ar" else ", ").join(words)
 
 
@@ -236,12 +238,15 @@ def _named(title: str, explanation: str, ar: bool, language: str) -> PlainText |
     for pattern, en, arabic in _NAMED:
         match = pattern.match(title.strip())
         if match:
-            name = isolate(match.group(1), language) if ar else match.group(1)
+            name = isolate(match.group(1), language)
             plain_title, body = (arabic if ar else en)
+            if language not in ("en", "ar"):
+                plain_title, body = tr(en[0], language), tr(en[1], language)
             body = body.format(name)
             found = _FOUND.search(explanation)
             if found:
-                body += f" ({'القيمة' if ar else 'Value'}: {isolate(found.group(1), language) if ar else found.group(1)})"
+                label = "القيمة: " if ar else "Value: " if language == "en" else ""
+                body += f" ({label}{isolate(found.group(1), language)})"
             return PlainText(plain_title.format(name), body, True)
     forge = _FORGE.match(explanation.strip())
     if forge:
@@ -250,7 +255,9 @@ def _named(title: str, explanation: str, ar: bool, language: str) -> PlainText |
         if ar:
             return PlainText(f"قاعدة برمجيات خبيثة: {isolate(rule, language)}",
                              f"طابقت قاعدة من YARA-Forge (كتبها {isolate(author, language)}) هذا الملف: {isolate(forge.group(1), language)}", True)
-        return PlainText(f"Malware rule: {rule}", f"A YARA-Forge rule by {author} matched this file: {forge.group(1)}", True)
+        return PlainText(tr("Malware rule: {rule}", language).format(rule=isolate(rule, language)),
+                         tr("A YARA-Forge rule by {author} matched this file: {description}", language).format(
+                             author=isolate(author, language), description=isolate(forge.group(1), language)), True)
     return None
 
 
@@ -266,13 +273,19 @@ def plain(title: str, explanation: str, language: str) -> PlainText:
         count = members.group(1) if members else "?"
         if ar:
             return PlainText("محتويات الأرشيف", f"اطّلعنا على قائمة الملفات بداخله ({isolate(count, language)}) لكننا لم نفحص كل ملف منها.", True)
-        return PlainText("What's inside the archive", f"We looked at the list of files inside ({count}) but did not scan each one.", True)
+        return PlainText(tr("What's inside the archive", language),
+                         tr("We looked at the list of files inside ({count}) but did not scan each one.", language).format(count=isolate(count, language)), True)
     entry = _CATALOGUE.get(key)
     if entry is None:
         return PlainText(humanize_title(title), explanation, False)
     plain_title, body = entry[1] if ar else entry[0]
+    other = language not in ("en", "ar")
+    if other:
+        plain_title, body = tr(entry[0][0], language), tr(entry[0][1], language)
     entropy = _ENTROPY.search(explanation)
-    if entropy:
+    if entropy and other:
+        pass   # the plain sentence without the measured values
+    elif entropy:
         delta = float(entropy.group(1))
         start, end = entropy.group(2), entropy.group(3)
         size = f"{abs(delta):.1f}"
@@ -287,10 +300,10 @@ def plain(title: str, explanation: str, language: str) -> PlainText:
             body = f"The content suddenly becomes {way} random between positions {start} and {end} (a change of {size} bits per byte). Hidden or packed data often looks like this."
     elif key in {"static decoding indicator", "pe structural obfuscation indicator"} and _patterns(explanation, language):
         seen = _patterns(explanation, language)
-        body = f"{body} ({'ظهر' if ar else 'Seen'}: {seen})"
+        body = f"{body} ({'ظهر: ' if ar else 'Seen: ' if language == 'en' else ''}{seen})"
     elif key in {"encrypted archive members skipped", "unsafe archive member paths skipped"}:
         count = _COUNT.match(explanation)
         if count:
             number = isolate(count.group(1), language)
-            body = f"{body} ({number})" if ar else f"{body} ({count.group(1)})"
+            body = f"{body} ({number})"
     return PlainText(plain_title, body, True)

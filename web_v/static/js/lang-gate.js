@@ -1,5 +1,5 @@
 /* First visit: ask which language to use before anything else.
- * The answer is remembered; the top-bar switch still changes it later. */
+ * The answer is remembered; the top-bar language menu still changes it later. */
 (function () {
   "use strict";
   const gate = document.getElementById("lang-gate");
@@ -8,18 +8,33 @@
   try { chosen = localStorage.getItem("cs-lang-chosen") === "1"; } catch { /* storage off: ask every time */ }
   if (chosen) { gate.remove(); return; }
 
-  // suggest the browser's language, but the person decides
-  const suggest = /^ar\b/i.test(navigator.language || "") ? "ar" : "en";
-  const options = [...gate.querySelectorAll(".lg-opt")];
-  options.forEach((b) => b.classList.toggle("suggested", b.dataset.lang === suggest));
+  // every language, the browser's own first; the person decides
+  const suggest = window.CS_LANGS.suggest();
+  const box = gate.querySelector(".lg-options");
+  box.replaceChildren();
+  const ordered = [...window.CS_LANGS.list].sort((a, b) => (a[0] === suggest ? -1 : b[0] === suggest ? 1 : 0));
+  for (const [code, name] of ordered) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "lg-opt" + (code === suggest ? " suggested" : "");
+    b.dataset.lang = code;
+    b.lang = code;
+    b.dir = window.CS_LANGS.dir(code);
+    const c = document.createElement("span"); c.className = "lg-code"; c.textContent = code.toUpperCase();
+    const n = document.createElement("b"); n.textContent = name;
+    b.append(c, n);
+    box.append(b);
+  }
+  const options = [...box.querySelectorAll(".lg-opt")];
+  gate.classList.add("many");
   gate.hidden = false;
   document.body.classList.add("lang-asking");
   requestAnimationFrame(() => gate.classList.add("in"));
-  setTimeout(() => (options.find((b) => b.dataset.lang === suggest) || options[0]).focus(), 400);
+  setTimeout(() => options[0].focus(), 400);
 
-  function choose(lang) {
+  async function choose(lang) {
     try { localStorage.setItem("cs-lang-chosen", "1"); } catch { /* storage off */ }
-    if (window.CS.lang !== lang) window.CS.toggleLang();
+    if (window.CS.lang !== lang) await window.CS.setLang(lang);
     gate.classList.remove("in");
     gate.classList.add("out");
     document.body.classList.remove("lang-asking");
@@ -27,10 +42,9 @@
   }
   options.forEach((b) => b.addEventListener("click", () => choose(b.dataset.lang)));
   gate.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
-      const i = options.indexOf(document.activeElement);
-      options[(i + 1) % options.length].focus();
-      e.preventDefault();
-    }
+    const i = options.indexOf(document.activeElement);
+    if (i < 0) return;
+    const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+    if (step) { options[(i + step + options.length) % options.length].focus(); e.preventDefault(); }
   });
 })();

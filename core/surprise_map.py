@@ -1,3 +1,4 @@
+# Claude (AI assistant, Anthropic) worked on this file, 2026-11-06: pinned the newly fitted default profile so this engine runs.
 """Compression surprise map: which bytes would honest software never contain *there*?
 
 Plain entropy cannot tell a compressed PNG inside ``.rsrc`` (normal) from an
@@ -42,7 +43,9 @@ MAX_PROFILE_BYTES = 256 * 1024
 MIN_FOREIGN_BITS = 0.75  # never flag a window that is less than this far from its part's language
 QUANTILES = {"p50": 0.5, "p90": 0.9, "p99": 0.99, "p999": 0.999}
 DEFAULT_PROFILE = Path(__file__).resolve().parent.parent / "ml" / "models" / "surprise_profile.json"
-DEFAULT_PROFILE_SHA256 = "0" * 64  # replaced when the default profile is (re)fitted
+# Fitted 2026-11-06 on 1,500 programs sampled (seed 20261105) from C:\Program Files, disjoint from
+# the evaluation harness's benign set (user folders and System32). Replace when refitting.
+DEFAULT_PROFILE_SHA256 = "d27ec01715d8e6fc339a14d69cfbd727ac70520f5c10219c68d55984d52113f4"
 
 
 @dataclass(frozen=True)

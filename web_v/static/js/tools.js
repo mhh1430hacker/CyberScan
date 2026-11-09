@@ -8,7 +8,7 @@
   let loaded = false;
   let info = null;
 
-  const fmt = (n) => Number(n || 0).toLocaleString(CS.lang === "ar" ? "ar" : "en");
+  const fmt = (n) => Number(n || 0).toLocaleString(CS.lang);
 
   function renderSources() {
     const list = $("src-list");

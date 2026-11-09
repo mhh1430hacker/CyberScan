@@ -18,6 +18,7 @@ import re
 from dataclasses import dataclass
 
 from ui.copy import count_phrase, tr
+from ui.i18n import RTL
 from ui.file_kind import FileKind
 from ui.result_view import SEVERITY_RANK, ResultView
 
@@ -217,7 +218,7 @@ def humanize_title(title: str) -> str:
 
 def isolate(text: str, language: str) -> str:
     """Keep a left-to-right run (a size, a number pair) in order inside Arabic."""
-    return f"⁨{text}⁩" if language == "ar" and text else text
+    return f"⁨{text}⁩" if language in RTL and text else text
 
 
 def format_size(size: int | None) -> str:

@@ -4,8 +4,27 @@
     {
       "name": "cyberscan-web",
       "runtimeExecutable": ".venv/Scripts/python.exe",
-      "runtimeArgs": ["web_v/run.py", "--port", "8765", "--no-open"],
+      "runtimeArgs": [
+        "web_v/run.py",
+        "--port",
+        "8765",
+        "--no-open"
+      ],
       "port": 8765
+    },
+    {
+      "name": "cyberscan-public",
+      "runtimeExecutable": ".venv/Scripts/python.exe",
+      "runtimeArgs": [
+        "web_v/run.py",
+        "--port",
+        "8766",
+        "--no-open"
+      ],
+      "port": 8766,
+      "env": {
+        "CYBERSCAN_PUBLIC": "1"
+      }
     }
   ]
 }

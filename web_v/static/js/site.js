@@ -14,24 +14,29 @@
   const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text !== undefined) n.textContent = text; return n; };
 
   let lang = "en";
-  try { lang = localStorage.getItem("cyberscan-lang") === "ar" ? "ar" : "en"; } catch { /* storage off */ }
-  const t = (key) => (I18N[lang][key] !== undefined ? I18N[lang][key] : I18N.en[key]);
+  try { const saved = localStorage.getItem("cyberscan-lang"); if (saved && CS_LANGS.has(saved)) lang = saved; } catch { /* storage off */ }
+  const t = (key) => (I18N[lang] && I18N[lang][key] !== undefined ? I18N[lang][key] : I18N.en[key]);
 
   const listeners = [];
   function applyLang() {
     document.documentElement.lang = lang;
-    document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+    document.documentElement.dir = CS_LANGS.dir(lang);
+    document.querySelectorAll(".lang-btn").forEach((b) => { b.textContent = CS_LANGS.names[lang]; });
     document.querySelectorAll("[data-i18n]").forEach((n) => { if (n.dataset.keep) return; const v = t(n.dataset.i18n); if (typeof v === "string") n.textContent = v; });
     document.querySelectorAll("[data-i18n-ph]").forEach((n) => { n.placeholder = t(n.dataset.i18nPh); });
     document.querySelectorAll("[data-i18n-aria]").forEach((n) => { const v = t(n.dataset.i18nAria); if (typeof v === "string" && v !== n.dataset.i18nAria) n.setAttribute("aria-label", v); });
     listeners.forEach((fn) => fn());
   }
-  function toggleLang() {
-    lang = lang === "en" ? "ar" : "en";
+  async function setLang(code) {
+    if (!CS_LANGS.has(code)) return;
+    try { await CS_LANGS.load(code); } catch { return; }
+    lang = code;
     try { localStorage.setItem("cyberscan-lang", lang); } catch { /* storage off */ }
     applyLang();
   }
-  document.querySelectorAll(".lang-btn").forEach((b) => b.addEventListener("click", toggleLang));
+  function toggleLang(anchor) { CS_LANGS.openMenu(anchor instanceof Element ? anchor : document.querySelector(".lang-btn"), lang, setLang); }
+  document.querySelectorAll(".lang-btn").forEach((b) => b.addEventListener("click", () => toggleLang(b)));
+  if (!I18N[lang]) CS_LANGS.load(lang).then(applyLang).catch(() => { lang = "en"; applyLang(); });
 
   async function api(path, options = {}) {
     const res = await fetch(path, { ...options, headers: { "X-CyberScan-Token": TOKEN, ...(options.headers || {}) } });
@@ -70,7 +75,7 @@
   window.addEventListener("hashchange", route);
 
   window.CS = {
-    $, el, t, api, toast, cells, enterApp, toggleLang,
+    $, el, t, api, toast, cells, enterApp, toggleLang, setLang,
     get lang() { return lang; },
     onLang: (fn) => listeners.push(fn),
     state: { view: null },

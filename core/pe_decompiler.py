@@ -1,3 +1,4 @@
+# Claude (AI assistant, Anthropic) worked on this file, 2026-11-06: .NET (IL) and non-x86 code skipped; architecture from the PE header; decoder loop needs a decryption target.
 from __future__ import annotations
 
 from pathlib import Path
@@ -36,7 +37,38 @@ def _empty_cfg_summary(status: str) -> dict[str, Any]:
         "instruction_count": 0,
         "edge_count": 0,
         "detected_patterns": [],
+        "evidence_patterns": [],
     }
+
+
+# IMAGE_FILE_MACHINE_* values whose code an x86 decoder can read.
+X86_MACHINES = {0x014C: "x86-32", 0x8664: "x86-64"}
+CLR_RUNTIME_DIRECTORY = 14  # IMAGE_DIRECTORY_ENTRY_COM_DESCRIPTOR: present in .NET assemblies
+
+
+def is_managed(pe: Any) -> bool:
+    """True for a .NET assembly, whose code is IL bytecode, not machine code."""
+    try:
+        directory = pe.OPTIONAL_HEADER.DATA_DIRECTORY[CLR_RUNTIME_DIRECTORY]
+        return int(directory.VirtualAddress) != 0 and int(directory.Size) != 0
+    except (AttributeError, IndexError, TypeError, ValueError):
+        return False
+
+
+def _has_decryption_target(sections: list[dict[str, Any]]) -> bool:
+    """Somewhere a decoder loop could decrypt into: what separates a self-decrypting
+    program from ordinary crypto code, which also XORs buffers in place.
+
+    A section both writable and executable (code that rewrites itself), or a
+    high-entropy section other than resources (an encrypted body; resources are
+    full of compressed pictures).
+    """
+    for section in sections:
+        if section.get("executable") and section.get("writable"):
+            return True
+        if section.get("high_entropy") and not str(section.get("name", "")).lower().startswith(".rsrc"):
+            return True
+    return False
 
 
 def normalize_import_name(value: Any) -> str:
@@ -129,6 +161,7 @@ def analyze_pe_file(file_path: str | Path, data: bytes | None = None) -> dict[st
             "raw_offset": raw_offset,
             "virtual_address": int(section.VirtualAddress),
             "executable": bool(int(getattr(section, "Characteristics", 0)) & 0x20000000),
+            "writable": bool(int(getattr(section, "Characteristics", 0)) & 0x80000000),
             "raw_range_verified": raw_range_verified,
             "entropy": entropy,
             "high_entropy": entropy > 7.0,
@@ -148,8 +181,15 @@ def analyze_pe_file(file_path: str | Path, data: bytes | None = None) -> dict[st
         section for section in getattr(pe, "sections", [])
         if int(getattr(section, "Characteristics", 0)) & 0x20000000
     ]
+    managed = is_managed(pe)
+    machine = int(getattr(getattr(pe, "FILE_HEADER", None), "Machine", 0) or 0)
     cfg_topology = _empty_cfg_summary("no_executable_sections")
-    if executable_sections:
+    if executable_sections and managed:
+        # IL bytecode decoded as x86 is noise; any "pattern" in it would be invented.
+        cfg_topology = _empty_cfg_summary("managed_code")
+    elif executable_sections and machine not in X86_MACHINES:
+        cfg_topology = _empty_cfg_summary("unsupported_architecture")
+    elif executable_sections:
         try:
             entrypoint = int(getattr(getattr(pe, "OPTIONAL_HEADER", None), "AddressOfEntryPoint", 0))
             entrypoint_sections = [
@@ -164,7 +204,7 @@ def analyze_pe_file(file_path: str | Path, data: bytes | None = None) -> dict[st
             code_sample = (code_section.get_data() or b"")[:CFG_ANALYSIS_LIMIT]
             from core.nextgen_engine import NextGenCyberEngine
 
-            decoded_cfg = NextGenCyberEngine.extract_cfg_topology(code_sample)
+            decoded_cfg = NextGenCyberEngine.extract_cfg_topology(code_sample, X86_MACHINES[machine])
             block_count = int(decoded_cfg.get("basic_block_count", 0))
             instruction_count = int(decoded_cfg.get("instruction_count", 0))
             edge_count = int(decoded_cfg.get("edge_count", 0))
@@ -177,6 +217,11 @@ def analyze_pe_file(file_path: str | Path, data: bytes | None = None) -> dict[st
                 "instruction_count": instruction_count,
                 "edge_count": edge_count,
                 "detected_patterns": list(decoded_cfg.get("detected_patterns", [])),
+                "evidence_patterns": [
+                    pattern for pattern in decoded_cfg.get("evidence_patterns", [])
+                    if pattern != "INPLACE_XOR_DECODER_LOOP" or _has_decryption_target(sections)
+                ],
+                "architecture": decoded_cfg.get("architecture"),
             }
         except (ImportError, OSError, ValueError):
             cfg_topology = _empty_cfg_summary("decoder_unavailable")
@@ -189,7 +234,7 @@ def analyze_pe_file(file_path: str | Path, data: bytes | None = None) -> dict[st
     if high_entropy_sections:
         risk_score += 20
         findings.append("High-entropy PE sections detected.")
-    if cfg_topology["detected_patterns"]:
+    if cfg_topology["evidence_patterns"]:
         risk_score += 15
         findings.append("Executable-section structural obfuscation indicators detected.")
     if getattr(pe, "OPTIONAL_HEADER", None) is not None:
@@ -206,6 +251,7 @@ def analyze_pe_file(file_path: str | Path, data: bytes | None = None) -> dict[st
         "suspicious_imports": sorted(set(suspicious_imports)),
         "import_names": sorted(set(import_names)),
         "import_count": len(set(import_names)),
+        "is_managed": managed,
         "section_count": len(sections),
         "high_entropy_sections": high_entropy_sections,
         "sections": sections,

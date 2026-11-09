@@ -23,6 +23,16 @@ selection (~17 GB) needs roughly 8–15 hours.
 Everything resumes from where it stopped (partial `.part` files continue
 with HTTP ranges; finished items are skipped):
 
+```powershell
+Start-Process powershell -ArgumentList '-NoProfile','-ExecutionPolicy','Bypass','-File','repair_engine\data\resume.ps1' -WindowStyle Hidden
+```
+
+`resume.ps1` restarts the run whenever it stops early, and runs on its own,
+independent of any editor or chat session. On 2026-11-05 and 2026-11-06 the run died
+each time the laptop went to sleep on battery (System log, Kernel-Power 42/187),
+so keep the charger in and the lid open while it runs; on AC the machine never
+idle-sleeps, on battery it does after 1 hour. A single direct run:
+
 ```bash
 .venv/Scripts/python.exe -u -m repair_engine.data.phase1 tools ember sorel benign
 ```

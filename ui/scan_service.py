@@ -1,3 +1,4 @@
+# Claude (AI assistant, Anthropic) worked on this file, 2026-11-06: desktop warnings use evidence_patterns only.
 from __future__ import annotations
 
 import asyncio
@@ -8,7 +9,6 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-from core.file_analyzer import meaningful_patterns
 from core.magic_bytes import naturally_compressed
 from config import DEFAULT_SETTINGS
 from core.deep_embedding import HighDimensionalEmbedding
@@ -34,7 +34,8 @@ def looks_like_text(data: bytes) -> bool:
     return printable / len(sample) >= 0.90
 
 
-def text_cfg_summary() -> dict[str, Any]:
+def text_cfg_summary(reason: str = "text") -> dict[str, Any]:
+    """No code graph: the input is text ("text") or binary data that is not a program ("non-program")."""
     return {
         "basic_block_count": 0,
         "cyclomatic_complexity": 0,
@@ -45,7 +46,7 @@ def text_cfg_summary() -> dict[str, Any]:
         },
         "edge_count": 0,
         "adjacency": {},
-        "architecture": "text-content-skipped",
+        "architecture": "text-content-skipped" if reason == "text" else "non-program-skipped",
         "disassembly_available": False,
         "instruction_count": 0,
         "back_edge_count": 0,
@@ -126,6 +127,11 @@ class ScanService:
                     f"Analysis exceeded the configured {timeout:g}-second deadline."
                 )
 
+        # Say so instead of guessing: a missing file is not text, and empty input is nothing to check.
+        if input_mode == "File" and not Path(candidate).is_file():
+            raise FileNotFoundError(f"File not found: {candidate}")
+        if input_mode != "File" and not str(candidate).strip():
+            raise ValueError("Nothing to check: the input is empty.")
         is_url = input_mode == "URL"
         path = Path(candidate) if not is_url else None
         is_file = input_mode == "File" and bool(path and path.is_file())
@@ -188,7 +194,7 @@ class ScanService:
         cfg = (
             NextGenCyberEngine.extract_cfg_topology(raw_data)
             if program and not text_input
-            else text_cfg_summary()
+            else text_cfg_summary("text" if text_input else "non-program")
         )
         score = score_artifacts(entropy, cfg)
         nextgen = {
@@ -266,13 +272,14 @@ class ScanService:
                 )
             )
         signed = str(scan_result.feature_summary.get("authenticode", "")).startswith("valid")
-        if meaningful_patterns(cfg.get("detected_patterns")) and not signed:
+        # Only the strict evidence patterns warn (see NextGenCyberEngine._evidence_patterns).
+        if cfg.get("evidence_patterns") and not signed:
             scan_result.evidence.append(
                 Finding(
                     "structural",
                     "medium",
                     "Static decoding indicator",
-                    ", ".join(str(pattern) for pattern in meaningful_patterns(cfg.get("detected_patterns"))),
+                    ", ".join(str(pattern) for pattern in cfg["evidence_patterns"]),
                     15,
                 )
             )

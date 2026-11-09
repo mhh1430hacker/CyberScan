@@ -81,7 +81,7 @@
     }));
 
     const max = Math.max(1, ...days.map((d) => ORDER.reduce((s, k) => s + d[k], 0)));
-    const fmt = new Intl.DateTimeFormat(window.CS.lang === "ar" ? "ar" : "en", { weekday: "short", day: "numeric" });
+    const fmt = new Intl.DateTimeFormat(window.CS.lang, { weekday: "short", day: "numeric" });
     $("ins-bars").replaceChildren(...days.map((d, i) => {
       const col = el("div", "ins-col");
       const stack = el("div", "ins-stack");

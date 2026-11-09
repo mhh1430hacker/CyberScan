@@ -82,9 +82,9 @@ SITE_ORIGINS = {o.strip().rstrip("/") for o in os.environ.get("CYBERSCAN_SITE_OR
 # the landing and its heavy scripts (particle field, film, scroll scenes…).
 SCAN_URL = os.environ.get("CYBERSCAN_SCAN_URL", "app.html")    # where the landing sends people
 HOME_URL = os.environ.get("CYBERSCAN_HOME_URL", "/")           # where the scan page's logo leads
-LANDING_ONLY_CSS = ("landing.css", "scroll.css", "get-app.css")
+LANDING_ONLY_CSS = ("landing.css", "scroll.css", "science.css", "get-app.css")
 LANDING_ONLY_JS = ("js/gl-hero.js", "js/pipeline.js", "js/film.js", "js/story.js", "js/landing.js",
-                   "js/get-app.js", "js/scroll.js", "js/sound.js")
+                   "js/get-app.js", "js/scroll.js", "js/science.js", "js/sound.js")
 
 
 def _cut(html: str, start: str, end: str) -> str:
@@ -354,9 +354,9 @@ def history_list() -> list[dict[str, Any]]:
     ]
 
 
-def history_open(record_id: str) -> dict[str, Any]:
+def history_open(record_id: str, lang: str | None = None) -> dict[str, Any]:
     record = find_record(record_id)
-    out = serialize_result(result_from_record(record), record["target"], None, None, None)
+    out = serialize_result(result_from_record(record), record["target"], None, None, None, lang)
     out.update(
         record_id=record_id,
         timestamp=record["timestamp"],
@@ -398,7 +398,8 @@ def _downsample(values: list[float], limit: int = 240) -> list[float]:
 
 
 def serialize_result(
-    result: ScanResult, display_target: str, mode: str | None, raw: bytes | None, elapsed: float | None
+    result: ScanResult, display_target: str, mode: str | None, raw: bytes | None, elapsed: float | None,
+    lang: str | None = None,
 ) -> dict[str, Any]:
     nextgen = result.nextgen_analysis or {}
     prediction = result.structural_prediction or {}
@@ -436,7 +437,7 @@ def serialize_result(
         "report_text": result.as_text().replace(f"Target: {result.target}", f"Target: {display_target}", 1),
     }
     try:
-        out.update(services.present(result, display_target, mode, raw, elapsed))
+        out.update(services.present(result, display_target, mode, raw, elapsed, lang))
     except Exception as exc:  # noqa: BLE001 - the raw result is still useful
         out["present_error"] = f"{type(exc).__name__}: {exc}"
     return out
@@ -464,7 +465,7 @@ class App:
         self.lock = threading.Lock()
         self.upload_root = Path(tempfile.mkdtemp(prefix="cyberscan-web-"))
 
-    def start_job(self, candidate: str, mode: str, display: str, cleanup: Path | None) -> Job:
+    def start_job(self, candidate: str, mode: str, display: str, cleanup: Path | None, lang: str | None = None) -> Job:
         job = Job()
         with self.lock:
             if len(self.jobs) >= MAX_JOBS:
@@ -484,7 +485,7 @@ class App:
                 result, raw = payload[0], payload[5]
                 # Uploaded copies are not where the user keeps the file: present them by name.
                 shown_mode = "File" if mode == "File" else mode
-                job.result = serialize_result(result, display, shown_mode, raw, time.monotonic() - started)
+                job.result = serialize_result(result, display, shown_mode, raw, time.monotonic() - started, lang)
                 if not PUBLIC:  # a public server keeps no shared history
                     try:
                         job.result["record_id"] = record_history(result, display)
@@ -548,6 +549,11 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
             self.end_headers()
             if self.command != "HEAD":   # HEAD: the same headers, no body
                 self.wfile.write(body)
+
+        @property
+        def _lang(self) -> str | None:
+            """The visitor's language (the page sends it); results also come in it."""
+            return self.headers.get("X-CyberScan-Lang")
 
         def _json(self, status: int, value: Any) -> None:
             self._send(status, json.dumps(value, ensure_ascii=False).encode(), "application/json; charset=utf-8")
@@ -753,7 +759,7 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
                 label = value
             else:
                 label = value if mode == "URL" else "Pasted text"
-            job = app.start_job(value, mode, label[:1000], None)
+            job = app.start_job(value, mode, label[:1000], None, self._lang)
             # public mode: the scan already finished, so the page gets the result at once
             self._json(HTTPStatus.OK if PUBLIC else HTTPStatus.ACCEPTED, job.snapshot() if PUBLIC else {"id": job.id})
 
@@ -765,7 +771,7 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
             folder = Path(tempfile.mkdtemp(dir=app.upload_root))
             file_path = folder / safe
             file_path.write_bytes(raw)
-            job = app.start_job(str(file_path), "File", Path(original).name[:300], folder)
+            job = app.start_job(str(file_path), "File", Path(original).name[:300], folder, self._lang)
             self._json(HTTPStatus.OK if PUBLIC else HTTPStatus.ACCEPTED, job.snapshot() if PUBLIC else {"id": job.id})
 
         def scan_status(self, job_id: str, query: dict) -> None:
@@ -789,7 +795,7 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
             self._json(HTTPStatus.OK, {"matches": matches})
 
         def history_get(self, record_id: str, query: dict) -> None:
-            self._json(HTTPStatus.OK, history_open(record_id))
+            self._json(HTTPStatus.OK, history_open(record_id, self._lang))
 
         def history_remove(self, record_id: str, query: dict) -> None:
             removed = history_delete(record_id)
@@ -938,12 +944,12 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
                 raise ApiError(400, "That file doesn't exist.")
             if file_path.stat().st_size > services.REPAIR_MAX:
                 raise ApiError(413, "This file is larger than 200 MB, which Repair doesn't handle yet.")
-            self._json(HTTPStatus.OK, services.repair_open(file_path.read_bytes(), file_path.name, file_path.resolve()))
+            self._json(HTTPStatus.OK, services.repair_open(file_path.read_bytes(), file_path.name, file_path.resolve(), self._lang))
 
         def repair_upload(self, query: dict) -> None:
             raw = self._raw_body(PUBLIC_MAX_UPLOAD if PUBLIC else services.REPAIR_MAX)
             name = Path(unquote(self.headers.get("X-Filename", "upload.bin"))).name[:200] or "upload.bin"
-            self._json(HTTPStatus.OK, services.repair_open(raw, name, None))
+            self._json(HTTPStatus.OK, services.repair_open(raw, name, None, self._lang))
 
         def repair_run(self, session_id: str, query: dict) -> None:
             session = services.REPAIRS.get(session_id)

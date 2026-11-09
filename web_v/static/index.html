@@ -19,6 +19,7 @@
   <link rel="stylesheet" href="tech.css">
   <link rel="stylesheet" href="motion.css">
   <link rel="stylesheet" href="scroll.css">
+  <link rel="stylesheet" href="science.css">
   <link rel="stylesheet" href="cyber.css">
   <link rel="stylesheet" href="get-app.css">
   <link rel="stylesheet" href="a11y.css">
@@ -70,6 +71,7 @@
     <a href="#manifesto" data-sec="manifesto"><span data-i18n="mfKicker">Why</span></a>
     <a href="#how" data-sec="how"><span data-i18n="lHow">How it works</span></a>
     <a href="#story" data-sec="story"><span data-i18n="dStory">One scan</span></a>
+    <a href="#science" data-sec="science"><span data-i18n="dSci">Science</span></a>
     <a href="#features" data-sec="features"><span data-i18n="lFeatures">Features</span></a>
     <a href="#repair-sec" data-sec="repair-sec"><span data-i18n="lRepair">Repair</span></a>
     <a href="#privacy" data-sec="privacy"><span data-i18n="lPrivacy">Privacy</span></a>
@@ -85,6 +87,7 @@
       <nav class="l-links">
         <a href="#film" data-i18n="lVideo">Video</a>
         <a href="#how" data-i18n="lHow">How it works</a>
+        <a href="#science" data-i18n="dSci">Science</a>
         <a href="#features" data-i18n="lFeatures">Features</a>
         <a href="#repair-sec" data-i18n="lRepair">Repair</a>
         <a href="#privacy" data-i18n="lPrivacy">Privacy</a>
@@ -124,7 +127,7 @@
         <button class="ghost sound-btn" type="button" aria-pressed="false" aria-label="Sound">
           <span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="sound-label" data-i18n="soundOff">Lo-fi off</span>
         </button>
-        <button class="ghost lang-btn" type="button" data-i18n="switchLang">العربية</button>
+        <button class="ghost lang-btn" type="button" aria-haspopup="dialog">English</button>
         <button class="primary small enter magnetic" type="button" data-i18n="lOpen">Open the app</button>
       </div>
     </header>
@@ -252,6 +255,265 @@
       </div>
     </section>
 
+    <!-- ============ THE SCIENCE BEHIND CYBERSCAN (science.css, js/science.js, data/science.json) ============ -->
+    <section id="science" class="sci" lang="en" dir="ltr" aria-labelledby="sci-title" data-shape="hex" data-shape-fade="0.08" data-tint="#050a14">
+      <header class="sci-head">
+        <span class="sec-tag">// The science</span>
+        <h2 class="l-h2 center" id="sci-title">The science behind CyberScan</h2>
+        <p class="sci-sub">Beyond detection. Into the science of threat characterization.</p>
+        <p class="sci-lede">CyberScan never runs the file it examines. Everything below is measured from the bytes at rest: how information is distributed, what the code's branches look like, which capabilities the program declares, and what public intelligence says about its fingerprint. Each step shows the method in the code, its maths, and real output from the engine on a harmless demo file.</p>
+        <div class="sci-intro" aria-hidden="true">
+          <svg viewBox="0 0 720 64" class="sci-intro-svg">
+            <g class="sci-intro-bytes"></g>
+            <path class="sci-intro-wire" d="M150 32H570"/>
+            <g class="sci-intro-out"><rect x="582" y="12" width="128" height="40" rx="8"/><text x="646" y="37">measurements</text></g>
+          </svg>
+        </div>
+        <p class="sci-provenance"><b>Provenance.</b> Figures marked <span class="sci-tag real">engine output</span> were produced by CyberScan's own code (<code>web_v/make_science_data.py</code>) on synthetic inputs built for this page: no real program and no malware. Figures marked <span class="sci-tag demo">illustrative</span> explain a mechanism without claiming a measurement.</p>
+      </header>
+
+      <div class="sci-body">
+        <nav class="sci-rail" aria-label="Analysis stages">
+          <ol>
+            <li><a href="#sci-structure" data-ch="sci-structure"><i>01</i><span>Structure</span></a></li>
+            <li><a href="#sci-entropy" data-ch="sci-entropy"><i>02</i><span>Entropy</span></a></li>
+            <li><a href="#sci-surprise" data-ch="sci-surprise"><i>03</i><span>Surprise</span></a></li>
+            <li><a href="#sci-cfg" data-ch="sci-cfg"><i>04</i><span>Control flow</span></a></li>
+            <li><a href="#sci-latent" data-ch="sci-latent"><i>05</i><span>4096-D vector</span></a></li>
+            <li><a href="#sci-intel" data-ch="sci-intel"><i>06</i><span>Intelligence</span></a></li>
+            <li><a href="#sci-explain" data-ch="sci-explain"><i>07</i><span>Findings</span></a></li>
+          </ol>
+          <div class="sci-rail-fill" aria-hidden="true"><i></i></div>
+        </nav>
+
+        <div class="sci-chapters">
+          <!-- 01 ─ static structure -->
+          <article class="sci-ch" id="sci-structure" aria-labelledby="sci-structure-h">
+            <div class="sci-text sci-rv">
+              <p class="sci-kicker">Stage 01 · <span class="sci-status ok">Implemented</span></p>
+              <h3 id="sci-structure-h">Static structural analysis</h3>
+              <p>A Windows program (PE file) is a documented data structure. CyberScan parses it with <code>pefile</code>: the header, each section's flags and size, the import table, the version resource, and the Authenticode signature. Nothing is loaded or executed.</p>
+              <dl class="sci-io">
+                <div><dt>Input</dt><dd>File bytes, SHA-256, magic bytes</dd></div>
+                <div><dt>Output</dt><dd>Sections (writable/executable, entropy), imports, claimed identity, signature state</dd></div>
+                <div><dt>Contributes</dt><dd>Suspicious imports, writable + executable sections, and a name or version resource that contradicts the program's capabilities</dd></div>
+              </dl>
+              <p class="sci-src">Source: <code>core/pe_decompiler.py</code>, <code>core/authenticode.py</code>, <code>core/dissonance.py</code></p>
+            </div>
+            <div class="sci-fig sci-rv">
+              <figure class="sci-card">
+                <figcaption><span class="sci-tag demo">illustrative</span> Claim versus capability</figcaption>
+                <p class="sci-formula" aria-label="surprise in bits equals the sum over observed capabilities of minus log base 2 of p of capability given role, times harm">bits = Σ<sub>c</sub> −log<sub>2</sub> p(c | role) · harm(c)</p>
+                <p class="sci-note">The dissonance engine reduces what a program <em>says</em> it is (file name, FileDescription, ProductName) to a role, then reads what its imports say it <em>can</em> do. Each capability costs −log<sub>2</sub> of the probability that a benign program of that role has it, weighted by potential harm. A browser that uses the network costs almost nothing. A "photo viewer" that writes into other processes costs many bits.</p>
+                <ul class="sci-mini">
+                  <li><b>p = 0.5</b><span>1 bit</span></li>
+                  <li><b>p = 0.01</b><span>6.6 bits</span></li>
+                  <li><b>p = 0.001</b><span>10 bits</span></li>
+                </ul>
+                <p class="sci-note">Probabilities start from an expert prior (worth 20 programs per role) and are refined from benign software only, so no malware corpus is needed.</p>
+              </figure>
+            </div>
+          </article>
+
+          <!-- 02 ─ entropy -->
+          <article class="sci-ch" id="sci-entropy" aria-labelledby="sci-entropy-h">
+            <div class="sci-text sci-rv">
+              <p class="sci-kicker">Stage 02 · <span class="sci-status ok">Implemented</span></p>
+              <h3 id="sci-entropy-h">Entropy topography</h3>
+              <p>The project calls this "thermodynamic entropy topography", but the quantity is Shannon's <em>information</em> entropy, not physical entropy. For each window of <i>n</i> bytes with byte counts <i>c</i><sub>x</sub>:</p>
+              <p class="sci-formula" aria-label="H equals minus the sum of p x log base 2 p x, which equals log base 2 of n minus one over n times the sum of c x log base 2 c x">H = −Σ p<sub>x</sub> log<sub>2</sub> p<sub>x</sub> = log<sub>2</sub> n − <sup>1</sup>⁄<sub>n</sub> Σ c<sub>x</sub> log<sub>2</sub> c<sub>x</sub></p>
+              <p>The window slides through the file, and the engine updates the counts incrementally (only bytes entering and leaving the window change the sum). The result is a curve of bits per byte: 0 for constant filler, around 4–5 for text and code, close to 8 for compressed or encrypted data.</p>
+              <p>A <b>discontinuity</b> is recorded where adjacent windows differ by |ΔH| ≥ 1.5 bits, or where the curve jumps from below 3.5 to above 7.2. Such a boundary often marks where an encoded payload begins.</p>
+              <dl class="sci-io">
+                <div><dt>Input</dt><dd>Raw bytes; window 128 B, step 32 B (4096 B / 1024 B in the file scan)</dd></div>
+                <div><dt>Output</dt><dd>Trajectory, gradients, mean, peak, variance, anomalies with offsets</dd></div>
+                <div><dt>Contributes</dt><dd>"High entropy" (+18) and "Entropy discontinuity" (+12) findings, ATT&amp;CK T1027</dd></div>
+              </dl>
+              <p class="sci-src">Source: <code>core/entropy.py</code>, <code>core/nextgen_engine.py</code></p>
+            </div>
+            <div class="sci-fig sci-rv">
+              <figure class="sci-card" id="sci-ent-fig">
+                <figcaption><span class="sci-tag real">engine output</span> <span id="sci-ent-cap">demo_sample.bin · 16,384 bytes in five regions</span></figcaption>
+                <div class="sci-seg" role="group" aria-label="Window size">
+                  <button type="button" class="on" data-res="fine" aria-pressed="true">128-byte windows</button>
+                  <button type="button" data-res="scan" aria-pressed="false">4096-byte windows (file scan)</button>
+                </div>
+                <div class="sci-chart sci-ent-chart"><svg id="sci-ent-svg" viewBox="0 0 640 260" role="img" aria-labelledby="sci-ent-desc"><desc id="sci-ent-desc">Entropy in bits per byte along the demo file. Low over the header, around 5 over machine code, around 4 over text, about 6.7 over pseudo-random bytes, and zero over padding, with discontinuities at the boundaries.</desc></svg></div>
+                <label class="sci-range"><span>Window position</span><input type="range" id="sci-ent-range" min="0" max="508" value="290" aria-describedby="sci-ent-read"></label>
+                <output class="sci-readout" id="sci-ent-read" aria-live="polite">Loading the measurements…</output>
+                <div class="sci-hist-wrap"><canvas id="sci-ent-hist" width="512" height="80" role="img" aria-label="Byte histogram of the region under the cursor"></canvas><small id="sci-ent-hist-cap">Byte histogram of the region (0x00 → 0xFF)</small></div>
+                <p class="sci-note" id="sci-ent-note">A 128-byte window can never exceed log<sub>2</sub>128 = 7 bits, which is why the pseudo-random region peaks near 6.7 even though its whole-region entropy is 7.95. Larger windows see more of the distribution but blur where a boundary falls.</p>
+              </figure>
+              <div class="sci-card sci-try">
+                <label for="sci-try-in"><span class="sci-tag real">runs in your browser</span> Type anything: same formula, computed on its UTF-8 bytes</label>
+                <input id="sci-try-in" class="sci-input" type="text" value="aaaaaaaabbbbcccd" spellcheck="false" autocomplete="off" maxlength="400">
+                <output id="sci-try-out" aria-live="polite"></output>
+              </div>
+            </div>
+          </article>
+
+          <!-- 03 ─ positional surprise -->
+          <article class="sci-ch" id="sci-surprise" aria-labelledby="sci-surprise-h">
+            <div class="sci-text sci-rv">
+              <p class="sci-kicker">Stage 03 · <span class="sci-status ok">Implemented · programs only</span></p>
+              <h3 id="sci-surprise-h">Positional surprise</h3>
+              <p>Entropy alone cannot tell a compressed picture in the resource section (normal) from encrypted bytes in the code section (not normal): both are close to 8 bits per byte. What differs is <em>where</em> they are. CyberScan learned, from benign programs only, the byte distribution <i>Q</i> of each part of a program (header, code, data, resources, overlay). For every 4 KiB window it measures the Kullback–Leibler divergence from that part's distribution:</p>
+              <p class="sci-formula" aria-label="D K L of P given Q equals sum of p x log base 2 of p x over q x">D<sub>KL</sub>(P ‖ Q) = Σ p<sub>x</sub> log<sub>2</sub> (p<sub>x</sub> ⁄ q<sub>x</sub>)</p>
+              <p>That is the extra bits per byte needed to compress the window with a code built for honest content of its kind. A window above the benign 99.9th percentile for its part (and at least 0.75 bits) is flagged as foreign.</p>
+              <dl class="sci-io">
+                <div><dt>Input</dt><dd>PE sections by role; a pinned profile (256 frequencies + quantiles per role)</dd></div>
+                <div><dt>Output</dt><dd>Per-part surprise, foreign regions with offsets</dd></div>
+              </dl>
+              <p class="sci-src">Source: <code>core/surprise_map.py</code> · profile fitted on 1,500 benign Windows programs (per source comments)</p>
+            </div>
+            <div class="sci-fig sci-rv">
+              <figure class="sci-card">
+                <figcaption><span class="sci-tag demo">illustrative</span> Same bytes, different place</figcaption>
+                <div class="sci-place">
+                  <div class="sci-place-row"><span class="sci-pill">.rsrc</span><div class="sci-place-bar"><i></i></div><span>≈ 8 bits/byte</span><b class="ok">expected</b></div>
+                  <div class="sci-place-row"><span class="sci-pill">.text</span><div class="sci-place-bar"><i></i></div><span>≈ 8 bits/byte</span><b class="warn">foreign</b></div>
+                </div>
+                <p class="sci-note">Equal entropy, opposite meaning. Q is Laplace-smoothed (no byte value has zero probability), so the divergence is finite for every window.</p>
+              </figure>
+            </div>
+          </article>
+
+          <!-- 04 ─ control flow -->
+          <article class="sci-ch" id="sci-cfg" aria-labelledby="sci-cfg-h">
+            <div class="sci-text sci-rv">
+              <p class="sci-kicker">Stage 04 · <span class="sci-status ok">Implemented · x86 / x86-64</span></p>
+              <h3 id="sci-cfg-h">Control-flow graph reconstruction</h3>
+              <p>The code section is decoded with the Capstone disassembler in a linear sweep. An instruction starts a new <b>basic block</b> if it is the first, the target of a branch, or follows a branch, call or return. Edges connect a block to its branch target and, unless it ends in an unconditional jump or return, to the block that follows.</p>
+              <p class="sci-formula" aria-label="cyclomatic complexity M equals E minus N plus 2 P">M = E − N + 2P</p>
+              <p>Cyclomatic complexity counts independent paths (<i>E</i> edges, <i>N</i> blocks, <i>P</i> connected components). An edge to an earlier block is a <b>back edge</b>, meaning a loop. The warning pattern is deliberately strict: a short loop (≤ 48 instructions) that XORs <em>into memory</em> while stepping a counter, which is the shape of an in-place decryption stub. In a program, it also requires somewhere to decrypt into (a writable + executable or high-entropy section).</p>
+              <dl class="sci-io">
+                <div><dt>Input</dt><dd>Entry-point code section, up to 256 KiB; architecture from the PE header</dd></div>
+                <div><dt>Output</dt><dd>Blocks, edges, M, density, back edges, opcode mix, patterns</dd></div>
+                <div><dt>Contributes</dt><dd>"Static decoding indicator" (+15), ATT&amp;CK T1027; skipped for .NET and non-x86 code</dd></div>
+              </dl>
+              <p class="sci-src">Source: <code>core/nextgen_engine.py</code> · <code>extract_cfg_topology</code></p>
+            </div>
+            <div class="sci-fig sci-rv">
+              <figure class="sci-card" id="sci-cfg-fig">
+                <figcaption><span class="sci-tag real">engine output</span> Two hand-assembled x86-32 functions</figcaption>
+                <div class="sci-seg" role="group" aria-label="Sample function">
+                  <button type="button" class="on" data-cfg="0" aria-pressed="true">Ordinary loop</button>
+                  <button type="button" data-cfg="1" aria-pressed="false">In-place XOR loop</button>
+                </div>
+                <div class="sci-cfg-grid">
+                  <div class="sci-chart sci-cfg-chart"><svg id="sci-cfg-svg" viewBox="0 0 250 420" role="group" aria-label="Control-flow graph. Use Tab to move between basic blocks."></svg></div>
+                  <div class="sci-cfg-side">
+                    <div class="sci-asm" id="sci-cfg-asm" aria-live="polite"></div>
+                    <dl class="sci-metrics" id="sci-cfg-metrics"></dl>
+                  </div>
+                </div>
+                <p class="sci-verdictline" id="sci-cfg-patterns"></p>
+                <p class="sci-note">Edge legend: <span class="sci-key fall">fall-through</span> <span class="sci-key jump">branch taken</span> <span class="sci-key back">back edge (loop)</span>. Looser "descriptive" patterns are also recorded but never warn: per the source comments they matched 93% of 400 benign Windows programs, since compilers routinely zero registers with <code>xor eax, eax</code>.</p>
+              </figure>
+            </div>
+          </article>
+
+          <!-- 05 ─ latent vector -->
+          <article class="sci-ch" id="sci-latent" aria-labelledby="sci-latent-h">
+            <div class="sci-text sci-rv">
+              <p class="sci-kicker">Stage 05 · <span class="sci-status partial">Implemented · classifier inactive without an approved model</span></p>
+              <h3 id="sci-latent-h">The 4096-dimensional representation</h3>
+              <p>Every measurement above is folded into one fixed-length vector of 4096 numbers: four channels of 1024. Variable-size features (byte n-grams, opcodes, graph edges, imports) are placed by <b>feature hashing</b>: a BLAKE2b digest of the feature's name picks its coordinate, so any file maps to the same space without a vocabulary.</p>
+              <ol class="sci-channels">
+                <li><b>0–1023</b> byte histogram (256) + hashed 2/3/4-byte n-grams and opcode frequencies</li>
+                <li><b>1024–2047</b> entropy trajectory and its gradients, resampled to 512 + 512</li>
+                <li><b>2048–3071</b> graph metrics, block out-degrees, hashed edges and patterns</li>
+                <li><b>3072–4095</b> PE header values, section sizes, hashed import names</li>
+              </ol>
+              <p>Each channel is scaled to unit length, then the whole vector, so no single kind of evidence dominates. This is a lossy, deterministic projection. It is not a learned neural embedding.</p>
+              <p><b>How it is used:</b> a random-forest classifier (clean / suspicious / malware) with conformal abstention reads these coordinates, but only when an operator installs a model whose SHA-256 they approve. None ships, so by default the scan reports "static evidence only". CyberScan does not run a similarity search over these vectors.</p>
+              <p class="sci-src">Source: <code>core/deep_embedding.py</code>, <code>ml/structural_classifier.py</code>, <code>ml/conformal.py</code></p>
+            </div>
+            <div class="sci-fig sci-rv">
+              <figure class="sci-card" id="sci-lat-fig">
+                <figcaption><span class="sci-tag real">engine output</span> Six synthetic 4 KiB inputs, embedded by <code>HighDimensionalEmbedding</code></figcaption>
+                <div class="sci-lat-grid">
+                  <div class="sci-lat-map">
+                    <canvas id="sci-lat-canvas" width="64" height="64" role="img" aria-label="All 4096 coordinates of the selected vector, 64 per row; the four horizontal bands are the four channels"></canvas>
+                    <div class="sci-lat-bands" aria-hidden="true"><span>bytes · n-grams</span><span>entropy</span><span>graph</span><span>PE</span></div>
+                  </div>
+                  <div class="sci-lat-side">
+                    <p class="sci-small">Choose two vectors to compare:</p>
+                    <div class="sci-pick" id="sci-lat-a" role="radiogroup" aria-label="Vector A"></div>
+                    <div class="sci-pick b" id="sci-lat-b" role="radiogroup" aria-label="Vector B"></div>
+                    <div class="sci-cos"><span>cos θ = a · b</span><b id="sci-lat-cos">–</b><div class="sci-cos-bar"><i id="sci-lat-cos-bar"></i></div></div>
+                    <p class="sci-small" id="sci-lat-nz"></p>
+                  </div>
+                </div>
+                <p class="sci-note">This picture is the vector itself, laid out 64 coordinates per row (cyan positive, magenta negative). It is not a projection. Because every vector has unit length, the dot product is the cosine of the angle between them. Two different English paragraphs land close together (0.92), as do two independent random byte streams (0.84). Zero padding is nearly orthogonal to everything. These cosines are a property of the space shown for intuition, not a feature of the product. A 2-D projection of six points would add little and could mislead, so none is drawn.</p>
+              </figure>
+            </div>
+          </article>
+
+          <!-- 06 ─ intelligence -->
+          <article class="sci-ch" id="sci-intel" aria-labelledby="sci-intel-h">
+            <div class="sci-text sci-rv">
+              <p class="sci-kicker">Stage 06 · <span class="sci-status partial">Implemented · online lookups off by default</span></p>
+              <h3 id="sci-intel-h">Intelligence correlation</h3>
+              <p><b>Offline, always:</b> YARA rules (YARA-Forge via YARA-X when installed), the URLhaus malware-link list, Phishing.Database, gitleaks secret patterns and lookalike-domain checks run against local data.</p>
+              <p><b>Online, opt-in:</b> when enabled, only the file's SHA-256 (or the URL) is sent, never its contents. Three feeds are queried <em>concurrently</em> with <code>asyncio</code>: ThreatFox, URLhaus and AlienVault OTX. Fast feeds get 450 ms, and a shared deadline cancels stragglers. Every answer is normalized to one schema, and results are cached for 5 minutes.</p>
+              <p>The indicator type is inferred first (SHA-256/SHA-1/MD5 by length, IP, URL, domain), and each feed is asked only what it supports. Overall status follows a fixed precedence: any match → <code>matched</code>; else all unavailable → <code>unavailable</code>; else any timeout → <code>partial_timeout</code>; else <code>no_match</code>.</p>
+              <dl class="sci-io">
+                <div><dt>Contributes</dt><dd>"External threat-intelligence match" (+70) when a feed reports the indicator. A match is a report, not proof, and no match is not proof of safety.</dd></div>
+              </dl>
+              <p class="sci-src">Source: <code>core/global_intelligence.py</code>, <code>core/protection.py</code>, <code>core/yara_engine.py</code>, <code>core/mitre_mapper.py</code></p>
+            </div>
+            <div class="sci-fig sci-rv">
+              <figure class="sci-card" id="sci-intel-fig">
+                <figcaption><span class="sci-tag demo">illustrative</span> One lookup, three feeds in parallel. Timings are examples; the feeds and rules are real.</figcaption>
+                <div class="sci-seg" role="group" aria-label="Scenario">
+                  <button type="button" class="on" data-scn="nokeys" aria-pressed="true">No API keys</button>
+                  <button type="button" data-scn="slow" aria-pressed="false">One feed too slow</button>
+                  <button type="button" data-scn="match" aria-pressed="false">A feed reports it</button>
+                </div>
+                <div class="sci-lanes" id="sci-lanes">
+                  <div class="sci-lane-head"><span>SHA-256 → type: <b>sha256</b></span><span class="sci-deadline-lbl">450 ms budget</span></div>
+                </div>
+                <div class="sci-merge"><span>merge →</span><b id="sci-intel-status">–</b><span id="sci-intel-effect"></span></div>
+                <details class="sci-schema">
+                  <summary>Normalized record schema (every feed)</summary>
+                  <pre>{ source, indicator, classification[], attributions[], campaigns[],
+  reported_by, tags[], reference, first_seen, confidence }</pre>
+                </details>
+                <button type="button" class="sci-btn" id="sci-intel-replay">Replay lookup</button>
+              </figure>
+            </div>
+          </article>
+
+          <!-- 07 ─ explainable findings -->
+          <article class="sci-ch" id="sci-explain" aria-labelledby="sci-explain-h">
+            <div class="sci-text sci-rv">
+              <p class="sci-kicker">Stage 07 · <span class="sci-status ok">Implemented</span></p>
+              <h3 id="sci-explain-h">From evidence to explanation</h3>
+              <p>Each finding carries a severity, a sentence a person can check, and a contribution from 0 to 100. The verdict score is the <b>largest</b> contribution, not the sum, so ten weak hints never add up to one strong one. A supervised model can only be blended in with an explicit weight, which defaults to zero.</p>
+              <p class="sci-formula" aria-label="score equals max of the strongest finding and the weighted heuristic and model scores">score = max( max<sub>i</sub> contribution<sub>i</sub>, w<sub>h</sub>·heuristic + w<sub>m</sub>·model )</p>
+              <p>Bands: <b>0</b> no indicators observed · <b>1–49</b> review · <b>≥ 50</b> suspicious. Findings are also mapped to MITRE ATT&amp;CK techniques by keyword rules, so a reviewer can see what a behaviour is called in the shared vocabulary.</p>
+              <p class="sci-src">Source: <code>core/risk_engine.py</code>, <code>core/file_analyzer.py</code>, <code>ui/scan_service.py</code></p>
+            </div>
+            <div class="sci-fig sci-rv">
+              <figure class="sci-card" id="sci-exp-fig">
+                <figcaption><span class="sci-tag real">engine output</span> The complete scan of <code>demo_sample.bin</code>, exactly as the product runs it (online lookups off)</figcaption>
+                <ol class="sci-chain" id="sci-chain">
+                  <li class="sci-link" data-step="evidence"><h4>Evidence</h4><div id="sci-x-evidence"></div></li>
+                  <li class="sci-link" data-step="finding"><h4>Findings</h4><div id="sci-x-findings"></div></li>
+                  <li class="sci-link" data-step="corr"><h4>Correlation</h4><div id="sci-x-corr"></div></li>
+                  <li class="sci-link" data-step="assess"><h4>Assessment</h4><div id="sci-x-assess"></div></li>
+                  <li class="sci-link" data-step="explain"><h4>Explanation</h4><div id="sci-x-explain"></div></li>
+                </ol>
+                <p class="sci-note" id="sci-x-note"></p>
+              </figure>
+            </div>
+          </article>
+        </div>
+      </div>
+      <p class="sci-foot">CyberScan is static analysis. It describes structure and evidence; it does not observe behaviour at run time, and a clean result is not a guarantee of safety.</p>
+    </section>
+
     <section id="features" class="l-section skewable" data-shape="hex" data-shape-fade="0.18" data-tint="#06141a">
       <h2 class="l-h2 center" data-reveal data-i18n="lFeatTitle"></h2>
       <p class="l-sub center" data-reveal data-i18n="lFeatSub"></p>
@@ -342,7 +604,7 @@
         <span class="watch-pill" id="watch-pill" hidden><i></i><span></span></span>
         <button class="ghost install-btn" type="button" hidden data-i18n="pInstall">Install app</button>
         <button class="ghost pal-open" type="button" aria-label="Command palette"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg><kbd class="pal-kbd">Ctrl K</kbd></button>
-        <button class="ghost lang-btn" type="button" data-i18n="switchLang">العربية</button>
+        <button class="ghost lang-btn" type="button" aria-haspopup="dialog">English</button>
       </div>
     </header>
 
@@ -784,6 +1046,7 @@
   </div>
 
   <script src="js/i18n.js"></script>
+  <script src="js/languages.js"></script>
   <script src="js/cells.js"></script>
   <script src="js/cube.js"></script>
   <script src="app.js"></script>
@@ -806,5 +1069,6 @@
   <script src="js/a11y.js"></script>
   <script src="js/fx.js"></script>
   <script src="js/scroll.js"></script>
+  <script src="js/science.js"></script>
 </body>
 </html>
