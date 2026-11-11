@@ -1,3 +1,0 @@
-# Optional language identification; model generation support must be evaluated
-# separately from detection.
-langdetect==1.0.9
