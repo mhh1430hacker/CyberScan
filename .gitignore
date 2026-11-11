@@ -1,19 +1,40 @@
-# Python
 __pycache__/
 *.py[cod]
+.pytest_cache/
 .venv/
 venv/
-.pytest_cache/
+.env
 
-# Local user data: scan history, settings, keys and quarantine never belong in git
-data/*
-!data/models/
-data/models/trusted_models.json
-data/secrets.bin
-data/quarantine.key
+# Runtime output
+data/reports/*
+data/quarantine/*
+data/demo_samples/
+data/models/*.joblib
+data/models/*.json
+!data/**/.gitkeep
 
-# Editors / OS
-.vscode/
-.idea/
-.DS_Store
-Thumbs.db
+# Never commit signing material or local machine files
+*.jks
+*.keystore
+keystore.properties
+local.properties
+*.apk
+*.aab
+Mobile/android/release/
+Mobile/android/**/build/
+Mobile/android/node_modules/
+.gradle/
+.claude/
+.freeagentcoder/
+*.egg-info/
+*.csq
+*.log
+# Build outputs and archives
+*.zip
+!Web/mlware/eicar_com.zip
+!Web/web_v/static/m/engine.zip
+!Web/web_v/static/pyodide/*.zip
+!Mobile/static/pyodide/*.zip
+!Mobile/android/www/pyodide/*.zip
+!Mobile/android/android/app/src/main/assets/public/pyodide/*.zip
+!Mobile/static/m/engine.zip

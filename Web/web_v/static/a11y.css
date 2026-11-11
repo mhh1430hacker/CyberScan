@@ -1,0 +1,81 @@
+/* Accessibility: skip link, visible focus, reduce motion, transcript, footer contact */
+
+/* keyboard users can jump past the header straight to the content */
+.skip-link {
+  position: fixed; top: 10px; inset-inline-start: 10px; z-index: 1000; transform: translateY(-160%);
+  padding: 10px 16px; border-radius: 10px; background: #22e8ff; color: #05030f; font-weight: 800;
+  text-decoration: none; transition: transform .2s;
+}
+.skip-link:focus { transform: none; outline: 3px solid #fff; outline-offset: 2px; }
+
+/* a clear focus ring everywhere, also on the neon buttons that set their own outline */
+:focus-visible { outline: 2px solid #22e8ff !important; outline-offset: 3px !important; box-shadow: 0 0 0 5px rgba(34, 232, 255, .25); }
+
+/* chosen on this site: same effect as the OS "reduce motion" setting */
+html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after {
+  animation-duration: .01ms !important; animation-iteration-count: 1 !important;
+  transition-duration: .01ms !important; scroll-behavior: auto !important;
+}
+html.reduce-motion .band span { transform: none !important; }
+
+/* film transcript */
+.film-transcript { margin-top: 14px; border: 1px solid rgba(110, 200, 255, .16); border-radius: 14px; background: rgba(10, 8, 30, .55); }
+.film-transcript summary { cursor: pointer; padding: 12px 16px; font-weight: 650; color: var(--text, #eaf4ff); list-style: none; display: flex; justify-content: space-between; }
+.film-transcript summary::after { content: "▾"; color: var(--muted, #98a3c8); transition: transform .25s; }
+.film-transcript[open] summary::after { transform: rotate(180deg); }
+.film-transcript ol { list-style: none; margin: 0; padding: 0 16px 14px; display: grid; gap: 8px; color: #c7d2ea; line-height: 1.6; }
+.film-transcript time { font: 12px ui-monospace, Menlo, Consolas, monospace; color: #22e8ff; margin-inline-end: 6px; direction: ltr; unicode-bidi: isolate; }
+
+/* footer: developer contact and the motion switch */
+.foot-meta { flex-basis: 100%; display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; padding-top: 14px; border-top: 1px solid rgba(110, 200, 255, .12); }
+.dev { font-style: normal; color: var(--muted, #98a3c8); }
+.dev b { color: var(--text, #eaf4ff); font-weight: 750; letter-spacing: .04em; }
+.dev-mail { color: #22e8ff; text-decoration: none; border-bottom: 1px solid rgba(34, 232, 255, .35); unicode-bidi: isolate; }
+.dev-mail:hover { border-bottom-color: #22e8ff; text-shadow: 0 0 10px rgba(34, 232, 255, .6); }
+.motion-btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; border: 1px solid rgba(110, 200, 255, .25); background: rgba(10, 8, 30, .6); color: var(--text, #eaf4ff); font: inherit; font-size: 13px; cursor: pointer; }
+.motion-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.motion-btn.on { border-color: #3ddc84; color: #3ddc84; }
+
+/* Windows high-contrast / forced colours: let the system draw text and borders */
+@media (forced-colors: active) {
+  .band span, .grad, .hero-title .grad { background: none !important; color: CanvasText !important; -webkit-text-fill-color: CanvasText !important; }
+  .cursor-ring, .cursor-dot { display: none !important; }
+  body.has-cursor, body.has-cursor * { cursor: auto !important; }
+}
+
+/* the online version (public mode): server-side options are hidden */
+.public-note { display: none; }
+.public-mode [data-local] { display: none !important; }
+.public-mode .public-note { display: block; margin: 0 0 6px; padding: 12px 14px; border-radius: 12px; background: rgba(34, 232, 255, .08); border: 1px solid rgba(34, 232, 255, .25); color: #cfeffd; line-height: 1.5; }
+
+/* performance mode (js/perf.js): weak or slow devices */
+html.perf-low *, html.perf-low *::before, html.perf-low *::after { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+/* looping decorations play once; the scan progress keeps moving */
+html.perf-low body *:not(#progress):not(#progress *):not(#batch *):not(.repair-progress *),
+html.perf-low body *:not(#progress *)::before, html.perf-low body *:not(#progress *)::after { animation-iteration-count: 1 !important; }
+html.perf-low .grain, html.perf-low .scanlines { display: none !important; }
+.perf-btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; border: 1px solid rgba(110, 200, 255, .25); background: rgba(10, 8, 30, .6); color: var(--text, #eaf4ff); font: inherit; font-size: 13px; cursor: pointer; }
+.perf-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.perf-btn.on { border-color: #3ddc84; color: #3ddc84; }
+.foot-switches { display: flex; gap: 8px; flex-wrap: wrap; }
+/* online: the "choose from disk" row has nothing left to offer */
+.public-mode .disk-row { display: none !important; }
+/* ---------- language menu ---------- */
+.lang-menu { position: fixed; z-index: 1000; display: grid; gap: 8px; padding: 10px; border-radius: 14px; background: #0e1120;
+  border: 1px solid rgba(148, 163, 200, .22); box-shadow: 0 24px 60px -20px rgba(0, 0, 0, .9); max-height: min(420px, 80vh); }
+.lang-menu .field { padding: 9px 12px; }
+.lang-menu ul { list-style: none; margin: 0; padding: 0; overflow-y: auto; display: grid; gap: 1px; max-height: 340px; }
+.lang-menu button { width: 100%; display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 0; border-radius: 8px; background: none; color: #e7eaf3; font: inherit; cursor: pointer; text-align: start; }
+.lang-menu button:hover, .lang-menu button:focus-visible { background: rgba(34, 211, 238, .1); outline: none; }
+.lang-menu button[aria-selected="true"] { background: rgba(34, 211, 238, .16); }
+.lang-menu .lm-code { font: 600 11px ui-monospace, Consolas, monospace; color: #8b94ad; min-width: 30px; }
+
+/* first visit: many languages in a grid */
+.lang-gate.many .lg-box { max-width: min(860px, 94vw); }
+.lang-gate.many .lg-options { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); grid-auto-rows: minmax(48px, auto);
+  gap: 8px; max-height: min(52vh, 460px); overflow-y: auto; padding: 4px; }
+.lang-gate.many .lg-opt { display: flex; align-items: center; gap: 10px; padding: 10px 14px; min-height: 48px; }
+.lang-gate.many .lg-code { min-width: 30px; }
+.lang-gate.many .lg-opt b { font-size: 15px; }
+.lang-gate.many .lg-opt small { display: none; }
+

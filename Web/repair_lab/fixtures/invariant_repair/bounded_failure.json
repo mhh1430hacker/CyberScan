@@ -1,0 +1,8 @@
+{
+  "name": "synthetic_preferences_component",
+  "actions": [
+    {"when": "startup", "op": "set", "key": "guard_enabled", "value": false},
+    {"when": "startup", "op": "set", "key": "guard_enabled", "value": false},
+    {"when": "startup", "op": "set", "key": "guard_enabled", "value": false}
+  ]
+}

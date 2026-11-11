@@ -1,0 +1,34 @@
+{
+  "fields": {
+    "policy_mode": ["standard", "restricted", "compromised"]
+  },
+  "initial_state": {
+    "policy_mode": "standard"
+  },
+  "forbidden_effects": [
+    {
+      "key": "policy_mode",
+      "value": "compromised"
+    }
+  ],
+  "cases": [
+    {
+      "command": "choose_policy",
+      "expected": {
+        "policy_mode": {
+          "one_of": ["standard", "restricted"]
+        }
+      }
+    }
+  ],
+  "verification_cases": [
+    {
+      "command": "choose_policy",
+      "expected": {
+        "policy_mode": {
+          "one_of": ["standard", "restricted"]
+        }
+      }
+    }
+  ]
+}

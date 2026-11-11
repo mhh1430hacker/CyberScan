@@ -1,0 +1,199 @@
+<title>تقييم كشف المسبار السيبراني وإصلاحه</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Reem+Kufi:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column, a lab report; the verdict strip is the only bold block. */
+:root {
+  --bg: #f3f5f5; --paper: #ffffff; --ink: #111816; --dim: #46524f; --mute: #6b7774;
+  --line: #d9e0de; --accent: #0f7d70; --accent-soft: #e2f3f0;
+  --crit: #b4232b; --crit-soft: #fbe7e8; --high: #b45a09; --high-soft: #fdf0e1;
+  --mid: #8a6d00; --mid-soft: #fbf5d9; --pass: #1d7a45; --pass-soft: #e3f4ea; --na: #5b6472; --na-soft: #eceff3;
+  --display: "Reem Kufi", "IBM Plex Sans Arabic", "Segoe UI", Tahoma, sans-serif;
+  --body: "IBM Plex Sans Arabic", "Segoe UI", Tahoma, sans-serif;
+  --mono: "IBM Plex Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0b0f0e; --paper: #121816; --ink: #eef3f1; --dim: #b8c3c0; --mute: #8d9895; --line: #24302d;
+  --accent: #5ee0d0; --accent-soft: #10302c; --crit: #ff7b80; --crit-soft: #3a1416; --high: #f3a250; --high-soft: #35220d;
+  --mid: #e4c74a; --mid-soft: #2f2a0e; --pass: #5fd394; --pass-soft: #11301f; --na: #a9b3c2; --na-soft: #1b2028; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0b0f0e; --paper: #121816; --ink: #eef3f1; --dim: #b8c3c0; --mute: #8d9895; --line: #24302d;
+  --accent: #5ee0d0; --accent-soft: #10302c; --crit: #ff7b80; --crit-soft: #3a1416; --high: #f3a250; --high-soft: #35220d;
+  --mid: #e4c74a; --mid-soft: #2f2a0e; --pass: #5fd394; --pass-soft: #11301f; --na: #a9b3c2; --na-soft: #1b2028; color-scheme: dark }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.75; }
+.page { max-width: 1000px; margin: 0 auto; padding-block: 40px 80px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.eyebrow { font-size: 13px; letter-spacing: .04em; color: var(--accent); font-weight: 600; }
+h1 { font-family: var(--display); font-size: clamp(30px, 5vw, 42px); line-height: 1.25; margin: 6px 0 10px; text-wrap: balance; }
+h2 { font-family: var(--display); font-size: 25px; margin: 54px 0 6px; text-wrap: balance; }
+h3 { font-size: 18px; margin: 24px 0 6px; }
+p { margin: 8px 0; max-width: 74ch; }
+.lead { color: var(--dim); font-size: 17px; }
+code { font-family: var(--mono); font-size: .88em; direction: ltr; unicode-bidi: isolate; }
+.strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 24px 0; }
+.stat { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; min-width: 0; }
+.stat .n { font-family: var(--display); font-size: 30px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.stat .l { color: var(--mute); font-size: 13.5px; }
+.note { background: var(--accent-soft); border-radius: 12px; padding: 14px 18px; margin: 18px 0; font-size: 15px; }
+.tablewrap { overflow-x: auto; margin: 12px 0; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; }
+th, td { text-align: start; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 13px; color: var(--mute); font-weight: 600; background: color-mix(in srgb, var(--line) 35%, transparent); }
+tr:last-child td { border-bottom: 0; }
+td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; direction: ltr; text-align: end; }
+td.en { font-family: var(--mono); font-size: 13px; direction: ltr; text-align: left; white-space: nowrap; }
+.tag { display: inline-block; font-size: 12.5px; font-weight: 600; padding: 1px 9px; border-radius: 99px; white-space: nowrap; }
+.crit { color: var(--crit); background: var(--crit-soft); } .high { color: var(--high); background: var(--high-soft); }
+.mid { color: var(--mid); background: var(--mid-soft); } .pass { color: var(--pass); background: var(--pass-soft); }
+.na { color: var(--na); background: var(--na-soft); }
+.finding { background: var(--paper); border: 1px solid var(--line); border-inline-start: 4px solid var(--line); border-radius: 12px; padding: 14px 18px; margin: 12px 0; }
+.f-crit { border-inline-start-color: var(--crit); } .f-high { border-inline-start-color: var(--high); } .f-mid { border-inline-start-color: var(--mid); }
+.finding h3 { margin: 0 0 4px; display: flex; gap: 10px; flex-wrap: wrap; align-items: baseline; }
+.small { font-size: 14px; color: var(--mute); }
+@media (max-width: 720px) { .strip { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+</style>
+
+<div class="page" dir="rtl" lang="ar">
+<div class="eyebrow">تقرير تقييم · ٤ نوفمبر ٢٠٢٦</div>
+<h1>تقييم كشف المسبار السيبراني وإصلاحه</h1>
+<p class="lead">جزءان: ما أُصلح من نتائج تقييم قابلية الاستخدام مع قياسات قبل وبعد، ثم 39 اختبارًا للكشف والإصلاح والأمان والنموذج، كلها على الكود الحقيقي وعلى ملفات حقيقية من هذا الجهاز.</p>
+
+<div class="strip">
+  <div class="stat"><div class="n">94.6%</div><div class="l">التقاط عيّنات المؤشرات (أي تحذير)</div></div>
+  <div class="stat"><div class="n" style="color:var(--crit)">63.9%</div><div class="l">ملفات سليمة نالت «يستحق نظرة ثانية»</div></div>
+  <div class="stat"><div class="n">100%</div><div class="l">كشف العبث في محرك الإصلاح (86 من 86)</div></div>
+  <div class="stat"><div class="n">0 / 3000</div><div class="l">انهيارات المحلل بعد الإصلاح (كانت 52)</div></div>
+</div>
+
+<div class="note"><b>حدود البيانات.</b> لا توجد برمجيات خبيثة حقيقية على هذا الجهاز. تحميل EMBER2024 وSOREL متوقف عند 43 ميغابايت من 1.18 غيغابايت، وقواعدك تمنع جلب عيّنات حية. لذلك العيّنات الإيجابية هنا هي: ملف EICAR القياسي، وعيّنات المشروع الوهمية، و70 عيّنة خاملة صُنعت لهذا التقييم. كل عيّنة منها نص أو بايتات عشوائية تحمل <b>شظايا</b> من مؤشرات معروفة، لا كود يعمل. أما الملفات السليمة فهي 235 ملفًا حقيقيًا من مجلداتك ومن <code>System32</code> ومكتبة بايثون، لكنها لم تُفحص بـ ClamAV لأنه غير مثبت بعد. لذا: نسبة الإيجابيات الكاذبة موثوقة، والاستدعاء (recall) <b>تقريبي</b>، ومقاييس البرمجيات الخبيثة الحقيقية واليوم الصفري تحتاج اكتمال التحميل.</div>
+
+<h2>الجزء الأول: ما أُصلح، قبل وبعد</h2>
+<div class="tablewrap"><table>
+<tr><th>المشكلة</th><th>قبل</th><th>بعد</th><th>الحكم</th></tr>
+<tr><td>«أصلح هذا الملف» على برنامج خطير ينسخه باسم «مُصلَح»</td><td>ظاهر وأبرز من العزل</td><td>لا يُعرض لحكم خطير أو برنامج؛ وفي شاشة الإصلاح تحذير، وإعادة التسمية لا تُختار تلقائيًا</td><td><span class="tag pass">أُصلح</span></td></tr>
+<tr><td>المعالج والنافذة خاملة</td><td>64.6% من نواة</td><td>0% بعد 10 ثوانٍ بلا لمس (30% أثناء الاستخدام)، وتعود الحركة مع أول تحريك للمؤشر</td><td><span class="tag pass">أُصلح</span></td></tr>
+<tr><td>تجمد تبديل الفحص والإصلاح</td><td>716 مث</td><td>210 مث (ورقة أنماط واحدة للوضعين، والتبديل يعيد تلوين ما يلزم فقط)</td><td><span class="tag mid">تحسّن ×3.4</span></td></tr>
+<tr><td>تجمد تبديل اللغة</td><td>526 مث</td><td>560 مث في الاستخدام الحقيقي (270 مث بلا سجل)؛ معظمه إعادة ترتيب كل شيء من اليمين</td><td><span class="tag mid">لم يتحسن</span></td></tr>
+<tr><td>أزرار ما بعد الإيقاف تحت الحافة في النوافذ القصيرة</td><td>المكعب ثابت 380 بكسل</td><td>المكعب يتقلص مع ارتفاع النافذة (من 170 إلى 380)</td><td><span class="tag pass">أُصلح</span></td></tr>
+<tr><td>مجلد بدل ملف</td><td>«هذا الملف غير موجود»</td><td>«هذا مجلد. اختر ملفًا داخله…»</td><td><span class="tag pass">أُصلح</span></td></tr>
+<tr><td>التركيز غير مرئي (WCAG 2.4.7)</td><td>4 عناصر</td><td>0 في الشاشات الثماني باللغتين</td><td><span class="tag pass">أُصلح</span></td></tr>
+<tr><td>زر المسح داخل الحقول بلا اسم (4.1.2)</td><td>بلا اسم</td><td>«امسح الحقل»؛ لم يعد هناك عنصر بلا اسم</td><td><span class="tag pass">أُصلح</span></td></tr>
+<tr><td>«تصدير التقرير» مخفي</td><td>داخل التفاصيل فقط</td><td>في صف الأفعال أيضًا</td><td><span class="tag pass">أُصلح</span></td></tr>
+<tr><td>زر حفظ الإعدادات يحتاج تمريرًا</td><td>أسفل اللوحة</td><td>مثبت أسفل الإعدادات دائمًا</td><td><span class="tag pass">أُصلح</span></td></tr>
+</table></div>
+<p class="small">التقدير الجديد بأوزانك: نحو <b>81</b> من 100 (كان 76). أكبر ما تبقى: تبديل اللغة، والإيجابيات الكاذبة في الجزء الثاني التي تظهر للمستخدم «يستحق نظرة ثانية» على ملفات سليمة.</p>
+
+<h2>الجزء الثاني: أهم ما وُجد</h2>
+
+<div class="finding f-crit">
+  <h3><span class="tag crit">حرج</span> 64% من الملفات السليمة تنال «يستحق نظرة ثانية»</h3>
+  <p>كل صورة JPEG وGIF، وكل PDF وWord وExcel وMP3 وMP4، وكل برنامج من <code>System32</code> نال درجة 15 إلى 38، لأن «إنتروبيا عالية» وحدها تعطي 18 نقطة. لكن هذه الصيغ مضغوطة بطبيعتها، فالإنتروبيا العالية فيها طبيعية ولا تدل على شيء. النتيجة 156 إيجابية كاذبة من 244 عند عتبة «أي تحذير». عند عتبة «احذر» (50 فأكثر) الصورة مختلفة تمامًا: إيجابية كاذبة واحدة فقط (0.4%).</p>
+  <p class="small"><b>الإصلاح المقترح:</b> لا تُحتسب الإنتروبيا العالية للصيغ المضغوطة بطبيعتها (صور، صوت، فيديو، PDF، ZIP، OOXML)، ولا «امتداد تنفيذي» وحده لبرنامج سليم البنية. ثم يُعاد القياس على المجموعة نفسها.</p>
+</div>
+
+<div class="finding f-high">
+  <h3><span class="tag high">مرتفع</span> ملف EICAR يُعرَف ولا يُحتسب</h3>
+  <p>المحرك يكتب «EICAR test marker» لكنه يعطيه درجة <b>0</b> وحكم «لا مؤشرات»، ونسخته المضغوطة 10 فقط. كل مضادات الفيروسات تعدّ EICAR كشفًا عن قصد، لأنه أداة الناس للتأكد أن الحماية تعمل. مستخدم يجرّبه سيظن أن البرنامج لا يكشف شيئًا.</p>
+</div>
+
+<div class="finding f-high">
+  <h3><span class="tag high">مرتفع</span> الملفات متعددة الصيغ تمر بلا تحذير</h3>
+  <p>صورة PNG أو ملف PDF يُلحق بنهايته أرشيف ZIP: درجة الفاحص <b>0</b>، مع أن محلل محرك الإصلاح يجد البيانات الملحقة فورًا. التمويه بالامتداد (ZIP باسم JPG، برنامج باسم PDF، HTML باسم PNG) يُكشف كله بدرجة 25.</p>
+</div>
+
+<div class="finding f-mid">
+  <h3><span class="tag mid">متوسط</span> ملف 49 ميغابايت ينتهي بمهلة، والمهلة لا تُحترم بدقة</h3>
+  <p>ملف من 49 ميغابايت أصفارًا تجاوز مهلة 15 ثانية، والإيقاف الفعلي جاء بعد 25.7 ثانية. وملف نظام واحد (<code>vfprintpthelper.dll</code>) تجاوز المهلة أيضًا. ما فوق 50 ميغابايت يُرفض برسالة واضحة.</p>
+</div>
+
+<div class="finding f-mid">
+  <h3><span class="tag mid">متوسط</span> النموذج التعلّمي لا يُحمَّل، ولا يعمّم</h3>
+  <p>ملف النموذج <code>structural_classifier_4096.json</code> لا يجتاز التحميل (<code>ready: false</code>)، ووزنه في الحكم صفر أصلًا. وعلى البيانات الاصطناعية: F1 في التحقق المتقاطع العادي بين 0.56 و1.0، لكنه <b>0.0</b> حين تُستبعد عائلات كاملة من التدريب. أي أنه يحفظ العائلات ولا يتعلم منها شيئًا ينقله.</p>
+</div>
+
+<h2>الاختبارات التسعة والثلاثون</h2>
+
+<h3>مقاييس الكشف (الفاحص الكامل، 337 ملفًا، عيّنات إيجابية تقريبية)</h3>
+<div class="tablewrap"><table>
+<tr><th>الاختبار</th><th>عند «أي تحذير» (الدرجة &gt; 0)</th><th>عند «احذر» (50 فأكثر)</th><th>الحكم</th></tr>
+<tr><td class="en">False Negative Rate (FNR)</td><td class="num">5.4%</td><td class="num">43.0%</td><td><span class="tag mid">مقبول / ضعيف</span></td></tr>
+<tr><td class="en">False Positive Rate (FPR)</td><td class="num">63.9% [57.7–69.7]</td><td class="num">0.4%</td><td><span class="tag crit">سيئ / ممتاز</span></td></tr>
+<tr><td class="en">Precision</td><td class="num">36.1%</td><td class="num">98.1%</td><td><span class="tag mid">متباين</span></td></tr>
+<tr><td class="en">Recall (Sensitivity)</td><td class="num">94.6% [88.0–97.7]</td><td class="num">57.0%</td><td><span class="tag mid">متباين</span></td></tr>
+<tr><td class="en">F1-Score</td><td class="num">0.52</td><td class="num">0.72</td><td><span class="tag mid">متوسط</span></td></tr>
+<tr><td class="en">ROC-AUC</td><td class="num" colspan="2">0.84 (الدرجة 0–100 كمتصل)</td><td><span class="tag mid">جيد</span></td></tr>
+<tr><td class="en">Detection Accuracy</td><td class="num">52.2%</td><td class="num">87.8%</td><td><span class="tag mid">متباين</span></td></tr>
+</table></div>
+<p class="small">بين القوسين فاصل ثقة 95% (Wilson). الحاويات: <b>.pdf.exe</b> 10/10 بدرجة 76؛ الأسماء بحرف عكس الاتجاه 10/10 بدرجة 56؛ PowerShell وBAT 10/10؛ النص العادي 6/10 (الأربع الفائتة كانت جملًا عادية من نوع <code>schtasks</code> و<code>reg add</code>). متوسط زمن الفحص 0.16 ث، و95% من الفحوص تنتهي خلال 1.2 ث.</p>
+
+<h3>أساليب الكشف والمتانة</h3>
+<div class="tablewrap"><table>
+<tr><th>الاختبار</th><th>النتيجة</th><th>الحكم</th></tr>
+<tr><td class="en">Signature Detection Testing</td><td>EICAR يُعرف ويُعطى 0؛ نسخته المضغوطة 10. لا قاعدة YARA تطابقه.</td><td><span class="tag high">ضعيف</span></td></tr>
+<tr><td class="en">Heuristic Detection Testing</td><td>66 من 70 عيّنة مؤشرات (94%)؛ 53 منها فوق 50</td><td><span class="tag pass">جيد</span></td></tr>
+<tr><td class="en">Zero-Day Detection Evaluation</td><td>تقريبي فقط: نفس المؤشرات بصيغ لم تُكتب لها قواعد. UTF-16: 0%، Base64: 0%، فواصل بين الحروف: 0%، علامة ^: 0%</td><td><span class="tag high">ضعيف</span></td></tr>
+<tr><td class="en">Adversarial Robustness Testing</td><td>الأصل 50%؛ دمج نصين 30%؛ تبديل حالة الأحرف 40%؛ حشو بالأصفار 50%؛ حشو عشوائي 100% (الإنتروبيا تكشفه لا المؤشر)</td><td><span class="tag high">ضعيف</span></td></tr>
+<tr><td class="en">Generalization Test</td><td>على أنواع ملفات لم يُصمَّم لها: JSON وPY وTXT وHTML شبه نظيفة؛ الصيغ المضغوطة كلها تقريبًا «مراجعة»</td><td><span class="tag mid">متوسط</span></td></tr>
+<tr><td class="en">Behavioral Validation</td><td>لا يُنفَّذ أي ملف بقرار تصميم وبقواعدك؛ السلوك يُستنتج من البنية فقط. لا اختبار ديناميكي</td><td><span class="tag na">غير منطبق</span></td></tr>
+</table></div>
+
+<h3>محرك الإصلاح (124 ملفًا حقيقيًا نظيفًا، 86 حُقن فيها شيء خامل)</h3>
+<div class="tablewrap"><table>
+<tr><th>الاختبار</th><th>النتيجة</th><th>الحكم</th></tr>
+<tr><td class="en">Detection (tampering)</td><td>Recall 100%، Precision 92.5%، F1 0.96، ROC-AUC 0.99. الإيجابيات الكاذبة السبع بيانات تثبيت في برامج حقيقية: تُعرض ولا تُختار تلقائيًا (0 اختيار تلقائي على ملف نظيف)</td><td><span class="tag pass">ممتاز</span></td></tr>
+<tr><td class="en">Repair Integrity</td><td>85 من 86 أُصلحت؛ الواحدة المتبقية مكتبة موقّعة رفض المنفّذ قصّها</td><td><span class="tag pass">ممتاز</span></td></tr>
+<tr><td class="en">Hash Integrity</td><td>71 من 85 تطابق بصمتها الأصل بايتًا ببايت. الـ 14 الباقية حزم Office أُعيد ضغطها (المحتوى متطابق جزءًا جزءًا) وPDF واحد</td><td><span class="tag pass">جيد جدًا</span></td></tr>
+<tr><td class="en">Structural Integrity</td><td>85 من 85 اجتازت المتحقق البنيوي</td><td><span class="tag pass">ممتاز</span></td></tr>
+<tr><td class="en">Format Validation</td><td>85 من 85 تُقرأ بصيغتها نفسها</td><td><span class="tag pass">ممتاز</span></td></tr>
+<tr><td class="en">Functional Validation</td><td>85 من 85: الصور تُفك، والحزم تجتاز <code>testzip</code>، وPDF بلا أخطاء</td><td><span class="tag pass">ممتاز</span></td></tr>
+<tr><td class="en">Metadata Validation</td><td>85 من 85: الأبعاد وتواريخ الأجزاء وترويسات البرامج كما هي</td><td><span class="tag pass">ممتاز</span></td></tr>
+<tr><td class="en">Content Consistency</td><td>85 من 85: بكسلات الصور متطابقة، وأجزاء الحزم متطابقة</td><td><span class="tag pass">ممتاز</span></td></tr>
+<tr><td class="en">Malware Rescan · PRSV</td><td>85 من 85 أُعيد فحصها فلم يبق إلا ما كان في الأصل</td><td><span class="tag pass">ممتاز</span></td></tr>
+</table></div>
+
+<h3>المتانة والموارد</h3>
+<div class="tablewrap"><table>
+<tr><th>الاختبار</th><th>النتيجة</th><th>الحكم</th></tr>
+<tr><td class="en">Fuzz Testing</td><td>3000 مُدخل مشوّه للمحلل: كانت 52 استثناءً هاربًا (1.7%)، والآن <b>0</b>، ومعها اختبار يمنع عودتها. 158 ملفًا مشوهًا للفاحص الكامل: 0 أخطاء</td><td><span class="tag pass">أُصلح</span></td></tr>
+<tr><td class="en">Corrupted File Testing</td><td>قص، وقلب بتات، وكتل عشوائية، وترويسات صفرية: لا انهيار، وأبطأ حالة 2.2 ث</td><td><span class="tag pass">ممتاز</span></td></tr>
+<tr><td class="en">Malformed File Testing</td><td>8 صيغ مشوهة عمدًا (برنامج يعلن 65535 قسمًا، xref تالف، PDF متداخل 5000 مستوى، CRC خاطئ…): كلها بلا انهيار، وكل منها أقل من 0.15 ث</td><td><span class="tag pass">ممتاز</span></td></tr>
+<tr><td class="en">File Format Confusion</td><td>تمويه الامتداد يُكشف (25). ملحَق ZIP خلف PNG أو PDF: 0</td><td><span class="tag high">ناقص</span></td></tr>
+<tr><td class="en">File Type Validation</td><td>124 من 124 ملفًا حقيقيًا: الصيغة المكتشفة تطابق الامتداد</td><td><span class="tag pass">ممتاز</span></td></tr>
+<tr><td class="en">Large File Testing</td><td>48 ميغابايت عشوائية: 13.3 ث ونجح. 49 ميغابايت أصفارًا: انتهت المهلة بعد 25.7 ث. أكبر من 50: رفض واضح</td><td><span class="tag mid">متوسط</span></td></tr>
+<tr><td class="en">Resource Consumption</td><td>زمن معالج للفحص: الوسيط 0.16 ث، و95% تحت 1.2 ث. الذاكرة: 420 ميغابايت عاملة، والذروة 2.5 غيغابايت أثناء الأرشيفات الضخمة</td><td><span class="tag mid">مقبول</span></td></tr>
+<tr><td class="en">Resource Exhaustion Testing</td><td>قنبلة ZIP (300 ميغابايت تنضغط إلى 0.3): 4.7 ث ثم «حد مُتجاوز». 20000 مدخل: 10.1 ث. 12 مستوى تداخل: 0.12 ث</td><td><span class="tag pass">جيد</span></td></tr>
+<tr><td class="en">Archive Security Testing</td><td>مسارات ‎../‎ ومسارات مطلقة: «تُخطّى المسارات غير الآمنة». المشفّر: يُذكر. برنامج مموه داخل ZIP: 60</td><td><span class="tag pass">ممتاز</span></td></tr>
+<tr><td class="en">Crash Rate</td><td>الفاحص: 1 من 560 (مهلة على ملف نظام، 0.18%). المحلل: 0 من 3000 بعد الإصلاح</td><td><span class="tag pass">جيد</span></td></tr>
+<tr><td class="en">Regression Testing</td><td>المجموعة كاملة: 499 ناجحة، ومعها 6 اختبارات جديدة لكل إصلاح</td><td><span class="tag pass">ناجح</span></td></tr>
+</table></div>
+
+<h3>العزل والإدخال الآمن</h3>
+<div class="tablewrap"><table>
+<tr><th>الاختبار</th><th>النتيجة</th><th>الحكم</th></tr>
+<tr><td class="en">File Isolation Testing</td><td>العزل يحذف الأصل، والمحفوظ مشفّر بامتداد <code>.csq</code> بلا أي نص أصلي ولا يبدأ كبرنامج، والاستعادة مطابقة بايتًا ببايت</td><td><span class="tag pass">ممتاز</span></td></tr>
+<tr><td class="en">Secure File Upload Testing</td><td><code>NUL</code> و<code>CON</code> و<code>\\.\PhysicalDrive0</code> ومسار أطول من 260 ومسار ‎..\..‎: لا يُفتح أي جهاز، ولا تعليق (≤ 0.12 ث). الواجهة ترفضها قبل المحرك</td><td><span class="tag pass">ممتاز</span></td></tr>
+<tr><td class="en">Execution audit</td><td>المكان الوحيد الذي يبدأ عملية هو <code>explorer.exe /select</code> في «أظهره في مجلده»، ويحدد الملف دون فتحه. لا <code>subprocess</code> ولا <code>eval</code> في المحرك</td><td><span class="tag pass">ممتاز</span></td></tr>
+</table></div>
+
+<h3>النموذج التعلّمي</h3>
+<div class="tablewrap"><table>
+<tr><th>الاختبار</th><th>النتيجة</th><th>الحكم</th></tr>
+<tr><td class="en">Cross-Validation</td><td>F1 لخمس طيّات: 0.56، 0.82، 0.82، 1.0، 1.0 (30 عيّنة اصطناعية فقط)</td><td><span class="tag mid">غير مستقر</span></td></tr>
+<tr><td class="en">Dataset Leakage Testing</td><td>تسرّب الميزة 3025 الذي وجده تدقيق سابق لا يتكرر مع التضمين الحالي (F1 لشجرة بميزة واحدة 0.17)، ولا تكرار بين الفئات. لكن انهيار F1 إلى 0 عند استبعاد العائلات يعني حفظ بصمات العائلات</td><td><span class="tag high">تسرّب على مستوى العائلة</span></td></tr>
+<tr><td class="en">Out-of-Distribution Testing</td><td>الملفات الحقيقية أبعد عن مركز بيانات التدريب: 1.34 مقابل 0.91. التنبؤ عليها تعذّر لأن النموذج لا يُحمَّل</td><td><span class="tag high">خارج التوزيع</span></td></tr>
+<tr><td class="en">Model Drift Testing</td><td>لا يوجد تاريخ تنبؤات زمني لقياس الانجراف. المتاح: الفرق بين توزيع التدريب والتوزيع الحقيقي، وهو كبير</td><td><span class="tag na">جزئي</span></td></tr>
+</table></div>
+
+<h2>ما يُصلح بعد ذلك، بالترتيب</h2>
+<ol>
+  <li><b>معايرة درجة «المراجعة»:</b> الإنتروبيا للصيغ المضغوطة بطبيعتها لا تُحتسب. الهدف أقل من 10% إيجابيات كاذبة عند «أي تحذير».</li>
+  <li><b>EICAR كشف صريح</b> بحكم «اختبار مضاد فيروسات»، كما تفعل كل البرامج.</li>
+  <li><b>كشف الملفات متعددة الصيغ في الفاحص</b>، بإعادة استخدام محلل محرك الإصلاح الذي يجدها أصلًا.</li>
+  <li><b>تطبيع النص قبل المؤشرات:</b> UTF-16 وBase64 والفواصل وعلامة ^، لرفع المتانة أمام التهرّب.</li>
+  <li><b>مهلة تُحترم فعلًا</b> بفحوص دورية داخل القراءة، وفحص ملف من 49 ميغابايت ضمن الوقت.</li>
+  <li><b>إكمال تحميل EMBER2024 وSOREL وإعادة تدريب النموذج</b>، ثم إعادة هذه المقاييس على برمجيات خبيثة حقيقية وبتقسيم حسب العائلة.</li>
+</ol>
+
+<p class="small">الأدلة: <code>reports/evaluation/results.json</code> (كل فحص وكل حالة)، و<code>reports/evaluation/harness/evaluate.py</code> (قابل لإعادة التشغيل)، و<code>reports/usability/data.json</code> (القياس بعد الإصلاحات)، و<code>reports/usability/data_before.json</code> (قبلها).</p>
+</div>

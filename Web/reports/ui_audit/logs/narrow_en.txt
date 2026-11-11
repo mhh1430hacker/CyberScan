@@ -1,0 +1,1 @@
+{"idle_hscroll": 0, "result_hscroll": 24, "viewport_width": 614, "content_width": 638, "results_panel_min_width": 632}

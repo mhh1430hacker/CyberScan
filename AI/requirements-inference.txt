@@ -1,0 +1,4 @@
+# Optional. On CUDA hosts install a matching llama-cpp-python CUDA wheel/build
+# according to its upstream instructions rather than assuming this CPU package
+# uses the host GPU.
+llama-cpp-python==0.3.21

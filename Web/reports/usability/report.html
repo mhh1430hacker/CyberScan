@@ -1,0 +1,296 @@
+<title>تقييم قابلية استخدام المسبار السيبراني</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Reem+Kufi:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single reading column, like a lab report; the scorecard is the one bold block. */
+:root {
+  --bg: #f4f6f6; --paper: #ffffff; --ink: #111816; --dim: #46524f; --mute: #6b7774;
+  --line: #d9e0de; --accent: #0f7d70; --accent-soft: #e2f3f0;
+  --crit: #b4232b; --crit-soft: #fbe7e8; --high: #b45a09; --high-soft: #fdf0e1;
+  --mid: #8a6d00; --mid-soft: #fbf5d9; --low: #3b5bb5; --low-soft: #e8edfb; --pass: #1d7a45; --pass-soft: #e3f4ea;
+  --display: "Reem Kufi", "IBM Plex Sans Arabic", "Segoe UI", Tahoma, sans-serif;
+  --body: "IBM Plex Sans Arabic", "Segoe UI", Tahoma, sans-serif;
+  --mono: "IBM Plex Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0b0f0e; --paper: #121816; --ink: #eef3f1; --dim: #b8c3c0; --mute: #8d9895;
+  --line: #24302d; --accent: #5ee0d0; --accent-soft: #10302c;
+  --crit: #ff7b80; --crit-soft: #3a1416; --high: #f3a250; --high-soft: #35220d;
+  --mid: #e4c74a; --mid-soft: #2f2a0e; --low: #8fa8ff; --low-soft: #182040; --pass: #5fd394; --pass-soft: #11301f; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0b0f0e; --paper: #121816; --ink: #eef3f1; --dim: #b8c3c0; --mute: #8d9895;
+  --line: #24302d; --accent: #5ee0d0; --accent-soft: #10302c;
+  --crit: #ff7b80; --crit-soft: #3a1416; --high: #f3a250; --high-soft: #35220d;
+  --mid: #e4c74a; --mid-soft: #2f2a0e; --low: #8fa8ff; --low-soft: #182040; --pass: #5fd394; --pass-soft: #11301f; color-scheme: dark }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.75; }
+.page { max-width: 980px; margin: 0 auto; padding-block: 40px 80px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+header .eyebrow { font-size: 13px; letter-spacing: .04em; color: var(--accent); font-weight: 600; }
+h1 { font-family: var(--display); font-size: clamp(30px, 5vw, 44px); line-height: 1.25; margin: 6px 0 10px; text-wrap: balance; }
+h2 { font-family: var(--display); font-size: 26px; margin: 56px 0 6px; text-wrap: balance; }
+h2 .en { font-family: var(--body); font-size: 14px; color: var(--mute); font-weight: 500; margin-inline-start: 8px; }
+h3 { font-size: 18px; margin: 26px 0 6px; }
+p { margin: 8px 0; max-width: 72ch; }
+.lead { color: var(--dim); font-size: 17px; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px 18px; color: var(--mute); font-size: 14px; margin-top: 10px; }
+.meta code, code { font-family: var(--mono); font-size: .88em; direction: ltr; unicode-bidi: isolate; }
+.score { display: grid; grid-template-columns: minmax(0, 220px) minmax(0, 1fr); gap: 24px; align-items: start;
+  background: var(--paper); border: 1px solid var(--line); border-radius: 18px; padding: 24px; margin-top: 28px; }
+.dial { text-align: center; }
+.dial .n { font-family: var(--display); font-size: 76px; line-height: 1; color: var(--accent); }
+.dial .of { color: var(--mute); font-size: 15px; }
+.dial .grade { margin-top: 10px; font-weight: 600; }
+.bars { display: grid; gap: 10px; min-width: 0; }
+.bar { display: grid; grid-template-columns: minmax(0, 150px) 46px minmax(0, 1fr) 58px; gap: 10px; align-items: center; font-size: 15px; }
+.bar .w { color: var(--mute); font-family: var(--mono); font-size: 13px; text-align: center; }
+.bar .track { height: 10px; background: var(--line); border-radius: 6px; overflow: hidden; }
+.bar .fill { height: 100%; background: var(--accent); border-radius: 6px; }
+.bar .v { font-family: var(--mono); font-variant-numeric: tabular-nums; text-align: end; }
+.note { background: var(--accent-soft); border-radius: 12px; padding: 14px 18px; margin: 18px 0; font-size: 15px; }
+.tablewrap { overflow-x: auto; margin: 12px 0; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; }
+th, td { text-align: start; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 13px; color: var(--mute); font-weight: 600; background: color-mix(in srgb, var(--line) 35%, transparent); }
+tr:last-child td { border-bottom: 0; }
+td.num, th.num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tag { display: inline-block; font-size: 12.5px; font-weight: 600; padding: 1px 9px; border-radius: 99px; white-space: nowrap; }
+.crit { color: var(--crit); background: var(--crit-soft); } .high { color: var(--high); background: var(--high-soft); }
+.mid { color: var(--mid); background: var(--mid-soft); } .low { color: var(--low); background: var(--low-soft); }
+.pass { color: var(--pass); background: var(--pass-soft); }
+.finding { background: var(--paper); border: 1px solid var(--line); border-inline-start: 4px solid var(--line); border-radius: 12px; padding: 16px 18px; margin: 12px 0; }
+.finding.f-crit { border-inline-start-color: var(--crit); } .finding.f-high { border-inline-start-color: var(--high); }
+.finding.f-mid { border-inline-start-color: var(--mid); } .finding.f-low { border-inline-start-color: var(--low); }
+.finding h3 { margin: 0 0 4px; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.finding .fix { color: var(--dim); font-size: 15px; }
+.finding .fix b { color: var(--ink); }
+figure { margin: 18px 0; }
+figure img { width: 100%; border-radius: 12px; border: 1px solid var(--line); display: block; }
+figcaption { font-size: 14px; color: var(--mute); margin-top: 6px; }
+.figs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+ol.fixes { padding-inline-start: 22px; } ol.fixes li { margin: 8px 0; }
+.small { font-size: 14px; color: var(--mute); }
+a { color: var(--accent); }
+a:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+@media (max-width: 680px) {
+  .score { grid-template-columns: minmax(0, 1fr); }
+  .bar { grid-template-columns: minmax(0, 1fr) 40px 52px; } .bar .track { display: none; }
+  .figs { grid-template-columns: minmax(0, 1fr); }
+}
+</style>
+
+<div class="page" dir="rtl" lang="ar">
+<header>
+  <div class="eyebrow">تقرير تقييم · ٤ نوفمبر ٢٠٢٦ · النسخة <code>342891b</code></div>
+  <h1>تقييم قابلية استخدام المسبار السيبراني</h1>
+  <p class="lead">ثمانية اختبارات على التطبيق الحقيقي: اختبار الإجهاد، والنقرة الأولى، والمرور المعرفي، وتدقيق الوصول وفق WCAG 2.2 AA، ومبادئ نيلسن، ومقياس SUS، وإتمام المهام، واختبار الثواني الخمس. ثم الدرجة النهائية بالأوزان التي حددتها.</p>
+  <div class="meta"><span>Windows 11 · Qt 6 · ويندوز حقيقي (لا محاكي)</span><span>أحجام: 800×560، 1024×700، 1440×900، 2560×1440</span><span>العربية والإنجليزية · نص كبير</span></div>
+</header>
+
+<section class="score" aria-label="الدرجة النهائية">
+  <div class="dial">
+    <div class="n">76</div>
+    <div class="of">من 100 · بالأوزان المحددة</div>
+    <div class="grade">جيد · لا يصل «ممتاز» بسبب عيب أمني واحد في الواجهة وبطء ملموس</div>
+  </div>
+  <div class="bars">
+    <div class="bar"><span>سهولة الاستخدام</span><span class="w">20%</span><span class="track"><span class="fill" style="width:80%; display:block"></span></span><span class="v">80</span></div>
+    <div class="bar"><span>وضوح المعلومات</span><span class="w">15%</span><span class="track"><span class="fill" style="width:82%; display:block"></span></span><span class="v">82</span></div>
+    <div class="bar"><span>التسلسل البصري</span><span class="w">15%</span><span class="track"><span class="fill" style="width:74%; display:block"></span></span><span class="v">74</span></div>
+    <div class="bar"><span>كفاءة التفاعل</span><span class="w">15%</span><span class="track"><span class="fill" style="width:68%; display:block"></span></span><span class="v">68</span></div>
+    <div class="bar"><span>الحمل المعرفي</span><span class="w">15%</span><span class="track"><span class="fill" style="width:72%; display:block"></span></span><span class="v">72</span></div>
+    <div class="bar"><span>إمكانية الوصول</span><span class="w">10%</span><span class="track"><span class="fill" style="width:80%; display:block"></span></span><span class="v">80</span></div>
+    <div class="bar"><span>معالجة الأخطاء</span><span class="w">10%</span><span class="track"><span class="fill" style="width:75%; display:block"></span></span><span class="v">75</span></div>
+    <p class="small">16.0 + 12.3 + 11.1 + 10.2 + 10.8 + 8.0 + 7.5 = <b>75.9</b></p>
+  </div>
+</section>
+
+<div class="note"><b>ما المقاس وما المقدَّر.</b> كل الأرقام في هذا التقرير (التباين، أحجام الأهداف، ترتيب لوحة المفاتيح، الأزمنة، التجمد، المعالج، الذاكرة) مقيسة آليًا على النافذة الحقيقية بأداة كتبتها لهذا الغرض (<code>reports/usability/harness/measure.py</code>)، والصور أُخذت منها. أما اختبار النقرة الأولى والثواني الخمس والمرور المعرفي ومقياس SUS فهي <b>تقديرات خبير</b> مبنية على هذه القياسات وعلى الشخصيات العشر من مراجعة سابقة، لا على مشاركين حقيقيين. لتأكيد SUS والنقرة الأولى يلزم 5 إلى 8 مستخدمين فعليين.</div>
+
+<h2>أهم ما وُجد</h2>
+
+<div class="finding f-crit">
+  <h3><span class="tag crit">حرج</span> زر «أصلح هذا الملف» يظهر على برنامج خطير، والإصلاح يصنع نسخة ثانية منه</h3>
+  <p>بعد فحص <code>invoice.pdf.exe</code> (حكم: «احذر من هذا الملف»، مستوى تحذير مرتفع) يظهر بجانب «انقله إلى العزل» زر بنفسجي هو الأبرز في الصف: «✦ أصلح هذا الملف · يمكن إصلاح 1». الإصلاح هنا هو تصحيح الاسم المزدوج فقط، فيكتب <code>invoice (repaired).exe</code>: برنامجًا ضارًا جديدًا بجانب الأصلي، بكلمة «مُصلَح» توحي بالأمان. المستخدمة القلقة (أم خالد) ستضغط الزر الأبرز.</p>
+  <p class="fix"><b>الإصلاح المقترح:</b> لا يُعرض الإصلاح على ملف حكمه «خطر مرتفع» أو امتداده الحقيقي قابل للتشغيل، ويصبح العزل هو الفعل الأساسي. وإن بقي خيار تصحيح الاسم فيُسمّى بصدق «أعد تسميته باسمه الحقيقي (يبقى خطيرًا)» ولا يكون الزر الأبرز.</p>
+</div>
+
+<div class="finding f-high">
+  <h3><span class="tag high">مرتفع</span> المعالج يعمل 65% وهو خامل بسبب الخلفية المتحركة</h3>
+  <p>مقيس على نافذة ظاهرة فعلًا، بلا أي فحص: <b>64.6% من نواة معالج</b> مع «الخلفية المتحركة» (مفعّلة افتراضيًا)، و<b>0%</b> عند إيقافها. السبب: الخلفية ترسم 10 إطارات في الثانية تحت النافذة كلها، فيُعاد رسم نحو 37 عنصرًا فوقها في كل إطار (999 عملية رسم خلال 3 ثوانٍ). على حاسوب محمول هذا يستنزف البطارية ويرفع الحرارة.</p>
+  <p class="fix"><b>الإصلاح المقترح:</b> إيقاف الخلفية حين لا تكون النافذة نشطة وبعد 10 ثوانٍ بلا تفاعل، وخفضها إلى 4 إطارات، أو رسمها على طبقة منفصلة لا تُجبر العناصر فوقها على إعادة الرسم.</p>
+</div>
+
+<div class="finding f-high">
+  <h3><span class="tag high">مرتفع</span> تبديل الوضع يجمّد النافذة 0.7 ثانية، وتبديل اللغة 0.5 ثانية</h3>
+  <p>مقيس بنبض كل 10 ملّي ثانية: 20 تبديلًا بين الفحص والإصلاح جمّدت الواجهة 14.3 ثانية (<b>716 ملّي ثانية لكل تبديل</b>)، و20 تبديلًا للغة 10.5 ثانية (<b>526 ملّي ثانية لكل تبديل</b>). كل ما فوق 100 ملّي ثانية يُحس به المستخدم كتعليق.</p>
+  <p class="fix"><b>الإصلاح المقترح:</b> عدم إعادة تطبيق ورقة الأنماط كاملة على النافذة عند كل تبديل؛ تغيير ألوان الوضع عبر خصائص ديناميكية أو لوحة ألوان، وإعادة بناء النصوص فقط عند تبديل اللغة.</p>
+</div>
+
+<div class="finding f-mid">
+  <h3><span class="tag mid">متوسط</span> في النوافذ القصيرة تختفي أزرار ما بعد الإيقاف تحت الحافة</h3>
+  <p>عند 1024×700 وما دونها، بعد «أوقفت الفحص»، يأخذ المكعب (ارتفاعه ثابت 380 بكسل) مساحة الشاشة، ويظهر زر «افحص شيئًا آخر» مقطوعًا عند الحافة السفلى. لا تمرير أفقي في أي حجم، لكن الفعل التالي يحتاج تمريرًا.</p>
+  <p class="fix"><b>الإصلاح المقترح:</b> ارتفاع المكعب في شاشة الرحلة يتبع ارتفاع النافذة، كما فعلنا لغرفة السونار في الشاشة الرئيسية.</p>
+</div>
+
+<div class="finding f-mid">
+  <h3><span class="tag mid">متوسط</span> مجلد بدل ملف يعرض «هذا الملف غير موجود»</h3>
+  <p>المجلد موجود، والرسالة خاطئة فتربك المستخدم. الرسالة الصحيحة: «هذا مجلد. اختر ملفًا داخله.»</p>
+</div>
+
+<div class="finding f-mid">
+  <h3><span class="tag mid">متوسط</span> التركيز غير مرئي على أربعة عناصر (WCAG 2.4.7)</h3>
+  <p>عند التنقل بـ Tab لا يتغير شكل: زر «✦ شاهد مجرّته»، ومربعات اختيار الإصلاح في قائمة ما وُجد (لأن نمط التركيز يلوّن نص المربع، وهذه المربعات بلا نص)، ومنطقة التمرير في الإعدادات (توقف لا فائدة منه)، وحقل البيانات المتقدمة. بقية العناصر تُظهر التركيز.</p>
+</div>
+
+<div class="finding f-low">
+  <h3><span class="tag low">منخفض</span> أخرى</h3>
+  <p>«تصدير التقرير» لا يظهر إلا بعد فتح التفاصيل فيصعب اكتشافه · فتح المجرّة يجمّد 0.56 إلى 0.71 ثانية · تفعيل النص الكبير يجمّد 1.7 ثانية · البحث في 400 فحص 0.93 ثانية · زر المسح داخل حقول الإدخال بلا اسم مقروء (4.1.2) · الذاكرة عند البدء 1.26 غيغابايت (في تشغيل واحد تحت ضغط ذاكرة على الجهاز توقفت أداة القياس بخطأ «نفاد الذاكرة»).</p>
+</div>
+
+<div class="figs">
+  <figure><img src="figs/result_risky_en.jpg" alt="نتيجة ملف invoice.pdf.exe بحكم خطر، وفي صف الأزرار زر الإصلاح البنفسجي بجانب زر العزل" loading="lazy"><figcaption>الحرج: «أصلح هذا الملف» هو الأبرز على برنامج خطير.</figcaption></figure>
+  <figure><img src="figs/size_1024x700.jpg" alt="شاشة الفحص الموقوف عند 1024×700 والمكعب يملأ الشاشة وزر المتابعة عند الحافة" loading="lazy"><figcaption>عند 1024×700: الفعل التالي تحت الحافة.</figcaption></figure>
+</div>
+
+<h2>1. اختبار إتمام المهام <span class="en">Task Completion Test</span></h2>
+<p>تسع مهام نُفذت آليًا على النافذة الحقيقية. نجحت التسع كلها، وبعدد أفعال قليل.</p>
+<div class="tablewrap"><table>
+<tr><th>المهمة</th><th class="num">الأفعال</th><th class="num">الزمن</th><th class="num">أطول تجمد</th><th>النتيجة</th></tr>
+<tr><td>فحص ملف بلوحة المفاتيح فقط (Ctrl+L، لصق، Enter)</td><td class="num">3</td><td class="num">3.0 ث</td><td class="num">90 مث</td><td><span class="tag pass">نجح</span></td></tr>
+<tr><td>فهم سبب الحكم على ملف خطير</td><td class="num">1</td><td class="num">3.5 ث</td><td class="num">155 مث</td><td><span class="tag pass">نجح</span> ثلاثة أسباب ظاهرة دون نقر</td></tr>
+<tr><td>نقل ملف خطير إلى العزل</td><td class="num">2</td><td class="num">0.9 ث</td><td class="num">—</td><td><span class="tag pass">نجح</span> مع تأكيد</td></tr>
+<tr><td>إصلاح ملف من نتيجته (يشمل المشهد الانتقالي)</td><td class="num">2</td><td class="num">2.6 ث</td><td class="num">202 مث</td><td><span class="tag pass">نجح</span> نسخة مُصلَحة، الأصل باقٍ</td></tr>
+<tr><td>فحص رابط</td><td class="num">2</td><td class="num">0.5 ث</td><td class="num">54 مث</td><td><span class="tag pass">نجح</span> «فحصنا شكل الرابط فقط»: صادق</td></tr>
+<tr><td>تبديل اللغة والعودة</td><td class="num">2</td><td class="num">0.8 ث</td><td class="num">346 مث</td><td><span class="tag pass">نجح</span> لكن بتجمد</td></tr>
+<tr><td>العثور على فحص سابق وإعادة فتحه</td><td class="num">2</td><td class="num">1.2 ث</td><td class="num">—</td><td><span class="tag pass">نجح</span></td></tr>
+<tr><td>تصدير تقرير</td><td class="num">2</td><td class="num">0.5 ث</td><td class="num">—</td><td><span class="tag pass">نجح</span> الزر مخفي داخل التفاصيل</td></tr>
+<tr><td>رؤية مجرّة الملف</td><td class="num">1</td><td class="num">4.6 ث</td><td class="num">559 مث</td><td><span class="tag pass">نجح</span> 2.4 ث منها انفجار مقصود</td></tr>
+</table></div>
+<p class="small">معدل الإتمام 9/9 (100%). متوسط الأفعال 1.9. الزمن يشمل انتظار المحرك والرسوم المقصودة.</p>
+
+<h2>2. اختبار الإجهاد <span class="en">Usability Stress Test</span></h2>
+<p>أربعة عشر سيناريو عدائيًا أو متطرفًا. لم ينهَر التطبيق ولم يظهر أي استثناء في أي منها.</p>
+<div class="tablewrap"><table>
+<tr><th>السيناريو</th><th>ما حدث</th><th class="num">أطول تجمد</th><th>الحكم</th></tr>
+<tr><td>«افحص» والحقل فارغ</td><td>«أضف شيئًا لفحصه أولًا.»</td><td class="num">48 مث</td><td><span class="tag pass">جيد</span></td></tr>
+<tr><td>مسار غير موجود</td><td>«هذا الملف غير موجود. تأكد من المسار…»</td><td class="num">63 مث</td><td><span class="tag pass">جيد</span></td></tr>
+<tr><td>مجلد بدل ملف</td><td>الرسالة نفسها «غير موجود»</td><td class="num">62 مث</td><td><span class="tag mid">رسالة خاطئة</span></td></tr>
+<tr><td>ملف فارغ (0 بايت)</td><td>«هذا الملف فارغ»</td><td class="num">66 مث</td><td><span class="tag pass">جيد</span></td></tr>
+<tr><td>ملف عشوائي 48 ميغابايت</td><td>حكم خلال 13.3 ث، والواجهة سلسة</td><td class="num">131 مث</td><td><span class="tag pass">جيد</span></td></tr>
+<tr><td>اسم من 180 حرفًا</td><td>نتيجة كاملة، بلا تمرير أفقي</td><td class="num">102 مث</td><td><span class="tag pass">جيد</span></td></tr>
+<tr><td>اسم بحرف عكس اتجاه مخفي</td><td>تحذير قبل الفحص: «هذا الاسم يخفي أحرفًا…»</td><td class="num">57 مث</td><td><span class="tag pass">ممتاز</span></td></tr>
+<tr><td>«افحص» عشر مرات بسرعة</td><td>فحص واحد فقط، بلا تكرار في السجل</td><td class="num">112 مث</td><td><span class="tag pass">جيد</span></td></tr>
+<tr><td>تبديل اللغة 20 مرة</td><td>صحيح، ولا نافذة شاردة، لكن 526 مث لكل تبديل</td><td class="num">10520 مث</td><td><span class="tag high">بطيء</span></td></tr>
+<tr><td>تبديل الوضع 20 مرة</td><td>صحيح، لكن 716 مث لكل تبديل</td><td class="num">14318 مث</td><td><span class="tag high">بطيء</span></td></tr>
+<tr><td>إيقاف فحص في منتصفه</td><td>«أوقفت الفحص» وزر المتابعة ظاهر</td><td class="num">447 مث</td><td><span class="tag pass">جيد</span></td></tr>
+<tr><td>400 فحص في السجل ثم بحث</td><td>11 نتيجة صحيحة</td><td class="num">932 مث</td><td><span class="tag mid">مقبول</span></td></tr>
+<tr><td>800×560 ثم 1024×700 ثم 2560×1440</td><td>لا تمرير أفقي؛ الأزرار تحت الحافة في الصغيرة</td><td class="num">408 مث</td><td><span class="tag mid">متوسط</span></td></tr>
+<tr><td>تفعيل النص الكبير</td><td>بلا تمرير أفقي ولا قص</td><td class="num">1688 مث</td><td><span class="tag mid">بطيء</span></td></tr>
+</table></div>
+
+<h2>3. تدقيق الوصول <span class="en">Accessibility Audit · WCAG 2.2 AA</span></h2>
+<p>قيس تباين 523 نصًا من البكسلات المرسومة فعلًا في 16 شاشة. نجح 502 منها. الـ 21 الباقية تحققتُ منها مقابل الألوان المعرّفة في القالب، فكانت كلها أخطاء قياس، لا مشاكل حقيقية. سببها أن خطوط الحروف العربية الرفيعة لا تصل كثافتها الكاملة في البكسلات، ونصوص التُقطت أثناء ظهورها التدريجي. أدنى تباين معرّف في القالب كله هو 4.67:1 (نص زر الإصلاح البنفسجي)، أي فوق حد 4.5.</p>
+<div class="tablewrap"><table>
+<tr><th>المعيار</th><th>الدليل</th><th>الحكم</th></tr>
+<tr><td>1.4.3 تباين النص</td><td>النص الأساسي 18.7:1، الثانوي 12.1:1، الخافت 6.2 إلى 6.5:1، أدنى قيمة 4.67:1</td><td><span class="tag pass">ناجح</span></td></tr>
+<tr><td>1.4.11 تباين غير النصي</td><td>حدود حقل الإدخال 3.06:1 (الحد 3)</td><td><span class="tag pass">ناجح بالكاد</span></td></tr>
+<tr><td>1.4.4 تكبير النص</td><td>«نص وعناصر أكبر» بلا قص ولا تمرير أفقي</td><td><span class="tag pass">ناجح</span></td></tr>
+<tr><td>1.4.10 إعادة التدفق</td><td>800×560 بلا تمرير أفقي</td><td><span class="tag pass">ناجح</span></td></tr>
+<tr><td>2.1.1 لوحة المفاتيح</td><td>كل المهام التسع ممكنة بلوحة المفاتيح؛ اختصارات Ctrl+L وCtrl+O وCtrl+N وEsc</td><td><span class="tag pass">ناجح</span></td></tr>
+<tr><td>2.4.3 ترتيب التركيز</td><td>منطقي في الشاشات الأربع وفي اللغتين: السجل، ثم الشريط العلوي، ثم المحتوى</td><td><span class="tag pass">ناجح</span></td></tr>
+<tr><td>2.4.7 التركيز مرئي</td><td>4 عناصر بلا مؤشر تركيز (انظر أعلاه)</td><td><span class="tag mid">فشل جزئي</span></td></tr>
+<tr><td>2.5.8 حجم الهدف (24 بكسل)</td><td>186 عنصرًا: 169 ناجحة؛ مربعات الإعدادات بارتفاع 20 تنجح باستثناء التباعد؛ زر المسح 22×18</td><td><span class="tag pass">ناجح باستثناء</span></td></tr>
+<tr><td>2.2.2 إيقاف الحركة</td><td>الخلفية تتحرك تلقائيًا أكثر من 5 ثوانٍ، ويمكن إيقافها من الإعدادات؛ وتقليل الحركة في ويندوز يُحترم</td><td><span class="tag pass">ناجح</span></td></tr>
+<tr><td>3.3.1 تحديد الأخطاء</td><td>كل الأخطاء نصية تحت الحقل، بلون وبكلمات</td><td><span class="tag pass">ناجح</span></td></tr>
+<tr><td>4.1.2 الاسم والدور</td><td>184 من 186 عنصرًا لها أسماء؛ زر المسح في الحقول بلا اسم</td><td><span class="tag mid">فشل بسيط</span></td></tr>
+<tr><td>العربية واتجاه الكتابة</td><td>اتجاه كامل من اليمين، النقطة في نهاية الجملة، الأرقام والمسارات معزولة</td><td><span class="tag pass">ممتاز</span></td></tr>
+</table></div>
+
+<h2>4. مبادئ نيلسن العشرة <span class="en">Nielsen Heuristics Evaluation</span></h2>
+<div class="tablewrap"><table>
+<tr><th>المبدأ</th><th class="num">من 10</th><th>الدليل</th></tr>
+<tr><td>1. وضوح حالة النظام</td><td class="num">9</td><td>مراحل الفحص الحقيقية، و«أوقفت الفحص» صريحة، وإشعارات للنسخ والعزل والحفظ</td></tr>
+<tr><td>2. التطابق مع العالم الحقيقي</td><td class="num">9</td><td>«لا تفتحه»، «المحتوى عشوائي جدًا»؛ لغة يفهمها غير التقني</td></tr>
+<tr><td>3. التحكم والحرية</td><td class="num">8</td><td>إيقاف، وإغلاق بـ Esc، والعزل قابل للاستعادة، والإصلاح لا يمس الأصل</td></tr>
+<tr><td>4. الاتساق والمعايير</td><td class="num">8</td><td>نظام لوني واحد؛ لكن «الإصلاح» يعني إعادة تسمية في حالة واستعادة بايتات في أخرى</td></tr>
+<tr><td>5. منع الأخطاء</td><td class="num">5</td><td>تحذير الاسم المموّه ممتاز، لكن زر الإصلاح على برنامج خطير ينسخ الخطر</td></tr>
+<tr><td>6. التعرّف بدل التذكّر</td><td class="num">8</td><td>المعاينة قبل الفحص، والأسباب ظاهرة؛ التصدير مخفي داخل التفاصيل</td></tr>
+<tr><td>7. المرونة والكفاءة</td><td class="num">7</td><td>اختصارات ممتازة، لكن التجمد عند التبديل يعاقب المستخدم السريع</td></tr>
+<tr><td>8. الجمال والبساطة</td><td class="num">7</td><td>جميل جدًا، لكن بطاقة النتيجة فيها سبعة أفعال، وثلاثة أزرار ملوّنة تتنافس</td></tr>
+<tr><td>9. التعافي من الأخطاء</td><td class="num">8</td><td>رسائل تشرح وتقترح الحل؛ خطأ واحد في رسالة المجلد</td></tr>
+<tr><td>10. المساعدة والتوثيق</td><td class="num">7</td><td>تلميحات ونصوص شارحة في كل مكان، وشرح للمجرّة؛ لا صفحة مساعدة</td></tr>
+</table></div>
+<p class="small">المتوسط 7.6 من 10.</p>
+
+<h2>5. اختبار النقرة الأولى <span class="en">First-Click Test · تقدير خبير</span></h2>
+<p>لكل مهمة: أين يُتوقع أن ينقر مستخدم جديد أولًا، بناءً على حجم كل عنصر وتباينه وموضعه في الصور المقاسة.</p>
+<div class="tablewrap"><table>
+<tr><th>المهمة</th><th>الهدف الصحيح</th><th>النقرة الأولى المتوقعة</th><th>الخطر</th></tr>
+<tr><td>افحص ملفًا على جهازك</td><td>«اختر ملفًا» أو السحب</td><td>زر «افحص» الفيروزي والحقل فارغ (الأبرز)</td><td><span class="tag mid">متوسط</span>: يظهر خطأ لطيف ثم يُكمل</td></tr>
+<tr><td>تخلّص من ملف خطير</td><td>«انقله إلى العزل»</td><td>«✦ أصلح هذا الملف» البنفسجي المتدرّج</td><td><span class="tag crit">حرج</span></td></tr>
+<tr><td>لماذا هذا الحكم؟</td><td>«لماذا؟»</td><td>«لماذا؟»، والأسباب أصلًا ظاهرة</td><td><span class="tag pass">منخفض</span></td></tr>
+<tr><td>أصلح ملفًا معبوثًا به</td><td>زر الإصلاح في النتيجة أو «إصلاح» أعلى</td><td>الزر البنفسجي</td><td><span class="tag pass">منخفض</span></td></tr>
+<tr><td>غيّر اللغة</td><td>«العربية» أعلى</td><td>صحيح</td><td><span class="tag pass">منخفض</span></td></tr>
+<tr><td>ابحث عن فحص الأمس</td><td>بحث السجل</td><td>صحيح</td><td><span class="tag pass">منخفض</span></td></tr>
+<tr><td>أطفئ الحركة</td><td>الترس (بلا نص)</td><td>الترس بعد تردد</td><td><span class="tag mid">متوسط</span></td></tr>
+<tr><td>صدّر تقريرًا</td><td>داخل «لماذا؟»</td><td>البحث في الأزرار الظاهرة دون نتيجة</td><td><span class="tag mid">متوسط</span></td></tr>
+</table></div>
+
+<h2>6. المرور المعرفي <span class="en">Cognitive Walkthrough</span></h2>
+<p>لكل خطوة أربعة أسئلة: هل سيحاول المستخدم الفعل الصحيح؟ هل سيرى الأداة؟ هل سيربطها بهدفه؟ هل سيفهم أنه تقدّم؟</p>
+<div class="tablewrap"><table>
+<tr><th>المهمة والخطوة</th><th>يحاول</th><th>يرى</th><th>يربط</th><th>يفهم التقدم</th><th>الملاحظة</th></tr>
+<tr><td>فحص: اختيار الملف</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>المعاينة تسمّي النوع والحجم قبل الفحص</td></tr>
+<tr><td>فحص: الانتظار</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>أربع مراحل حقيقية وزر إيقاف</td></tr>
+<tr><td>فحص: قراءة الحكم</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>«لا تفتحه» في سطر واحد</td></tr>
+<tr><td>تصرّف: الفعل الصحيح لملف خطير</td><td>✓</td><td>✓</td><td>✗</td><td>✓</td><td>«أصلح» يُفهم «اجعله آمنًا»</td></tr>
+<tr><td>إصلاح: مراجعة ما وُجد</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>كل بند مع مكانه وما سيُفعل به</td></tr>
+<tr><td>إصلاح: النتيجة</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>علامة صح، وقبل وبعد، والبصمتان</td></tr>
+<tr><td>تقرير: إيجاد التصدير</td><td>✓</td><td>✗</td><td>✓</td><td>✓</td><td>مخفي حتى فتح التفاصيل</td></tr>
+<tr><td>إعدادات: حفظ تغيير</td><td>✓</td><td>✗</td><td>✓</td><td>✓</td><td>زر الحفظ أسفل لوحة طويلة يحتاج تمريرًا</td></tr>
+</table></div>
+
+<h2>7. مقياس SUS <span class="en">System Usability Scale · تقدير</span></h2>
+<p>قدّرتُ إجابات الأسئلة العشرة لكل من الشخصيات العشر في المراجعة السابقة، بناءً على ما قيس هنا. هذا تقدير خبير، لا استبيان حقيقي.</p>
+<div class="tablewrap"><table>
+<tr><th>الشخصية</th><th class="num">SUS</th><th>ما يرفع أو يخفض الدرجة</th></tr>
+<tr><td>ليلى، مصممة</td><td class="num">85</td><td>الجمال والاتساق، والمجرّة</td></tr>
+<tr><td>د. نورة، خبيرة توطين</td><td class="num">80</td><td>عربية صحيحة واتجاه كامل</td></tr>
+<tr><td>يوسف، 11 سنة</td><td class="num">72.5</td><td>المكعب والمجرّة يجذبانه، والنص كثير</td></tr>
+<tr><td>كريم، مبرمج يعيش على لوحة المفاتيح</td><td class="num">72.5</td><td>الاختصارات جيدة، والتجمد يزعجه</td></tr>
+<tr><td>الحاج عبد الرحمن، 72 سنة</td><td class="num">70</td><td>النص الكبير والتباين جيدان، والمربعات صغيرة</td></tr>
+<tr><td>البروفيسور، ناقد تجربة</td><td class="num">70</td><td>منع الأخطاء والأفعال السبعة</td></tr>
+<tr><td>سارة، محللة SOC</td><td class="num">67.5</td><td>البصمات جيدة، والتصدير مخفي</td></tr>
+<tr><td>أم خالد، غير تقنية وقلقة</td><td class="num">65</td><td>الحكم واضح، والزر البنفسجي يربكها</td></tr>
+<tr><td>ماجد، كفيف</td><td class="num">62.5</td><td>أسماء العناصر جيدة، والمكعب والمجرّة بصريان</td></tr>
+<tr><td>«شبح»، فريق أحمر</td><td class="num">55</td><td>الإصلاح ينسخ برنامجًا خطيرًا</td></tr>
+</table></div>
+<p><b>المتوسط المقدَّر: 70</b>. هذا فوق متوسط الصناعة (68)، وتقديره «جيد». إصلاح العيب الحرج وحده يرفع أقل الدرجات ويُقدَّر أن يقرّب المتوسط من 74.</p>
+
+<h2>8. اختبار الثواني الخمس <span class="en">5-Second Test · تقدير</span></h2>
+<div class="tablewrap"><table>
+<tr><th>الشاشة</th><th>ما يبقى في الذاكرة</th><th>ما يفوت</th></tr>
+<tr><td>الرئيسية</td><td>المكعب الزجاجي، و«افحص قبل أن تثق»، والحقل، و«محلي · لا يغادر شيء هذا الجهاز»</td><td>أن السحب ممكن (النص صغير)، ووجود وضع الإصلاح</td></tr>
+<tr><td>نتيجة خطيرة</td><td>المثلث الأحمر، و«احذر من هذا الملف»، و«لا تفتحه»، وتنبيه الامتداد المزدوج</td><td>أي زر هو الآمن: ثلاثة ملوّنة متساوية الوزن، والبنفسجي أبرزها</td></tr>
+<tr><td>الإصلاح</td><td>«إصلاح بحذر»، والنسخة، و«الأصل لا يُمس»</td><td>أن الفحص نفسه لا يكفي لإثبات الأمان (النص موجود لكنه صغير)</td></tr>
+<tr><td>المرصد</td><td>المجرّة نفسها، و«لا يملك أي ملف آخر هذه المجرّة»</td><td>أن النجوم الحمراء مواضع خطر (المفتاح أسفل الشاشة)</td></tr>
+</table></div>
+<div class="figs">
+  <figure><img src="figs/home_ar.jpg" alt="الشاشة الرئيسية بالعربية: مكعب زجاجي فوق العنوان افحص قبل أن تثق" loading="lazy"><figcaption>الرئيسية: الرسالة تصل في أقل من خمس ثوانٍ.</figcaption></figure>
+  <figure><img src="figs/observatory_en.jpg" alt="المرصد: مجرة حلزونية لملف، مع مفتاح القراءة أسفلها" loading="lazy"><figcaption>المرصد: الأكثر جذبًا للانتباه في التطبيق.</figcaption></figure>
+</div>
+
+<h2>الإصلاحات بالترتيب</h2>
+<ol class="fixes">
+  <li><b>إخفاء «أصلح هذا الملف» عن الملفات الخطيرة والقابلة للتشغيل</b>، وجعل العزل الفعل الأساسي فيها. يرفع منع الأخطاء والوضوح وSUS معًا.</li>
+  <li><b>إيقاف الخلفية المتحركة حين لا تكون النافذة نشطة أو بعد 10 ثوانٍ بلا تفاعل</b>: من 65% معالج إلى قرابة 0%.</li>
+  <li><b>تبديل الوضع واللغة دون إعادة تطبيق الأنماط كاملة</b>: الهدف أقل من 100 مث.</li>
+  <li><b>ارتفاع مكعب الرحلة يتبع ارتفاع النافذة</b> حتى تبقى الأفعال ظاهرة عند 1024×700 وما دون.</li>
+  <li><b>رسالة صحيحة للمجلد</b>، و<b>مؤشر تركيز</b> للعناصر الأربعة، و<b>اسم</b> لزر المسح.</li>
+  <li><b>إظهار «تصدير التقرير»</b> في صف الأفعال الثانوية، و<b>زر حفظ ثابت</b> أسفل الإعدادات.</li>
+</ol>
+<p class="small">الأثر المقدَّر بعد البنود 1 إلى 3: نحو 84 من 100.</p>
+
+<p class="small">الأدلة: <code>reports/usability/data.json</code> (كل القياسات)، و<code>reports/usability/screens/</code> (36 لقطة)، و<code>reports/usability/harness/measure.py</code> (أداة القياس، قابلة لإعادة التشغيل).</p>
+</div>

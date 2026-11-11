@@ -1,0 +1,2 @@
+# Root compatibility entry point; Desktop owns these development dependencies.
+-r Desktop/requirements-dev.txt

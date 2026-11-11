@@ -1,0 +1,22 @@
+Structural model not loaded (unapproved): No valid approved SHA-256 digest was supplied for this model.
+Structural model not loaded (unapproved): No valid approved SHA-256 digest was supplied for this model.
+Structural model not loaded (unapproved): No valid approved SHA-256 digest was supplied for this model.
+Structural model not loaded (unapproved): No valid approved SHA-256 digest was supplied for this model.
+Structural model not loaded (unapproved): No valid approved SHA-256 digest was supplied for this model.
+Structural model not loaded (unapproved): No valid approved SHA-256 digest was supplied for this model.
+Structural model not loaded (unapproved): No valid approved SHA-256 digest was supplied for this model.
+Structural model not loaded (unapproved): No valid approved SHA-256 digest was supplied for this model.
+Structural model not loaded (unapproved): No valid approved SHA-256 digest was supplied for this model.
+Structural model not loaded (unapproved): No valid approved SHA-256 digest was supplied for this model.
+Structural model not loaded (unapproved): No valid approved SHA-256 digest was supplied for this model.
+Structural model not loaded (unapproved): No valid approved SHA-256 digest was supplied for this model.
+Structural model not loaded (unapproved): No valid approved SHA-256 digest was supplied for this model.
+Structural model not loaded (unapproved): No valid approved SHA-256 digest was supplied for this model.
+Structural model not loaded (unapproved): No valid approved SHA-256 digest was supplied for this model.
+Structural model not loaded (unapproved): No valid approved SHA-256 digest was supplied for this model.
+Structural model not loaded (unapproved): No valid approved SHA-256 digest was supplied for this model.
+Structural model not loaded (unapproved): No valid approved SHA-256 digest was supplied for this model.
+Structural model not loaded (unapproved): No valid approved SHA-256 digest was supplied for this model.
+Structural model not loaded (unapproved): No valid approved SHA-256 digest was supplied for this model.
+steps ['idle_and_cpu', 'idle_variants', 'scan_real_variants', 'journey_frames', 'evidence_and_failure', 'synthetic_verdicts', 'pages_en', 'arabic', 'widths', 'large_text', 'keyboard_a11y', 'consecutive_and_close']
+errors 3 qt_messages 828 exceptions 0

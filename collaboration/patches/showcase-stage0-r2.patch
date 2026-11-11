@@ -1,0 +1,2077 @@
+diff --git b/tests/test_story_data.py b/tests/test_story_data.py
+new file mode 100644
+index 0000000..5d83603
+--- /dev/null
++++ b/tests/test_story_data.py
+@@ -0,0 +1,202 @@
++"""The landing page's story data (web_v/static/data/story.json) and its browser validator.
++
++- The demo file is rebuilt here from web_v/make_story_data.py (no engine needed) and must match
++  the committed JSON: same bytes, same SHA-256, same entropy figures.
++- The JSON carries no timestamp, so regenerating it with unchanged engines changes nothing.
++- The validator in static/js/story.js, which the hero card and the story share, is run in Node
++  on the real file and on malformed variants: each malformed variant must be rejected (null),
++  exactly as a missing file is. Skipped when Node isn't installed.
++"""
++from __future__ import annotations
++
++import copy
++import hashlib
++import importlib.util
++import json
++import re
++import shutil
++import subprocess
++from pathlib import Path
++
++import pytest
++
++ROOT = Path(__file__).resolve().parents[1]
++WEB = ROOT / "web_v"
++STORY = WEB / "static" / "data" / "story.json"
++STORY_JS = WEB / "static" / "js" / "story.js"
++MARKER = "/* ---- end of story data validation ---- */"
++
++
++def _generator():
++    spec = importlib.util.spec_from_file_location("make_story_data", WEB / "make_story_data.py")
++    module = importlib.util.module_from_spec(spec)
++    spec.loader.exec_module(module)  # top level only builds constants; engines load in main()
++    return module
++
++
++@pytest.fixture(scope="module")
++def story() -> dict:
++    return json.loads(STORY.read_text(encoding="utf-8"))
++
++
++def test_demo_file_matches_committed_data(story):
++    gen = _generator()
++    data = gen.build_demo()
++    assert data == gen.build_demo(), "the demo file must be deterministic"
++    assert story["file"]["size"] == len(data)
++    assert story["file"]["sha256"] == hashlib.sha256(data).hexdigest()
++    assert data.startswith(b"%PDF-") and data.count(b"%%EOF") == 2
++
++
++def test_entropy_is_a_64_byte_window_per_cell(story):
++    gen = _generator()
++    data = gen.build_demo()
++    cells = story["cells"]
++    assert cells["count"] == gen.CELLS == 320 and cells["entropy_window"] == gen.WINDOW == 64
++    assert "overlap" in cells["entropy_method"]
++    size = len(data)
++    for k, value in enumerate(cells["entropy"]):
++        mid = int((k + 0.5) * size / gen.CELLS)
++        lo = max(0, min(size - gen.WINDOW, mid - gen.WINDOW // 2))
++        assert value == round(gen.shannon(data[lo:lo + gen.WINDOW]), 2)
++
++
++def test_regions_are_the_real_byte_ranges(story):
++    data = _generator().build_demo()
++    tail = data.rindex(b"%%EOF\n") + len(b"%%EOF\n")
++    first_eof = data.index(b"%%EOF\n") + len(b"%%EOF\n")
++    spans = {r["tag"]: r for r in story["regions"] if "start" in r}
++    assert spans[2]["start"] == tail and spans[2]["end"] == len(data)   # data after the end
++    assert first_eof <= spans[1]["start"] < spans[1]["end"] == tail      # the added update
++    assert b"/JavaScript" in data[spans[1]["start"]:spans[1]["end"]]
++    assert story["repair"]["size_after"] + story["repair"]["removed_bytes"] == len(data)
++
++
++def test_no_timestamp_in_generated_data(story):
++    text = STORY.read_text(encoding="utf-8")
++    assert "generated" not in story
++    assert not re.search(r"(19|20)\d\d-\d\d-\d\d", text), "no ISO dates in the generated file"
++
++
++# ---- the shared browser validator ---------------------------------------------------------
++
++def _set(path: str, value):
++    def change(d):
++        *head, last = path.split(".")
++        node = d
++        for key in head:
++            node = node[int(key)] if isinstance(node, list) else node[key]
++        if value is _DELETE:
++            del node[int(last) if isinstance(node, list) else last]
++        elif isinstance(node, list):
++            node[int(last)] = value
++        else:
++            node[last] = value
++        return d
++    return change
++
++
++_DELETE = object()
++
++
++def _region(tag):
++    return lambda d: next(r for r in d["regions"] if r["tag"] == tag)
++
++
++def _overlap(d):
++    one, two = _region(1)(d), _region(2)(d)
++    one["to"] = two["from"] + 5
++    one["end"] = round(one["to"] * d["file"]["size"] / 320)
++    return d
++
++
++def _duplicate_tag(d):
++    _region(2)(d)["tag"] = 1
++    return d
++
++
++MALFORMED = {
++    "not an object": lambda d: [d],
++    "file missing": _set("file", _DELETE),
++    "bad file name": _set("file.name", "../invoice.exe"),
++    "empty file name": _set("file.name", ""),
++    "size zero": _set("file.size", 0),
++    "size not an integer": _set("file.size", "2220"),
++    "sha256 too short": _set("file.sha256", "abc123"),
++    "sha256 uppercase": lambda d: _set("file.sha256", d["file"]["sha256"].upper())(d),
++    "score above 100": _set("scan.score", 101),
++    "score negative": _set("scan.score", -1),
++    "score fractional": _set("scan.score", 99.5),
++    "unknown classification": _set("scan.classification", "PROBABLY_FINE"),
++    "evidence not a list": _set("scan.evidence", "Double extension"),
++    "entropy too short": lambda d: (d["cells"]["entropy"].pop(), d)[1],
++    "entropy above 8": _set("cells.entropy.10", 8.5),
++    "entropy negative": _set("cells.entropy.10", -0.1),
++    "entropy not a number": _set("cells.entropy.10", "4.2"),
++    "cell count wrong": _set("cells.count", 319),
++    "regions not a list": _set("regions", {}),
++    "tag index 3": lambda d: (_region(2)(d).update(tag=3), d)[1],
++    "duplicate tag": _duplicate_tag,
++    "overlapping regions": _overlap,
++    "region past the last cell": lambda d: (_region(2)(d).update(to=321), d)[1],
++    "empty region": lambda d: (_region(1)(d).update(to=_region(1)(d)["from"]), d)[1],
++    "cells disagree with bytes": lambda d: (_region(1)(d).update(**{"from": 10}), d)[1],
++    "byte range past the file": lambda d: (_region(2)(d).update(end=d["file"]["size"] + 1), d)[1],
++    "no byte regions": lambda d: (d.update(regions=[r for r in d["regions"] if "start" not in r]), d)[1],
++    "repair fields missing": _set("repair.selected", _DELETE),
++    "repair sizes disagree": lambda d: (d["repair"].update(removed_bytes=d["repair"]["removed_bytes"] + 1), d)[1],
++    "repair failed a check": _set("repair.checks_failed", ["structure"]),
++    "rescan missing": _set("repair.rescan", _DELETE),
++    "rescan score above 100": _set("repair.rescan.score", 140),
++    "rescan classification unknown": _set("repair.rescan.classification", ""),
++    "repaired name invalid": _set("repair.name_after", "a/b.pdf"),
++}
++
++
++@pytest.fixture(scope="module")
++def node() -> str:
++    exe = shutil.which("node")
++    if not exe:
++        pytest.skip("Node.js is not installed")
++    return exe
++
++
++def _validate_all(node: str, cases: dict) -> dict:
++    source = STORY_JS.read_text(encoding="utf-8")
++    assert MARKER in source, "the validator block must stay at the top of story.js"
++    validator = source[: source.index(MARKER)]
++    program = (
++        "const cases = JSON.parse(require('fs').readFileSync(0, 'utf8'));\n"
++        + validator
++        + "\nconst out = {};\nfor (const [k, v] of Object.entries(cases)) out[k] = globalThis.CSStory.validate(v) !== null;\n"
++        "process.stdout.write(JSON.stringify(out));\n"
++    )
++    result = subprocess.run([node, "-e", program], input=json.dumps(cases), capture_output=True,
++                            text=True, encoding="utf-8", timeout=60, check=True)
++    return json.loads(result.stdout)
++
++
++def test_validator_accepts_the_committed_data(node, story):
++    assert _validate_all(node, {"valid": story}) == {"valid": True}
++
++
++def test_validator_rejects_missing_data(node):
++    assert _validate_all(node, {"null": None, "empty": {}, "string": "story"}) == {"null": False, "empty": False, "string": False}
++
++
++def test_validator_rejects_every_malformed_variant(node, story):
++    cases = {name: change(copy.deepcopy(story)) for name, change in MALFORMED.items()}
++    results = _validate_all(node, cases)
++    accepted = sorted(name for name, ok in results.items() if ok)
++    assert accepted == [], f"malformed story data was accepted: {accepted}"
++
++
++def test_card_and_story_share_one_validator():
++    landing = (WEB / "static" / "js" / "landing.js").read_text(encoding="utf-8")
++    story_js = STORY_JS.read_text(encoding="utf-8")
++    assert "CSStory.load()" in landing and "CSStory.load()" in story_js
++    # neither script may fetch the data on its own, around the validator
++    assert "fetch(" not in landing.split("/* ---------------- hero card", 1)[1].split("function playCard", 1)[0]
++    assert 'fetch("data/story.json"' not in landing
++    assert story_js.count('fetch("data/story.json"') == 1
++    assert story_js.index('fetch("data/story.json"') < story_js.index(MARKER)
+diff --git b/web_v/make_story_data.py b/web_v/make_story_data.py
+new file mode 100644
+index 0000000..ce095da
+--- /dev/null
++++ b/web_v/make_story_data.py
+@@ -0,0 +1,251 @@
++"""Precompute the numbers behind the landing page's scroll story and hero card.
++
++The story ("Inside one scan") follows one file, invoice_2026.pdf.exe. Every number it shows
++comes from this script running CyberScan's own code on that file:
++
++  - the scan goes through detection.service.default_service().analyze_upload, the same
++    bounded call /api/scan/file uses, so the score and verdict are what the workspace shows;
++  - the cut-out regions are the repair engine's own findings (repair_engine.analyze), and the
++    "rebuilt" figures are its repair of a copy, scanned again the same way.
++
++The demo file is built here, deterministically, and is harmless: a one-page PDF whose later
++incremental update adds an auto-run JavaScript action. That script only holds a text string;
++the "encoded PowerShell" in it decodes to  Write-Output 'CyberScan demo'. Behind the end of the
++PDF sit pseudo-random bytes (BLAKE2b in counter mode). Nothing is executed at any point.
++
++It is one example file, not a benchmark: the page says so next to the numbers.
++
++Entropy: each of the 320 cells stands for about size/320 bytes (about 7 here), but its value is
++the Shannon entropy (bits per byte, 0-8) of a 64-byte window centred on that cell, clamped to
++the file's ends. Windows are much wider than cells, so adjacent measurements overlap and the
++curve is smoothed; a 7-byte slice on its own can't exceed log2(7) bits and says little.
++
++Reproducibility: the output carries no timestamp. The demo file is built from constants, so its
++bytes and SHA-256 never change; for the same engine code the JSON is byte-identical on any day.
++A change in the JSON therefore means an engine's behaviour changed. The engine version is
++recorded in scan.engine.
++
++    python web_v/make_story_data.py [--engine-root PATH]
++
++--engine-root reads the engines from another checkout (default: this one); the output is
++always written next to this script. Needs the website's core/, detection/ and repair_engine/. Re-run after changing an engine.
++"""
++from __future__ import annotations
++
++import base64
++import hashlib
++import json
++import math
++import sys
++from pathlib import Path
++
++ROOT = Path(__file__).resolve().parents[1]
++OUT = Path(__file__).resolve().parent / "static" / "data" / "story.json"
++NAME = "invoice_2026.pdf.exe"
++CELLS = 320          # story.js lays the file out as 16 x 20 cells
++WINDOW = 64          # bytes per entropy measurement, centred on each cell
++
++
++# ---- the demo file ---------------------------------------------------------------------------
++
++def _pdf_objects(start: int, bodies: list[tuple[int, bytes]], out: bytearray) -> dict[int, int]:
++    offsets = {}
++    for number, body in bodies:
++        offsets[number] = start + len(out)
++        out.extend(b"%d 0 obj\n" % number + body + b"\nendobj\n")
++    return offsets
++
++
++def _xref(offsets: dict[int, int]) -> bytes:
++    rows = [b"xref\n"]
++    for number in sorted(offsets):
++        rows.append(b"%d 1\n%010d 00000 n \n" % (number, offsets[number]))
++    return b"".join(rows)
++
++
++def _stream(payload: bytes) -> bytes:
++    return b"<< /Length %d >>\nstream\n" % len(payload) + payload + b"\nendstream"
++
++
++def build_demo() -> bytes:
++    lines = [
++        "Invoice 2026-0412", "CyberScan demo file - not a real invoice", "",
++        "Bill to: Example Trading Ltd, 1 Sample Street, Demo City", "Invoice date: 2026-04-12    Due: 2026-05-12", "",
++        "Item                                   Qty      Price",
++        "Consulting hours                        12     960.00",
++        "Security review                          1     480.00",
++        "Licence renewal                          1     240.00",
++        "Support plan (monthly)                   3     150.00",
++        "Training session                         2     320.00",
++        "Travel                                   1      85.00", "",
++        "Subtotal                                      2235.00",
++        "VAT 15%                                        335.25",
++        "Total due                                     2570.25", "",
++        "Pay by bank transfer to the account on your contract.",
++        "Questions? Reply to the address you received this from.",
++    ]
++    text = b"BT /F1 12 Tf 72 760 Td 16 TL " + b" ".join(b"(%s) '" % l.encode() for l in lines) + b" ET"
++
++    # version 1: an ordinary one-page document
++    out = bytearray(b"%PDF-1.7\n%\xe2\xe3\xcf\xd3\n")
++    offsets = {0: 0}
++    offsets.update(_pdf_objects(0, [
++        (1, b"<< /Type /Catalog /Pages 2 0 R >>"),
++        (2, b"<< /Type /Pages /Kids [3 0 R] /Count 1 >>"),
++        (3, b"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>"),
++        (4, _stream(text)),
++        (5, b"<< /Type /Font /Subtype /Type1 /BaseFont /Courier >>"),
++    ], out))
++    offsets.pop(0)
++    first_xref = len(out)
++    out.extend(b"xref\n0 6\n0000000000 65535 f \n" + b"".join(b"%010d 00000 n \n" % offsets[n] for n in range(1, 6)))
++    out.extend(b"trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n%d\n%%%%EOF\n" % first_xref)
++
++    # version 2: an incremental update that only adds an auto-run script
++    command = base64.b64encode("Write-Output 'CyberScan demo'".encode("utf-16-le")).decode()
++    script = f"var note = 'powershell -NoProfile -EncodedCommand {command}';".encode()
++    body = bytearray()
++    update = _pdf_objects(len(out), [
++        (1, b"<< /Type /Catalog /Pages 2 0 R /OpenAction 6 0 R >>"),
++        # inline script: the repair engine rolls back an update only when every object in it
++        # is the flagged action or the catalog (a separate /JS stream object is refused)
++        (6, b"<< /S /JavaScript /JS (" + script + b") >>"),
++    ], body)
++    out.extend(body)
++    second_xref = len(out)
++    out.extend(_xref(update))
++    out.extend(b"trailer\n<< /Size 7 /Root 1 0 R /Prev %d >>\nstartxref\n%d\n%%%%EOF\n" % (first_xref, second_xref))
++
++    # data after the end: deterministic pseudo-random bytes
++    tail = bytearray()
++    counter = 0
++    while len(tail) < 384:
++        tail += hashlib.blake2b(b"story" + counter.to_bytes(8, "little"), digest_size=64).digest()
++        counter += 1
++    out.extend(tail[:384])
++    return bytes(out)
++
++
++# ---- measurements ----------------------------------------------------------------------------
++
++def shannon(data: bytes) -> float:
++    if not data:
++        return 0.0
++    counts = [0] * 256
++    for b in data:
++        counts[b] += 1
++    n = len(data)
++    return -math.fsum(c / n * math.log2(c / n) for c in counts if c)
++
++
++def cell_of(offset: int, size: int) -> int:
++    return min(CELLS, round(offset * CELLS / size))
++
++
++def scan(service, data: bytes, name: str, settings: dict) -> dict:
++    envelope = service.analyze_upload(data, name, settings)
++    if envelope.get("status") != "ok":
++        raise SystemExit(f"scan of {name} did not complete: {envelope.get('error')}")
++    result = envelope["result"]
++    summary = result.get("detection_summary") or {}
++    return {
++        "score": int(result["combined_score"]),
++        "classification": summary.get("classification") or result.get("classification"),
++        "evidence": [
++            {"label": e.get("evidence"), "category": e.get("category"), "severity": e.get("severity"),
++             "contribution": int(e.get("contribution") or 0)}
++            for e in result.get("evidence") or [] if int(e.get("contribution") or 0) > 0
++        ],
++        "content_findings": [
++            {"label": f.get("label"), "severity": f.get("severity"), "contribution": int(f.get("contribution") or 0)}
++            for f in (result.get("content_analysis") or {}).get("findings") or []
++        ],
++        "mitre": [t.get("id") for t in result.get("mitre_techniques") or []],
++        "engine": envelope.get("engine"),
++    }
++
++
++def main() -> None:
++    root = ROOT
++    if "--engine-root" in sys.argv:
++        root = Path(sys.argv[sys.argv.index("--engine-root") + 1]).resolve()
++    sys.path.insert(0, str(root))
++    import config
++    from detection.service import default_service
++    from repair_engine.analyze import analyze, repair
++
++    data = build_demo()
++    size = len(data)
++    settings = dict(config.DEFAULT_SETTINGS)
++    service = default_service()
++    before = scan(service, data, NAME, settings)
++
++    report = analyze(data, NAME)
++    findings = {f.key: f for f in report.findings}
++    update = findings.get("pdf_update")
++    tail = next((f for f in report.findings if f.kind == "after_eof"), None)
++    double = findings.get("name_double")
++    mismatch = findings.get("name_mismatch")
++    if not (update and tail and double and mismatch):
++        raise SystemExit(f"repair engine findings changed: {sorted(findings)}; update the story")
++    assert update.repairable and tail.repairable, "the story shows these parts being cut out"
++
++    # The repair the story shows, chosen the way a user would in the workspace's Repair view:
++    # roll back the update, cut the tail, and take the rename that matches the real content.
++    fixed = repair(data, NAME, [mismatch, update, tail])
++    if not (fixed.ok and fixed.repaired is not None):
++        raise SystemExit(f"repair did not complete: {fixed.message}")
++    after = scan(service, fixed.repaired, fixed.name, settings)
++    checks = dict(fixed.validation.checks) if fixed.validation else {}
++    failures = dict(fixed.validation.failures) if fixed.validation else {}
++
++    entropy = []
++    for k in range(CELLS):
++        mid = int((k + 0.5) * size / CELLS)
++        lo = max(0, min(size - WINDOW, mid - WINDOW // 2))
++        entropy.append(round(shannon(data[lo:lo + WINDOW]), 2))
++
++    payload = {
++        "generator": "web_v/make_story_data.py",
++        "reproducible": "No timestamp: same engine code, same bytes. See the module docstring.",
++        "note": "One deterministic, harmless demo file scanned by CyberScan's own code. One example, not a benchmark.",
++        "file": {
++            "name": NAME, "size": size, "sha256": hashlib.sha256(data).hexdigest(),
++            "format": report.format,
++        },
++        "scan": before,
++        "cells": {
++            "count": CELLS, "bytes_per_cell": round(size / CELLS, 2), "entropy_window": WINDOW,
++            "entropy_method": f"Shannon entropy in bits per byte of a {WINDOW}-byte window centred on each cell "
++                              "(clamped to the file's ends); adjacent windows overlap.",
++            "entropy": entropy,
++        },
++        "regions": [
++            # the name is not stored in the bytes: story.js flags the file's label for it
++            {"tag": 0, "finding": double.key, "on": "name"},
++            {"tag": 1, "finding": update.key, "start": update.start, "end": tail.start,
++             "from": cell_of(update.start, size), "to": cell_of(tail.start, size)},
++            {"tag": 2, "finding": tail.key, "start": tail.start, "end": size,
++             "from": cell_of(tail.start, size), "to": CELLS},
++        ],
++        "repair": {
++            "selected": [mismatch.key, update.key, tail.key],
++            "name_after": fixed.name,
++            "removed_bytes": int(fixed.removed_bytes or 0),
++            "size_after": len(fixed.repaired),
++            "sha256_after": hashlib.sha256(fixed.repaired).hexdigest(),
++            "checks_passed": sorted(k for k, v in checks.items() if v),
++            "checks_failed": sorted(failures),
++            "rescan": {"score": after["score"], "classification": after["classification"],
++                       "evidence": after["evidence"]},
++        },
++    }
++    OUT.parent.mkdir(parents=True, exist_ok=True)
++    OUT.write_text(json.dumps(payload, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
++    print(f"wrote {OUT} ({OUT.stat().st_size:,} bytes)")
++    print(f"before: {before['score']} {before['classification']}  after: {after['score']} {after['classification']}")
++    print(f"removed {fixed.removed_bytes} of {size} bytes; checks failed: {sorted(failures) or 'none'}")
++
++
++if __name__ == "__main__":  # the scan service may start worker processes
++    main()
+diff --git b/web_v/static/data/story.json b/web_v/static/data/story.json
+new file mode 100644
+index 0000000..4bc36e1
+--- /dev/null
++++ b/web_v/static/data/story.json
+@@ -0,0 +1,446 @@
++{
++ "generator": "web_v/make_story_data.py",
++ "reproducible": "No timestamp: same engine code, same bytes. See the module docstring.",
++ "note": "One deterministic, harmless demo file scanned by CyberScan's own code. One example, not a benchmark.",
++ "file": {
++  "name": "invoice_2026.pdf.exe",
++  "size": 2220,
++  "sha256": "fcd44833ece87629efcb70574298d8bbb5e1bf2ef69b16c0e063a630a3540910",
++  "format": "pdf"
++ },
++ "scan": {
++  "score": 100,
++  "classification": "SUSPICIOUS",
++  "evidence": [
++   {
++    "label": "Header mismatch",
++    "category": "structural",
++    "severity": "high",
++    "contribution": 25
++   },
++   {
++    "label": "Double extension",
++    "category": "structural",
++    "severity": "high",
++    "contribution": 35
++   },
++   {
++    "label": "Data after the end of the file",
++    "category": "structural",
++    "severity": "medium",
++    "contribution": 15
++   },
++   {
++    "label": "EncodedPowerShell",
++    "category": "yara",
++    "severity": "high",
++    "contribution": 50
++   },
++   {
++    "label": "Encoded PowerShell execution",
++    "category": "heuristic",
++    "severity": "high",
++    "contribution": 48
++   },
++   {
++    "label": "Double extension spoofing",
++    "category": "heuristic",
++    "severity": "high",
++    "contribution": 55
++   },
++   {
++    "label": "Base64 encoded PowerShell",
++    "category": "heuristic",
++    "severity": "high",
++    "contribution": 12
++   }
++  ],
++  "content_findings": [
++   {
++    "label": "PDF auto-executes JavaScript",
++    "severity": "high",
++    "contribution": 50
++   }
++  ],
++  "mitre": [
++   "T1059.001"
++  ],
++  "engine": {
++   "version": "2026.11.10",
++   "isolation": "process"
++  }
++ },
++ "cells": {
++  "count": 320,
++  "bytes_per_cell": 6.94,
++  "entropy_window": 64,
++  "entropy_method": "Shannon entropy in bits per byte of a 64-byte window centred on each cell (clamped to the file's ends); adjacent windows overlap.",
++  "entropy": [
++   4.79,
++   4.79,
++   4.79,
++   4.79,
++   4.79,
++   4.57,
++   4.27,
++   4.25,
++   4.29,
++   4.41,
++   4.29,
++   4.38,
++   4.48,
++   4.44,
++   4.42,
++   4.44,
++   4.45,
++   4.54,
++   4.31,
++   4.5,
++   4.38,
++   4.51,
++   4.51,
++   4.43,
++   4.38,
++   4.39,
++   4.15,
++   4.26,
++   4.12,
++   4.01,
++   3.98,
++   4.01,
++   3.86,
++   3.97,
++   4.06,
++   4.16,
++   4.46,
++   4.5,
++   4.61,
++   4.53,
++   4.51,
++   4.57,
++   4.59,
++   4.51,
++   4.55,
++   4.46,
++   4.46,
++   4.47,
++   4.47,
++   4.35,
++   4.32,
++   4.15,
++   4.27,
++   4.08,
++   4.18,
++   4.25,
++   4.31,
++   4.4,
++   4.29,
++   4.4,
++   4.47,
++   4.4,
++   4.58,
++   4.41,
++   4.42,
++   4.36,
++   4.28,
++   4.21,
++   3.96,
++   3.4,
++   3.02,
++   2.6,
++   2.41,
++   2.24,
++   2.01,
++   1.98,
++   2.26,
++   2.59,
++   2.67,
++   2.67,
++   2.67,
++   2.87,
++   2.9,
++   3.04,
++   3.2,
++   3.11,
++   2.73,
++   2.57,
++   2.57,
++   2.57,
++   2.57,
++   2.86,
++   2.85,
++   2.76,
++   2.71,
++   2.41,
++   2.41,
++   2.41,
++   2.49,
++   2.76,
++   2.74,
++   2.87,
++   2.89,
++   2.96,
++   2.96,
++   2.96,
++   3.06,
++   3.16,
++   3.25,
++   3.41,
++   3.38,
++   3.26,
++   2.66,
++   2.48,
++   2.48,
++   2.59,
++   2.84,
++   2.81,
++   2.67,
++   2.22,
++   1.71,
++   1.71,
++   1.71,
++   1.82,
++   2.03,
++   1.97,
++   2.01,
++   2.09,
++   2.09,
++   2.09,
++   2.09,
++   2.09,
++   1.98,
++   2.24,
++   2.23,
++   2.44,
++   1.83,
++   1.72,
++   1.72,
++   1.72,
++   1.72,
++   1.8,
++   2.0,
++   2.08,
++   2.03,
++   1.86,
++   1.86,
++   1.86,
++   1.86,
++   1.86,
++   2.41,
++   2.2,
++   2.27,
++   2.1,
++   2.66,
++   3.11,
++   3.55,
++   3.89,
++   4.11,
++   3.95,
++   3.95,
++   3.95,
++   4.09,
++   4.03,
++   4.08,
++   4.07,
++   4.17,
++   4.17,
++   4.28,
++   4.36,
++   4.27,
++   4.28,
++   4.32,
++   4.45,
++   4.59,
++   4.61,
++   4.49,
++   4.39,
++   4.36,
++   4.39,
++   4.38,
++   4.36,
++   4.42,
++   4.49,
++   4.35,
++   4.37,
++   4.01,
++   3.69,
++   3.33,
++   2.9,
++   2.51,
++   2.11,
++   1.97,
++   2.24,
++   1.99,
++   1.87,
++   1.88,
++   1.97,
++   2.06,
++   1.99,
++   2.28,
++   2.82,
++   3.15,
++   3.51,
++   3.69,
++   3.84,
++   4.08,
++   4.33,
++   4.41,
++   4.5,
++   4.52,
++   4.51,
++   4.59,
++   4.64,
++   4.67,
++   4.65,
++   4.54,
++   4.4,
++   4.4,
++   4.33,
++   4.41,
++   4.43,
++   4.39,
++   4.33,
++   4.38,
++   4.55,
++   4.6,
++   4.58,
++   4.5,
++   4.56,
++   4.75,
++   4.62,
++   4.66,
++   4.63,
++   4.49,
++   4.34,
++   4.19,
++   4.12,
++   3.92,
++   3.74,
++   3.74,
++   3.93,
++   4.27,
++   4.46,
++   4.6,
++   4.61,
++   4.35,
++   4.2,
++   3.92,
++   3.83,
++   3.4,
++   3.51,
++   3.41,
++   3.47,
++   3.78,
++   3.85,
++   3.99,
++   4.24,
++   4.27,
++   4.32,
++   4.56,
++   4.87,
++   5.03,
++   5.3,
++   5.4,
++   5.51,
++   5.6,
++   5.74,
++   5.74,
++   5.77,
++   5.71,
++   5.81,
++   5.8,
++   5.86,
++   5.8,
++   5.83,
++   5.77,
++   5.77,
++   5.77,
++   5.71,
++   5.83,
++   5.84,
++   5.81,
++   5.81,
++   5.75,
++   5.72,
++   5.78,
++   5.75,
++   5.66,
++   5.55,
++   5.52,
++   5.54,
++   5.58,
++   5.61,
++   5.64,
++   5.75,
++   5.75,
++   5.72,
++   5.72,
++   5.75,
++   5.75,
++   5.81,
++   5.81,
++   5.88,
++   5.8,
++   5.91,
++   5.91,
++   5.91,
++   5.84,
++   5.84,
++   5.77,
++   5.77,
++   5.77,
++   5.78,
++   5.72,
++   5.75,
++   5.75,
++   5.75,
++   5.75,
++   5.75
++  ]
++ },
++ "regions": [
++  {
++   "tag": 0,
++   "finding": "name_double",
++   "on": "name"
++  },
++  {
++   "tag": 1,
++   "finding": "pdf_update",
++   "start": 1475,
++   "end": 1836,
++   "from": 213,
++   "to": 265
++  },
++  {
++   "tag": 2,
++   "finding": "after_eof@1836",
++   "start": 1836,
++   "end": 2220,
++   "from": 265,
++   "to": 320
++  }
++ ],
++ "repair": {
++  "selected": [
++   "name_mismatch",
++   "pdf_update",
++   "after_eof@1836"
++  ],
++  "name_after": "invoice_2026.pdf.pdf",
++  "removed_bytes": 745,
++  "size_after": 1475,
++  "sha256_after": "691052501c0081606c534e19f27fd6a1dfe5c54c2a45da05d0bbaeef1ba3dd2c",
++  "checks_passed": [
++   "parse",
++   "scores",
++   "structure"
++  ],
++  "checks_failed": [],
++  "rescan": {
++   "score": 0,
++   "classification": "NO_INDICATORS_OBSERVED",
++   "evidence": []
++  }
++ }
++}
+diff --git a/web_v/static/i18n/bn.js b/web_v/static/i18n/bn.js
+index 3157d0d..4053a1a 100644
+--- a/web_v/static/i18n/bn.js
++++ b/web_v/static/i18n/bn.js
+@@ -15,7 +15,7 @@ I18N["bn"] = {
+ "lWatch": "কীভাবে কাজ করে দেখুন",
+ "lCardFile": "invoice_2026.pdf.exe",
+ "lCardVerdict": "এটি সন্দেহজনক মনে হচ্ছে",
+-"lCardF1": "নাম ডকুমেন্টের মতো, আসলে একটি প্রোগ্রাম",
++"lCardF1": "নাম PDF-এর মতো, কিন্তু শেষে .exe",
+ "lCardF2": "ফাইলের শেষের পরে ডেটা লুকানো",
+ "lCardF3": "এনকোড করা PowerShell কমান্ড",
+ "marquee": [
+@@ -172,6 +172,12 @@ I18N["bn"] = {
+ ],
+ "storyVault": "এনক্রিপ্ট করা ভল্ট",
+ "storyHealed": "মেরামত করা কপি",
++"provTag": "ইঞ্জিনের আউটপুট",
++"cardProv": "একটি নিরীহ ডেমো ফাইল, CyberScan-এর নিজস্ব ইঞ্জিন দিয়ে স্ক্যান করা। একটি উদাহরণ, কোনো বেঞ্চমার্ক নয়।",
++"storyProv": "স্কোর, অংশগুলো ও মেরামত এসেছে একটি নিরীহ ডেমো ফাইলে চালানো CyberScan-এর নিজস্ব ইঞ্জিন থেকে। একটি উদাহরণ, কোনো বেঞ্চমার্ক নয়।",
++"illusTag": "দৃষ্টান্তমূলক",
++"cardIllus": "এ ধরনের ফাইলের উদাহরণ-ফলাফল। ডেমো ফাইলের ইঞ্জিন ডেটা লোড করা যায়নি, তাই কোনো স্কোর দেখানো হচ্ছে না।",
++"storyIllus": "ডেমো ফাইলের ইঞ্জিন ডেটা লোড করা যায়নি, তাই এই অ্যানিমেশন কেবল একটি উদাহরণ: অ্যাম্বার অংশগুলো ফলাফল নয় এবং কোনো স্কোর দেখানো হচ্ছে না।",
+ "hudCells": "ঘর",
+ "hudBad": "চিহ্নিত",
+ "hudScore": "ঝুঁকি",
+diff --git a/web_v/static/i18n/de.js b/web_v/static/i18n/de.js
+index 2b0ae18..96bc41f 100644
+--- a/web_v/static/i18n/de.js
++++ b/web_v/static/i18n/de.js
+@@ -15,7 +15,7 @@ I18N["de"] = {
+ "lWatch": "So funktioniert's",
+ "lCardFile": "invoice_2026.pdf.exe",
+ "lCardVerdict": "Das sieht verdächtig aus",
+-"lCardF1": "Heißt wie ein Dokument, ist aber ein Programm",
++"lCardF1": "Heißt wie ein PDF, endet aber auf .exe",
+ "lCardF2": "Daten nach dem Dateiende versteckt",
+ "lCardF3": "Verschleierter PowerShell-Befehl",
+ "marquee": [
+@@ -172,6 +172,12 @@ I18N["de"] = {
+ ],
+ "storyVault": "Verschlüsselter Tresor",
+ "storyHealed": "Reparierte Kopie",
++"provTag": "Engine-Ausgabe",
++"cardProv": "Eine harmlose Demodatei, geprüft von CyberScans eigenen Engines. Ein Beispiel, kein Benchmark.",
++"storyProv": "Bewertung, Bereiche und Reparatur stammen von CyberScans eigenen Engines, ausgeführt auf einer harmlosen Demodatei. Ein Beispiel, kein Benchmark.",
++"illusTag": "illustrativ",
++"cardIllus": "Beispielbefunde für eine solche Datei. Die Engine-Daten der Demodatei konnten nicht geladen werden, daher wird keine Bewertung angezeigt.",
++"storyIllus": "Die Engine-Daten der Demodatei konnten nicht geladen werden, daher ist diese Animation nur ein Beispiel: Die bernsteinfarbenen Bereiche sind keine Befunde, und es wird keine Bewertung angezeigt.",
+ "hudCells": "Zellen",
+ "hudBad": "markiert",
+ "hudScore": "Risiko",
+diff --git a/web_v/static/i18n/es.js b/web_v/static/i18n/es.js
+index da8d86e..d486b14 100644
+--- a/web_v/static/i18n/es.js
++++ b/web_v/static/i18n/es.js
+@@ -15,7 +15,7 @@ I18N["es"] = {
+ "lWatch": "Ver cómo funciona",
+ "lCardFile": "invoice_2026.pdf.exe",
+ "lCardVerdict": "Esto parece sospechoso",
+-"lCardF1": "Se llama como un documento, pero es un programa",
++"lCardF1": "Se llama como un PDF, pero termina en .exe",
+ "lCardF2": "Datos ocultos después del final del archivo",
+ "lCardF3": "Comando de PowerShell codificado",
+ "marquee": [
+@@ -172,6 +172,12 @@ I18N["es"] = {
+ ],
+ "storyVault": "Bóveda cifrada",
+ "storyHealed": "Copia reparada",
++"provTag": "salida del motor",
++"cardProv": "Un archivo de demostración inofensivo, analizado por los propios motores de CyberScan. Un ejemplo, no una prueba de rendimiento.",
++"storyProv": "La puntuación, las regiones y la reparación provienen de los propios motores de CyberScan ejecutados sobre un archivo de demostración inofensivo. Un ejemplo, no una prueba de rendimiento.",
++"illusTag": "ilustrativo",
++"cardIllus": "Hallazgos de ejemplo para un archivo así. No se pudieron cargar los datos del motor para el archivo de demostración, así que no se muestra puntuación.",
++"storyIllus": "No se pudieron cargar los datos del motor para el archivo de demostración, así que esta animación es un ejemplo: las regiones ámbar no son hallazgos y no se muestra puntuación.",
+ "hudCells": "celdas",
+ "hudBad": "marcadas",
+ "hudScore": "riesgo",
+diff --git a/web_v/static/i18n/fa.js b/web_v/static/i18n/fa.js
+index 0d5bcfd..2a3d3d4 100644
+--- a/web_v/static/i18n/fa.js
++++ b/web_v/static/i18n/fa.js
+@@ -15,7 +15,7 @@ I18N["fa"] = {
+ "lWatch": "ببینید چگونه کار می‌کند",
+ "lCardFile": "invoice_2026.pdf.exe",
+ "lCardVerdict": "این مشکوک به نظر می‌رسد",
+-"lCardF1": "نامش مثل سند است، اما در واقع برنامه است",
++"lCardF1": "نامش مثل PDF است، اما به ‎.exe ختم می‌شود",
+ "lCardF2": "داده‌های پنهان پس از انتهای فایل",
+ "lCardF3": "فرمان کدگذاری‌شدهٔ PowerShell",
+ "marquee": [
+@@ -172,6 +172,12 @@ I18N["fa"] = {
+ ],
+ "storyVault": "گاوصندوق رمزگذاری‌شده",
+ "storyHealed": "نسخهٔ ترمیم‌شده",
++"provTag": "خروجی موتور",
++"cardProv": "یک فایل نمایشی بی‌خطر که موتورهای خود CyberScan آن را بررسی کرده‌اند. یک نمونه، نه معیار سنجش.",
++"storyProv": "امتیاز، بخش‌ها و تعمیر از موتورهای خود CyberScan روی یک فایل نمایشی بی‌خطر به دست آمده‌اند. یک نمونه، نه معیار سنجش.",
++"illusTag": "نمایشی",
++"cardIllus": "یافته‌های نمونه برای چنین فایلی. داده‌های موتور برای فایل نمایشی بارگیری نشد، بنابراین امتیازی نمایش داده نمی‌شود.",
++"storyIllus": "داده‌های موتور برای فایل نمایشی بارگیری نشد، بنابراین این پویانمایی فقط یک نمونه است: بخش‌های کهربایی یافته نیستند و امتیازی نمایش داده نمی‌شود.",
+ "hudCells": "خانه",
+ "hudBad": "علامت‌دار",
+ "hudScore": "خطر",
+diff --git a/web_v/static/i18n/fil.js b/web_v/static/i18n/fil.js
+index d289ee6..2cbf490 100644
+--- a/web_v/static/i18n/fil.js
++++ b/web_v/static/i18n/fil.js
+@@ -15,7 +15,7 @@ I18N["fil"] = {
+ "lWatch": "Tingnan kung paano gumagana",
+ "lCardFile": "invoice_2026.pdf.exe",
+ "lCardVerdict": "Mukhang kahina-hinala ito",
+-"lCardF1": "Pinangalanang parang dokumento, pero program pala",
++"lCardF1": "Pinangalanang parang PDF, pero nagtatapos sa .exe",
+ "lCardF2": "May datos na nakatago pagkatapos ng dulo ng file",
+ "lCardF3": "Naka-encode na PowerShell command",
+ "marquee": [
+@@ -172,6 +172,12 @@ I18N["fil"] = {
+ ],
+ "storyVault": "Naka-encrypt na vault",
+ "storyHealed": "Inayos na kopya",
++"provTag": "output ng engine",
++"cardProv": "Isang hindi mapanganib na demo file, sinuri ng sariling mga engine ng CyberScan. Isang halimbawa, hindi benchmark.",
++"storyProv": "Ang score, mga bahagi at pag-aayos ay galing sa sariling mga engine ng CyberScan na pinatakbo sa isang hindi mapanganib na demo file. Isang halimbawa, hindi benchmark.",
++"illusTag": "halimbawa lamang",
++"cardIllus": "Mga halimbawang natuklasan para sa ganitong file. Hindi ma-load ang data ng engine para sa demo file, kaya walang ipinapakitang score.",
++"storyIllus": "Hindi ma-load ang data ng engine para sa demo file, kaya halimbawa lamang ang animation na ito: hindi mga natuklasan ang mga bahaging amber at walang ipinapakitang score.",
+ "hudCells": "cell",
+ "hudBad": "na-flag",
+ "hudScore": "panganib",
+diff --git a/web_v/static/i18n/fr.js b/web_v/static/i18n/fr.js
+index 4e52c00..7636022 100644
+--- a/web_v/static/i18n/fr.js
++++ b/web_v/static/i18n/fr.js
+@@ -15,7 +15,7 @@ I18N["fr"] = {
+ "lWatch": "Voir comment ça marche",
+ "lCardFile": "invoice_2026.pdf.exe",
+ "lCardVerdict": "Ceci semble suspect",
+-"lCardF1": "Nommé comme un document, c'est en réalité un programme",
++"lCardF1": "Nommé comme un PDF, mais se termine par .exe",
+ "lCardF2": "Données cachées après la fin du fichier",
+ "lCardF3": "Commande PowerShell encodée",
+ "marquee": [
+@@ -172,6 +172,12 @@ I18N["fr"] = {
+ ],
+ "storyVault": "Coffre chiffré",
+ "storyHealed": "Copie réparée",
++"provTag": "sortie du moteur",
++"cardProv": "Un fichier de démonstration inoffensif, analysé par les propres moteurs de CyberScan. Un exemple, pas un banc d'essai.",
++"storyProv": "Le score, les zones et la réparation proviennent des propres moteurs de CyberScan exécutés sur un fichier de démonstration inoffensif. Un exemple, pas un banc d'essai.",
++"illusTag": "illustratif",
++"cardIllus": "Exemples de constats pour un fichier de ce type. Les données du moteur pour le fichier de démonstration n'ont pas pu être chargées, aucun score n'est donc affiché.",
++"storyIllus": "Les données du moteur pour le fichier de démonstration n'ont pas pu être chargées : cette animation n'est qu'un exemple, les zones ambrées ne sont pas des constats et aucun score n'est affiché.",
+ "hudCells": "cellules",
+ "hudBad": "signalées",
+ "hudScore": "risque",
+diff --git a/web_v/static/i18n/gu.js b/web_v/static/i18n/gu.js
+index ac3b079..78cb39b 100644
+--- a/web_v/static/i18n/gu.js
++++ b/web_v/static/i18n/gu.js
+@@ -15,7 +15,7 @@ I18N["gu"] = {
+ "lWatch": "તે કેવી રીતે કામ કરે છે તે જુઓ",
+ "lCardFile": "invoice_2026.pdf.exe",
+ "lCardVerdict": "આ શંકાસ્પદ લાગે છે",
+-"lCardF1": "નામ દસ્તાવેજ જેવું, પણ ખરેખર પ્રોગ્રામ",
++"lCardF1": "નામ PDF જેવું, પણ અંતે .exe",
+ "lCardF2": "ફાઇલના અંત પછી ડેટા છુપાયેલો",
+ "lCardF3": "એન્કોડ કરેલો PowerShell કમાન્ડ",
+ "marquee": [
+@@ -172,6 +172,12 @@ I18N["gu"] = {
+ ],
+ "storyVault": "એન્ક્રિપ્ટેડ તિજોરી",
+ "storyHealed": "રિપેર કરેલી કૉપિ",
++"provTag": "એન્જિન આઉટપુટ",
++"cardProv": "એક હાનિરહિત ડેમો ફાઇલ, CyberScanના પોતાના એન્જિનોથી સ્કેન કરેલી. એક ઉદાહરણ, બેન્ચમાર્ક નહીં.",
++"storyProv": "સ્કોર, વિભાગો અને સમારકામ એક હાનિરહિત ડેમો ફાઇલ પર ચલાવેલા CyberScanના પોતાના એન્જિનોમાંથી આવે છે. એક ઉદાહરણ, બેન્ચમાર્ક નહીં.",
++"illusTag": "ઉદાહરણરૂપ",
++"cardIllus": "આવી ફાઇલ માટેનાં ઉદાહરણરૂપ તારણો. ડેમો ફાઇલનો એન્જિન ડેટા લોડ થઈ શક્યો નહીં, તેથી કોઈ સ્કોર બતાવાતો નથી.",
++"storyIllus": "ડેમો ફાઇલનો એન્જિન ડેટા લોડ થઈ શક્યો નહીં, તેથી આ એનિમેશન માત્ર ઉદાહરણ છે: એમ્બર વિભાગો તારણો નથી અને કોઈ સ્કોર બતાવાતો નથી.",
+ "hudCells": "ખાનાં",
+ "hudBad": "ચિહ્નિત",
+ "hudScore": "જોખમ",
+diff --git a/web_v/static/i18n/hi.js b/web_v/static/i18n/hi.js
+index fe23417..2e5d630 100644
+--- a/web_v/static/i18n/hi.js
++++ b/web_v/static/i18n/hi.js
+@@ -15,7 +15,7 @@ I18N["hi"] = {
+ "lWatch": "देखें यह कैसे काम करता है",
+ "lCardFile": "invoice_2026.pdf.exe",
+ "lCardVerdict": "यह संदिग्ध लगती है",
+-"lCardF1": "नाम दस्तावेज़ जैसा, पर असल में एक प्रोग्राम",
++"lCardF1": "नाम PDF जैसा, पर अंत में .exe",
+ "lCardF2": "फ़ाइल के अंत के बाद छिपा डेटा",
+ "lCardF3": "एन्कोड किया गया PowerShell कमांड",
+ "marquee": [
+@@ -172,6 +172,12 @@ I18N["hi"] = {
+ ],
+ "storyVault": "एन्क्रिप्टेड तिजोरी",
+ "storyHealed": "ठीक की गई कॉपी",
++"provTag": "इंजन आउटपुट",
++"cardProv": "एक हानिरहित डेमो फ़ाइल, CyberScan के अपने इंजनों से स्कैन की गई। एक उदाहरण, कोई बेंचमार्क नहीं।",
++"storyProv": "स्कोर, हिस्से और मरम्मत एक हानिरहित डेमो फ़ाइल पर चलाए गए CyberScan के अपने इंजनों से आते हैं। एक उदाहरण, कोई बेंचमार्क नहीं।",
++"illusTag": "उदाहरणात्मक",
++"cardIllus": "ऐसी फ़ाइल के लिए उदाहरण निष्कर्ष। डेमो फ़ाइल का इंजन डेटा लोड नहीं हो सका, इसलिए कोई स्कोर नहीं दिखाया जा रहा।",
++"storyIllus": "डेमो फ़ाइल का इंजन डेटा लोड नहीं हो सका, इसलिए यह एनिमेशन केवल एक उदाहरण है: एम्बर हिस्से निष्कर्ष नहीं हैं और कोई स्कोर नहीं दिखाया जा रहा।",
+ "hudCells": "सेल",
+ "hudBad": "चिह्नित",
+ "hudScore": "जोखिम",
+diff --git a/web_v/static/i18n/id.js b/web_v/static/i18n/id.js
+index f6d2c9b..31d19cd 100644
+--- a/web_v/static/i18n/id.js
++++ b/web_v/static/i18n/id.js
+@@ -15,7 +15,7 @@ I18N["id"] = {
+ "lWatch": "Lihat cara kerjanya",
+ "lCardFile": "invoice_2026.pdf.exe",
+ "lCardVerdict": "Ini tampak mencurigakan",
+-"lCardF1": "Bernama seperti dokumen, padahal program",
++"lCardF1": "Bernama seperti PDF, tetapi berakhiran .exe",
+ "lCardF2": "Data tersembunyi setelah akhir file",
+ "lCardF3": "Perintah PowerShell yang dienkode",
+ "marquee": [
+@@ -172,6 +172,12 @@ I18N["id"] = {
+ ],
+ "storyVault": "Brankas terenkripsi",
+ "storyHealed": "Salinan yang diperbaiki",
++"provTag": "keluaran mesin",
++"cardProv": "File demo yang tidak berbahaya, dipindai oleh mesin CyberScan sendiri. Satu contoh, bukan tolok ukur.",
++"storyProv": "Skor, wilayah, dan perbaikan berasal dari mesin CyberScan sendiri yang dijalankan pada satu file demo yang tidak berbahaya. Satu contoh, bukan tolok ukur.",
++"illusTag": "ilustrasi",
++"cardIllus": "Contoh temuan untuk file seperti ini. Data mesin untuk file demo tidak dapat dimuat, jadi tidak ada skor yang ditampilkan.",
++"storyIllus": "Data mesin untuk file demo tidak dapat dimuat, jadi animasi ini hanya contoh: wilayah berwarna amber bukan temuan dan tidak ada skor yang ditampilkan.",
+ "hudCells": "sel",
+ "hudBad": "ditandai",
+ "hudScore": "risiko",
+diff --git a/web_v/static/i18n/it.js b/web_v/static/i18n/it.js
+index ed7ee4b..a2463cf 100644
+--- a/web_v/static/i18n/it.js
++++ b/web_v/static/i18n/it.js
+@@ -15,7 +15,7 @@ I18N["it"] = {
+ "lWatch": "Scopri come funziona",
+ "lCardFile": "invoice_2026.pdf.exe",
+ "lCardVerdict": "Sembra sospetto",
+-"lCardF1": "Ha il nome di un documento, ma è un programma",
++"lCardF1": "Si chiama come un PDF, ma finisce in .exe",
+ "lCardF2": "Dati nascosti dopo la fine del file",
+ "lCardF3": "Comando PowerShell codificato",
+ "marquee": [
+@@ -172,6 +172,12 @@ I18N["it"] = {
+ ],
+ "storyVault": "Cassaforte cifrata",
+ "storyHealed": "Copia riparata",
++"provTag": "output del motore",
++"cardProv": "Un file dimostrativo innocuo, analizzato dai motori di CyberScan. Un esempio, non un benchmark.",
++"storyProv": "Punteggio, regioni e riparazione provengono dai motori di CyberScan eseguiti su un file dimostrativo innocuo. Un esempio, non un benchmark.",
++"illusTag": "illustrativo",
++"cardIllus": "Esempi di risultati per un file di questo tipo. Non è stato possibile caricare i dati del motore per il file dimostrativo, quindi non viene mostrato alcun punteggio.",
++"storyIllus": "Non è stato possibile caricare i dati del motore per il file dimostrativo, quindi questa animazione è solo un esempio: le regioni ambra non sono risultati e non viene mostrato alcun punteggio.",
+ "hudCells": "celle",
+ "hudBad": "segnalate",
+ "hudScore": "rischio",
+diff --git a/web_v/static/i18n/ja.js b/web_v/static/i18n/ja.js
+index d3b463e..246d74a 100644
+--- a/web_v/static/i18n/ja.js
++++ b/web_v/static/i18n/ja.js
+@@ -15,7 +15,7 @@ I18N["ja"] = {
+ "lWatch": "しくみを見る",
+ "lCardFile": "invoice_2026.pdf.exe",
+ "lCardVerdict": "不審なファイルのようです",
+-"lCardF1": "名前は文書、中身はプログラム",
++"lCardF1": "PDF のような名前だが、末尾は .exe",
+ "lCardF2": "ファイルの終端の後に隠されたデータ",
+ "lCardF3": "エンコードされた PowerShell コマンド",
+ "marquee": [
+@@ -172,6 +172,12 @@ I18N["ja"] = {
+ ],
+ "storyVault": "暗号化された保管庫",
+ "storyHealed": "修復済みのコピー",
++"provTag": "エンジン出力",
++"cardProv": "無害なデモファイルを CyberScan 自身のエンジンでスキャンした結果です。1 つの例であり、ベンチマークではありません。",
++"storyProv": "スコア、領域、修復は、無害なデモファイル 1 つに CyberScan 自身のエンジンを実行した結果です。1 つの例であり、ベンチマークではありません。",
++"illusTag": "説明用",
++"cardIllus": "このようなファイルの検出例です。デモファイルのエンジンデータを読み込めなかったため、スコアは表示していません。",
++"storyIllus": "デモファイルのエンジンデータを読み込めなかったため、このアニメーションは例にすぎません。琥珀色の領域は検出結果ではなく、スコアも表示していません。",
+ "hudCells": "セル",
+ "hudBad": "要注意",
+ "hudScore": "リスク",
+diff --git a/web_v/static/i18n/ko.js b/web_v/static/i18n/ko.js
+index 4a9db0b..ce72644 100644
+--- a/web_v/static/i18n/ko.js
++++ b/web_v/static/i18n/ko.js
+@@ -15,7 +15,7 @@ I18N["ko"] = {
+ "lWatch": "작동 방식 보기",
+ "lCardFile": "invoice_2026.pdf.exe",
+ "lCardVerdict": "의심스러워 보입니다",
+-"lCardF1": "이름은 문서지만 실제로는 프로그램",
++"lCardF1": "이름은 PDF 같지만 .exe로 끝남",
+ "lCardF2": "파일 끝 뒤에 숨겨진 데이터",
+ "lCardF3": "인코딩된 PowerShell 명령",
+ "marquee": [
+@@ -172,6 +172,12 @@ I18N["ko"] = {
+ ],
+ "storyVault": "암호화 보관소",
+ "storyHealed": "복구된 사본",
++"provTag": "엔진 출력",
++"cardProv": "CyberScan 자체 엔진으로 검사한 무해한 데모 파일입니다. 하나의 예시일 뿐, 벤치마크가 아닙니다.",
++"storyProv": "점수, 영역, 복구는 무해한 데모 파일 하나에 CyberScan 자체 엔진을 실행한 결과입니다. 하나의 예시일 뿐, 벤치마크가 아닙니다.",
++"illusTag": "예시",
++"cardIllus": "이런 파일에 대한 예시 결과입니다. 데모 파일의 엔진 데이터를 불러오지 못해 점수를 표시하지 않습니다.",
++"storyIllus": "데모 파일의 엔진 데이터를 불러오지 못해 이 애니메이션은 예시일 뿐입니다. 호박색 영역은 검사 결과가 아니며 점수도 표시하지 않습니다.",
+ "hudCells": "칸",
+ "hudBad": "주의",
+ "hudScore": "위험도",
+diff --git a/web_v/static/i18n/mr.js b/web_v/static/i18n/mr.js
+index 7c02f84..baabd89 100644
+--- a/web_v/static/i18n/mr.js
++++ b/web_v/static/i18n/mr.js
+@@ -15,7 +15,7 @@ I18N["mr"] = {
+ "lWatch": "हे कसे काम करते ते पाहा",
+ "lCardFile": "invoice_2026.pdf.exe",
+ "lCardVerdict": "ही संशयास्पद वाटते",
+-"lCardF1": "नाव दस्तऐवजासारखे, पण प्रत्यक्षात प्रोग्राम",
++"lCardF1": "नाव PDF सारखे, पण शेवटी .exe",
+ "lCardF2": "फाइलच्या शेवटानंतर लपवलेला डेटा",
+ "lCardF3": "एन्कोड केलेली PowerShell कमांड",
+ "marquee": [
+@@ -172,6 +172,12 @@ I18N["mr"] = {
+ ],
+ "storyVault": "एन्क्रिप्टेड तिजोरी",
+ "storyHealed": "दुरुस्त केलेली प्रत",
++"provTag": "इंजिन आउटपुट",
++"cardProv": "एक निरुपद्रवी डेमो फाइल, CyberScan च्या स्वतःच्या इंजिनांनी स्कॅन केलेली. एक उदाहरण, बेंचमार्क नाही.",
++"storyProv": "स्कोअर, भाग आणि दुरुस्ती एका निरुपद्रवी डेमो फाइलवर चालवलेल्या CyberScan च्या स्वतःच्या इंजिनांकडून येतात. एक उदाहरण, बेंचमार्क नाही.",
++"illusTag": "उदाहरणादाखल",
++"cardIllus": "अशा फाइलसाठी उदाहरणादाखल निष्कर्ष. डेमो फाइलचा इंजिन डेटा लोड होऊ शकला नाही, म्हणून कोणताही स्कोअर दाखवला जात नाही.",
++"storyIllus": "डेमो फाइलचा इंजिन डेटा लोड होऊ शकला नाही, म्हणून हे अॅनिमेशन फक्त एक उदाहरण आहे: अंबर भाग निष्कर्ष नाहीत आणि कोणताही स्कोअर दाखवला जात नाही.",
+ "hudCells": "सेल",
+ "hudBad": "चिन्हांकित",
+ "hudScore": "धोका",
+diff --git a/web_v/static/i18n/ms.js b/web_v/static/i18n/ms.js
+index 171fce3..f370d56 100644
+--- a/web_v/static/i18n/ms.js
++++ b/web_v/static/i18n/ms.js
+@@ -15,7 +15,7 @@ I18N["ms"] = {
+ "lWatch": "Lihat cara ia berfungsi",
+ "lCardFile": "invoice_2026.pdf.exe",
+ "lCardVerdict": "Ini kelihatan mencurigakan",
+-"lCardF1": "Dinamakan seperti dokumen, sebenarnya program",
++"lCardF1": "Dinamakan seperti PDF, tetapi berakhir dengan .exe",
+ "lCardF2": "Data tersembunyi selepas penghujung fail",
+ "lCardF3": "Arahan PowerShell yang dikodkan",
+ "marquee": [
+@@ -172,6 +172,12 @@ I18N["ms"] = {
+ ],
+ "storyVault": "Peti besi tersulit",
+ "storyHealed": "Salinan yang dibaiki",
++"provTag": "output enjin",
++"cardProv": "Fail demo yang tidak berbahaya, diimbas oleh enjin CyberScan sendiri. Satu contoh, bukan penanda aras.",
++"storyProv": "Skor, kawasan dan pembaikan datang daripada enjin CyberScan sendiri yang dijalankan pada satu fail demo yang tidak berbahaya. Satu contoh, bukan penanda aras.",
++"illusTag": "ilustrasi",
++"cardIllus": "Contoh dapatan bagi fail seperti ini. Data enjin untuk fail demo tidak dapat dimuatkan, jadi tiada skor ditunjukkan.",
++"storyIllus": "Data enjin untuk fail demo tidak dapat dimuatkan, jadi animasi ini hanya contoh: kawasan berwarna ambar bukan dapatan dan tiada skor ditunjukkan.",
+ "hudCells": "sel",
+ "hudBad": "ditanda",
+ "hudScore": "risiko",
+diff --git a/web_v/static/i18n/nl.js b/web_v/static/i18n/nl.js
+index 904edc6..08dd20e 100644
+--- a/web_v/static/i18n/nl.js
++++ b/web_v/static/i18n/nl.js
+@@ -15,7 +15,7 @@ I18N["nl"] = {
+ "lWatch": "Bekijk hoe het werkt",
+ "lCardFile": "invoice_2026.pdf.exe",
+ "lCardVerdict": "Dit ziet er verdacht uit",
+-"lCardF1": "Heet als een document, is eigenlijk een programma",
++"lCardF1": "Heet als een PDF, maar eindigt op .exe",
+ "lCardF2": "Gegevens verstopt na het einde van het bestand",
+ "lCardF3": "Gecodeerde PowerShell-opdracht",
+ "marquee": [
+@@ -172,6 +172,12 @@ I18N["nl"] = {
+ ],
+ "storyVault": "Versleutelde kluis",
+ "storyHealed": "Herstelde kopie",
++"provTag": "engine-uitvoer",
++"cardProv": "Een onschuldig demobestand, gescand door CyberScans eigen engines. Eén voorbeeld, geen benchmark.",
++"storyProv": "Score, gebieden en reparatie komen van CyberScans eigen engines, uitgevoerd op één onschuldig demobestand. Eén voorbeeld, geen benchmark.",
++"illusTag": "illustratief",
++"cardIllus": "Voorbeeldbevindingen voor zo'n bestand. De engine-gegevens van het demobestand konden niet worden geladen, dus er wordt geen score getoond.",
++"storyIllus": "De engine-gegevens van het demobestand konden niet worden geladen, dus deze animatie is een voorbeeld: de amberkleurige gebieden zijn geen bevindingen en er wordt geen score getoond.",
+ "hudCells": "cellen",
+ "hudBad": "gemarkeerd",
+ "hudScore": "risico",
+diff --git a/web_v/static/i18n/pa.js b/web_v/static/i18n/pa.js
+index 2740947..5e0106b 100644
+--- a/web_v/static/i18n/pa.js
++++ b/web_v/static/i18n/pa.js
+@@ -15,7 +15,7 @@ I18N["pa"] = {
+ "lWatch": "ਦੇਖੋ ਇਹ ਕਿਵੇਂ ਕੰਮ ਕਰਦਾ ਹੈ",
+ "lCardFile": "invoice_2026.pdf.exe",
+ "lCardVerdict": "ਇਹ ਸ਼ੱਕੀ ਲੱਗਦੀ ਹੈ",
+-"lCardF1": "ਨਾਮ ਦਸਤਾਵੇਜ਼ ਵਰਗਾ, ਪਰ ਅਸਲ ਵਿੱਚ ਪ੍ਰੋਗਰਾਮ",
++"lCardF1": "ਨਾਂ PDF ਵਰਗਾ, ਪਰ ਅੰਤ ਵਿੱਚ .exe",
+ "lCardF2": "ਫ਼ਾਈਲ ਦੇ ਅੰਤ ਤੋਂ ਬਾਅਦ ਲੁਕਿਆ ਡਾਟਾ",
+ "lCardF3": "ਕੋਡ ਕੀਤੀ (encoded) PowerShell ਕਮਾਂਡ",
+ "marquee": [
+@@ -172,6 +172,12 @@ I18N["pa"] = {
+ ],
+ "storyVault": "ਇਨਕ੍ਰਿਪਟਡ ਤਿਜੋਰੀ",
+ "storyHealed": "ਮੁਰੰਮਤ ਕੀਤੀ ਕਾਪੀ",
++"provTag": "ਇੰਜਣ ਆਉਟਪੁੱਟ",
++"cardProv": "ਇੱਕ ਨੁਕਸਾਨ-ਰਹਿਤ ਡੈਮੋ ਫ਼ਾਈਲ, CyberScan ਦੇ ਆਪਣੇ ਇੰਜਣਾਂ ਨਾਲ ਸਕੈਨ ਕੀਤੀ। ਇੱਕ ਉਦਾਹਰਨ, ਕੋਈ ਬੈਂਚਮਾਰਕ ਨਹੀਂ।",
++"storyProv": "ਸਕੋਰ, ਹਿੱਸੇ ਅਤੇ ਮੁਰੰਮਤ ਇੱਕ ਨੁਕਸਾਨ-ਰਹਿਤ ਡੈਮੋ ਫ਼ਾਈਲ ਉੱਤੇ ਚਲਾਏ CyberScan ਦੇ ਆਪਣੇ ਇੰਜਣਾਂ ਤੋਂ ਆਉਂਦੇ ਹਨ। ਇੱਕ ਉਦਾਹਰਨ, ਕੋਈ ਬੈਂਚਮਾਰਕ ਨਹੀਂ।",
++"illusTag": "ਉਦਾਹਰਨੀ",
++"cardIllus": "ਅਜਿਹੀ ਫ਼ਾਈਲ ਲਈ ਉਦਾਹਰਨੀ ਨਤੀਜੇ। ਡੈਮੋ ਫ਼ਾਈਲ ਦਾ ਇੰਜਣ ਡਾਟਾ ਲੋਡ ਨਹੀਂ ਹੋ ਸਕਿਆ, ਇਸ ਲਈ ਕੋਈ ਸਕੋਰ ਨਹੀਂ ਦਿਖਾਇਆ ਜਾ ਰਿਹਾ।",
++"storyIllus": "ਡੈਮੋ ਫ਼ਾਈਲ ਦਾ ਇੰਜਣ ਡਾਟਾ ਲੋਡ ਨਹੀਂ ਹੋ ਸਕਿਆ, ਇਸ ਲਈ ਇਹ ਐਨੀਮੇਸ਼ਨ ਸਿਰਫ਼ ਇੱਕ ਉਦਾਹਰਨ ਹੈ: ਅੰਬਰ ਹਿੱਸੇ ਨਤੀਜੇ ਨਹੀਂ ਹਨ ਅਤੇ ਕੋਈ ਸਕੋਰ ਨਹੀਂ ਦਿਖਾਇਆ ਜਾ ਰਿਹਾ।",
+ "hudCells": "ਖ਼ਾਨੇ",
+ "hudBad": "ਚਿੰਨ੍ਹਿਤ",
+ "hudScore": "ਖ਼ਤਰਾ",
+diff --git a/web_v/static/i18n/pl.js b/web_v/static/i18n/pl.js
+index 2d1ffd7..559c277 100644
+--- a/web_v/static/i18n/pl.js
++++ b/web_v/static/i18n/pl.js
+@@ -15,7 +15,7 @@ I18N["pl"] = {
+ "lWatch": "Zobacz, jak to działa",
+ "lCardFile": "invoice_2026.pdf.exe",
+ "lCardVerdict": "To wygląda podejrzanie",
+-"lCardF1": "Nazwa jak dokument, a w rzeczywistości program",
++"lCardF1": "Nazwany jak PDF, ale kończy się na .exe",
+ "lCardF2": "Dane ukryte za końcem pliku",
+ "lCardF3": "Zakodowane polecenie PowerShell",
+ "marquee": [
+@@ -172,6 +172,12 @@ I18N["pl"] = {
+ ],
+ "storyVault": "Zaszyfrowany sejf",
+ "storyHealed": "Naprawiona kopia",
++"provTag": "wynik silnika",
++"cardProv": "Nieszkodliwy plik demonstracyjny, przeskanowany przez własne silniki CyberScan. Jeden przykład, nie test porównawczy.",
++"storyProv": "Wynik, obszary i naprawa pochodzą z własnych silników CyberScan uruchomionych na jednym nieszkodliwym pliku demonstracyjnym. Jeden przykład, nie test porównawczy.",
++"illusTag": "poglądowe",
++"cardIllus": "Przykładowe wyniki dla takiego pliku. Nie udało się wczytać danych silnika dla pliku demonstracyjnego, więc wynik nie jest pokazywany.",
++"storyIllus": "Nie udało się wczytać danych silnika dla pliku demonstracyjnego, więc ta animacja to tylko przykład: bursztynowe obszary nie są wynikami i wynik nie jest pokazywany.",
+ "hudCells": "komórki",
+ "hudBad": "oznaczone",
+ "hudScore": "ryzyko",
+diff --git a/web_v/static/i18n/pt.js b/web_v/static/i18n/pt.js
+index 73000d1..e3069a7 100644
+--- a/web_v/static/i18n/pt.js
++++ b/web_v/static/i18n/pt.js
+@@ -15,7 +15,7 @@ I18N["pt"] = {
+ "lWatch": "Veja como funciona",
+ "lCardFile": "invoice_2026.pdf.exe",
+ "lCardVerdict": "Isto parece suspeito",
+-"lCardF1": "Nome de documento, mas na verdade é um programa",
++"lCardF1": "Nomeado como um PDF, mas termina em .exe",
+ "lCardF2": "Dados ocultos depois do fim do arquivo",
+ "lCardF3": "Comando do PowerShell codificado",
+ "marquee": [
+@@ -172,6 +172,12 @@ I18N["pt"] = {
+ ],
+ "storyVault": "Cofre criptografado",
+ "storyHealed": "Cópia reparada",
++"provTag": "saída do motor",
++"cardProv": "Um arquivo de demonstração inofensivo, analisado pelos próprios motores do CyberScan. Um exemplo, não um benchmark.",
++"storyProv": "A pontuação, as regiões e o reparo vêm dos próprios motores do CyberScan executados em um arquivo de demonstração inofensivo. Um exemplo, não um benchmark.",
++"illusTag": "ilustrativo",
++"cardIllus": "Exemplos de descobertas para um arquivo assim. Não foi possível carregar os dados do motor para o arquivo de demonstração, por isso nenhuma pontuação é exibida.",
++"storyIllus": "Não foi possível carregar os dados do motor para o arquivo de demonstração, por isso esta animação é um exemplo: as regiões âmbar não são descobertas e nenhuma pontuação é exibida.",
+ "hudCells": "células",
+ "hudBad": "sinalizadas",
+ "hudScore": "risco",
+diff --git a/web_v/static/i18n/ru.js b/web_v/static/i18n/ru.js
+index fdc939b..f6d2d4c 100644
+--- a/web_v/static/i18n/ru.js
++++ b/web_v/static/i18n/ru.js
+@@ -15,7 +15,7 @@ I18N["ru"] = {
+ "lWatch": "Как это работает",
+ "lCardFile": "invoice_2026.pdf.exe",
+ "lCardVerdict": "Это выглядит подозрительно",
+-"lCardF1": "Назван как документ, а на деле программа",
++"lCardF1": "Назван как PDF, но заканчивается на .exe",
+ "lCardF2": "Данные спрятаны после конца файла",
+ "lCardF3": "Закодированная команда PowerShell",
+ "marquee": [
+@@ -172,6 +172,12 @@ I18N["ru"] = {
+ ],
+ "storyVault": "Зашифрованное хранилище",
+ "storyHealed": "Исправленная копия",
++"provTag": "вывод движка",
++"cardProv": "Безвредный демонстрационный файл, проверенный собственными движками CyberScan. Один пример, а не эталонный тест.",
++"storyProv": "Оценка, области и восстановление получены собственными движками CyberScan на одном безвредном демонстрационном файле. Один пример, а не эталонный тест.",
++"illusTag": "иллюстрация",
++"cardIllus": "Примеры находок для такого файла. Данные движка для демонстрационного файла не удалось загрузить, поэтому оценка не показывается.",
++"storyIllus": "Данные движка для демонстрационного файла не удалось загрузить, поэтому эта анимация — лишь пример: янтарные области не являются находками, а оценка не показывается.",
+ "hudCells": "ячейки",
+ "hudBad": "отмечено",
+ "hudScore": "риск",
+diff --git a/web_v/static/i18n/sw.js b/web_v/static/i18n/sw.js
+index 2d29c65..7cea336 100644
+--- a/web_v/static/i18n/sw.js
++++ b/web_v/static/i18n/sw.js
+@@ -15,7 +15,7 @@ I18N["sw"] = {
+ "lWatch": "Tazama jinsi inavyofanya kazi",
+ "lCardFile": "invoice_2026.pdf.exe",
+ "lCardVerdict": "Hii inatia shaka",
+-"lCardF1": "Imepewa jina la hati, kumbe ni programu",
++"lCardF1": "Limepewa jina kama PDF, lakini linaishia na .exe",
+ "lCardF2": "Data iliyofichwa baada ya mwisho wa faili",
+ "lCardF3": "Amri ya PowerShell iliyofichwa kwa usimbaji",
+ "marquee": [
+@@ -172,6 +172,12 @@ I18N["sw"] = {
+ ],
+ "storyVault": "Hifadhi iliyosimbwa",
+ "storyHealed": "Nakala iliyorekebishwa",
++"provTag": "matokeo ya injini",
++"cardProv": "Faili ya maonyesho isiyo na madhara, iliyochanganuliwa na injini za CyberScan zenyewe. Mfano mmoja, si kipimo cha utendaji.",
++"storyProv": "Alama, maeneo na urekebishaji vinatoka kwa injini za CyberScan zenyewe zilizoendeshwa kwenye faili moja ya maonyesho isiyo na madhara. Mfano mmoja, si kipimo cha utendaji.",
++"illusTag": "kielelezo",
++"cardIllus": "Mifano ya matokeo kwa faili kama hii. Data ya injini kwa faili ya maonyesho haikuweza kupakiwa, kwa hiyo hakuna alama inayoonyeshwa.",
++"storyIllus": "Data ya injini kwa faili ya maonyesho haikuweza kupakiwa, kwa hiyo uhuishaji huu ni mfano tu: maeneo ya rangi ya kaharabu si matokeo na hakuna alama inayoonyeshwa.",
+ "hudCells": "visanduku",
+ "hudBad": "vyenye alama",
+ "hudScore": "hatari",
+diff --git a/web_v/static/i18n/ta.js b/web_v/static/i18n/ta.js
+index 29da453..72897ac 100644
+--- a/web_v/static/i18n/ta.js
++++ b/web_v/static/i18n/ta.js
+@@ -15,7 +15,7 @@ I18N["ta"] = {
+ "lWatch": "எப்படி வேலை செய்கிறது எனப் பாருங்கள்",
+ "lCardFile": "invoice_2026.pdf.exe",
+ "lCardVerdict": "இது சந்தேகத்திற்குரியதாகத் தெரிகிறது",
+-"lCardF1": "பெயர் ஆவணம் போல, உண்மையில் ஒரு நிரல்",
++"lCardF1": "PDF போன்ற பெயர், ஆனால் .exe இல் முடிகிறது",
+ "lCardF2": "கோப்பின் முடிவுக்குப் பின் மறைக்கப்பட்ட தரவு",
+ "lCardF3": "குறியாக்கப்பட்ட PowerShell கட்டளை",
+ "marquee": [
+@@ -172,6 +172,12 @@ I18N["ta"] = {
+ ],
+ "storyVault": "மறையாக்கப்பட்ட பெட்டகம்",
+ "storyHealed": "சரிசெய்யப்பட்ட நகல்",
++"provTag": "இன்ஜின் வெளியீடு",
++"cardProv": "தீங்கற்ற ஒரு டெமோ கோப்பு, CyberScan-இன் சொந்த இன்ஜின்களால் ஸ்கேன் செய்யப்பட்டது. ஒரு உதாரணம், அளவுகோல் அல்ல.",
++"storyProv": "மதிப்பெண், பகுதிகள் மற்றும் சரிசெய்தல் ஆகியவை தீங்கற்ற ஒரு டெமோ கோப்பில் இயக்கப்பட்ட CyberScan-இன் சொந்த இன்ஜின்களிலிருந்து வருகின்றன. ஒரு உதாரணம், அளவுகோல் அல்ல.",
++"illusTag": "எடுத்துக்காட்டு",
++"cardIllus": "இதுபோன்ற கோப்புக்கான எடுத்துக்காட்டு கண்டறிதல்கள். டெமோ கோப்பின் இன்ஜின் தரவை ஏற்ற முடியவில்லை, எனவே மதிப்பெண் காட்டப்படவில்லை.",
++"storyIllus": "டெமோ கோப்பின் இன்ஜின் தரவை ஏற்ற முடியவில்லை, எனவே இந்த அனிமேஷன் ஒரு எடுத்துக்காட்டு மட்டுமே: அம்பர் பகுதிகள் கண்டறிதல்கள் அல்ல, மதிப்பெண்ணும் காட்டப்படவில்லை.",
+ "hudCells": "கட்டங்கள்",
+ "hudBad": "குறிக்கப்பட்டவை",
+ "hudScore": "ஆபத்து",
+diff --git a/web_v/static/i18n/te.js b/web_v/static/i18n/te.js
+index 760ac51..f8937f7 100644
+--- a/web_v/static/i18n/te.js
++++ b/web_v/static/i18n/te.js
+@@ -15,7 +15,7 @@ I18N["te"] = {
+ "lWatch": "ఇది ఎలా పనిచేస్తుందో చూడండి",
+ "lCardFile": "invoice_2026.pdf.exe",
+ "lCardVerdict": "ఇది అనుమానాస్పదంగా ఉంది",
+-"lCardF1": "పేరు డాక్యుమెంట్‌లా ఉంది, నిజానికి ఇది ఒక ప్రోగ్రామ్",
++"lCardF1": "పేరు PDF లాగా ఉంది, కానీ చివర .exe",
+ "lCardF2": "ఫైల్ ముగింపు తర్వాత దాచిన డేటా",
+ "lCardF3": "ఎన్‌కోడ్ చేసిన PowerShell కమాండ్",
+ "marquee": [
+@@ -172,6 +172,12 @@ I18N["te"] = {
+ ],
+ "storyVault": "ఎన్‌క్రిప్ట్ చేసిన వాల్ట్",
+ "storyHealed": "మరమ్మతు చేసిన కాపీ",
++"provTag": "ఇంజిన్ అవుట్‌పుట్",
++"cardProv": "హానిచేయని ఒక డెమో ఫైల్, CyberScan సొంత ఇంజిన్లతో స్కాన్ చేసినది. ఒక ఉదాహరణ మాత్రమే, బెంచ్‌మార్క్ కాదు.",
++"storyProv": "స్కోర్, ప్రాంతాలు, మరమ్మతు అన్నీ హానిచేయని ఒక డెమో ఫైల్‌పై నడిపిన CyberScan సొంత ఇంజిన్ల నుంచి వచ్చినవి. ఒక ఉదాహరణ మాత్రమే, బెంచ్‌మార్క్ కాదు.",
++"illusTag": "ఉదాహరణ",
++"cardIllus": "ఇలాంటి ఫైల్‌కు ఉదాహరణ ఫలితాలు. డెమో ఫైల్ ఇంజిన్ డేటా లోడ్ కాలేదు, కాబట్టి స్కోర్ చూపడం లేదు.",
++"storyIllus": "డెమో ఫైల్ ఇంజిన్ డేటా లోడ్ కాలేదు, కాబట్టి ఈ యానిమేషన్ ఒక ఉదాహరణ మాత్రమే: అంబర్ ప్రాంతాలు ఫలితాలు కావు, స్కోర్ కూడా చూపడం లేదు.",
+ "hudCells": "గడులు",
+ "hudBad": "గుర్తించినవి",
+ "hudScore": "ప్రమాదం",
+diff --git a/web_v/static/i18n/th.js b/web_v/static/i18n/th.js
+index 544ccd8..df526bc 100644
+--- a/web_v/static/i18n/th.js
++++ b/web_v/static/i18n/th.js
+@@ -15,7 +15,7 @@ I18N["th"] = {
+ "lWatch": "ดูวิธีการทำงาน",
+ "lCardFile": "invoice_2026.pdf.exe",
+ "lCardVerdict": "ไฟล์นี้ดูน่าสงสัย",
+-"lCardF1": "ตั้งชื่อเหมือนเอกสาร แต่จริง ๆ เป็นโปรแกรม",
++"lCardF1": "ตั้งชื่อเหมือน PDF แต่ลงท้ายด้วย .exe",
+ "lCardF2": "มีข้อมูลซ่อนอยู่หลังจุดสิ้นสุดของไฟล์",
+ "lCardF3": "คำสั่ง PowerShell ที่ถูกเข้ารหัส",
+ "marquee": [
+@@ -172,6 +172,12 @@ I18N["th"] = {
+ ],
+ "storyVault": "ห้องนิรภัยที่เข้ารหัส",
+ "storyHealed": "สำเนาที่ซ่อมแล้ว",
++"provTag": "ผลลัพธ์จากเอนจิน",
++"cardProv": "ไฟล์สาธิตที่ไม่เป็นอันตราย สแกนด้วยเอนจินของ CyberScan เอง เป็นตัวอย่างเดียว ไม่ใช่เกณฑ์มาตรฐาน",
++"storyProv": "คะแนน ส่วนต่าง ๆ และการซ่อมแซม มาจากเอนจินของ CyberScan เองที่รันกับไฟล์สาธิตที่ไม่เป็นอันตรายหนึ่งไฟล์ เป็นตัวอย่างเดียว ไม่ใช่เกณฑ์มาตรฐาน",
++"illusTag": "ภาพประกอบ",
++"cardIllus": "ตัวอย่างสิ่งที่พบสำหรับไฟล์แบบนี้ โหลดข้อมูลจากเอนจินของไฟล์สาธิตไม่ได้ จึงไม่แสดงคะแนน",
++"storyIllus": "โหลดข้อมูลจากเอนจินของไฟล์สาธิตไม่ได้ ภาพเคลื่อนไหวนี้จึงเป็นเพียงตัวอย่าง ส่วนสีเหลืองอำพันไม่ใช่สิ่งที่ตรวจพบ และไม่แสดงคะแนน",
+ "hudCells": "ช่อง",
+ "hudBad": "ถูกตั้งข้อสังเกต",
+ "hudScore": "ความเสี่ยง",
+diff --git a/web_v/static/i18n/tr.js b/web_v/static/i18n/tr.js
+index e819b2b..6f1517a 100644
+--- a/web_v/static/i18n/tr.js
++++ b/web_v/static/i18n/tr.js
+@@ -15,7 +15,7 @@ I18N["tr"] = {
+ "lWatch": "Nasıl çalıştığını görün",
+ "lCardFile": "invoice_2026.pdf.exe",
+ "lCardVerdict": "Bu şüpheli görünüyor",
+-"lCardF1": "Adı belge gibi, aslında bir program",
++"lCardF1": "PDF gibi adlandırılmış ama .exe ile bitiyor",
+ "lCardF2": "Dosyanın sonundan sonra gizlenmiş veri",
+ "lCardF3": "Kodlanmış PowerShell komutu",
+ "marquee": [
+@@ -172,6 +172,12 @@ I18N["tr"] = {
+ ],
+ "storyVault": "Şifreli kasa",
+ "storyHealed": "Onarılmış kopya",
++"provTag": "motor çıktısı",
++"cardProv": "CyberScan'in kendi motorlarıyla taranmış zararsız bir demo dosyası. Tek bir örnek, bir kıyaslama değil.",
++"storyProv": "Puan, bölgeler ve onarım, zararsız bir demo dosyasında çalıştırılan CyberScan'in kendi motorlarından gelir. Tek bir örnek, bir kıyaslama değil.",
++"illusTag": "temsilî",
++"cardIllus": "Bu tür bir dosya için örnek bulgular. Demo dosyasının motor verileri yüklenemedi, bu yüzden puan gösterilmiyor.",
++"storyIllus": "Demo dosyasının motor verileri yüklenemedi, bu yüzden bu animasyon yalnızca bir örnek: kehribar renkli bölgeler bulgu değildir ve puan gösterilmiyor.",
+ "hudCells": "hücre",
+ "hudBad": "işaretli",
+ "hudScore": "risk",
+diff --git a/web_v/static/i18n/uk.js b/web_v/static/i18n/uk.js
+index b97505b..5dea2ef 100644
+--- a/web_v/static/i18n/uk.js
++++ b/web_v/static/i18n/uk.js
+@@ -15,7 +15,7 @@ I18N["uk"] = {
+ "lWatch": "Як це працює",
+ "lCardFile": "invoice_2026.pdf.exe",
+ "lCardVerdict": "Це виглядає підозріло",
+-"lCardF1": "Названо як документ, а насправді програма",
++"lCardF1": "Названий як PDF, але закінчується на .exe",
+ "lCardF2": "Дані приховано після кінця файлу",
+ "lCardF3": "Закодована команда PowerShell",
+ "marquee": [
+@@ -172,6 +172,12 @@ I18N["uk"] = {
+ ],
+ "storyVault": "Зашифроване сховище",
+ "storyHealed": "Виправлена копія",
++"provTag": "вивід рушія",
++"cardProv": "Нешкідливий демонстраційний файл, перевірений власними рушіями CyberScan. Один приклад, а не еталонний тест.",
++"storyProv": "Оцінка, ділянки та відновлення отримані власними рушіями CyberScan на одному нешкідливому демонстраційному файлі. Один приклад, а не еталонний тест.",
++"illusTag": "ілюстрація",
++"cardIllus": "Приклади знахідок для такого файлу. Дані рушія для демонстраційного файлу не вдалося завантажити, тому оцінка не показується.",
++"storyIllus": "Дані рушія для демонстраційного файлу не вдалося завантажити, тому ця анімація — лише приклад: бурштинові ділянки не є знахідками, а оцінка не показується.",
+ "hudCells": "клітинки",
+ "hudBad": "позначено",
+ "hudScore": "ризик",
+diff --git a/web_v/static/i18n/ur.js b/web_v/static/i18n/ur.js
+index 78887d3..588d1dc 100644
+--- a/web_v/static/i18n/ur.js
++++ b/web_v/static/i18n/ur.js
+@@ -15,7 +15,7 @@ I18N["ur"] = {
+ "lWatch": "دیکھیں یہ کیسے کام کرتا ہے",
+ "lCardFile": "invoice_2026.pdf.exe",
+ "lCardVerdict": "یہ مشکوک لگتی ہے",
+-"lCardF1": "نام دستاویز جیسا، مگر دراصل پروگرام",
++"lCardF1": "نام PDF جیسا، مگر آخر میں ‎.exe",
+ "lCardF2": "فائل کے اختتام کے بعد چھپا ڈیٹا",
+ "lCardF3": "انکوڈ شدہ PowerShell کمانڈ",
+ "marquee": [
+@@ -172,6 +172,12 @@ I18N["ur"] = {
+ ],
+ "storyVault": "انکرپٹ شدہ تجوری",
+ "storyHealed": "مرمت شدہ کاپی",
++"provTag": "انجن کا آؤٹ پٹ",
++"cardProv": "ایک بے ضرر ڈیمو فائل، جسے CyberScan کے اپنے انجنوں نے اسکین کیا۔ ایک مثال، کوئی بینچ مارک نہیں۔",
++"storyProv": "اسکور، حصے اور مرمت ایک بے ضرر ڈیمو فائل پر چلائے گئے CyberScan کے اپنے انجنوں سے آتے ہیں۔ ایک مثال، کوئی بینچ مارک نہیں۔",
++"illusTag": "توضیحی",
++"cardIllus": "ایسی فائل کے لیے مثالی نتائج۔ ڈیمو فائل کا انجن ڈیٹا لوڈ نہیں ہو سکا، اس لیے کوئی اسکور نہیں دکھایا جا رہا۔",
++"storyIllus": "ڈیمو فائل کا انجن ڈیٹا لوڈ نہیں ہو سکا، اس لیے یہ اینیمیشن صرف ایک مثال ہے: کہربائی حصے نتائج نہیں ہیں اور کوئی اسکور نہیں دکھایا جا رہا۔",
+ "hudCells": "خانے",
+ "hudBad": "نشان زد",
+ "hudScore": "خطرہ",
+diff --git a/web_v/static/i18n/vi.js b/web_v/static/i18n/vi.js
+index 1147023..4df2004 100644
+--- a/web_v/static/i18n/vi.js
++++ b/web_v/static/i18n/vi.js
+@@ -15,7 +15,7 @@ I18N["vi"] = {
+ "lWatch": "Xem cách hoạt động",
+ "lCardFile": "invoice_2026.pdf.exe",
+ "lCardVerdict": "Tệp này có vẻ đáng ngờ",
+-"lCardF1": "Đặt tên như tài liệu, thực chất là chương trình",
++"lCardF1": "Đặt tên như PDF, nhưng kết thúc bằng .exe",
+ "lCardF2": "Dữ liệu ẩn sau phần cuối tệp",
+ "lCardF3": "Lệnh PowerShell đã mã hóa",
+ "marquee": [
+@@ -172,6 +172,12 @@ I18N["vi"] = {
+ ],
+ "storyVault": "Kho mã hóa",
+ "storyHealed": "Bản sao đã sửa",
++"provTag": "kết quả của engine",
++"cardProv": "Một tệp minh họa vô hại, được quét bằng chính các engine của CyberScan. Một ví dụ, không phải điểm chuẩn.",
++"storyProv": "Điểm, các vùng và việc sửa chữa đến từ chính các engine của CyberScan chạy trên một tệp minh họa vô hại. Một ví dụ, không phải điểm chuẩn.",
++"illusTag": "minh họa",
++"cardIllus": "Ví dụ về các phát hiện cho một tệp như thế này. Không tải được dữ liệu của engine cho tệp minh họa, nên không hiển thị điểm.",
++"storyIllus": "Không tải được dữ liệu của engine cho tệp minh họa, nên hoạt ảnh này chỉ là ví dụ: các vùng màu hổ phách không phải phát hiện và không hiển thị điểm.",
+ "hudCells": "ô",
+ "hudBad": "gắn cờ",
+ "hudScore": "rủi ro",
+diff --git a/web_v/static/i18n/zh.js b/web_v/static/i18n/zh.js
+index fdb6d1f..3d5c364 100644
+--- a/web_v/static/i18n/zh.js
++++ b/web_v/static/i18n/zh.js
+@@ -15,7 +15,7 @@ I18N["zh"] = {
+ "lWatch": "了解工作原理",
+ "lCardFile": "invoice_2026.pdf.exe",
+ "lCardVerdict": "看起来可疑",
+-"lCardF1": "名字像文档，实际是程序",
++"lCardF1": "名字像 PDF，结尾却是 .exe",
+ "lCardF2": "文件末尾之后藏有数据",
+ "lCardF3": "经过编码的 PowerShell 命令",
+ "marquee": [
+@@ -172,6 +172,12 @@ I18N["zh"] = {
+ ],
+ "storyVault": "加密保险库",
+ "storyHealed": "修复后的副本",
++"provTag": "引擎输出",
++"cardProv": "一个无害的演示文件，由 CyberScan 自己的引擎扫描。仅为一个示例，并非基准测试。",
++"storyProv": "分数、区域和修复均来自 CyberScan 自己的引擎在一个无害演示文件上的运行结果。仅为一个示例，并非基准测试。",
++"illusTag": "示意",
++"cardIllus": "此类文件的示例发现。无法加载演示文件的引擎数据，因此不显示分数。",
++"storyIllus": "无法加载演示文件的引擎数据，因此此动画仅为示例：琥珀色区域并非检测发现，也不显示分数。",
+ "hudCells": "单元格",
+ "hudBad": "已标记",
+ "hudScore": "风险",
+diff --git a/web_v/static/index.html b/web_v/static/index.html
+index d04656c..2e6fb46 100644
+--- a/web_v/static/index.html
++++ b/web_v/static/index.html
+@@ -155,7 +155,7 @@
+         <div class="scan-card tilt">
+           <div class="sc-head">
+             <span class="sc-icon" aria-hidden="true">EXE</span>
+-            <div><b data-i18n="lCardFile">invoice_2026.pdf.exe</b><small>412 KB</small></div>
++            <div><b data-i18n="lCardFile">invoice_2026.pdf.exe</b><small class="sc-size" dir="ltr">—</small></div>
+           </div>
+           <div class="sc-body">
+             <div class="sc-gauge">
+@@ -169,6 +169,8 @@
+             <li data-i18n="lCardF2"></li>
+             <li data-i18n="lCardF3"></li>
+           </ul>
++          <p class="sc-illus"><span class="prov-tag demo" data-i18n="illusTag">illustrative</span> <span data-i18n="cardIllus">Example findings for a file like this. The engine's data for the demo file couldn't be loaded, so no score is shown.</span></p>
++          <p class="sc-prov"><span class="prov-tag" data-i18n="provTag">engine output</span> <span data-i18n="cardProv">A harmless demo file, scanned by CyberScan's own engines. One example, not a benchmark.</span></p>
+           <div class="sc-beam" aria-hidden="true"></div>
+         </div>
+         <div class="orbit o1" aria-hidden="true"></div>
+@@ -230,6 +232,8 @@
+           <span class="story-kicker" data-i18n="storyKicker">Inside one scan</span>
+           <div class="story-steps" id="story-steps"></div>
+           <div class="story-meter"><i id="story-meter"></i></div>
++          <p class="story-illus"><span class="prov-tag demo" data-i18n="illusTag">illustrative</span> <span data-i18n="storyIllus">The engine's data for the demo file couldn't be loaded, so this animation is an example: the amber regions are not findings and no score is shown.</span></p>
++          <p class="story-prov"><span class="prov-tag" data-i18n="provTag">engine output</span> <span data-i18n="storyProv">Score, regions and repair come from CyberScan's own engines run on one harmless demo file. One example, not a benchmark.</span> <span class="story-prov-meta" id="story-prov-meta" dir="ltr"></span></p>
+         </div>
+         <div class="story-hud" aria-hidden="true">
+           <span class="hud-file" id="hud-file">invoice_2026.pdf.exe</span>
+diff --git a/web_v/static/js/i18n.js b/web_v/static/js/i18n.js
+index b216aea..c04e046 100644
+--- a/web_v/static/js/i18n.js
++++ b/web_v/static/js/i18n.js
+@@ -10,7 +10,7 @@ window.I18N = {
+     lSub: "CyberScan takes a file, link or snippet apart byte by byte without ever running it, explains what it finds in plain words, and can rebuild a copy without the parts that don't belong in its format.",
+     lStart: "Start scanning", lWatch: "See how it works",
+     lCardFile: "invoice_2026.pdf.exe", lCardVerdict: "This looks suspicious",
+-    lCardF1: "Named like a document, really a program", lCardF2: "Data hidden after the end of the file", lCardF3: "Encoded PowerShell command",
++    lCardF1: "Named like a PDF, but ends in .exe", lCardF2: "Data hidden after the end of the file", lCardF3: "Encoded PowerShell command",
+     marquee: ["Entropy topography", "YARA rules", "PE anatomy", "MITRE ATT&CK mapping", "Archive inspection", "Authenticode signatures", "Lookalike links", "Encrypted quarantine", "Blind repair", "Local AI summaries", "Downloads watch", "Structural classifier"],
+     lHowTitle: "Four steps. Nothing executes.",
+     lHowSub: "Every check reads the file. None of them runs it.",
+@@ -58,6 +58,10 @@ window.I18N = {
+     ],
+     storyTags: ["Disguised name", "Encoded PowerShell", "Data after the end"],
+     storyVault: "Encrypted vault", storyHealed: "Repaired copy",
++    provTag: "engine output", cardProv: "A harmless demo file, scanned by CyberScan's own engines. One example, not a benchmark.",
++    storyProv: "Score, regions and repair come from CyberScan's own engines run on one harmless demo file. One example, not a benchmark.",
++    illusTag: "illustrative", cardIllus: "Example findings for a file like this. The engine's data for the demo file couldn't be loaded, so no score is shown.",
++    storyIllus: "The engine's data for the demo file couldn't be loaded, so this animation is an example: the amber regions are not findings and no score is shown.",
+     hudCells: "cells", hudBad: "flagged", hudScore: "risk",
+     lFeatSub: "Every screen of the desktop app, rebuilt for the web, plus a few things only a browser can do.",
+     bentoVerdicts: ["No warning signs found.", "Worth a closer look.", "This looks suspicious.", "We couldn't be sure."],
+@@ -293,7 +297,7 @@ window.I18N = {
+     lSub: "يفكّك CyberScan الملف أو الرابط أو النص بايتًا بايتًا دون أن يشغّله أبدًا، ويشرح ما يجده بكلمات بسيطة، ويستطيع بناء نسخة من الملف من دون الأجزاء التي لا تنتمي إلى صيغته.",
+     lStart: "ابدأ الفحص", lWatch: "شاهد كيف يعمل",
+     lCardFile: "invoice_2026.pdf.exe", lCardVerdict: "يبدو هذا مشبوهًا",
+-    lCardF1: "اسمه كمستند لكنه برنامج فعليًا", lCardF2: "بيانات مخفية بعد نهاية الملف", lCardF3: "أمر PowerShell مُرمّز",
++    lCardF1: "اسمه كملف PDF لكنه ينتهي بـ ‎.exe", lCardF2: "بيانات مخفية بعد نهاية الملف", lCardF3: "أمر PowerShell مُرمّز",
+     marquee: ["خريطة العشوائية", "قواعد YARA", "تشريح البرامج", "تقنيات MITRE ATT&CK", "فحص الأرشيفات", "التوقيعات الرقمية", "الروابط المقلّدة", "حجر صحي مشفّر", "إصلاح بلا نسخة أصلية", "ملخص ذكاء اصطناعي محلي", "مراقبة التنزيلات", "مصنّف بنيوي"],
+     lHowTitle: "أربع خطوات. لا شيء يُشغَّل.",
+     lHowSub: "كل فحص يقرأ الملف، ولا شيء منها يشغّله.",
+@@ -341,6 +345,10 @@ window.I18N = {
+     ],
+     storyTags: ["اسم مضلِّل", "PowerShell مُرمّز", "بيانات بعد النهاية"],
+     storyVault: "خزنة مشفّرة", storyHealed: "نسخة مُصلحة",
++    provTag: "مخرجات المحرّك", cardProv: "ملف تجريبي غير ضار، فحصته محركات CyberScan نفسها. مثال واحد، وليس مقياسًا للأداء.",
++    storyProv: "الدرجة والمناطق والإصلاح صادرة عن محركات CyberScan نفسها عند تشغيلها على ملف تجريبي واحد غير ضار. مثال واحد، وليس مقياسًا للأداء.",
++    illusTag: "توضيحي", cardIllus: "نتائج مثالية لملف من هذا النوع. تعذّر تحميل بيانات المحرّك للملف التجريبي، لذلك لا تُعرض درجة.",
++    storyIllus: "تعذّر تحميل بيانات المحرّك للملف التجريبي، لذا فهذه الحركة مثال فقط: المناطق الكهرمانية ليست نتائج فحص، ولا تُعرض درجة.",
+     hudCells: "خلية", hudBad: "مُعلَّمة", hudScore: "الخطورة",
+     lFeatSub: "كل شاشات تطبيق سطح المكتب، أُعيد بناؤها للويب، مع أشياء لا يقدر عليها إلا المتصفح.",
+     bentoVerdicts: ["لم نجد علامات تحذير.", "يستحق نظرة أدق.", "يبدو هذا مشبوهًا.", "لم نتمكن من التأكد."],
+diff --git a/web_v/static/js/landing.js b/web_v/static/js/landing.js
+index 94ce0bf..b502526 100644
+--- a/web_v/static/js/landing.js
++++ b/web_v/static/js/landing.js
+@@ -269,28 +269,50 @@
+     tick();
+   }
+ 
+-  /* ---------------- hero card ---------------- */
++  /* ---------------- hero card ----------------
++   * Engine output for the story's demo file (data/story.json, written by
++   * web_v/make_story_data.py), through the one validator in story.js, so the card and the
++   * story always agree. Each finding line is shown only when the scan reported it. Without
++   * valid data the card shows no score ("—") and is labelled ILLUSTRATIVE. */
+   const card = landing.querySelector(".scan-card");
++  const CARD_EVIDENCE = { lCardF1: "Double extension", lCardF2: "Data after the end of the file", lCardF3: "EncodedPowerShell" };
++  let cardData = null;
++  const cardReady = (window.CSStory ? window.CSStory.load() : Promise.resolve(null)).then((d) => {
++    cardData = d;
++    if (!d) return; // missing or malformed: the illustrative label stays
++    const labels = new Set(d.scan.evidence.map((e) => e.label));
++    card.querySelectorAll(".sc-list li").forEach((li) => { li.hidden = !labels.has(CARD_EVIDENCE[li.dataset.i18n]); });
++    const size = card.querySelector(".sc-size");
++    if (size) size.textContent = `${d.file.size.toLocaleString("en")} B`;
++    const verdict = card.querySelector(".sc-verdict");
++    if (verdict && d.scan.classification !== "SUSPICIOUS") verdict.hidden = true;
++    card.classList.add("has-engine-data");
++  });
+   function playCard() {
+-    card.classList.remove("lit");
+-    const meter = card.querySelector(".sc-meter");
+-    const num = card.querySelector(".sc-num");
+-    meter.style.transition = "none";
+-    meter.style.strokeDashoffset = 326.73;
+-    num.textContent = "0";
+-    void meter.getBoundingClientRect();
+-    meter.style.transition = "";
+-    setTimeout(() => {
+-      card.classList.add("lit");
+-      meter.style.strokeDashoffset = 326.73 * (1 - 0.87);
+-      const start = performance.now();
+-      const step = (now) => {
+-        const p = Math.min((now - start) / 2000, 1);
+-        num.textContent = Math.round(87 * (1 - Math.pow(1 - p, 4)));
+-        if (p < 1) requestAnimationFrame(step);
+-      };
+-      requestAnimationFrame(step);
+-    }, 500);
++    cardReady.then(() => {
++      card.classList.remove("lit");
++      const meter = card.querySelector(".sc-meter");
++      const num = card.querySelector(".sc-num");
++      meter.style.transition = "none";
++      meter.style.strokeDashoffset = 326.73;
++      num.textContent = cardData ? "0" : "—";
++      // no valid data: show the example lines under the ILLUSTRATIVE label, but no score
++      if (!cardData) { card.classList.add("lit"); return; }
++      const score = cardData.scan.score; // validated: an integer from 0 to 100
++      void meter.getBoundingClientRect();
++      meter.style.transition = "";
++      setTimeout(() => {
++        card.classList.add("lit");
++        meter.style.strokeDashoffset = 326.73 * (1 - score / 100);
++        const start = performance.now();
++        const step = (now) => {
++          const p = Math.min((now - start) / 2000, 1);
++          num.textContent = Math.round(score * (1 - Math.pow(1 - p, 4)));
++          if (p < 1) requestAnimationFrame(step);
++        };
++        requestAnimationFrame(step);
++      }, 500);
++    });
+   }
+ 
+   /* ---------------- tilt, spotlight, magnetic ---------------- */
+diff --git a/web_v/static/js/story.js b/web_v/static/js/story.js
+index a4c8e13..a8d7f70 100644
+--- a/web_v/static/js/story.js
++++ b/web_v/static/js/story.js
+@@ -7,7 +7,84 @@
+  *   2 a beam sweeps them; three regions light up red with labels
+  *   3 the red cells are sealed into an encrypted vault
+  *   4 what is left reassembles as a smaller, healthy page
++ *
++ * The numbers are engine output: data/story.json is written by web_v/make_story_data.py,
++ * which builds the (harmless) demo file and runs CyberScan's scan and repair engines on it.
++ * Each cell stands for 1/320 of that file (about 7 bytes) and is coloured by the Shannon
++ * entropy of a 64-byte window centred on it, so neighbouring cells' windows overlap. The red
++ * regions are the repair engine's findings at their real offsets; the HUD shows the real
++ * scores before and after the repair.
++ *
++ * If the file is missing, can't be fetched or fails validation, the story plays its original
++ * choreography in amber, labelled ILLUSTRATIVE, with no score ("—"). The label is removed only
++ * after the data has validated.
+  */
++
++/* Story data: one fetch and one validator, shared with landing.js (loaded after this file),
++ * so the hero card and the story always agree on whether the data is valid. Returns the data
++ * or null; malformed data is treated exactly like missing data. */
++(function (root) {
++  "use strict";
++  const CELLS = 320, MAX_SIZE = 4 * 1024 * 1024;
++  const CLASSES = ["SUSPICIOUS", "REVIEW", "UNKNOWN", "NO_INDICATORS_OBSERVED", "SAFE", "CLEAN"];
++  const NAME = /^[A-Za-z0-9][A-Za-z0-9._ -]{0,119}$/;
++  const SHA256 = /^[0-9a-f]{64}$/;
++  const isInt = (v, lo, hi) => Number.isInteger(v) && v >= lo && v <= hi;
++  const isObj = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
++  const isName = (v) => typeof v === "string" && NAME.test(v);
++  const isSha = (v) => typeof v === "string" && SHA256.test(v);
++  const isVerdict = (s) => isObj(s) && isInt(s.score, 0, 100) && CLASSES.includes(s.classification);
++
++  function validate(d) {
++    try {
++      if (!isObj(d) || !isObj(d.file) || !isObj(d.scan) || !isObj(d.cells) || !isObj(d.repair) || !Array.isArray(d.regions)) return null;
++      const f = d.file;
++      if (!isName(f.name) || !isInt(f.size, 1, MAX_SIZE) || !isSha(f.sha256)) return null;
++      if (!isVerdict(d.scan) || !Array.isArray(d.scan.evidence) || !d.scan.evidence.every((e) => isObj(e) && typeof e.label === "string")) return null;
++      const c = d.cells;
++      if (c.count !== CELLS || !Array.isArray(c.entropy) || c.entropy.length !== CELLS) return null;
++      if (!c.entropy.every((e) => typeof e === "number" && Number.isFinite(e) && e >= 0 && e <= 8)) return null;
++      const tags = new Set(), spans = [];
++      for (const r of d.regions) {
++        if (!isObj(r) || !isInt(r.tag, 0, 2) || tags.has(r.tag)) return null;
++        tags.add(r.tag);
++        if (r.on === "name") continue;
++        if (r.on !== undefined || !isInt(r.from, 0, CELLS - 1) || !isInt(r.to, r.from + 1, CELLS)) return null;
++        if (!isInt(r.start, 0, f.size - 1) || !isInt(r.end, r.start + 1, f.size)) return null;
++        // the cell range must be the byte range, scaled to 320 cells
++        if (Math.abs(r.from - Math.round((r.start * CELLS) / f.size)) > 1 || Math.abs(r.to - Math.round((r.end * CELLS) / f.size)) > 1) return null;
++        spans.push(r);
++      }
++      if (!spans.length) return null;
++      spans.sort((a, b) => a.from - b.from);
++      for (let i = 1; i < spans.length; i++) if (spans[i].from < spans[i - 1].to) return null;
++      const rp = d.repair;
++      if (!isName(rp.name_after) || !isInt(rp.size_after, 1, f.size) || !isInt(rp.removed_bytes, 0, f.size)) return null;
++      if (rp.size_after + rp.removed_bytes !== f.size || !isSha(rp.sha256_after)) return null;
++      if (!Array.isArray(rp.selected) || !rp.selected.length || !rp.selected.every((k) => typeof k === "string")) return null;
++      // the story says the rebuilt copy was checked, so a repair with failed checks is not shown
++      if (!Array.isArray(rp.checks_failed) || rp.checks_failed.length !== 0 || !isVerdict(rp.rescan)) return null;
++      return d;
++    } catch {
++      return null;
++    }
++  }
++
++  let loading = null;
++  root.CSStory = {
++    validate,
++    load() {
++      if (!loading) {
++        loading = (typeof fetch === "function"
++          ? fetch("data/story.json", { credentials: "same-origin" }).then((r) => (r.ok ? r.json() : null))
++          : Promise.resolve(null)).then(validate, () => null);
++      }
++      return loading;
++    },
++  };
++})(typeof window !== "undefined" ? window : globalThis);
++/* ---- end of story data validation ---- */
++
+ (function () {
+   "use strict";
+   const { $, el, t } = window.CS;
+@@ -18,20 +95,49 @@
+ 
+   const DOC_COLS = 16, DOC_ROWS = 20, N = DOC_COLS * DOC_ROWS;
+   const GRID_COLS = 32;
+-  const REGIONS = [
++  const FILE_NAME = "invoice_2026.pdf.exe";
++  const hudFile = $("hud-file");
++  // Until data/story.json arrives (or if it can't): the original choreography, no score.
++  let REGIONS = [
+     { from: 0, to: 9 },        // disguised name, in the header
+     { from: 150, to: 172 },    // encoded PowerShell, mid-file
+     { from: 284, to: N },      // data after the end
+   ];
++  let NAME_TAG = false;        // engine data: the name finding is drawn on the file's label
++  let SCORE = null;            // engine data: { before, after }
++  let NAME_AFTER = null;       // engine data: the repaired copy's name, as the repair engine chose it
+   const regionOf = (i) => REGIONS.findIndex((r) => i >= r.from && i < r.to);
+ 
+-  const cells = [];
+-  for (let i = 0; i < N; i++) {
+-    const tt = i / N;
+-    let e = tt < 0.05 ? 2.2 + Math.random() * 0.8 : tt < 0.45 ? 5.4 + Math.random() * 0.9 : tt < 0.85 ? 3.2 + Math.random() * 1.6 : 7.4 + Math.random() * 0.5;
+-    cells.push({ i, e, region: regionOf(i), rgb: CyberCube.entropyColor(e), seed: Math.random(), x: 0, y: 0 });
++  let cells = [], kept = [];
++  function buildCells(entropy) {
++    cells = [];
++    for (let i = 0; i < N; i++) {
++      const tt = i / N;
++      const e = entropy ? entropy[i] : tt < 0.05 ? 2.2 + Math.random() * 0.8 : tt < 0.45 ? 5.4 + Math.random() * 0.9 : tt < 0.85 ? 3.2 + Math.random() * 1.6 : 7.4 + Math.random() * 0.5;
++      cells.push({ i, e, region: regionOf(i), rgb: CyberCube.entropyColor(e), seed: Math.random(), x: 0, y: 0 });
++    }
++    kept = cells.filter((c) => c.region < 0);
+   }
+-  const kept = cells.filter((c) => c.region < 0);
++  buildCells(null);
++
++  // Until validated data arrives (or if it never does): illustrative, amber instead of red.
++  let VERIFIED = false;
++  window.CSStory.load().then((d) => {
++    if (!d) return; // missing, unreachable or malformed: the labelled illustrative fallback stays
++    const tags = [null, null, null];
++    for (const r of d.regions) {
++      if (r.on === "name") NAME_TAG = true;
++      else if (r.tag >= 0 && r.tag < 3 && r.to > r.from) tags[r.tag] = { from: r.from, to: r.to };
++    }
++    REGIONS = tags.map((r) => r || { from: 0, to: 0 });
++    SCORE = { before: d.scan.score, after: d.repair.rescan.score };
++    NAME_AFTER = typeof d.repair.name_after === "string" ? d.repair.name_after : null;
++    buildCells(d.cells.entropy);
++    VERIFIED = true;
++    section.classList.add("has-engine-data");
++    const meta = $("story-prov-meta");
++    if (meta) meta.textContent = `${d.file.name} · ${d.file.size.toLocaleString("en")} B · SHA-256 ${d.file.sha256.slice(0, 12)}…`;
++  });
+ 
+   let W = 0, H = 0, dpr = 1, stage = null, size = 10;
+   let target = 0, p = 0, raf = 0, visible = false;
+@@ -133,7 +239,7 @@
+         }
+         if (red) {
+           const pulse = 0.7 + 0.3 * Math.sin(now / 180 + c.i);
+-          rgb = [248, 90 + 30 * pulse, 90];
++          rgb = VERIFIED ? [248, 90 + 30 * pulse, 90] : [245, 160 + 30 * pulse, 40];
+         }
+       } else if (a4 > 0) {
+         const k = keptIndex.get(c.i);
+@@ -145,7 +251,7 @@
+       if (alpha <= 0.01) continue;
+       const ss = s * scale;
+       if (red && a3 < 0.9) {
+-        ctx.fillStyle = `rgba(248,113,113,${0.18 * alpha})`;
++        ctx.fillStyle = VERIFIED ? `rgba(248,113,113,${0.18 * alpha})` : `rgba(245,158,11,${0.18 * alpha})`;
+         ctx.fillRect(x - ss * 0.5, y - ss * 0.5, ss * 2, ss * 2);
+       }
+       ctx.globalAlpha = alpha * (0.55 + 0.45 * (c.e / 8));
+@@ -175,13 +281,31 @@
+     // region labels
+     if (a2 > 0 && a3 < 0.6) {
+       const tags = t("storyTags");
++      if (NAME_TAG) {
++        // the disguised name is a finding about the label, not about any byte
++        const fade = 1 - clamp(a3 / 0.4);
++        const k = clamp(a2 / 0.08);
++        const lx = rtl() ? grid0[0] + gridW : grid0[0], ly = grid0[1] - size * 1.8;
++        ctx.save();
++        ctx.font = `600 ${Math.max(12, size * 1.0)}px Consolas, ui-monospace, monospace`;
++        const lw = ctx.measureText(FILE_NAME).width;
++        ctx.restore();
++        drawFileLabel(FILE_NAME, rtl() ? lx - lw : lx, ly, fade * k, VERIFIED ? "#fca5a5" : "#fcd34d");
++        const tx = rtl() ? lx - lw - size * 7 : lx + lw + size * 7;
++        drawTag(tags[0], tx, ly - size * 1.6, rtl() ? lx - lw - 4 : lx + lw + 4, ly, fade * k);
++      }
+       REGIONS.forEach((r, k) => {
++        if (r.to <= r.from) return;
+         const mid = Math.floor((r.from + r.to) / 2);
+         const [mx, my] = gridPos(mid);
+         const passed = rtl() ? mx >= beamX : mx <= beamX;
+         if (!passed) return;
+         const fade = 1 - clamp(a3 / 0.4);
+-        drawTag(tags[k], mx + size / 2, my - size * (k === 1 ? 3 : 2.4) - (k === 1 ? 0 : size * 1.4), mx + size / 2, my, fade);
++        // a region in the lower half of the file is labelled below the grid, so the tag never hides cells
++        const rows = Math.ceil(N / GRID_COLS);
++        const below = Math.floor(mid / GRID_COLS) >= rows / 2;
++        const ty = below ? grid0[1] + rows * size + size * (k === 1 ? 1.8 : 3.8) : my - size * (k === 1 ? 3 : 2.4) - (k === 1 ? 0 : size * 1.4);
++        drawTag(tags[k], mx + size / 2, ty, mx + size / 2, my + (below ? size : 0), fade);
+       });
+     }
+ 
+@@ -189,7 +313,7 @@
+     const nameFade = 1 - clamp(a1 / 0.25);
+     if (nameFade > 0) {
+       const [x0, y0] = docPos(0, DOC_COLS, DOC_ROWS);
+-      drawFileLabel("invoice_2026.pdf.exe", x0, y0 - size * 2.2, nameFade, "#c4b5fd");
++      drawFileLabel(FILE_NAME, x0, y0 - size * 2.2, nameFade, "#c4b5fd");
+     }
+     if (a4 > 0.55) {
+       const fade = clamp((a4 - 0.55) / 0.3);
+@@ -199,10 +323,12 @@
+     }
+ 
+     // HUD
+-    const score = Math.round(a4 > 0 ? 87 * (1 - ease(a4)) : 87 * ease(a2));
++    const score = SCORE ? String(Math.round(a4 > 0 ? lerp(SCORE.before, SCORE.after, ease(a4)) : SCORE.before * ease(a2))) : "—";
+     $("hud-cells").textContent = String(a3 > 0 ? Math.round(N - (N - kept.length) * ease(a3)) : Math.round(N * clamp(a1 * 1.4)));
+     $("hud-bad").textContent = String(a3 > 0 ? Math.round(flagged * (1 - a3)) : flagged);
+-    $("hud-score").textContent = String(score);
++    $("hud-score").textContent = score;
++    const shownName = NAME_AFTER && a4 > 0.55 ? NAME_AFTER : FILE_NAME;
++    if (hudFile.textContent !== shownName) hudFile.textContent = shownName;
+     $("story-meter").style.transform = `scaleX(${p})`;
+     const step = Math.min(4, Math.floor(p * 5 + 0.0001));
+     $("story-steps").querySelectorAll(".sstep").forEach((n, k) => n.classList.toggle("on", k === step));
+@@ -258,14 +384,15 @@
+     ctx.font = `600 ${Math.max(11, size * 0.85)}px "Segoe UI", Tahoma, sans-serif`;
+     ctx.direction = rtl() ? "rtl" : "ltr";
+     const w = ctx.measureText(text).width + 22, h = Math.max(22, size * 1.6);
+-    ctx.strokeStyle = "rgba(248,113,113,0.7)";
++    // red for verified engine findings, amber for the illustrative fallback
++    ctx.strokeStyle = VERIFIED ? "rgba(248,113,113,0.7)" : "rgba(251,191,36,0.7)";
+     ctx.lineWidth = 1;
+     ctx.beginPath(); ctx.moveTo(tx, ty); ctx.lineTo(x, y + h / 2); ctx.stroke();
+-    ctx.fillStyle = "rgba(40,10,14,0.88)";
++    ctx.fillStyle = VERIFIED ? "rgba(40,10,14,0.88)" : "rgba(40,28,6,0.88)";
+     roundRect(x - w / 2, y - h / 2, w, h, h / 2);
+     ctx.fill();
+     ctx.stroke();
+-    ctx.fillStyle = "#fecaca";
++    ctx.fillStyle = VERIFIED ? "#fecaca" : "#fde68a";
+     ctx.textAlign = "center"; ctx.textBaseline = "middle";
+     ctx.fillText(text, x, y + 1);
+     ctx.restore();
+diff --git a/web_v/static/landing.css b/web_v/static/landing.css
+index e962473..02f0508 100644
+--- a/web_v/static/landing.css
++++ b/web_v/static/landing.css
+@@ -252,3 +252,37 @@ body.on-landing .glow-cursor { opacity: 1; }
+   [data-reveal] { opacity: 1; transform: none; filter: none; }
+   .hero-title .w { transform: none; opacity: 1; }
+ }
++
++/* ---------- showcase stage 0: provenance labels, story HUD clearance, mobile hero ---------- */
++/* "engine output" appears only once data/story.json has loaded (landing.js / story.js add the class) */
++.prov-tag { display: inline-block; font: 600 10.5px/1 Consolas, ui-monospace, monospace; letter-spacing: .08em; text-transform: uppercase; padding: 4px 7px; border-radius: 4px; vertical-align: 1px; color: #052e1a; background: #34d399; }
++[dir="rtl"] .prov-tag { font-family: inherit; letter-spacing: 0; }
++.prov-tag.demo { color: #2a1c02; background: #fbbf24; }
++.sc-prov, .story-prov { display: none; }
++/* ILLUSTRATIVE shows by default and is removed only once data/story.json has validated */
++.sc-illus, .story-illus { display: block; margin: 14px 0 0; font-size: 12.5px; line-height: 1.55; color: #fde68a; }
++.scan-card.has-engine-data .sc-illus, .story.has-engine-data .story-illus { display: none; }
++.scan-card.has-engine-data .sc-prov { display: block; margin: 14px 0 0; font-size: 12px; line-height: 1.55; color: var(--muted); }
++.story.has-engine-data .story-prov { display: block; margin: 14px 0 0; font-size: 12.5px; line-height: 1.55; color: var(--muted); }
++.story-prov-meta { display: block; margin-top: 4px; font: 11.5px/1.4 Consolas, ui-monospace, monospace; color: #8aa0bc; overflow-wrap: anywhere; }
++.scan-card .sc-list li[hidden], .scan-card .sc-verdict[hidden] { display: none; }
++
++/* I2: the story's HUD sat under the floating "Ask the AI" button */
++.story .story-hud { bottom: 92px; }
++@media (max-width: 900px) {
++  .story .story-hud { bottom: 16px; inset-inline: 16px 210px; }
++}
++@media (max-width: 600px) {
++  .story .story-hud { inset-inline: 12px 76px; gap: 6px; }
++  .story .story-hud > span { padding: 7px 10px; }
++}
++
++/* I3: on narrow screens the headline and intro sat directly on the particle shield */
++@media (max-width: 1000px) {
++  .hero-copy { position: relative; z-index: 1; }
++  .hero-copy::before {
++    content: ""; position: absolute; inset: -28px -16px; z-index: -1; pointer-events: none;
++    background: radial-gradient(120% 75% at 35% 50%, rgba(7, 4, 15, .82), rgba(7, 4, 15, .55) 55%, rgba(7, 4, 15, 0) 85%);
++  }
++  .hero-sub { color: #c3cfdf; text-shadow: 0 1px 12px rgba(7, 4, 15, .9); }
++}

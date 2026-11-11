@@ -1,115 +1,34 @@
-# CyberScan — web, phone and Android
+# CyberScan
 
-Static analysis of files, links and text, explained in plain words, in English and Arabic.
-Nothing you check is ever run.
+CyberScan is a defensive file and URL analysis project organized into five
+independent components:
 
-CyberScan reads a file byte by byte, runs nine analysis engines over it (file type, randomness map,
-warning signs, YARA rules, program anatomy, archive contents, signature, an optional learning model,
-optional public threat intelligence), fuses them into one score that is never lower than the strongest
-evidence, and explains the result in a sentence anyone can read. When something doesn't belong in a
-file's format, it can cut it out of a copy and seal the removed bytes in an encrypted vault.
-
-> A defensive research prototype. It is not a replacement for commercial endpoint security.
-
-## Run it
-
-Python 3.11 or newer.
-
-```bash
-python -m venv .venv
-.venv/bin/pip install -r requirements.txt        # Windows: .venv\Scripts\pip install -r requirements.txt
-.venv/bin/python web_v/run.py                     # Windows: .venv\Scripts\python web_v\run.py
-```
-
-The server starts on `http://127.0.0.1:8765/` and opens your browser (or a desktop window if
-`pywebview` is installed). Useful flags:
-
-| flag | meaning |
+| Component | Purpose |
 |---|---|
-| `--port 8765` | port to listen on (`0` picks a free one) |
-| `--browser` | always use the default browser |
-| `--no-open` | only start the server |
+| [`Web/`](./Web/) | Website backend, frontend, APIs and deployment configuration |
+| [`Desktop/`](./Desktop/) | Independent Python desktop application |
+| [`Mobile/`](./Mobile/) | Android application, offline assets and build configuration |
+| [`AI/`](./AI/) | Future agent contracts only; no agent or website AI interface |
+| [`Tools/`](./Tools/) | Shared, explicitly approved tool catalog and frozen detection engine |
 
-## What's in it
+The root `main.py` is a compatibility launcher for the Desktop application.
+The detailed desktop capabilities and limitations are documented in
+[`Desktop/README.md`](./Desktop/README.md). Tool metadata, safe discovery and
+the shared execution contract are documented in [`Tools/README.md`](./Tools/README.md).
+The architectural record and verified migration status are in
+[`ARCHITECTURE.md`](./ARCHITECTURE.md) and [`MIGRATION.md`](./MIGRATION.md).
 
-**Landing page**
-- language choice on first visit (English / العربية), remembered
-- WebGL2 particle field that takes a shape per section, written from scratch
-- an 86-second explainer film drawn on a canvas, with studio English narration, English and Arabic subtitles
-  (`web_v/static/captions/*.vtt`), chapters and export to `.webm`
-- scroll scenes, an interactive engine pipeline, generated calm lo-fi music (off by default)
-- **Get the app** menu: the signed Android APK, plus Google Play and App Store (coming soon)
+## Run and test
 
-**App**
-- scan uploads, files on disk, links or pasted text; batch scanning; in-browser SHA-256 fingerprint
-  with "seen before"
-- plain-language verdicts and findings in both languages, a 3D structure map of the file, PE anatomy,
-  MITRE ATT&CK, YARA, engine checks and raw evidence
-- quarantine and restore, repair a copy, export reports (.txt / .json / print to PDF)
-- optional AI explanation through a local Ollama model
-- history with insights, settings, downloads watch, command palette (Ctrl+K), installable as a PWA
+- Desktop: `python main.py` (install desktop dependencies with
+  `python -m pip install -r Desktop/requirements.txt`).
+- Desktop, Tools and Mobile Python regression suites: `python -m pytest -q`
+  from the project root.
+- Web: follow [`Web/README.md`](./Web/README.md); its test suite uses the Web
+  component's own environment.
+- Android: follow [`Mobile/android/ANDROID.md`](./Mobile/android/ANDROID.md).
+  Building requires the Android SDK and a Java 21 JDK. The signed release
+  workflow is not run as part of local validation.
 
-**Phone app** (`web_v/static/m/`, served at `/m/`, installable as a PWA)
-- the real Python engine runs **on the phone** in WebAssembly (Pyodide), offline; files are never uploaded
-- measures the device and picks a mode (full / light / viewer)
-- one or many files, links, text; a map of the file, YARA (pure-Python reader), program details,
-  fingerprints, exports (HTML / text / JSON), repair a copy, history with search and overview
-
-**Android app** (`web_v/android/`, Capacitor 8, Android 7+, targets API 36)
-- the phone app plus Share / Open with → CyberScan (one or many files), launcher shortcuts, a Quick
-  Settings tile, fingerprint/face/screen-lock app lock, hiding from screenshots, keys kept in the
-  Android Keystore, optional threat-list lookups (off by default; only a hash or a link is sent)
-- signed builds with `web_v/android/release.ps1`; details in `web_v/android/ANDROID.md`
-- download: `web_v/static/downloads/` (signed by CyberScan, SA)
-
-## Layout
-
-```
-web_v/          the web server (standard library only) and the front end in web_v/static/
-web_v/static/m/ the phone app (also the Android app's interface)
-web_v/android/  the Android project, release script and Play listing
-core/           analysis engines
-ml/             structural classifier runtime
-repair_engine/  format parsers, blind repair and the encrypted vault
-monitoring/     downloads watch
-reports/        report export
-ui/             shared presentation logic (plain-language text, translations, structure map)
-rules/          YARA rules
-data/models/    trained models; everything else under data/ is local and git-ignored
-```
-
-## Security model
-
-The server is built to run **on the user's own computer**:
-
-- it binds to `127.0.0.1` and rejects requests whose `Host` or `Origin` is not that address
-  (DNS-rebinding protection);
-- every API call needs a random token that changes on each launch and is only injected into the page
-  the server itself serves;
-- a strict Content-Security-Policy allows no inline or third-party scripts;
-- scan history, settings, keys and the quarantine stay in `data/`, which is never committed.
-
-## Deploying it online (read before putting it on a server)
-
-Running this on a public host such as AWS needs deliberate changes, because several endpoints act
-on **the machine the server runs on**:
-
-1. **Turn off host-file features.** `POST /api/scan` with `mode: "path"`, `/api/repair/path`,
-   `/api/pick` (native file dialog), `/api/history/*/reveal`, `/quarantine`, `/restore` and the
-   downloads watch all read or move files on the server. On a public server they would let any visitor
-   read the server's files. Keep only uploads, links and text.
-2. **Bind and allow your real address.** `create_server()` binds to `127.0.0.1` and `make_handler()`
-   only accepts `127.0.0.1:<port>` / `localhost:<port>` as `Host`. Put the app behind a reverse proxy
-   (nginx, an AWS load balancer) with HTTPS, and add your domain to the allowed hosts and origins.
-3. **Give each visitor their own data.** History, settings and the vault are single-user files in
-   `data/`. A multi-user deployment needs per-user storage and real authentication (the per-launch
-   token is not a login).
-4. **Keys and the vault use Windows DPAPI** (`ui/secrets.py`). On Linux, replace them with your
-   platform's secret store (for example AWS KMS / Secrets Manager).
-5. **Limit uploads** (size, rate) at the proxy as well as in Settings, and keep the analysis timeout.
-6. Optional features that call out: public threat lookups (only fingerprints or links are sent) and the
-   AI explanation (expects Ollama at `127.0.0.1:11434`).
-
-## Licence
-
-No licence has been chosen yet; all rights reserved by the author.
+No uploaded file is executed by the static-analysis tools. A tool discovered
+from disk remains disabled until its exact source hash is explicitly approved.

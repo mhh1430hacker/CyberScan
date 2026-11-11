@@ -1,0 +1,11 @@
+# Repair engine (Phase 1 data pipeline and onward), on top of requirements.txt.
+# Versions are the ones the engine was tested with on Python 3.14 / Windows.
+PyYAML==6.0.3
+requests==2.34.2
+truststore==0.10.5          # TLS verified against the Windows certificate store
+pyarrow==26.0.0
+huggingface_hub==2.4.0
+lightgbm==4.7.0
+polars==2.1.0
+signify==0.7.1              # thrember imports SignedPEFile, removed in signify 0.8
+thrember @ git+https://github.com/futurecomputing4ai/EMBER2024

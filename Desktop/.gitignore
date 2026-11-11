@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+.env
+
+# Runtime output
+data/reports/*
+data/quarantine/*
+data/demo_samples/
+data/models/*.joblib
+data/models/*.json
+!data/**/.gitkeep

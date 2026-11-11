@@ -1,0 +1,12 @@
+{
+  "name": "synthetic_preferences_component",
+  "actions": [
+    {"when": "set_theme", "op": "set", "key": "theme", "value": "dark"},
+    {"when": "set_locale_en", "op": "set", "key": "locale", "value": "en"},
+    {"when": "set_retries", "op": "set", "key": "retries", "value": 3},
+    {"when": "startup", "op": "set", "key": "guard_enabled", "value": true},
+    {"when": "startup", "op": "set", "key": "guard_enabled", "value": false},
+    {"when": "set_locale_ar", "op": "set", "key": "locale", "value": "ar"},
+    {"when": "set_theme_high_contrast", "op": "set", "key": "theme", "value": "dark"}
+  ]
+}

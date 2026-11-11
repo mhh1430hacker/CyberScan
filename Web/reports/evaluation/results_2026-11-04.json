@@ -1,0 +1,6917 @@
+{
+ "started": "2026-11-04 07:58:23",
+ "sections": {
+  "detection": {
+   "sets": {
+    "benign_real": 235,
+    "benign_synthetic": 10,
+    "positive": 93,
+    "positive_by_group": {
+     "signature": 2,
+     "mock": 1,
+     "synthetic_malware": 10,
+     "synthetic_suspicious": 10,
+     "heuristic_text_ps1": 10,
+     "heuristic_text_bat": 10,
+     "heuristic_text_txt": 10,
+     "heuristic_random_bin": 10,
+     "heuristic_pe_like": 10,
+     "heuristic_double_ext": 10,
+     "heuristic_rlo_name": 10
+    }
+   },
+   "any_warning": {
+    "tp": 93,
+    "tn": 222,
+    "fp": 23,
+    "fn": 0,
+    "fpr": 0.09387755102040816,
+    "fnr": 0.0,
+    "precision": 0.8017241379310345,
+    "recall": 1.0,
+    "f1": 0.8899521531100478,
+    "accuracy": 0.9319526627218935,
+    "n": 338
+   },
+   "strong_warning": {
+    "tp": 60,
+    "tn": 243,
+    "fp": 2,
+    "fn": 33,
+    "fpr": 0.00816326530612245,
+    "fnr": 0.3548387096774194,
+    "precision": 0.967741935483871,
+    "recall": 0.6451612903225806,
+    "f1": 0.7741935483870968,
+    "accuracy": 0.8964497041420119,
+    "n": 338
+   },
+   "roc_auc": 0.9950625411454904,
+   "fpr_any_ci": [
+    0.0634,
+    0.1369
+   ],
+   "recall_any_ci": [
+    0.9603,
+    1.0
+   ],
+   "by_group": {
+    "benign_.csv": {
+     "n": 10,
+     "flagged_any": 0,
+     "flagged_strong": 0,
+     "mean_score": 0.0
+    },
+    "benign_.dll": {
+     "n": 20,
+     "flagged_any": 10,
+     "flagged_strong": 1,
+     "mean_score": 9.7
+    },
+    "benign_.docx": {
+     "n": 10,
+     "flagged_any": 0,
+     "flagged_strong": 0,
+     "mean_score": 0.0
+    },
+    "benign_.exe": {
+     "n": 20,
+     "flagged_any": 8,
+     "flagged_strong": 1,
+     "mean_score": 8.4
+    },
+    "benign_.gif": {
+     "n": 10,
+     "flagged_any": 0,
+     "flagged_strong": 0,
+     "mean_score": 0.0
+    },
+    "benign_.html": {
+     "n": 10,
+     "flagged_any": 0,
+     "flagged_strong": 0,
+     "mean_score": 0.0
+    },
+    "benign_.jpeg": {
+     "n": 10,
+     "flagged_any": 0,
+     "flagged_strong": 0,
+     "mean_score": 0.0
+    },
+    "benign_.jpg": {
+     "n": 10,
+     "flagged_any": 0,
+     "flagged_strong": 0,
+     "mean_score": 0.0
+    },
+    "benign_.json": {
+     "n": 10,
+     "flagged_any": 0,
+     "flagged_strong": 0,
+     "mean_score": 0.0
+    },
+    "benign_.md": {
+     "n": 10,
+     "flagged_any": 0,
+     "flagged_strong": 0,
+     "mean_score": 0.0
+    },
+    "benign_.mp3": {
+     "n": 10,
+     "flagged_any": 4,
+     "flagged_strong": 0,
+     "mean_score": 6.0
+    },
+    "benign_.mp4": {
+     "n": 10,
+     "flagged_any": 0,
+     "flagged_strong": 0,
+     "mean_score": 0.0
+    },
+    "benign_.pdf": {
+     "n": 10,
+     "flagged_any": 0,
+     "flagged_strong": 0,
+     "mean_score": 0.0
+    },
+    "benign_.png": {
+     "n": 10,
+     "flagged_any": 0,
+     "flagged_strong": 0,
+     "mean_score": 0.0
+    },
+    "benign_.pptx": {
+     "n": 4,
+     "flagged_any": 0,
+     "flagged_strong": 0,
+     "mean_score": 0.0
+    },
+    "benign_.py": {
+     "n": 20,
+     "flagged_any": 0,
+     "flagged_strong": 0,
+     "mean_score": 0.0
+    },
+    "benign_.rtf": {
+     "n": 1,
+     "flagged_any": 0,
+     "flagged_strong": 0,
+     "mean_score": 0.0
+    },
+    "benign_.svg": {
+     "n": 10,
+     "flagged_any": 0,
+     "flagged_strong": 0,
+     "mean_score": 0.0
+    },
+    "benign_.txt": {
+     "n": 10,
+     "flagged_any": 1,
+     "flagged_strong": 0,
+     "mean_score": 1.0
+    },
+    "benign_.xlsx": {
+     "n": 10,
+     "flagged_any": 0,
+     "flagged_strong": 0,
+     "mean_score": 0.0
+    },
+    "benign_.xml": {
+     "n": 10,
+     "flagged_any": 0,
+     "flagged_strong": 0,
+     "mean_score": 0.0
+    },
+    "benign_.zip": {
+     "n": 10,
+     "flagged_any": 0,
+     "flagged_strong": 0,
+     "mean_score": 0.0
+    },
+    "heuristic_double_ext": {
+     "n": 10,
+     "flagged_any": 10,
+     "flagged_strong": 10,
+     "mean_score": 97.0
+    },
+    "heuristic_pe_like": {
+     "n": 10,
+     "flagged_any": 10,
+     "flagged_strong": 8,
+     "mean_score": 65.5
+    },
+    "heuristic_random_bin": {
+     "n": 10,
+     "flagged_any": 10,
+     "flagged_strong": 7,
+     "mean_score": 58.5
+    },
+    "heuristic_rlo_name": {
+     "n": 10,
+     "flagged_any": 10,
+     "flagged_strong": 9,
+     "mean_score": 71.5
+    },
+    "heuristic_text_bat": {
+     "n": 10,
+     "flagged_any": 10,
+     "flagged_strong": 10,
+     "mean_score": 87.0
+    },
+    "heuristic_text_ps1": {
+     "n": 10,
+     "flagged_any": 10,
+     "flagged_strong": 8,
+     "mean_score": 70.5
+    },
+    "heuristic_text_txt": {
+     "n": 10,
+     "flagged_any": 10,
+     "flagged_strong": 6,
+     "mean_score": 62.5
+    },
+    "mock": {
+     "n": 1,
+     "flagged_any": 1,
+     "flagged_strong": 0,
+     "mean_score": 25.0
+    },
+    "signature": {
+     "n": 2,
+     "flagged_any": 2,
+     "flagged_strong": 2,
+     "mean_score": 60.0
+    },
+    "synthetic_clean": {
+     "n": 10,
+     "flagged_any": 0,
+     "flagged_strong": 0,
+     "mean_score": 0.0
+    },
+    "synthetic_malware": {
+     "n": 10,
+     "flagged_any": 10,
+     "flagged_strong": 0,
+     "mean_score": 25.0
+    },
+    "synthetic_suspicious": {
+     "n": 10,
+     "flagged_any": 10,
+     "flagged_strong": 0,
+     "mean_score": 18.0
+    }
+   },
+   "false_positives": [
+    {
+     "path": "C:\\Users\\mahdi\\Downloads\\stable-diffusion-webui-master\\stable-diffusion-webui-master\\venv\\Scripts\\pip3.exe",
+     "score": 15.0,
+     "evidence": [
+      "signature: Unsigned program",
+      "structural: Executable extension",
+      "pe: PE structural obfuscation indicator",
+      "heuristic: Executable file extension"
+     ]
+    },
+    {
+     "path": "C:\\Users\\mahdi\\Downloads\\ElevenLabs_2026-09-22T20_07_27_Abdullah - Saudi Arabic Narrator_pvc_sp100_s50_sb75_v3.mp3",
+     "score": 15.0,
+     "evidence": [
+      "heuristic: Embedded credential marker in URL"
+     ]
+    },
+    {
+     "path": "C:\\Users\\mahdi\\Downloads\\sd.webui\\system\\git\\libexec\\git-core\\libpsl-5.dll",
+     "score": 18.0,
+     "evidence": [
+      "signature: Unsigned program",
+      "statistical: High entropy",
+      "structural: Executable extension",
+      "pe: PE structural obfuscation indicator"
+     ]
+    },
+    {
+     "path": "C:\\Users\\mahdi\\Downloads\\ElevenLabs_2025-11-28T23_59_04_Mark - Natural Conversations_pvc_sp94_s37_sb75_se0_b_e2.mp3",
+     "score": 15.0,
+     "evidence": [
+      "heuristic: Embedded credential marker in URL"
+     ]
+    },
+    {
+     "path": "C:\\Users\\mahdi\\Downloads\\sd.webui (1)\\system\\git\\libexec\\git-core\\libcrypto-1_1-x64.dll",
+     "score": 18.0,
+     "evidence": [
+      "signature: Unsigned program",
+      "statistical: High entropy",
+      "structural: Executable extension",
+      "pe: PE structural obfuscation indicator"
+     ]
+    },
+    {
+     "path": "C:\\Users\\mahdi\\Downloads\\sd.webui\\system\\git\\bin\\zlib1.dll",
+     "score": 18.0,
+     "evidence": [
+      "signature: Unsigned program",
+      "statistical: High entropy",
+      "structural: Executable extension",
+      "pe: PE structural obfuscation indicator"
+     ]
+    },
+    {
+     "path": "C:\\Users\\mahdi\\Downloads\\ElevenLabs_2026-07-10T00_21_21_Sara - Soft, Expressive, and Warm_pvc_sp98_s50_sb38_v3.mp3",
+     "score": 15.0,
+     "evidence": [
+      "heuristic: Embedded credential marker in URL"
+     ]
+    },
+    {
+     "path": "C:\\Users\\mahdi\\Downloads\\Desktop Goose v0.31\\Desktop Goose v0.31\\DesktopGoose v0.31\\GooseModdingAPI.dll",
+     "score": 15.0,
+     "evidence": [
+      "signature: Unsigned program",
+      "structural: Executable extension",
+      "pe: PE structural obfuscation indicator",
+      "heuristic: Executable file extension"
+     ]
+    },
+    {
+     "path": "C:\\Users\\mahdi\\Downloads\\DS4Windows_3.3.3_x64\\DS4Windows\\Lang\\de\\Microsoft.Win32.TaskScheduler.resources.dll",
+     "score": 15.0,
+     "evidence": [
+      "signature: Unsigned program",
+      "structural: Executable extension",
+      "pe: PE structural obfuscation indicator",
+      "heuristic: Executable file extension"
+     ]
+    },
+    {
+     "path": "C:\\Users\\mahdi\\Downloads\\sd.webui\\system\\python\\Scripts\\tqdm.exe",
+     "score": 15.0,
+     "evidence": [
+      "signature: Unsigned program",
+      "structural: Executable extension",
+      "pe: PE structural obfuscation indicator",
+      "heuristic: Executable file extension"
+     ]
+    },
+    {
+     "path": "C:\\Users\\mahdi\\Downloads\\usbdeview-3.07-installer.exe",
+     "score": 25.0,
+     "evidence": [
+      "archive: ZIP structure: ok",
+      "structural: Header mismatch",
+      "structural: Executable extension",
+      "heuristic: Executable file extension"
+     ]
+    },
+    {
+     "path": "C:\\Users\\mahdi\\Downloads\\stable-diffusion-webui-master\\stable-diffusion-webui-master\\venv\\Scripts\\imageio_remove_bin.exe",
+     "score": 15.0,
+     "evidence": [
+      "signature: Unsigned program",
+      "structural: Executable extension",
+      "pe: PE structural obfuscation indicator",
+      "heuristic: Executable file extension"
+     ]
+    },
+    {
+     "path": "C:\\Users\\mahdi\\Downloads\\setup_espeak-1.48.04.exe",
+     "score": 18.0,
+     "evidence": [
+      "signature: Unsigned program",
+      "statistical: High entropy",
+      "structural: Executable extension",
+      "heuristic: Executable file extension"
+     ]
+    },
+    {
+     "path": "C:\\Users\\mahdi\\Downloads\\piano_vfx\\piano_vfx\\Piano VFX_Data\\Managed\\System.Runtime.Serialization.Formatters.Soap.dll",
+     "score": 50.0,
+     "evidence": [
+      "signature: Unsigned program",
+      "structural: Executable extension",
+      "pe: PE structural obfuscation indicator",
+      "yara: EncodedPowerShell"
+     ]
+    },
+    {
+     "path": "C:\\Users\\mahdi\\Downloads\\piano_vfx\\piano_vfx\\Piano VFX_Data\\Managed\\UnityEngine.TextCoreModule.dll",
+     "score": 15.0,
+     "evidence": [
+      "signature: Unsigned program",
+      "structural: Executable extension",
+      "pe: PE structural obfuscation indicator",
+      "heuristic: Executable file extension"
+     ]
+    },
+    {
+     "path": "C:\\Users\\mahdi\\Downloads\\stable-diffusion-webui-master\\stable-diffusion-webui-master\\venv\\Scripts\\tiff2fsspec.exe",
+     "score": 15.0,
+     "evidence": [
+      "signature: Unsigned program",
+      "structural: Executable extension",
+      "pe: PE structural obfuscation indicator",
+      "heuristic: Executable file extension"
+     ]
+    },
+    {
+     "path": "C:\\Users\\mahdi\\Downloads\\Slide in the Woods WINDOWS\\Slide in the Woods WINDOWS\\Slide in the woods_Data\\Managed\\UnityEngine.GameCenterModule.dll",
+     "score": 15.0,
+     "evidence": [
+      "signature: Unsigned program",
+      "structural: Executable extension",
+      "pe: PE structural obfuscation indicator",
+      "heuristic: Executable file extension"
+     ]
+    },
+    {
+     "path": "C:\\Users\\mahdi\\Downloads\\Voicemod.exe",
+     "score": 50.0,
+     "evidence": [
+      "signature: Signed program",
+      "structural: Executable extension",
+      "yara: SuspiciousProcessInjection",
+      "heuristic: Executable file extension"
+     ]
+    },
+    {
+     "path": "C:\\Users\\mahdi\\Downloads\\mymc-alpha-2-6\\mymc.exe",
+     "score": 15.0,
+     "evidence": [
+      "signature: Unsigned program",
+      "structural: Executable extension",
+      "pe: PE structural obfuscation indicator",
+      "heuristic: Executable file extension"
+     ]
+    },
+    {
+     "path": "C:\\Users\\mahdi\\Downloads\\piano_vfx\\piano_vfx\\Piano VFX_Data\\Managed\\UnityEngine.TLSModule.dll",
+     "score": 15.0,
+     "evidence": [
+      "signature: Unsigned program",
+      "structural: Executable extension",
+      "pe: PE structural obfuscation indicator",
+      "heuristic: Executable file extension"
+     ]
+    },
+    {
+     "path": "C:\\Users\\mahdi\\Downloads\\Slide in the Woods WINDOWS\\Slide in the Woods WINDOWS\\Slide in the woods_Data\\Managed\\UnityEngine.UnityWebRequestAssetBundleModule.dll",
+     "score": 15.0,
+     "evidence": [
+      "signature: Unsigned program",
+      "structural: Executable extension",
+      "pe: PE structural obfuscation indicator",
+      "heuristic: Executable file extension"
+     ]
+    },
+    {
+     "path": "C:\\Users\\mahdi\\Downloads\\ElevenLabs_2026-07-10T00_25_56_Salma - Friendly, Clear and Reassuring_pvc_sp100_s50_sb75_v3.mp3",
+     "score": 15.0,
+     "evidence": [
+      "heuristic: Embedded credential marker in URL"
+     ]
+    },
+    {
+     "path": "C:\\Users\\mahdi\\Downloads\\sd.webui (1)\\system\\git\\share\\antiword\\8859-5.txt",
+     "score": 10.0,
+     "evidence": [
+      "heuristic: Unusual capitalization pattern"
+     ]
+    }
+   ],
+   "false_negatives": [],
+   "signature_detection": [
+    {
+     "path": "virus.txt",
+     "score": 60.0,
+     "yara": [],
+     "evidence": [
+      "test_marker: EICAR anti-malware test file"
+     ]
+    },
+    {
+     "path": "eicar_com.zip",
+     "score": 60.0,
+     "yara": [],
+     "evidence": [
+      "archive: ZIP structure: ok",
+      "test_marker: EICAR anti-malware test file"
+     ]
+    }
+   ],
+   "scan_seconds": {
+    "median": 0.2579996499999879,
+    "p95": 1.6465118499999658,
+    "max": 4.508508500000062
+   }
+  },
+  "detection_rows": [
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\giphy (1).gif",
+    "label": 0,
+    "group": "benign_.gif",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.7706344000000627,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\The_Ainex_Singularity (8).pdf",
+    "label": 0,
+    "group": "benign_.pdf",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.6743799999999283,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Loopable-heavy-rain-ambience-sound-effect.zip",
+    "label": 0,
+    "group": "benign_.zip",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 1.3786908000001858,
+    "error": null
+   },
+   {
+    "path": "C:\\Windows\\System32\\hvloader.dll",
+    "label": 0,
+    "group": "benign_.dll",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 2.113465200000064,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\MacroTrends_Data_Download_NVDA.csv",
+    "label": 0,
+    "group": "benign_.csv",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.37804460000006657,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\stable-diffusion-webui-master\\stable-diffusion-webui-master\\venv\\Scripts\\pip3.exe",
+    "label": 0,
+    "group": "benign_.exe",
+    "ok": true,
+    "score": 15.0,
+    "class": "REVIEW",
+    "seconds": 1.0582641999999396,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\stable-diffusion-webui-master\\stable-diffusion-webui-master\\test\\test_extras.py",
+    "label": 0,
+    "group": "benign_.py",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.11538769999992837,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\ElevenLabs_2025-08-18T17_00_47_[ME] - Mahdi_ivc_sp85_s12_sb62_v3.mp3",
+    "label": 0,
+    "group": "benign_.mp3",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.6133732999999211,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\ElevenLabs_2026-09-22T20_07_27_Abdullah - Saudi Arabic Narrator_pvc_sp100_s50_sb75_v3.mp3",
+    "label": 0,
+    "group": "benign_.mp3",
+    "ok": true,
+    "score": 15.0,
+    "class": "REVIEW",
+    "seconds": 0.7125988000000234,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\archive\\ebay_womens_perfume.csv",
+    "label": 0,
+    "group": "benign_.csv",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.47868210000001454,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\ezgif-79700f08aa7783ae.gif",
+    "label": 0,
+    "group": "benign_.gif",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.3707875000000058,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\LiveroiD_A_1.2 (2)\\LiveroiD_A_1.2\\Live2DModels\\LiveroiD_A-Y01\\LiveroiD_A-Y01.prprl2d.json",
+    "label": 0,
+    "group": "benign_.json",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.14523670000016864,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Desktop\\استمارة مهدي ال حاجي.docx",
+    "label": 0,
+    "group": "benign_.docx",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.5871067999999013,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\sd.webui\\system\\git\\libexec\\git-core\\libpsl-5.dll",
+    "label": 0,
+    "group": "benign_.dll",
+    "ok": true,
+    "score": 18.0,
+    "class": "REVIEW",
+    "seconds": 0.7417347000000518,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\data.xlsx",
+    "label": 0,
+    "group": "benign_.xlsx",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 1.798288599999978,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Summarizing with example texts.pptx",
+    "label": 0,
+    "group": "benign_.pptx",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 1.0773506999998972,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\hibiki\\hibiki\\runtime\\motion\\hibiki_02.motion3.json",
+    "label": 0,
+    "group": "benign_.json",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.1429696000000149,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\استمارة مهدي ال حاجي.docx",
+    "label": 0,
+    "group": "benign_.docx",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.5560026000000562,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\stable-diffusion-webui-master\\stable-diffusion-webui-master\\repositories\\BLIP\\BLIP.gif",
+    "label": 0,
+    "group": "benign_.gif",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 1.4666740000000118,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\PostAnalytics_Mahdi H.AL Hajji_7425947906358099968.xlsx",
+    "label": 0,
+    "group": "benign_.xlsx",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.12706099999991238,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Moral Identity (MIMIC) Measure May 26 2022.docx",
+    "label": 0,
+    "group": "benign_.docx",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 1.030295600000045,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Documents\\project-details-SAA-Ibdaa2027.pdf",
+    "label": 0,
+    "group": "benign_.pdf",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.5851270000000568,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\scp-containment-breach-1-3-11\\GFX\\items\\INVfirstaid.jpg",
+    "label": 0,
+    "group": "benign_.jpg",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.18060320000017782,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\My-Work-Excel.xlsx",
+    "label": 0,
+    "group": "benign_.xlsx",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.4764663000000837,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Unit1B-WhereAreYouFrom.md",
+    "label": 0,
+    "group": "benign_.md",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.10061829999995098,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Prime's HD Texturues (32x)\\assets\\minecraft\\blockstates\\light_blue_concrete_powder.json",
+    "label": 0,
+    "group": "benign_.json",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.08659420000003593,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\ImageToStl.com_تتت.vrm.zip",
+    "label": 0,
+    "group": "benign_.zip",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 2.1862165000000005,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\maxresdefault (1).jpg",
+    "label": 0,
+    "group": "benign_.jpg",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.34450180000021646,
+    "error": null
+   },
+   {
+    "path": "c:\\python314\\Lib\\warnings.py",
+    "label": 0,
+    "group": "benign_.py",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.09769970000002104,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Prime's HD Texturues (32x)\\assets\\minecraft\\textures\\block\\blue_concrete_powder.png",
+    "label": 0,
+    "group": "benign_.png",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.11156359999995402,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\ElevenLabs_2025-11-28T23_59_04_Mark - Natural Conversations_pvc_sp94_s37_sb75_se0_b_e2.mp3",
+    "label": 0,
+    "group": "benign_.mp3",
+    "ok": true,
+    "score": 15.0,
+    "class": "REVIEW",
+    "seconds": 0.47425559999987854,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\sd.webui\\system\\git\\share\\doc\\git-doc\\git-read-tree.html",
+    "label": 0,
+    "group": "benign_.html",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.16404880000004596,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\sd.webui (1)\\system\\git\\libexec\\git-core\\libcrypto-1_1-x64.dll",
+    "label": 0,
+    "group": "benign_.dll",
+    "ok": true,
+    "score": 18.0,
+    "class": "REVIEW",
+    "seconds": 1.7889460999999756,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Blog-Post-Free-Version (1).zip",
+    "label": 0,
+    "group": "benign_.zip",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.3028881000000183,
+    "error": null
+   },
+   {
+    "path": "c:\\python314\\Lib\\_strptime.py",
+    "label": 0,
+    "group": "benign_.py",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.15642480000019532,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\stable-diffusion-webui-master\\stable-diffusion-webui-master\\repositories\\stable-diffusion-stability-ai\\assets\\stable-samples\\img2img\\mountains-1.png",
+    "label": 0,
+    "group": "benign_.png",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.5233741000001828,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\scp-containment-breach-1-3-11\\GFX\\map\\gravel.jpg",
+    "label": 0,
+    "group": "benign_.jpg",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.47106429999985266,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\sd.webui\\system\\git\\bin\\zlib1.dll",
+    "label": 0,
+    "group": "benign_.dll",
+    "ok": true,
+    "score": 18.0,
+    "class": "REVIEW",
+    "seconds": 0.8580638999999337,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\sd.webui\\system\\git\\share\\doc\\git-doc\\technical\\multi-pack-index.html",
+    "label": 0,
+    "group": "benign_.html",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.21972810000011123,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\WhatsApp Unknown 2026-02-27 at 4.21.30 PM.zip",
+    "label": 0,
+    "group": "benign_.zip",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.611209499999859,
+    "error": null
+   },
+   {
+    "path": "C:\\Windows\\System32\\msdtcVSp1res.dll",
+    "label": 0,
+    "group": "benign_.dll",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.2390215000000353,
+    "error": null
+   },
+   {
+    "path": "C:\\Windows\\System32\\icfupgd.dll",
+    "label": 0,
+    "group": "benign_.dll",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.8592800000001262,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\ffmpeg-8.0\\ffmpeg-8.0\\tools\\bookmarklets.html",
+    "label": 0,
+    "group": "benign_.html",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.12154329999998481,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\sd.webui\\webui\\repositories\\stable-diffusion-stability-ai\\assets\\stable-samples\\stable-unclip\\plates_out.jpeg",
+    "label": 0,
+    "group": "benign_.jpeg",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.48123179999993226,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Unique visitors in last 14 days.csv",
+    "label": 0,
+    "group": "benign_.csv",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.1113981999999396,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\sd.webui (1)\\system\\git\\share\\doc\\git-doc\\git-sparse-checkout.html",
+    "label": 0,
+    "group": "benign_.html",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.22489939999991293,
+    "error": null
+   },
+   {
+    "path": "C:\\Windows\\System32\\sqlsrv32.dll",
+    "label": 0,
+    "group": "benign_.dll",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 1.1629785999998603,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\collapse_demo - Copy.gif",
+    "label": 0,
+    "group": "benign_.gif",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.8556057999999211,
+    "error": null
+   },
+   {
+    "path": "C:\\Windows\\System32\\gpresult.exe",
+    "label": 0,
+    "group": "benign_.exe",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 1.8382460999998784,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\scp-containment-breach-1-3-11\\GFX\\items\\doc860.jpg",
+    "label": 0,
+    "group": "benign_.jpg",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.5579342000000906,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\sd.webui\\webui\\tmp\\stdout.txt",
+    "label": 0,
+    "group": "benign_.txt",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.13312039999982517,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\RehabVis_Project_Filled.docx",
+    "label": 0,
+    "group": "benign_.docx",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.5850752999999713,
+    "error": null
+   },
+   {
+    "path": "C:\\Windows\\System32\\RunLegacyCPLElevated.exe",
+    "label": 0,
+    "group": "benign_.exe",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.44250289999990855,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\binary-output.txt",
+    "label": 0,
+    "group": "benign_.txt",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.1075605999999425,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Documents\\Zettlr Tutorial\\helpful-links.md",
+    "label": 0,
+    "group": "benign_.md",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.10894680000001244,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\sd.webui\\webui\\repositories\\stable-diffusion-stability-ai\\assets\\stable-samples\\depth2img\\d2i.gif",
+    "label": 0,
+    "group": "benign_.gif",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.8138093000000026,
+    "error": null
+   },
+   {
+    "path": "C:\\Windows\\System32\\xactengine2_2.dll",
+    "label": 0,
+    "group": "benign_.dll",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.9907226999998784,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\ElevenLabs_2025-08-18T17_41_02_[ME] - Mahdi_ivc_sp85_s12_sb62_v3.mp3",
+    "label": 0,
+    "group": "benign_.mp3",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.6393663999999717,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\sd.webui (1)\\system\\git\\share\\doc\\git-doc\\git-daemon.html",
+    "label": 0,
+    "group": "benign_.html",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.21474179999995613,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\RehabVis_Project_Form.pdf",
+    "label": 0,
+    "group": "benign_.pdf",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.5455520999998953,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\stable-diffusion-webui-master\\stable-diffusion-webui-master\\package.json",
+    "label": 0,
+    "group": "benign_.json",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.10487650000004578,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\(4) WhatsApp_files\\525016626_1895966157651168_1492266760492212643_n.jpg",
+    "label": 0,
+    "group": "benign_.jpg",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.11789900000007947,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\ElevenLabs_2026-07-10T00_21_21_Sara - Soft, Expressive, and Warm_pvc_sp98_s50_sb38_v3.mp3",
+    "label": 0,
+    "group": "benign_.mp3",
+    "ok": true,
+    "score": 15.0,
+    "class": "REVIEW",
+    "seconds": 0.2911908000000949,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\صفات_الشخصية_الغامضة.jpg",
+    "label": 0,
+    "group": "benign_.jpg",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.17424599999981183,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Prime's HD Texturues (32x)\\assets\\minecraft\\optifine\\ctm\\glass\\connected_brown_glass\\1.png",
+    "label": 0,
+    "group": "benign_.png",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.12613379999993413,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\sd.webui\\webui\\repositories\\stable-diffusion-stability-ai\\assets\\rick.jpeg",
+    "label": 0,
+    "group": "benign_.jpeg",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.4681536000000506,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\blogeramTemp\\قالب اللي مني مزعلني\\mny-blogger-template-v-1.6.xml",
+    "label": 0,
+    "group": "benign_.xml",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.40537480000011783,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Documents\\ملف_مشروع_شار_محسّن.docx",
+    "label": 0,
+    "group": "benign_.docx",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 1.6340907999999672,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\sd.webui\\webui\\repositories\\stable-diffusion-stability-ai\\assets\\stable-samples\\stable-unclip\\oldcar800.jpeg",
+    "label": 0,
+    "group": "benign_.jpeg",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.5026278999998794,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\sd.webui\\system\\git\\share\\doc\\gnutls\\gnutls-logo.png",
+    "label": 0,
+    "group": "benign_.png",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.10144279999985883,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Documents\\My-Work-Excel.xlsx",
+    "label": 0,
+    "group": "benign_.xlsx",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.5080347000000529,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\sd.webui\\system\\git\\share\\doc\\git-doc\\git-svn.html",
+    "label": 0,
+    "group": "benign_.html",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.2944357999999738,
+    "error": null
+   },
+   {
+    "path": "C:\\Windows\\System32\\ROUTE.EXE",
+    "label": 0,
+    "group": "benign_.exe",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.4613415999999688,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Documents\\final\\CyberScan\\ml\\training\\evaluate.py",
+    "label": 0,
+    "group": "benign_.py",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.12867579999988266,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Desktop Goose v0.31\\Desktop Goose v0.31\\DesktopGoose v0.31\\GooseModdingAPI.dll",
+    "label": 0,
+    "group": "benign_.dll",
+    "ok": true,
+    "score": 15.0,
+    "class": "REVIEW",
+    "seconds": 0.2231945999999425,
+    "error": null
+   },
+   {
+    "path": "c:\\python314\\Lib\\netrc.py",
+    "label": 0,
+    "group": "benign_.py",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.13747059999991507,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\DS4Windows_3.3.3_x64\\DS4Windows\\Lang\\de\\Microsoft.Win32.TaskScheduler.resources.dll",
+    "label": 0,
+    "group": "benign_.dll",
+    "ok": true,
+    "score": 15.0,
+    "class": "REVIEW",
+    "seconds": 0.20747710000000552,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\ainex_final_evidence (1) - Copy.mp4",
+    "label": 0,
+    "group": "benign_.mp4",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.5884234000000106,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Default Search Query Collection.zip",
+    "label": 0,
+    "group": "benign_.zip",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 3.3667012000000796,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Desktop Goose v0.31\\Desktop Goose v0.31\\DesktopGoose v0.31\\Assets\\Text\\NotepadMessages\\hard to type.txt",
+    "label": 0,
+    "group": "benign_.txt",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.0881242000000384,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Prime's HD Texturues (32x)\\assets\\minecraft\\textures\\block\\bamboo_stage0_s.png",
+    "label": 0,
+    "group": "benign_.png",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.11351630000012847,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\stable-diffusion-webui-master\\stable-diffusion-webui-master\\repositories\\k-diffusion\\requirements.txt",
+    "label": 0,
+    "group": "benign_.txt",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.09504339999989497,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\stable-diffusion-webui-master\\stable-diffusion-webui-master\\modules\\progress.py",
+    "label": 0,
+    "group": "benign_.py",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.14803100000017366,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\sd.webui\\system\\python\\Scripts\\tqdm.exe",
+    "label": 0,
+    "group": "benign_.exe",
+    "ok": true,
+    "score": 15.0,
+    "class": "REVIEW",
+    "seconds": 0.8423627999998189,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Clustertruck\\Clustertruck_Data\\Mono\\etc\\mono\\mconfig\\config.xml",
+    "label": 0,
+    "group": "benign_.xml",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.15990080000005946,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\ainex_absolute_proof.mp4",
+    "label": 0,
+    "group": "benign_.mp4",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.10290169999984755,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\1206 (2)\\1206 (2).MP3",
+    "label": 0,
+    "group": "benign_.mp3",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.7238929999998618,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\_PostAnalytics__M._Al-Hajji___7414773425824505857_.xlsx",
+    "label": 0,
+    "group": "benign_.xlsx",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.17014070000004722,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\WhatsApp Image 2026-05-30 at 10.35.34 AM.jpeg",
+    "label": 0,
+    "group": "benign_.jpeg",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.6400019999998676,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\FDA_Final_Submission_Ready_20260520_070713\\fig1_crfo_surface.svg",
+    "label": 0,
+    "group": "benign_.svg",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.45282300000008036,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Documents\\رواياتي\\المنفي-قدر-محتوم.md",
+    "label": 0,
+    "group": "benign_.md",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.29843169999981,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\project-details 1.docx",
+    "label": 0,
+    "group": "benign_.docx",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 1.1319988999998714,
+    "error": null
+   },
+   {
+    "path": "c:\\python314\\Lib\\antigravity.py",
+    "label": 0,
+    "group": "benign_.py",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.12656910000009702,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Copy of SAIF Poster Template Age Group (12-17)  dd- 2026.pdf",
+    "label": 0,
+    "group": "benign_.pdf",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 1.0251832999999806,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\TGSC_Ultimate_Perfume_Dataset (1).xlsx",
+    "label": 0,
+    "group": "benign_.xlsx",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.20787250000012136,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\usbdeview-3.07-installer.exe",
+    "label": 0,
+    "group": "benign_.exe",
+    "ok": true,
+    "score": 25.0,
+    "class": "REVIEW",
+    "seconds": 0.4879047999997965,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\sd.webui (1)\\system\\git\\share\\doc\\git-doc\\git-show-ref.html",
+    "label": 0,
+    "group": "benign_.html",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.23503619999996772,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\stable-diffusion-webui-master\\stable-diffusion-webui-master\\venv\\Scripts\\imageio_remove_bin.exe",
+    "label": 0,
+    "group": "benign_.exe",
+    "ok": true,
+    "score": 15.0,
+    "class": "REVIEW",
+    "seconds": 1.0983876000000237,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\DS4Windows_3.3.3_x64\\DS4Windows\\Profiles.xml",
+    "label": 0,
+    "group": "benign_.xml",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.1063837000001513,
+    "error": null
+   },
+   {
+    "path": "C:\\Windows\\System32\\KBDAZST.DLL",
+    "label": 0,
+    "group": "benign_.dll",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.27590970000005655,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Desktop\\project-details-SAA-Ibdaa2027.docx",
+    "label": 0,
+    "group": "benign_.docx",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.8931825999998182,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\TEST12-ezgif.com-video-to-gif-converter.mp4",
+    "label": 0,
+    "group": "benign_.mp4",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 4.508508500000062,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Prime's HD Texturues (32x)\\assets\\minecraft\\textures\\block\\cartography_table_side3_n.png",
+    "label": 0,
+    "group": "benign_.png",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.13121879999994235,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\blogeramTemp\\قالب اللي مني مزعلني\\كافة النسخ\\mny-blogger-template-v-1.1.xml",
+    "label": 0,
+    "group": "benign_.xml",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.42786980000005315,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\setup_espeak-1.48.04.exe",
+    "label": 0,
+    "group": "benign_.exe",
+    "ok": true,
+    "score": 18.0,
+    "class": "REVIEW",
+    "seconds": 1.326208399999814,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\files.zip",
+    "label": 0,
+    "group": "benign_.zip",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.27096899999992274,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\تنزيل (10).mp4",
+    "label": 0,
+    "group": "benign_.mp4",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.6010429999998905,
+    "error": null
+   },
+   {
+    "path": "C:\\Windows\\System32\\RpcPing.exe",
+    "label": 0,
+    "group": "benign_.exe",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.4853835000001254,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\piano_vfx\\piano_vfx\\Piano VFX_Data\\Managed\\System.Runtime.Serialization.Formatters.Soap.dll",
+    "label": 0,
+    "group": "benign_.dll",
+    "ok": true,
+    "score": 50.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.29542910000009215,
+    "error": null
+   },
+   {
+    "path": "C:\\Windows\\System32\\msctfuimanager.dll",
+    "label": 0,
+    "group": "benign_.dll",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 3.2316193999999996,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\blogeramTemp\\قالب اللي مني مزعلني\\كافة النسخ\\mny-blogger-template-v-1.3.xml",
+    "label": 0,
+    "group": "benign_.xml",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.3929207999999562,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\ElevenLabs_2025-08-06T21_09_11_[ME] - Mahdi_ivc_sp100_s50_sb75_v3.mp3",
+    "label": 0,
+    "group": "benign_.mp3",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.6009464999999636,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\eBook for Linux Commands.pdf.pdf",
+    "label": 0,
+    "group": "benign_.pdf",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.7389674000000923,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\sd.webui\\webui\\repositories\\BLIP\\data\\video_dataset.py",
+    "label": 0,
+    "group": "benign_.py",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.13386260000015682,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\TGSC_Chemical_Odors_Dataset.xlsx",
+    "label": 0,
+    "group": "benign_.xlsx",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.26238149999994675,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\sd.webui (1)\\webui\\textual_inversion_templates\\style.txt",
+    "label": 0,
+    "group": "benign_.txt",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.10285720000001675,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\piano_vfx\\piano_vfx\\Piano VFX_Data\\Managed\\UnityEngine.TextCoreModule.dll",
+    "label": 0,
+    "group": "benign_.dll",
+    "ok": true,
+    "score": 15.0,
+    "class": "REVIEW",
+    "seconds": 0.6322981999999229,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\اربعة.jpeg",
+    "label": 0,
+    "group": "benign_.jpeg",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.38176169999997,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\safe-folder-main\\safe-folder-main\\desktop\\out\\renderer\\assets\\electron-DtwWEc_u.svg",
+    "label": 0,
+    "group": "benign_.svg",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.1458164000000579,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\barcode.gif",
+    "label": 0,
+    "group": "benign_.gif",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.14769720000003872,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\WhatsApp Image 2026-05-30 at 10.35.35 AM (2).jpeg",
+    "label": 0,
+    "group": "benign_.jpeg",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.5591059000000769,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\scp-containment-breach-1-3-11\\GFX\\map\\label035.jpg",
+    "label": 0,
+    "group": "benign_.jpg",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.3656750000000102,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Recording 2026-09-03 215540.mp4",
+    "label": 0,
+    "group": "benign_.mp4",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 2.285918299999821,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\ffmpeg-8.0\\ffmpeg-8.0\\doc\\issue_tracker.txt",
+    "label": 0,
+    "group": "benign_.txt",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.12581330000011803,
+    "error": null
+   },
+   {
+    "path": "C:\\Windows\\System32\\fvenotify.exe",
+    "label": 0,
+    "group": "benign_.exe",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 1.2239285000000564,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\blogeramTemp\\قالب اللي مني مزعلني\\منشروات للمعاينة\\blog-02-26-2014.xml",
+    "label": 0,
+    "group": "benign_.xml",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.5232461999999032,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\FDA_Final_Submission_Ready_20260520_070713\\fig_s1_quantization_suppression.svg",
+    "label": 0,
+    "group": "benign_.svg",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.21907430000010208,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\CyberScan حارس الملفات الذكي.pptx",
+    "label": 0,
+    "group": "benign_.pptx",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.7877711999999519,
+    "error": null
+   },
+   {
+    "path": "c:\\python314\\Lib\\_pydatetime.py",
+    "label": 0,
+    "group": "benign_.py",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.3008730999999898,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\fig2_transition_timeline.svg",
+    "label": 0,
+    "group": "benign_.svg",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.2806985000001987,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\stable-diffusion-webui-master\\stable-diffusion-webui-master\\repositories\\k-diffusion\\k_diffusion\\evaluation.py",
+    "label": 0,
+    "group": "benign_.py",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.2577415999999175,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\stable-diffusion-webui-master\\stable-diffusion-webui-master\\venv\\Scripts\\tiff2fsspec.exe",
+    "label": 0,
+    "group": "benign_.exe",
+    "ok": true,
+    "score": 15.0,
+    "class": "REVIEW",
+    "seconds": 1.0709690999999566,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\safe-folder-main\\safe-folder-main\\desktop\\tsconfig.node.json",
+    "label": 0,
+    "group": "benign_.json",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.0948671999999533,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Ainex_Bing_Theme.zip",
+    "label": 0,
+    "group": "benign_.zip",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.11530790000006164,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\ainex_genome (1).json",
+    "label": 0,
+    "group": "benign_.json",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.09784590000003845,
+    "error": null
+   },
+   {
+    "path": "c:\\python314\\Lib\\bdb.py",
+    "label": 0,
+    "group": "benign_.py",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.17338380000001052,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\2025-03-27T09-01-36_playing_cubes_watermarked.mp4",
+    "label": 0,
+    "group": "benign_.mp4",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 1.0756119999998646,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Slide in the Woods WINDOWS\\Slide in the Woods WINDOWS\\Slide in the woods_Data\\Managed\\UnityEngine.GameCenterModule.dll",
+    "label": 0,
+    "group": "benign_.dll",
+    "ok": true,
+    "score": 15.0,
+    "class": "REVIEW",
+    "seconds": 0.29301620000001094,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Voicemod.exe",
+    "label": 0,
+    "group": "benign_.exe",
+    "ok": true,
+    "score": 50.0,
+    "class": "SUSPICIOUS",
+    "seconds": 4.152691300000015,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\FreeSolv_Mapped_Perfume_Data.csv",
+    "label": 0,
+    "group": "benign_.csv",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.32436699999993834,
+    "error": null
+   },
+   {
+    "path": "c:\\python314\\Lib\\os.py",
+    "label": 0,
+    "group": "benign_.py",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.2174532999999883,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\ezgif-7e8c6fc390517a71.gif",
+    "label": 0,
+    "group": "benign_.gif",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.3416870999999446,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\avast_free_antivirus_setup_online.exe",
+    "label": 0,
+    "group": "benign_.exe",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 2.124125900000081,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\LiveroiD_A_1.2 (2)\\LiveroiD_A_1.2\\Live2DModels\\LiveroiD_A-Y02\\worried.exp3.json",
+    "label": 0,
+    "group": "benign_.json",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.11104660000000877,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Dreamwave Echoews.mp3",
+    "label": 0,
+    "group": "benign_.mp3",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 2.2092333999999028,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\blogeramTemp\\قالب اللي مني مزعلني\\كافة النسخ\\mny-blogger-template-v-1.6.xml",
+    "label": 0,
+    "group": "benign_.xml",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.44791739999982383,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\stable-diffusion-webui-master\\stable-diffusion-webui-master\\repositories\\stable-diffusion-stability-ai\\assets\\stable-samples\\stable-unclip\\oldcar000.jpeg",
+    "label": 0,
+    "group": "benign_.jpeg",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.6305205999999544,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\sd.webui (1)\\webui\\test\\basic_features\\img2img_test.py",
+    "label": 0,
+    "group": "benign_.py",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.13230149999981222,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\stable-diffusion-webui-master\\stable-diffusion-webui-master\\repositories\\stable-diffusion-stability-ai\\assets\\stable-samples\\depth2img\\d2i.gif",
+    "label": 0,
+    "group": "benign_.gif",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.897119900000007,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\stable-diffusion-webui-master\\stable-diffusion-webui-master\\repositories\\stable-diffusion-stability-ai\\assets\\stable-inpainting\\inpainting.gif",
+    "label": 0,
+    "group": "benign_.gif",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.7794039999998859,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Prime's HD Texturues (32x)\\assets\\minecraft\\optifine\\ctm\\sandstone\\2_n.png",
+    "label": 0,
+    "group": "benign_.png",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.16176360000008572,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\DS4Windows_3.3.3_x64\\DS4Windows\\Logs\\ds4windows_log.txt",
+    "label": 0,
+    "group": "benign_.txt",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.15217630000006466,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\mymc-alpha-2-6\\mymc.exe",
+    "label": 0,
+    "group": "benign_.exe",
+    "ok": true,
+    "score": 15.0,
+    "class": "REVIEW",
+    "seconds": 0.3575031000000308,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\ainex_genome.json",
+    "label": 0,
+    "group": "benign_.json",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.11252919999992628,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\FDA_Final_Submission_Ready_20260520_070713\\fig2_transition_timeline.svg",
+    "label": 0,
+    "group": "benign_.svg",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.3044320000001335,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Midify Installer.exe",
+    "label": 0,
+    "group": "benign_.exe",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.9848119999999199,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Documents\\ValiDrive.rtf",
+    "label": 0,
+    "group": "benign_.rtf",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.11492440000006354,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\TGSC_Ultimate_Perfume_Dataset.xlsx",
+    "label": 0,
+    "group": "benign_.xlsx",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.40311339999993834,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Prime's HD Texturues (32x)\\assets\\minecraft\\optifine\\ctm\\glass\\connected_white_glass\\1.png",
+    "label": 0,
+    "group": "benign_.png",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.12012410000011187,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Firefly Hitler hacks Amazon's website 302149.mp4",
+    "label": 0,
+    "group": "benign_.mp4",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 1.02869429999987,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\tessdoc-main\\tessdoc-main\\Examples_C++.md",
+    "label": 0,
+    "group": "benign_.md",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.11375909999992473,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Untitled spreadsheet - Sheet1.csv",
+    "label": 0,
+    "group": "benign_.csv",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.17810690000010254,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\piano_vfx\\piano_vfx\\Piano VFX_Data\\Managed\\UnityEngine.TLSModule.dll",
+    "label": 0,
+    "group": "benign_.dll",
+    "ok": true,
+    "score": 15.0,
+    "class": "REVIEW",
+    "seconds": 0.1885344999998324,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\C_Mino (3).pdf",
+    "label": 0,
+    "group": "benign_.pdf",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.6416283000000931,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\FDA_Final_Submission_Ready_20260520_070713\\fig4_intrinsic_lag.svg",
+    "label": 0,
+    "group": "benign_.svg",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.24186810000014702,
+    "error": null
+   },
+   {
+    "path": "c:\\python314\\Lib\\locale.py",
+    "label": 0,
+    "group": "benign_.py",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.24785529999985556,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\stable-diffusion-webui-master\\stable-diffusion-webui-master\\modules\\models\\sd3\\mmdit.py",
+    "label": 0,
+    "group": "benign_.py",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.2004567000001316,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\tessdoc-main\\tessdoc-main\\Data-Files-Contributions.md",
+    "label": 0,
+    "group": "benign_.md",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.14276220000010653,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\safe-folder-main\\safe-folder-main\\desktop\\README.md",
+    "label": 0,
+    "group": "benign_.md",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.11970689999998285,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Total views in last 14 days.csv",
+    "label": 0,
+    "group": "benign_.csv",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.1242938000000322,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\piano_vfx\\piano_vfx\\MonoBleedingEdge\\etc\\mono\\mconfig\\config.xml",
+    "label": 0,
+    "group": "benign_.xml",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.1979526000000078,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\PostAnalytics_Mahdi H.AL Hajji_7425947906358099968 (1).xlsx",
+    "label": 0,
+    "group": "benign_.xlsx",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.18256270000006225,
+    "error": null
+   },
+   {
+    "path": "C:\\Windows\\System32\\cmmon32.exe",
+    "label": 0,
+    "group": "benign_.exe",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.613211500000034,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\sd.webui\\webui\\repositories\\stable-diffusion-stability-ai\\assets\\stable-samples\\stable-unclip\\oldcar000.jpeg",
+    "label": 0,
+    "group": "benign_.jpeg",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.6909430000000611,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\ChessSword-1.1.1\\README.md",
+    "label": 0,
+    "group": "benign_.md",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.1344785999999658,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Mahdi Hassan Al Hajji (4).pdf",
+    "label": 0,
+    "group": "benign_.pdf",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.6778695000000425,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Reflect 6 Unit 8.pptx",
+    "label": 0,
+    "group": "benign_.pptx",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 1.7168977999999697,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\scp-containment-breach-1-3-11\\GFX\\map\\room2ccont_lm1.png",
+    "label": 0,
+    "group": "benign_.png",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.39730660000009266,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\theme-7003129989700749182 (2).xml",
+    "label": 0,
+    "group": "benign_.xml",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.3112056999998458,
+    "error": null
+   },
+   {
+    "path": "C:\\Windows\\System32\\icsunattend.exe",
+    "label": 0,
+    "group": "benign_.exe",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.4257927999999538,
+    "error": null
+   },
+   {
+    "path": "c:\\python314\\Lib\\filecmp.py",
+    "label": 0,
+    "group": "benign_.py",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.1714266999999836,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\sd.webui (1)\\system\\git\\share\\doc\\git-doc\\git-switch.html",
+    "label": 0,
+    "group": "benign_.html",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.29227990000003956,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\blogeramTemp\\قالب اللي مني مزعلني\\كافة النسخ\\mny-blogger-template-v-1.2.xml",
+    "label": 0,
+    "group": "benign_.xml",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.4784726000000319,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\sd.webui\\webui\\package.json",
+    "label": 0,
+    "group": "benign_.json",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.11457790000008572,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\molecules (1).csv",
+    "label": 0,
+    "group": "benign_.csv",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.24527530000000297,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\ElevenLabs_2025-08-18T17_44_06_[ME] - Mahdi_ivc_sp85_s12_sb62_v3.mp3",
+    "label": 0,
+    "group": "benign_.mp3",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.7258112999998048,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\savegames (3).zip",
+    "label": 0,
+    "group": "benign_.zip",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 1.9136286000000382,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Slide in the Woods WINDOWS\\Slide in the Woods WINDOWS\\Slide in the woods_Data\\Managed\\UnityEngine.UnityWebRequestAssetBundleModule.dll",
+    "label": 0,
+    "group": "benign_.dll",
+    "ok": true,
+    "score": 15.0,
+    "class": "REVIEW",
+    "seconds": 0.22576460000004772,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Epic_iGO_Compilation (1).mp4",
+    "label": 0,
+    "group": "benign_.mp4",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 3.0672751999998127,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Evidence.zip",
+    "label": 0,
+    "group": "benign_.zip",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.32492739999997866,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\scp-containment-breach-1-3-11\\GFX\\map\\red.jpg",
+    "label": 0,
+    "group": "benign_.jpg",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.23602530000016486,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\tessdoc-main\\tessdoc-main\\README.md",
+    "label": 0,
+    "group": "benign_.md",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.18028449999997065,
+    "error": null
+   },
+   {
+    "path": "c:\\python314\\Lib\\tarfile.py",
+    "label": 0,
+    "group": "benign_.py",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.35771279999994476,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\ifra-51st-amendment-ifra-standards-overview(Sheet1).csv",
+    "label": 0,
+    "group": "benign_.csv",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.392305800000031,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\FDA_Final_Submission_Ready_20260520_070713\\fig3_pareto_front.pdf",
+    "label": 0,
+    "group": "benign_.pdf",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.2634842000002209,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\ElevenLabs_2026-07-10T00_25_56_Salma - Friendly, Clear and Reassuring_pvc_sp100_s50_sb75_v3.mp3",
+    "label": 0,
+    "group": "benign_.mp3",
+    "ok": true,
+    "score": 15.0,
+    "class": "REVIEW",
+    "seconds": 0.4411975000000439,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Diagonal_Periodic_Table.xlsx",
+    "label": 0,
+    "group": "benign_.xlsx",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.2569256999997833,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\وثيقة فكرة اللعبة.pptx",
+    "label": 0,
+    "group": "benign_.pptx",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 1.2210638000001381,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\bde9d5353517753c3b7a6694674ebb8ec6bb4356(1).pdf",
+    "label": 0,
+    "group": "benign_.pdf",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.8995557000000645,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Pictures\\CyberScan_Poster.pdf",
+    "label": 0,
+    "group": "benign_.pdf",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.748964800000067,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\sd.webui\\webui\\repositories\\stable-diffusion-stability-ai\\scripts\\streamlit\\stableunclip.py",
+    "label": 0,
+    "group": "benign_.py",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.18262860000004366,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\apex-shield-v1.0\\apex-shield\\apex_shield.egg-info\\SOURCES.txt",
+    "label": 0,
+    "group": "benign_.txt",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.11811389999979838,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\sd.webui (1)\\webui\\html\\image-update.svg",
+    "label": 0,
+    "group": "benign_.svg",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.1229820999999447,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\scp-containment-breach-1-3-11\\GFX\\items\\doc106.jpg",
+    "label": 0,
+    "group": "benign_.jpg",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.5461072000000513,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Desktop\\top_files_only.csv",
+    "label": 0,
+    "group": "benign_.csv",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.35674549999998817,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\stable-diffusion-webui-master\\stable-diffusion-webui-master\\repositories\\stable-diffusion-stability-ai\\assets\\stable-samples\\stable-unclip\\oldcar500.jpeg",
+    "label": 0,
+    "group": "benign_.jpeg",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.6593294000001606,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Desktop Goose v0.31\\Desktop Goose v0.31\\DesktopGoose v0.31\\Assets\\Images\\OtherGfx\\heart.png",
+    "label": 0,
+    "group": "benign_.png",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.14838970000005247,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\sd.webui\\system\\git\\share\\doc\\git-doc\\git-credential.html",
+    "label": 0,
+    "group": "benign_.html",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.21334129999991092,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\finally_ result.docx",
+    "label": 0,
+    "group": "benign_.docx",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.7330137999999806,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\proj_data - نسخ.docx",
+    "label": 0,
+    "group": "benign_.docx",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.6649443000001156,
+    "error": null
+   },
+   {
+    "path": "C:\\Windows\\System32\\vfprintpthelper.dll",
+    "label": 0,
+    "group": "benign_.dll",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 3.792936200000213,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\sd.webui (1)\\webui\\modules\\esrgan_model_arch.py",
+    "label": 0,
+    "group": "benign_.py",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.15605810000010933,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\MindVideo_20260117235537_852.mp4",
+    "label": 0,
+    "group": "benign_.mp4",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 2.2445860999998786,
+    "error": null
+   },
+   {
+    "path": "C:\\Windows\\System32\\WindowsProtectedPrintConfiguration.dll",
+    "label": 0,
+    "group": "benign_.dll",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.8295473000000584,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\المنفي-قدر-محتوم.docx",
+    "label": 0,
+    "group": "benign_.docx",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.4100471000001562,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Documents\\قغبغففثس7بغيستلقهفمهلةصت347عنغو.zip",
+    "label": 0,
+    "group": "benign_.zip",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 1.0705176999999821,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\sd.webui\\system\\git\\share\\doc\\git-doc\\git-multi-pack-index.html",
+    "label": 0,
+    "group": "benign_.html",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.16942900000003647,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\ResoMind-main\\ResoMind-main\\README.md",
+    "label": 0,
+    "group": "benign_.md",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.13372800000001916,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\tessdoc-main\\tessdoc-main\\Data-Files-in-different-versions.md",
+    "label": 0,
+    "group": "benign_.md",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.16946179999990818,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\starfall-gif-46.gif",
+    "label": 0,
+    "group": "benign_.gif",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.6292450999999346,
+    "error": null
+   },
+   {
+    "path": "C:\\Windows\\System32\\deploymentcsphelper.exe",
+    "label": 0,
+    "group": "benign_.exe",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.45305670000016107,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\scp-containment-breach-1-3-11\\Instructions.txt",
+    "label": 0,
+    "group": "benign_.txt",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.13657999999986714,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\WhatsApp Image 2026-09-04 at 1.44.51 PM.jpeg",
+    "label": 0,
+    "group": "benign_.jpeg",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.48939580000001115,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Recording 2026-09-04 202237.mp4",
+    "label": 0,
+    "group": "benign_.mp4",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.47153640000010455,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Formative Test 3 _ Coursera_files\\FutureX-2-.svg",
+    "label": 0,
+    "group": "benign_.svg",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.12389450000000579,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\safe-folder-main\\safe-folder-main\\desktop\\package.json",
+    "label": 0,
+    "group": "benign_.json",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.14569379999988996,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Documents\\PCSX2\\covers\\SLUS-01201.jpg",
+    "label": 0,
+    "group": "benign_.jpg",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.2186580000000049,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\sd.webui (1)\\system\\git\\share\\antiword\\8859-5.txt",
+    "label": 0,
+    "group": "benign_.txt",
+    "ok": true,
+    "score": 10.0,
+    "class": "REVIEW",
+    "seconds": 0.1531147000000601,
+    "error": null
+   },
+   {
+    "path": "C:\\Windows\\System32\\microsoft.windows.softwarelogo.showdesktop.exe",
+    "label": 0,
+    "group": "benign_.exe",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.31821869999998853,
+    "error": null
+   },
+   {
+    "path": "C:\\Windows\\System32\\domgmt.dll",
+    "label": 0,
+    "group": "benign_.dll",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 1.0654689999998936,
+    "error": null
+   },
+   {
+    "path": "C:\\Windows\\System32\\wowreg32.exe",
+    "label": 0,
+    "group": "benign_.exe",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.3454037999999855,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\NVIDIA Stock Price History (1).csv",
+    "label": 0,
+    "group": "benign_.csv",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.09691750000001775,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\fig4_intrinsic_lag.svg",
+    "label": 0,
+    "group": "benign_.svg",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.1942225000000235,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\safe-folder-main\\safe-folder-main\\desktop\\src\\renderer\\src\\assets\\electron.svg",
+    "label": 0,
+    "group": "benign_.svg",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.1699957999999242,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\sd.webui (1)\\webui\\modules\\extra_networks_hypernet.py",
+    "label": 0,
+    "group": "benign_.py",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.14288919999989957,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Desktop\\dist\\data\\datasets\\synthetic_integration\\clean_00.bin",
+    "label": 0,
+    "group": "synthetic_clean",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.08753550000005816,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Desktop\\dist\\data\\datasets\\synthetic_integration\\clean_01.bin",
+    "label": 0,
+    "group": "synthetic_clean",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.09436639999989893,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Desktop\\dist\\data\\datasets\\synthetic_integration\\clean_02.bin",
+    "label": 0,
+    "group": "synthetic_clean",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.11110459999986233,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Desktop\\dist\\data\\datasets\\synthetic_integration\\clean_03.bin",
+    "label": 0,
+    "group": "synthetic_clean",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.14371589999996104,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Desktop\\dist\\data\\datasets\\synthetic_integration\\clean_04.bin",
+    "label": 0,
+    "group": "synthetic_clean",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.115373899999895,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Desktop\\dist\\data\\datasets\\synthetic_integration\\clean_05.bin",
+    "label": 0,
+    "group": "synthetic_clean",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.10196019999989403,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Desktop\\dist\\data\\datasets\\synthetic_integration\\clean_06.bin",
+    "label": 0,
+    "group": "synthetic_clean",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.10548249999988002,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Desktop\\dist\\data\\datasets\\synthetic_integration\\clean_07.bin",
+    "label": 0,
+    "group": "synthetic_clean",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.10498819999997977,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Desktop\\dist\\data\\datasets\\synthetic_integration\\clean_08.bin",
+    "label": 0,
+    "group": "synthetic_clean",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.1209175999999843,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Desktop\\dist\\data\\datasets\\synthetic_integration\\clean_09.bin",
+    "label": 0,
+    "group": "synthetic_clean",
+    "ok": true,
+    "score": 0.0,
+    "class": "NO_INDICATORS_OBSERVED",
+    "seconds": 0.128665299999966,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Desktop\\dist\\mlware\\virus.txt",
+    "label": 1,
+    "group": "signature",
+    "ok": true,
+    "score": 60.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.13879520000000412,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Desktop\\dist\\mlware\\eicar_com.zip",
+    "label": 1,
+    "group": "signature",
+    "ok": true,
+    "score": 60.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.13651150000009693,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Desktop\\dist\\mlware\\test_mock_malware.bin",
+    "label": 1,
+    "group": "mock",
+    "ok": true,
+    "score": 25.0,
+    "class": "REVIEW",
+    "seconds": 0.30690049999998337,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Desktop\\dist\\data\\datasets\\synthetic_integration\\malware_00.bin",
+    "label": 1,
+    "group": "synthetic_malware",
+    "ok": true,
+    "score": 25.0,
+    "class": "REVIEW",
+    "seconds": 0.2804833999998664,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Desktop\\dist\\data\\datasets\\synthetic_integration\\malware_01.bin",
+    "label": 1,
+    "group": "synthetic_malware",
+    "ok": true,
+    "score": 25.0,
+    "class": "REVIEW",
+    "seconds": 0.23445440000000417,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Desktop\\dist\\data\\datasets\\synthetic_integration\\malware_02.bin",
+    "label": 1,
+    "group": "synthetic_malware",
+    "ok": true,
+    "score": 25.0,
+    "class": "REVIEW",
+    "seconds": 0.2619649999999183,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Desktop\\dist\\data\\datasets\\synthetic_integration\\malware_03.bin",
+    "label": 1,
+    "group": "synthetic_malware",
+    "ok": true,
+    "score": 25.0,
+    "class": "REVIEW",
+    "seconds": 0.25162060000002384,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Desktop\\dist\\data\\datasets\\synthetic_integration\\malware_04.bin",
+    "label": 1,
+    "group": "synthetic_malware",
+    "ok": true,
+    "score": 25.0,
+    "class": "REVIEW",
+    "seconds": 0.2590794000000187,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Desktop\\dist\\data\\datasets\\synthetic_integration\\malware_05.bin",
+    "label": 1,
+    "group": "synthetic_malware",
+    "ok": true,
+    "score": 25.0,
+    "class": "REVIEW",
+    "seconds": 0.28223830000001726,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Desktop\\dist\\data\\datasets\\synthetic_integration\\malware_06.bin",
+    "label": 1,
+    "group": "synthetic_malware",
+    "ok": true,
+    "score": 25.0,
+    "class": "REVIEW",
+    "seconds": 0.2716493000000355,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Desktop\\dist\\data\\datasets\\synthetic_integration\\malware_07.bin",
+    "label": 1,
+    "group": "synthetic_malware",
+    "ok": true,
+    "score": 25.0,
+    "class": "REVIEW",
+    "seconds": 0.2431652000000213,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Desktop\\dist\\data\\datasets\\synthetic_integration\\malware_08.bin",
+    "label": 1,
+    "group": "synthetic_malware",
+    "ok": true,
+    "score": 25.0,
+    "class": "REVIEW",
+    "seconds": 0.2839384000001246,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Desktop\\dist\\data\\datasets\\synthetic_integration\\malware_09.bin",
+    "label": 1,
+    "group": "synthetic_malware",
+    "ok": true,
+    "score": 25.0,
+    "class": "REVIEW",
+    "seconds": 0.2476744000000508,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Desktop\\dist\\data\\datasets\\synthetic_integration\\suspicious_00.bin",
+    "label": 1,
+    "group": "synthetic_suspicious",
+    "ok": true,
+    "score": 18.0,
+    "class": "REVIEW",
+    "seconds": 0.1434399999998277,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Desktop\\dist\\data\\datasets\\synthetic_integration\\suspicious_01.bin",
+    "label": 1,
+    "group": "synthetic_suspicious",
+    "ok": true,
+    "score": 18.0,
+    "class": "REVIEW",
+    "seconds": 0.09205460000021048,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Desktop\\dist\\data\\datasets\\synthetic_integration\\suspicious_02.bin",
+    "label": 1,
+    "group": "synthetic_suspicious",
+    "ok": true,
+    "score": 18.0,
+    "class": "REVIEW",
+    "seconds": 0.08330640000008316,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Desktop\\dist\\data\\datasets\\synthetic_integration\\suspicious_03.bin",
+    "label": 1,
+    "group": "synthetic_suspicious",
+    "ok": true,
+    "score": 18.0,
+    "class": "REVIEW",
+    "seconds": 0.11464750000004642,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Desktop\\dist\\data\\datasets\\synthetic_integration\\suspicious_04.bin",
+    "label": 1,
+    "group": "synthetic_suspicious",
+    "ok": true,
+    "score": 18.0,
+    "class": "REVIEW",
+    "seconds": 0.13244050000002972,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Desktop\\dist\\data\\datasets\\synthetic_integration\\suspicious_05.bin",
+    "label": 1,
+    "group": "synthetic_suspicious",
+    "ok": true,
+    "score": 18.0,
+    "class": "REVIEW",
+    "seconds": 0.13312089999999444,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Desktop\\dist\\data\\datasets\\synthetic_integration\\suspicious_06.bin",
+    "label": 1,
+    "group": "synthetic_suspicious",
+    "ok": true,
+    "score": 18.0,
+    "class": "REVIEW",
+    "seconds": 0.15199469999993198,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Desktop\\dist\\data\\datasets\\synthetic_integration\\suspicious_07.bin",
+    "label": 1,
+    "group": "synthetic_suspicious",
+    "ok": true,
+    "score": 18.0,
+    "class": "REVIEW",
+    "seconds": 0.09527049999996962,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Desktop\\dist\\data\\datasets\\synthetic_integration\\suspicious_08.bin",
+    "label": 1,
+    "group": "synthetic_suspicious",
+    "ok": true,
+    "score": 18.0,
+    "class": "REVIEW",
+    "seconds": 0.14262409999992087,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Desktop\\dist\\data\\datasets\\synthetic_integration\\suspicious_09.bin",
+    "label": 1,
+    "group": "synthetic_suspicious",
+    "ok": true,
+    "score": 18.0,
+    "class": "REVIEW",
+    "seconds": 0.15673760000004222,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\script_0.ps1",
+    "label": 1,
+    "group": "heuristic_text_ps1",
+    "ok": true,
+    "score": 40.0,
+    "class": "REVIEW",
+    "seconds": 0.10583029999997962,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\script_1.bat",
+    "label": 1,
+    "group": "heuristic_text_bat",
+    "ok": true,
+    "score": 100.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.10062760000005255,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\script_2.txt",
+    "label": 1,
+    "group": "heuristic_text_txt",
+    "ok": true,
+    "score": 100.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.09228860000007444,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\blob_3.bin",
+    "label": 1,
+    "group": "heuristic_random_bin",
+    "ok": true,
+    "score": 80.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.26450599999998303,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\setup_4.exe",
+    "label": 1,
+    "group": "heuristic_pe_like",
+    "ok": true,
+    "score": 20.0,
+    "class": "REVIEW",
+    "seconds": 0.2863591999998789,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\invoice_5.pdf.exe",
+    "label": 1,
+    "group": "heuristic_double_ext",
+    "ok": true,
+    "score": 100.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.30083799999988514,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\photo_6‮gpj.exe",
+    "label": 1,
+    "group": "heuristic_rlo_name",
+    "ok": true,
+    "score": 80.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.2562071999998352,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\script_7.ps1",
+    "label": 1,
+    "group": "heuristic_text_ps1",
+    "ok": true,
+    "score": 35.0,
+    "class": "REVIEW",
+    "seconds": 0.12059799999997267,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\script_8.bat",
+    "label": 1,
+    "group": "heuristic_text_bat",
+    "ok": true,
+    "score": 55.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.11661350000008497,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\script_9.txt",
+    "label": 1,
+    "group": "heuristic_text_txt",
+    "ok": true,
+    "score": 100.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.11571570000000975,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\blob_10.bin",
+    "label": 1,
+    "group": "heuristic_random_bin",
+    "ok": true,
+    "score": 45.0,
+    "class": "REVIEW",
+    "seconds": 0.3046798000000308,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\setup_11.exe",
+    "label": 1,
+    "group": "heuristic_pe_like",
+    "ok": true,
+    "score": 100.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.32006730000011885,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\invoice_12.pdf.exe",
+    "label": 1,
+    "group": "heuristic_double_ext",
+    "ok": true,
+    "score": 100.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.3137965000000804,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\photo_13‮gpj.exe",
+    "label": 1,
+    "group": "heuristic_rlo_name",
+    "ok": true,
+    "score": 100.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.32530900000006113,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\script_14.ps1",
+    "label": 1,
+    "group": "heuristic_text_ps1",
+    "ok": true,
+    "score": 50.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.10207750000017768,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\script_15.bat",
+    "label": 1,
+    "group": "heuristic_text_bat",
+    "ok": true,
+    "score": 100.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.1128708999999617,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\script_16.txt",
+    "label": 1,
+    "group": "heuristic_text_txt",
+    "ok": true,
+    "score": 20.0,
+    "class": "REVIEW",
+    "seconds": 0.12050520000002507,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\blob_17.bin",
+    "label": 1,
+    "group": "heuristic_random_bin",
+    "ok": true,
+    "score": 20.0,
+    "class": "REVIEW",
+    "seconds": 0.29653029999985847,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\setup_18.exe",
+    "label": 1,
+    "group": "heuristic_pe_like",
+    "ok": true,
+    "score": 60.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.3204634999999598,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\invoice_19.pdf.exe",
+    "label": 1,
+    "group": "heuristic_double_ext",
+    "ok": true,
+    "score": 100.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.3052855000000818,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\photo_20‮gpj.exe",
+    "label": 1,
+    "group": "heuristic_rlo_name",
+    "ok": true,
+    "score": 35.0,
+    "class": "REVIEW",
+    "seconds": 0.2746598000001086,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\script_21.ps1",
+    "label": 1,
+    "group": "heuristic_text_ps1",
+    "ok": true,
+    "score": 60.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.10010950000014418,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\script_22.bat",
+    "label": 1,
+    "group": "heuristic_text_bat",
+    "ok": true,
+    "score": 100.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.09972210000000814,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\script_23.txt",
+    "label": 1,
+    "group": "heuristic_text_txt",
+    "ok": true,
+    "score": 35.0,
+    "class": "REVIEW",
+    "seconds": 0.11020200000007208,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\blob_24.bin",
+    "label": 1,
+    "group": "heuristic_random_bin",
+    "ok": true,
+    "score": 55.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.35522739999987607,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\setup_25.exe",
+    "label": 1,
+    "group": "heuristic_pe_like",
+    "ok": true,
+    "score": 100.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.3778320999999778,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\invoice_26.pdf.exe",
+    "label": 1,
+    "group": "heuristic_double_ext",
+    "ok": true,
+    "score": 75.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.3059866000000966,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\photo_27‮gpj.exe",
+    "label": 1,
+    "group": "heuristic_rlo_name",
+    "ok": true,
+    "score": 55.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.30656790000011824,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\script_28.ps1",
+    "label": 1,
+    "group": "heuristic_text_ps1",
+    "ok": true,
+    "score": 100.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.12377270000001772,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\script_29.bat",
+    "label": 1,
+    "group": "heuristic_text_bat",
+    "ok": true,
+    "score": 100.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.09923399999979665,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\script_30.txt",
+    "label": 1,
+    "group": "heuristic_text_txt",
+    "ok": true,
+    "score": 20.0,
+    "class": "REVIEW",
+    "seconds": 0.09735340000020187,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\blob_31.bin",
+    "label": 1,
+    "group": "heuristic_random_bin",
+    "ok": true,
+    "score": 60.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.26691940000000614,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\setup_32.exe",
+    "label": 1,
+    "group": "heuristic_pe_like",
+    "ok": true,
+    "score": 50.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.251387700000123,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\invoice_33.pdf.exe",
+    "label": 1,
+    "group": "heuristic_double_ext",
+    "ok": true,
+    "score": 100.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.20950519999996686,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\photo_34‮gpj.exe",
+    "label": 1,
+    "group": "heuristic_rlo_name",
+    "ok": true,
+    "score": 100.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.2243436000001111,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\script_35.ps1",
+    "label": 1,
+    "group": "heuristic_text_ps1",
+    "ok": true,
+    "score": 65.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.09403010000005452,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\script_36.bat",
+    "label": 1,
+    "group": "heuristic_text_bat",
+    "ok": true,
+    "score": 100.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.1033666999999241,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\script_37.txt",
+    "label": 1,
+    "group": "heuristic_text_txt",
+    "ok": true,
+    "score": 100.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.10566149999999652,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\blob_38.bin",
+    "label": 1,
+    "group": "heuristic_random_bin",
+    "ok": true,
+    "score": 100.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.2708662000000004,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\setup_39.exe",
+    "label": 1,
+    "group": "heuristic_pe_like",
+    "ok": true,
+    "score": 70.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.25682419999998274,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\invoice_40.pdf.exe",
+    "label": 1,
+    "group": "heuristic_double_ext",
+    "ok": true,
+    "score": 100.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.35575999999991836,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\photo_41‮gpj.exe",
+    "label": 1,
+    "group": "heuristic_rlo_name",
+    "ok": true,
+    "score": 60.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.24566330000016023,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\script_42.ps1",
+    "label": 1,
+    "group": "heuristic_text_ps1",
+    "ok": true,
+    "score": 100.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.11239739999996345,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\script_43.bat",
+    "label": 1,
+    "group": "heuristic_text_bat",
+    "ok": true,
+    "score": 75.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.11091780000015206,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\script_44.txt",
+    "label": 1,
+    "group": "heuristic_text_txt",
+    "ok": true,
+    "score": 65.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.09027199999991353,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\blob_45.bin",
+    "label": 1,
+    "group": "heuristic_random_bin",
+    "ok": true,
+    "score": 100.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.2508450999998786,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\setup_46.exe",
+    "label": 1,
+    "group": "heuristic_pe_like",
+    "ok": true,
+    "score": 25.0,
+    "class": "REVIEW",
+    "seconds": 0.33941090000007534,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\invoice_47.pdf.exe",
+    "label": 1,
+    "group": "heuristic_double_ext",
+    "ok": true,
+    "score": 100.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.21508170000015525,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\photo_48‮gpj.exe",
+    "label": 1,
+    "group": "heuristic_rlo_name",
+    "ok": true,
+    "score": 50.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.19758200000001125,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\script_49.ps1",
+    "label": 1,
+    "group": "heuristic_text_ps1",
+    "ok": true,
+    "score": 100.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.09164929999997184,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\script_50.bat",
+    "label": 1,
+    "group": "heuristic_text_bat",
+    "ok": true,
+    "score": 95.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.08725470000013047,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\script_51.txt",
+    "label": 1,
+    "group": "heuristic_text_txt",
+    "ok": true,
+    "score": 35.0,
+    "class": "REVIEW",
+    "seconds": 0.09296730000005482,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\blob_52.bin",
+    "label": 1,
+    "group": "heuristic_random_bin",
+    "ok": true,
+    "score": 50.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.2845925999999963,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\setup_53.exe",
+    "label": 1,
+    "group": "heuristic_pe_like",
+    "ok": true,
+    "score": 60.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.24602039999990666,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\invoice_54.pdf.exe",
+    "label": 1,
+    "group": "heuristic_double_ext",
+    "ok": true,
+    "score": 100.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.2623656000000665,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\photo_55‮gpj.exe",
+    "label": 1,
+    "group": "heuristic_rlo_name",
+    "ok": true,
+    "score": 65.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.21965799999998126,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\script_56.ps1",
+    "label": 1,
+    "group": "heuristic_text_ps1",
+    "ok": true,
+    "score": 55.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.08747399999992922,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\script_57.bat",
+    "label": 1,
+    "group": "heuristic_text_bat",
+    "ok": true,
+    "score": 65.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.09256039999991117,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\script_58.txt",
+    "label": 1,
+    "group": "heuristic_text_txt",
+    "ok": true,
+    "score": 100.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.0916939999999613,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\blob_59.bin",
+    "label": 1,
+    "group": "heuristic_random_bin",
+    "ok": true,
+    "score": 50.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.26008790000014415,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\setup_60.exe",
+    "label": 1,
+    "group": "heuristic_pe_like",
+    "ok": true,
+    "score": 70.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.29134479999993346,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\invoice_61.pdf.exe",
+    "label": 1,
+    "group": "heuristic_double_ext",
+    "ok": true,
+    "score": 95.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.2579319999999825,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\photo_62‮gpj.exe",
+    "label": 1,
+    "group": "heuristic_rlo_name",
+    "ok": true,
+    "score": 100.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.22710159999996904,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\script_63.ps1",
+    "label": 1,
+    "group": "heuristic_text_ps1",
+    "ok": true,
+    "score": 100.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.126828999999816,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\script_64.bat",
+    "label": 1,
+    "group": "heuristic_text_bat",
+    "ok": true,
+    "score": 80.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.1087301000000025,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\script_65.txt",
+    "label": 1,
+    "group": "heuristic_text_txt",
+    "ok": true,
+    "score": 50.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.09897299999988718,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\blob_66.bin",
+    "label": 1,
+    "group": "heuristic_random_bin",
+    "ok": true,
+    "score": 25.0,
+    "class": "REVIEW",
+    "seconds": 0.21092449999991914,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\setup_67.exe",
+    "label": 1,
+    "group": "heuristic_pe_like",
+    "ok": true,
+    "score": 100.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.25806729999999334,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\invoice_68.pdf.exe",
+    "label": 1,
+    "group": "heuristic_double_ext",
+    "ok": true,
+    "score": 100.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.21965780000004997,
+    "error": null
+   },
+   {
+    "path": "C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w\\malicious\\photo_69‮gpj.exe",
+    "label": 1,
+    "group": "heuristic_rlo_name",
+    "ok": true,
+    "score": 70.0,
+    "class": "SUSPICIOUS",
+    "seconds": 0.21494029999985287,
+    "error": null
+   }
+  ],
+  "adversarial": {
+   "variants": {
+    "original": {
+     "n": 10,
+     "detected": 10,
+     "rate": 1.0
+    },
+    "utf16": {
+     "n": 10,
+     "detected": 0,
+     "rate": 0.0
+    },
+    "base64": {
+     "n": 10,
+     "detected": 8,
+     "rate": 0.8
+    },
+    "spaced": {
+     "n": 10,
+     "detected": 3,
+     "rate": 0.3
+    },
+    "concat": {
+     "n": 10,
+     "detected": 10,
+     "rate": 1.0
+    },
+    "caret": {
+     "n": 10,
+     "detected": 10,
+     "rate": 1.0
+    },
+    "case": {
+     "n": 10,
+     "detected": 10,
+     "rate": 1.0
+    },
+    "zero_padding": {
+     "n": 10,
+     "detected": 4,
+     "rate": 0.4
+    },
+    "random_padding": {
+     "n": 10,
+     "detected": 10,
+     "rate": 1.0
+    }
+   }
+  },
+  "repair": {
+   "detection_on_tampering": {
+    "tp": 86,
+    "tn": 115,
+    "fp": 9,
+    "fn": 0,
+    "fpr": 0.07258064516129033,
+    "fnr": 0.0,
+    "precision": 0.9052631578947369,
+    "recall": 1.0,
+    "f1": 0.9502762430939227,
+    "accuracy": 0.9571428571428572,
+    "n": 210,
+    "note": "positive = a finding the injection caused; on clean files, positive = any repairable finding"
+   },
+   "roc_auc": 0.991747936984246,
+   "preselected_on_clean": 0,
+   "clean_files": 124,
+   "clean_findings_by_kind": {
+    "pdf_object": 1,
+    "pe_overlay": 8,
+    "ooxml_embedded_object": 1,
+    "name_mismatch": 1
+   },
+   "pairs": 86,
+   "by_family": {
+    "append_after_end": {
+     "n": 69,
+     "detected": 69,
+     "located": 69,
+     "repaired": 68,
+     "byte_identical": 68
+    },
+    "pdf_javascript": {
+     "n": 1,
+     "detected": 1,
+     "located": 1,
+     "repaired": 1,
+     "byte_identical": 0
+    },
+    "pdf_embedded_file": {
+     "n": 3,
+     "detected": 3,
+     "located": 3,
+     "repaired": 3,
+     "byte_identical": 3
+    },
+    "ooxml_vba_part": {
+     "n": 7,
+     "detected": 7,
+     "located": 7,
+     "repaired": 7,
+     "byte_identical": 0
+    },
+    "ooxml_embedded_object": {
+     "n": 6,
+     "detected": 6,
+     "located": 6,
+     "repaired": 6,
+     "byte_identical": 0
+    }
+   },
+   "repair_integrity": {
+    "repaired": 85,
+    "of_detected": 86,
+    "byte_identical": 71,
+    "sha_match": 71,
+    "validation_passed": 85,
+    "prsv_clean": 85,
+    "functional_ok": 85,
+    "functional_checked": 85,
+    "metadata_ok": 85,
+    "content_ok": 85,
+    "median_seconds": 0.011
+   },
+   "failures": [
+    {
+     "path": "C:\\Users\\mahdi\\Downloads\\استمارة مهدي ال حاجي.docx",
+     "format": "ooxml",
+     "family": "ooxml_embedded_object",
+     "content": true,
+     "detected": true,
+     "located": true,
+     "repairable": true,
+     "repair_seconds": 0.016,
+     "repaired": true,
+     "byte_identical": false,
+     "sha_match": false,
+     "validation": {
+      "parse": "ok",
+      "structure": "ok",
+      "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+     },
+     "after_findings": 0,
+     "score": 2,
+     "functional": true,
+     "metadata": true,
+     "prsv_findings": 0,
+     "prsv_same_as_clean": true
+    },
+    {
+     "path": "C:\\Users\\mahdi\\Downloads\\PostAnalytics_Mahdi H.AL Hajji_7425947906358099968.xlsx",
+     "format": "ooxml",
+     "family": "ooxml_embedded_object",
+     "content": true,
+     "detected": true,
+     "located": true,
+     "repairable": true,
+     "repair_seconds": 0.005,
+     "repaired": true,
+     "byte_identical": false,
+     "sha_match": false,
+     "validation": {
+      "parse": "ok",
+      "structure": "ok",
+      "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+     },
+     "after_findings": 0,
+     "score": 2,
+     "functional": true,
+     "metadata": true,
+     "prsv_findings": 0,
+     "prsv_same_as_clean": true
+    },
+    {
+     "path": "C:\\Users\\mahdi\\Downloads\\Moral Identity (MIMIC) Measure May 26 2022.docx",
+     "format": "ooxml",
+     "family": "ooxml_vba_part",
+     "content": true,
+     "detected": true,
+     "located": true,
+     "repairable": true,
+     "repair_seconds": 1.029,
+     "repaired": true,
+     "byte_identical": false,
+     "sha_match": false,
+     "validation": {
+      "parse": "ok",
+      "structure": "ok",
+      "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+     },
+     "after_findings": 1,
+     "score": 3,
+     "functional": true,
+     "metadata": true,
+     "prsv_findings": 1,
+     "prsv_same_as_clean": true
+    },
+    {
+     "path": "C:\\Users\\mahdi\\Documents\\project-details-SAA-Ibdaa2027.pdf",
+     "format": "pdf",
+     "family": "pdf_javascript",
+     "content": true,
+     "detected": true,
+     "located": true,
+     "repairable": true,
+     "repair_seconds": 0.639,
+     "repaired": true,
+     "byte_identical": false,
+     "sha_match": false,
+     "validation": {
+      "parse": "ok",
+      "structure": "ok",
+      "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+     },
+     "after_findings": 0,
+     "score": 3,
+     "functional": true,
+     "metadata": true,
+     "prsv_findings": 0,
+     "prsv_same_as_clean": true
+    },
+    {
+     "path": "C:\\Users\\mahdi\\Downloads\\sd.webui (1)\\system\\git\\libexec\\git-core\\libcrypto-1_1-x64.dll",
+     "format": "pe",
+     "family": "append_after_end",
+     "content": "placeholder",
+     "detected": true,
+     "located": true,
+     "repairable": true,
+     "repair_seconds": 0.384,
+     "repaired": false,
+     "byte_identical": false,
+     "sha_match": false,
+     "validation": {
+      "parse": "ok",
+      "structure": "checksum does not match",
+      "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+     },
+     "after_findings": 1,
+     "score": 1
+    },
+    {
+     "path": "C:\\Users\\mahdi\\Downloads\\RehabVis_Project_Filled.docx",
+     "format": "ooxml",
+     "family": "ooxml_embedded_object",
+     "content": true,
+     "detected": true,
+     "located": true,
+     "repairable": true,
+     "repair_seconds": 0.049,
+     "repaired": true,
+     "byte_identical": false,
+     "sha_match": false,
+     "validation": {
+      "parse": "ok",
+      "structure": "ok",
+      "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+     },
+     "after_findings": 0,
+     "score": 2,
+     "functional": true,
+     "metadata": true,
+     "prsv_findings": 0,
+     "prsv_same_as_clean": true
+    },
+    {
+     "path": "C:\\Users\\mahdi\\Documents\\ملف_مشروع_شار_محسّن.docx",
+     "format": "ooxml",
+     "family": "ooxml_vba_part",
+     "content": true,
+     "detected": true,
+     "located": true,
+     "repairable": true,
+     "repair_seconds": 0.943,
+     "repaired": true,
+     "byte_identical": false,
+     "sha_match": false,
+     "validation": {
+      "parse": "ok",
+      "structure": "ok",
+      "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+     },
+     "after_findings": 0,
+     "score": 3,
+     "functional": true,
+     "metadata": true,
+     "prsv_findings": 0,
+     "prsv_same_as_clean": true
+    },
+    {
+     "path": "C:\\Users\\mahdi\\Documents\\My-Work-Excel.xlsx",
+     "format": "ooxml",
+     "family": "ooxml_vba_part",
+     "content": true,
+     "detected": true,
+     "located": true,
+     "repairable": true,
+     "repair_seconds": 0.011,
+     "repaired": true,
+     "byte_identical": false,
+     "sha_match": false,
+     "validation": {
+      "parse": "ok",
+      "structure": "ok",
+      "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+     },
+     "after_findings": 0,
+     "score": 3,
+     "functional": true,
+     "metadata": true,
+     "prsv_findings": 0,
+     "prsv_same_as_clean": true
+    },
+    {
+     "path": "C:\\Users\\mahdi\\Downloads\\TGSC_Ultimate_Perfume_Dataset (1).xlsx",
+     "format": "ooxml",
+     "family": "ooxml_embedded_object",
+     "content": true,
+     "detected": true,
+     "located": true,
+     "repairable": true,
+     "repair_seconds": 0.004,
+     "repaired": true,
+     "byte_identical": false,
+     "sha_match": false,
+     "validation": {
+      "parse": "ok",
+      "structure": "ok",
+      "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+     },
+     "after_findings": 0,
+     "score": 2,
+     "functional": true,
+     "metadata": true,
+     "prsv_findings": 0,
+     "prsv_same_as_clean": true
+    },
+    {
+     "path": "C:\\Users\\mahdi\\Desktop\\project-details-SAA-Ibdaa2027.docx",
+     "format": "ooxml",
+     "family": "ooxml_embedded_object",
+     "content": true,
+     "detected": true,
+     "located": true,
+     "repairable": true,
+     "repair_seconds": 0.167,
+     "repaired": true,
+     "byte_identical": false,
+     "sha_match": false,
+     "validation": {
+      "parse": "ok",
+      "structure": "ok",
+      "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+     },
+     "after_findings": 0,
+     "score": 2,
+     "functional": true,
+     "metadata": true,
+     "prsv_findings": 0,
+     "prsv_same_as_clean": true
+    },
+    {
+     "path": "C:\\Users\\mahdi\\Downloads\\CyberScan حارس الملفات الذكي.pptx",
+     "format": "ooxml",
+     "family": "ooxml_vba_part",
+     "content": true,
+     "detected": true,
+     "located": true,
+     "repairable": true,
+     "repair_seconds": 0.163,
+     "repaired": true,
+     "byte_identical": false,
+     "sha_match": false,
+     "validation": {
+      "parse": "ok",
+      "structure": "ok",
+      "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+     },
+     "after_findings": 0,
+     "score": 3,
+     "functional": true,
+     "metadata": true,
+     "prsv_findings": 0,
+     "prsv_same_as_clean": true
+    },
+    {
+     "path": "C:\\Users\\mahdi\\Downloads\\TGSC_Ultimate_Perfume_Dataset.xlsx",
+     "format": "ooxml",
+     "family": "ooxml_embedded_object",
+     "content": true,
+     "detected": true,
+     "located": true,
+     "repairable": true,
+     "repair_seconds": 0.023,
+     "repaired": true,
+     "byte_identical": false,
+     "sha_match": false,
+     "validation": {
+      "parse": "ok",
+      "structure": "ok",
+      "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+     },
+     "after_findings": 0,
+     "score": 2,
+     "functional": true,
+     "metadata": true,
+     "prsv_findings": 0,
+     "prsv_same_as_clean": true
+    },
+    {
+     "path": "C:\\Users\\mahdi\\Downloads\\Reflect 6 Unit 8.pptx",
+     "format": "ooxml",
+     "family": "ooxml_vba_part",
+     "content": true,
+     "detected": true,
+     "located": true,
+     "repairable": true,
+     "repair_seconds": 0.135,
+     "repaired": true,
+     "byte_identical": false,
+     "sha_match": false,
+     "validation": {
+      "parse": "ok",
+      "structure": "ok",
+      "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+     },
+     "after_findings": 0,
+     "score": 3,
+     "functional": true,
+     "metadata": true,
+     "prsv_findings": 0,
+     "prsv_same_as_clean": true
+    },
+    {
+     "path": "C:\\Users\\mahdi\\Downloads\\finally_ result.docx",
+     "format": "ooxml",
+     "family": "ooxml_vba_part",
+     "content": true,
+     "detected": true,
+     "located": true,
+     "repairable": true,
+     "repair_seconds": 0.098,
+     "repaired": true,
+     "byte_identical": false,
+     "sha_match": false,
+     "validation": {
+      "parse": "ok",
+      "structure": "ok",
+      "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+     },
+     "after_findings": 0,
+     "score": 3,
+     "functional": true,
+     "metadata": true,
+     "prsv_findings": 0,
+     "prsv_same_as_clean": true
+    },
+    {
+     "path": "C:\\Users\\mahdi\\Downloads\\proj_data - نسخ.docx",
+     "format": "ooxml",
+     "family": "ooxml_vba_part",
+     "content": true,
+     "detected": true,
+     "located": true,
+     "repairable": true,
+     "repair_seconds": 0.053,
+     "repaired": true,
+     "byte_identical": false,
+     "sha_match": false,
+     "validation": {
+      "parse": "ok",
+      "structure": "ok",
+      "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+     },
+     "after_findings": 0,
+     "score": 3,
+     "functional": true,
+     "metadata": true,
+     "prsv_findings": 0,
+     "prsv_same_as_clean": true
+    }
+   ]
+  },
+  "repair_pairs": [
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\giphy (1).gif",
+    "format": "gif",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.006,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok (no format-specific checks)",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Loopable-heavy-rain-ambience-sound-effect.zip",
+    "format": "zip",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.045,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\ezgif-79700f08aa7783ae.gif",
+    "format": "gif",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.001,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok (no format-specific checks)",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Desktop\\استمارة مهدي ال حاجي.docx",
+    "format": "ooxml",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.005,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\data.xlsx",
+    "format": "ooxml",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.142,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Summarizing with example texts.pptx",
+    "format": "ooxml",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.056,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\استمارة مهدي ال حاجي.docx",
+    "format": "ooxml",
+    "family": "ooxml_embedded_object",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.016,
+    "repaired": true,
+    "byte_identical": false,
+    "sha_match": false,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\PostAnalytics_Mahdi H.AL Hajji_7425947906358099968.xlsx",
+    "format": "ooxml",
+    "family": "ooxml_embedded_object",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.005,
+    "repaired": true,
+    "byte_identical": false,
+    "sha_match": false,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Moral Identity (MIMIC) Measure May 26 2022.docx",
+    "format": "ooxml",
+    "family": "ooxml_vba_part",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 1.029,
+    "repaired": true,
+    "byte_identical": false,
+    "sha_match": false,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 1,
+    "score": 3,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 1,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Documents\\project-details-SAA-Ibdaa2027.pdf",
+    "format": "pdf",
+    "family": "pdf_javascript",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.639,
+    "repaired": true,
+    "byte_identical": false,
+    "sha_match": false,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 3,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\scp-containment-breach-1-3-11\\GFX\\items\\INVfirstaid.jpg",
+    "format": "jpeg",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.001,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok (no format-specific checks)",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\My-Work-Excel.xlsx",
+    "format": "ooxml",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.009,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\ImageToStl.com_تتت.vrm.zip",
+    "format": "zip",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.094,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Prime's HD Texturues (32x)\\assets\\minecraft\\textures\\block\\blue_concrete_powder.png",
+    "format": "png",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.0,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok (no format-specific checks)",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\sd.webui (1)\\system\\git\\libexec\\git-core\\libcrypto-1_1-x64.dll",
+    "format": "pe",
+    "family": "append_after_end",
+    "content": "placeholder",
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.384,
+    "repaired": false,
+    "byte_identical": false,
+    "sha_match": false,
+    "validation": {
+     "parse": "ok",
+     "structure": "checksum does not match",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 1,
+    "score": 1
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\stable-diffusion-webui-master\\stable-diffusion-webui-master\\repositories\\stable-diffusion-stability-ai\\assets\\stable-samples\\img2img\\mountains-1.png",
+    "format": "png",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.004,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok (no format-specific checks)",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\WhatsApp Unknown 2026-02-27 at 4.21.30 PM.zip",
+    "format": "zip",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.002,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\sd.webui\\webui\\repositories\\stable-diffusion-stability-ai\\assets\\stable-samples\\stable-unclip\\plates_out.jpeg",
+    "format": "jpeg",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.004,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok (no format-specific checks)",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\collapse_demo - Copy.gif",
+    "format": "gif",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.015,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok (no format-specific checks)",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 3,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\scp-containment-breach-1-3-11\\GFX\\items\\doc860.jpg",
+    "format": "jpeg",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.003,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok (no format-specific checks)",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 3,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\RehabVis_Project_Filled.docx",
+    "format": "ooxml",
+    "family": "ooxml_embedded_object",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.049,
+    "repaired": true,
+    "byte_identical": false,
+    "sha_match": false,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Windows\\System32\\RunLegacyCPLElevated.exe",
+    "format": "pe",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.382,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 1,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\sd.webui\\webui\\repositories\\stable-diffusion-stability-ai\\assets\\stable-samples\\depth2img\\d2i.gif",
+    "format": "gif",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.011,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok (no format-specific checks)",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\(4) WhatsApp_files\\525016626_1895966157651168_1492266760492212643_n.jpg",
+    "format": "jpeg",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.001,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok (no format-specific checks)",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\صفات_الشخصية_الغامضة.jpg",
+    "format": "jpeg",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.001,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok (no format-specific checks)",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\sd.webui\\webui\\repositories\\stable-diffusion-stability-ai\\assets\\rick.jpeg",
+    "format": "jpeg",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.003,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok (no format-specific checks)",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Documents\\ملف_مشروع_شار_محسّن.docx",
+    "format": "ooxml",
+    "family": "ooxml_vba_part",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.943,
+    "repaired": true,
+    "byte_identical": false,
+    "sha_match": false,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 3,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\sd.webui\\webui\\repositories\\stable-diffusion-stability-ai\\assets\\stable-samples\\stable-unclip\\oldcar800.jpeg",
+    "format": "jpeg",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.004,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok (no format-specific checks)",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\sd.webui\\system\\git\\share\\doc\\gnutls\\gnutls-logo.png",
+    "format": "png",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.0,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok (no format-specific checks)",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Documents\\My-Work-Excel.xlsx",
+    "format": "ooxml",
+    "family": "ooxml_vba_part",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.011,
+    "repaired": true,
+    "byte_identical": false,
+    "sha_match": false,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 3,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Windows\\System32\\ROUTE.EXE",
+    "format": "pe",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.376,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 1,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Desktop Goose v0.31\\Desktop Goose v0.31\\DesktopGoose v0.31\\GooseModdingAPI.dll",
+    "format": "pe",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.366,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 1,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Prime's HD Texturues (32x)\\assets\\minecraft\\textures\\block\\bamboo_stage0_s.png",
+    "format": "png",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.001,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok (no format-specific checks)",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\_PostAnalytics__M._Al-Hajji___7414773425824505857_.xlsx",
+    "format": "ooxml",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.002,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\project-details 1.docx",
+    "format": "ooxml",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.018,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Copy of SAIF Poster Template Age Group (12-17)  dd- 2026.pdf",
+    "format": "pdf",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.904,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\TGSC_Ultimate_Perfume_Dataset (1).xlsx",
+    "format": "ooxml",
+    "family": "ooxml_embedded_object",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.004,
+    "repaired": true,
+    "byte_identical": false,
+    "sha_match": false,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Windows\\System32\\KBDAZST.DLL",
+    "format": "pe",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.363,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 1,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Desktop\\project-details-SAA-Ibdaa2027.docx",
+    "format": "ooxml",
+    "family": "ooxml_embedded_object",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.167,
+    "repaired": true,
+    "byte_identical": false,
+    "sha_match": false,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Prime's HD Texturues (32x)\\assets\\minecraft\\textures\\block\\cartography_table_side3_n.png",
+    "format": "png",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.0,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok (no format-specific checks)",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Windows\\System32\\RpcPing.exe",
+    "format": "pe",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.393,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 1,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\piano_vfx\\piano_vfx\\Piano VFX_Data\\Managed\\System.Runtime.Serialization.Formatters.Soap.dll",
+    "format": "pe",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.363,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 1,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Windows\\System32\\msctfuimanager.dll",
+    "format": "pe",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.408,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 1,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\eBook for Linux Commands.pdf.pdf",
+    "format": "pdf",
+    "family": "pdf_embedded_file",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.553,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 3,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\TGSC_Chemical_Odors_Dataset.xlsx",
+    "format": "ooxml",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.002,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\piano_vfx\\piano_vfx\\Piano VFX_Data\\Managed\\UnityEngine.TextCoreModule.dll",
+    "format": "pe",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.355,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 1,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\اربعة.jpeg",
+    "format": "jpeg",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.002,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok (no format-specific checks)",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\barcode.gif",
+    "format": "gif",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.0,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok (no format-specific checks)",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\WhatsApp Image 2026-05-30 at 10.35.35 AM (2).jpeg",
+    "format": "jpeg",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.003,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok (no format-specific checks)",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Windows\\System32\\fvenotify.exe",
+    "format": "pe",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.365,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 1,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\CyberScan حارس الملفات الذكي.pptx",
+    "format": "ooxml",
+    "family": "ooxml_vba_part",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.163,
+    "repaired": true,
+    "byte_identical": false,
+    "sha_match": false,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 3,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Ainex_Bing_Theme.zip",
+    "format": "zip",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.001,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Slide in the Woods WINDOWS\\Slide in the Woods WINDOWS\\Slide in the woods_Data\\Managed\\UnityEngine.GameCenterModule.dll",
+    "format": "pe",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.349,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 1,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\ezgif-7e8c6fc390517a71.gif",
+    "format": "gif",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.001,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok (no format-specific checks)",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\stable-diffusion-webui-master\\stable-diffusion-webui-master\\repositories\\stable-diffusion-stability-ai\\assets\\stable-samples\\stable-unclip\\oldcar000.jpeg",
+    "format": "jpeg",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.004,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok (no format-specific checks)",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\stable-diffusion-webui-master\\stable-diffusion-webui-master\\repositories\\stable-diffusion-stability-ai\\assets\\stable-inpainting\\inpainting.gif",
+    "format": "gif",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.008,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok (no format-specific checks)",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Prime's HD Texturues (32x)\\assets\\minecraft\\optifine\\ctm\\sandstone\\2_n.png",
+    "format": "png",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.001,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok (no format-specific checks)",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\mymc-alpha-2-6\\mymc.exe",
+    "format": "pe",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.387,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 1,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\TGSC_Ultimate_Perfume_Dataset.xlsx",
+    "format": "ooxml",
+    "family": "ooxml_embedded_object",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.023,
+    "repaired": true,
+    "byte_identical": false,
+    "sha_match": false,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\C_Mino (3).pdf",
+    "format": "pdf",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.18,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\PostAnalytics_Mahdi H.AL Hajji_7425947906358099968 (1).xlsx",
+    "format": "ooxml",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.003,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 3,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Windows\\System32\\cmmon32.exe",
+    "format": "pe",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.375,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 1,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\sd.webui\\webui\\repositories\\stable-diffusion-stability-ai\\assets\\stable-samples\\stable-unclip\\oldcar000.jpeg",
+    "format": "jpeg",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.007,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok (no format-specific checks)",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Reflect 6 Unit 8.pptx",
+    "format": "ooxml",
+    "family": "ooxml_vba_part",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.135,
+    "repaired": true,
+    "byte_identical": false,
+    "sha_match": false,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 3,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\scp-containment-breach-1-3-11\\GFX\\map\\room2ccont_lm1.png",
+    "format": "png",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.0,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok (no format-specific checks)",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\savegames (3).zip",
+    "format": "zip",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.045,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Slide in the Woods WINDOWS\\Slide in the Woods WINDOWS\\Slide in the woods_Data\\Managed\\UnityEngine.UnityWebRequestAssetBundleModule.dll",
+    "format": "pe",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.358,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 1,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Evidence.zip",
+    "format": "zip",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.001,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\scp-containment-breach-1-3-11\\GFX\\map\\red.jpg",
+    "format": "jpeg",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.001,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok (no format-specific checks)",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\FDA_Final_Submission_Ready_20260520_070713\\fig3_pareto_front.pdf",
+    "format": "pdf",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.04,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Diagonal_Periodic_Table.xlsx",
+    "format": "ooxml",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.002,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\وثيقة فكرة اللعبة.pptx",
+    "format": "ooxml",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.043,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\bde9d5353517753c3b7a6694674ebb8ec6bb4356(1).pdf",
+    "format": "pdf",
+    "family": "pdf_embedded_file",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 1.139,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 3,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Pictures\\CyberScan_Poster.pdf",
+    "format": "pdf",
+    "family": "pdf_embedded_file",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.673,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 3,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\scp-containment-breach-1-3-11\\GFX\\items\\doc106.jpg",
+    "format": "jpeg",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.002,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok (no format-specific checks)",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\stable-diffusion-webui-master\\stable-diffusion-webui-master\\repositories\\stable-diffusion-stability-ai\\assets\\stable-samples\\stable-unclip\\oldcar500.jpeg",
+    "format": "jpeg",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.004,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok (no format-specific checks)",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\Desktop Goose v0.31\\Desktop Goose v0.31\\DesktopGoose v0.31\\Assets\\Images\\OtherGfx\\heart.png",
+    "format": "png",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.0,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok (no format-specific checks)",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\finally_ result.docx",
+    "format": "ooxml",
+    "family": "ooxml_vba_part",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.098,
+    "repaired": true,
+    "byte_identical": false,
+    "sha_match": false,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 3,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\proj_data - نسخ.docx",
+    "format": "ooxml",
+    "family": "ooxml_vba_part",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.053,
+    "repaired": true,
+    "byte_identical": false,
+    "sha_match": false,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 3,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Windows\\System32\\WindowsProtectedPrintConfiguration.dll",
+    "format": "pe",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.39,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 1,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\المنفي-قدر-محتوم.docx",
+    "format": "ooxml",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.005,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Documents\\قغبغففثس7بغيستلقهفمهلةصت347عنغو.zip",
+    "format": "zip",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.028,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\starfall-gif-46.gif",
+    "format": "gif",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.011,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok (no format-specific checks)",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Downloads\\WhatsApp Image 2026-09-04 at 1.44.51 PM.jpeg",
+    "format": "jpeg",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.008,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok (no format-specific checks)",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Users\\mahdi\\Documents\\PCSX2\\covers\\SLUS-01201.jpg",
+    "format": "jpeg",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.001,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok (no format-specific checks)",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 2,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   },
+   {
+    "path": "C:\\Windows\\System32\\domgmt.dll",
+    "format": "pe",
+    "family": "append_after_end",
+    "content": true,
+    "detected": true,
+    "located": true,
+    "repairable": true,
+    "repair_seconds": 0.363,
+    "repaired": true,
+    "byte_identical": true,
+    "sha_match": true,
+    "validation": {
+     "parse": "ok",
+     "structure": "ok",
+     "scores": "ok (no trained scorer yet: structure only, auto-repair not allowed)"
+    },
+    "after_findings": 0,
+    "score": 1,
+    "functional": true,
+    "metadata": true,
+    "prsv_findings": 0,
+    "prsv_same_as_clean": true
+   }
+  ],
+  "robustness": {
+   "parser_fuzz": {
+    "cases": 3000,
+    "by_mutation": {
+     "truncate": 500,
+     "bitflip": 500,
+     "byteblock": 500,
+     "splice": 500,
+     "header_zero": 500,
+     "length_bomb": 500
+    },
+    "crashes": 0,
+    "crash_examples": [],
+    "slow_over_2s": []
+   },
+   "scanner_fuzz": {
+    "cases": 158,
+    "errors": 0,
+    "error_examples": [],
+    "max_seconds": 1.99,
+    "malformed": [
+     {
+      "source": "pe_bad_lfanew.exe",
+      "ok": true,
+      "seconds": 0.23,
+      "error": null,
+      "score": 15.0,
+      "evidence": [
+       "signature: Unsigned program",
+       "structural: Executable extension",
+       "heuristic: Executable file extension"
+      ],
+      "malformed": true
+     },
+     {
+      "source": "pe_65535_sections.exe",
+      "ok": true,
+      "seconds": 0.11,
+      "error": null,
+      "score": 15.0,
+      "evidence": [
+       "signature: Unsigned program",
+       "structural: Executable extension",
+       "heuristic: Executable file extension"
+      ],
+      "malformed": true
+     },
+     {
+      "source": "zip_bad_central_dir.zip",
+      "ok": true,
+      "seconds": 0.1,
+      "error": null,
+      "score": 0.0,
+      "evidence": [
+       "archive: ZIP structure: partial"
+      ],
+      "malformed": true
+     },
+     {
+      "source": "pdf_garbage_xref.pdf",
+      "ok": true,
+      "seconds": 0.13,
+      "error": null,
+      "score": 0.0,
+      "evidence": [],
+      "malformed": true
+     },
+     {
+      "source": "png_bad_crc.png",
+      "ok": true,
+      "seconds": 0.1,
+      "error": null,
+      "score": 0.0,
+      "evidence": [],
+      "malformed": true
+     },
+     {
+      "source": "gif_zero_size.gif",
+      "ok": true,
+      "seconds": 0.1,
+      "error": null,
+      "score": 0.0,
+      "evidence": [],
+      "malformed": true
+     },
+     {
+      "source": "ole_truncated.doc",
+      "ok": true,
+      "seconds": 0.1,
+      "error": null,
+      "score": 0.0,
+      "evidence": [],
+      "malformed": true
+     },
+     {
+      "source": "deep_pdf_nesting.pdf",
+      "ok": true,
+      "seconds": 0.13,
+      "error": null,
+      "score": 0.0,
+      "evidence": [],
+      "malformed": true
+     }
+    ]
+   }
+  },
+  "formats": {
+   "format_confusion": [
+    {
+     "case": "png_plus_zip.png",
+     "expect": "data after the picture's end, an archive",
+     "scanner_score": 45.0,
+     "scanner_evidence": [
+      "structural: Hidden data after the end of the file"
+     ],
+     "parser_format": "png",
+     "parser_mismatch": false,
+     "after_eof": true
+    },
+    {
+     "case": "pdf_plus_zip.pdf",
+     "expect": "data after the PDF's end, an archive",
+     "scanner_score": 45.0,
+     "scanner_evidence": [
+      "structural: Hidden data after the end of the file"
+     ],
+     "parser_format": "pdf",
+     "parser_mismatch": false,
+     "after_eof": true
+    },
+    {
+     "case": "zip_named_jpg.jpg",
+     "expect": "content is a zip, name says jpg",
+     "scanner_score": 25.0,
+     "scanner_evidence": [
+      "archive: ZIP structure: ok",
+      "structural: Header mismatch"
+     ],
+     "parser_format": "zip",
+     "parser_mismatch": true,
+     "after_eof": false
+    },
+    {
+     "case": "pe_named_pdf.pdf",
+     "expect": "content is a program, name says pdf",
+     "scanner_score": 25.0,
+     "scanner_evidence": [
+      "signature: Unsigned program",
+      "structural: Header mismatch",
+      "structural: Static decoding indicator"
+     ],
+     "parser_format": "pe",
+     "parser_mismatch": true,
+     "after_eof": false
+    },
+    {
+     "case": "pdf_with_pe_prefix.pdf",
+     "expect": "starts as a program, holds a PDF",
+     "scanner_score": 25.0,
+     "scanner_evidence": [
+      "signature: Unsigned program",
+      "structural: Header mismatch",
+      "structural: Static decoding indicator"
+     ],
+     "parser_format": "pe",
+     "parser_mismatch": true,
+     "after_eof": false
+    },
+    {
+     "case": "html_named_png.png",
+     "expect": "content is HTML, name says png",
+     "scanner_score": 25.0,
+     "scanner_evidence": [
+      "structural: Header mismatch"
+     ],
+     "parser_format": "unknown",
+     "parser_mismatch": true,
+     "after_eof": false
+    }
+   ],
+   "file_type_validation": {
+    "checked": 124,
+    "agree": 123,
+    "mismatches": [
+     {
+      "path": "usbdeview-3.07-installer.exe",
+      "extension": ".exe",
+      "detected": "zip"
+     }
+    ]
+   }
+  },
+  "resources": {
+   "archives": [
+    {
+     "case": "zip_slip.zip",
+     "size_kb": 0.4,
+     "ok": true,
+     "seconds": 0.11,
+     "score": 0.0,
+     "evidence": [
+      "archive: ZIP structure: partial",
+      "archive: Unsafe archive member paths skipped"
+     ],
+     "error": null,
+     "peak_commit_mb": 1467,
+     "commit_growth_mb": 0
+    },
+    {
+     "case": "zip_bomb_300mb.zip",
+     "size_kb": 298.7,
+     "ok": true,
+     "seconds": 0.27,
+     "score": 0.0,
+     "evidence": [
+      "archive: ZIP structure: limit_exceeded"
+     ],
+     "error": null,
+     "peak_commit_mb": 1467,
+     "commit_growth_mb": -2
+    },
+    {
+     "case": "nested_12_levels.zip",
+     "size_kb": 1.5,
+     "ok": true,
+     "seconds": 0.11,
+     "score": 0.0,
+     "evidence": [
+      "archive: ZIP structure: limit_exceeded"
+     ],
+     "error": null,
+     "peak_commit_mb": 1467,
+     "commit_growth_mb": 0
+    },
+    {
+     "case": "20000_entries.zip",
+     "size_kb": 1911.9,
+     "ok": true,
+     "seconds": 0.92,
+     "score": 0.0,
+     "evidence": [
+      "archive: ZIP structure: limit_exceeded"
+     ],
+     "error": null,
+     "peak_commit_mb": 1467,
+     "commit_growth_mb": 4
+    },
+    {
+     "case": "encrypted_entry.zip",
+     "size_kb": 0.1,
+     "ok": true,
+     "seconds": 0.11,
+     "score": 0.0,
+     "evidence": [
+      "archive: ZIP structure: partial",
+      "archive: Encrypted archive members skipped"
+     ],
+     "error": null,
+     "peak_commit_mb": 1467,
+     "commit_growth_mb": 0
+    },
+    {
+     "case": "disguised_exe_inside.zip",
+     "size_kb": 0.5,
+     "ok": true,
+     "seconds": 0.11,
+     "score": 60.0,
+     "evidence": [
+      "archive: ZIP structure: ok",
+      "yara: EncodedPowerShell",
+      "heuristic: Encoded PowerShell execution",
+      "heuristic: Base64 encoded PowerShell"
+     ],
+     "error": null,
+     "peak_commit_mb": 1467,
+     "commit_growth_mb": -1
+    }
+   ],
+   "large_files": [
+    {
+     "size_mb": 49,
+     "ok": true,
+     "seconds": 7.26,
+     "cpu_seconds": 6.88,
+     "error": null,
+     "peak_commit_mb": 1611,
+     "commit_before_mb": 1169
+    },
+    {
+     "size_mb": 51,
+     "ok": false,
+     "seconds": 0.0,
+     "cpu_seconds": 0,
+     "error": "ValueError: File size 53477376 exceeds the configured limit of 52428800 bytes",
+     "peak_commit_mb": 1611,
+     "commit_before_mb": 1169
+    },
+    {
+     "size_mb": 200,
+     "ok": false,
+     "seconds": 0.0,
+     "cpu_seconds": 0,
+     "error": "ValueError: File size 209715200 exceeds the configured limit of 52428800 bytes",
+     "peak_commit_mb": 1611,
+     "commit_before_mb": 1169
+    }
+   ],
+   "per_scan_cpu_seconds": {
+    "median": 0.21875,
+    "p95": 1.5742187499999982
+   },
+   "memory_now": {
+    "working_mb": 256,
+    "peak_working_mb": 697,
+    "commit_mb": 1169,
+    "peak_commit_mb": 1611
+   }
+  },
+  "isolation": {
+   "path_inputs": [
+    {
+     "case": "device NUL",
+     "ok": true,
+     "seconds": 0.01,
+     "error": null,
+     "score": 0.0
+    },
+    {
+     "case": "device CON",
+     "ok": true,
+     "seconds": 0.01,
+     "error": null,
+     "score": 0.0
+    },
+    {
+     "case": "raw disk",
+     "ok": true,
+     "seconds": 0.02,
+     "error": null,
+     "score": 0.0
+    },
+    {
+     "case": "directory",
+     "ok": true,
+     "seconds": 0.01,
+     "error": null,
+     "score": 0.0
+    },
+    {
+     "case": "missing",
+     "ok": true,
+     "seconds": 0.01,
+     "error": null,
+     "score": 0.0
+    },
+    {
+     "case": "long path (>260)",
+     "ok": true,
+     "seconds": 0.1,
+     "error": null,
+     "score": 0.0
+    },
+    {
+     "case": "path traversal",
+     "ok": true,
+     "seconds": 0.01,
+     "error": null,
+     "score": 0.0
+    }
+   ],
+   "quarantine": {
+    "original_removed": true,
+    "sealed_extension": ".csq",
+    "plaintext_absent": true,
+    "sealed_is_not_a_program": true,
+    "restored_identical": true
+   },
+   "execution_audit": {
+    "sites": [
+     {
+      "file": "ui\\qt_app.py",
+      "line": 27,
+      "code": "from PySide6.QtCore import QEvent, QPointF, QProcess, Qt, QThread, QTimer, QUrl, Signal"
+     },
+     {
+      "file": "ui\\qt_app.py",
+      "line": 1193,
+      "code": "QProcess.startDetached(\"explorer.exe\", [f\"/select,{path}\"])"
+     },
+     {
+      "file": "ui\\qt_app.py",
+      "line": 1405,
+      "code": "menu.exec(position)"
+     },
+     {
+      "file": "ui\\qt_app.py",
+      "line": 1938,
+      "code": "app.exec()"
+     },
+     {
+      "file": "ui\\qt_app.py",
+      "line": 1942,
+      "code": "app.exec()"
+     }
+    ]
+   }
+  },
+  "model": {
+   "ready": false,
+   "synthetic": {
+    "n": 30,
+    "classes": {
+     "clean": 10,
+     "malware": 10,
+     "suspicious": 10
+    }
+   },
+   "leakage_single_feature": {
+    "feature": 3025,
+    "class_alone_separable": {
+     "clean": false,
+     "malware": false,
+     "suspicious": false
+    }
+   },
+   "leakage_cross_class_duplicates": 0,
+   "cross_validation": {
+    "folds": 5,
+    "stratified_f1_macro": [
+     0.556,
+     0.822,
+     0.822,
+     1.0,
+     1.0
+    ],
+    "single_feature_tree_f1_macro": [
+     0.167,
+     0.167,
+     0.167,
+     0.167,
+     0.167
+    ],
+    "group_kfold_f1_macro": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "embedding_distance": {
+    "synthetic_to_centre_median": 0.911,
+    "real_to_centre_median": 1.334
+   }
+  },
+  "crashes": {
+   "count": 0,
+   "examples": []
+  }
+ },
+ "log": [
+  "[07:58:23] work folder C:\\Users\\mahdi\\AppData\\Local\\Temp\\cs_eval_b9eqc61w",
+  "[07:58:49] benign files: 235 ([('.dll', 20), ('.exe', 20), ('.py', 20), ('.gif', 10), ('.pdf', 10), ('.zip', 10), ('.csv', 10), ('.mp3', 10), ('.json', 10), ('.docx', 10), ('.xlsx', 10), ('.jpg', 10)])",
+  "[07:58:50] benign 0/235",
+  "[07:59:15] benign 40/235",
+  "[07:59:36] benign 80/235",
+  "[08:00:01] benign 120/235",
+  "[08:00:26] benign 160/235",
+  "[08:00:47] benign 200/235",
+  "[08:01:24] detection scans done",
+  "[08:01:50] adversarial done",
+  "[08:01:50] repair 0/124",
+  "[08:02:03] repair 40/124",
+  "[08:02:20] repair 80/124",
+  "[08:02:33] repair 120/124",
+  "[08:02:35] repair done",
+  "[08:05:13] parser fuzz: 0 crashes in 3000",
+  "[08:06:30] scanner fuzz done",
+  "[08:06:37] formats done",
+  "[08:06:42] archives done",
+  "[08:06:49] large files done",
+  "[08:06:50] isolation done",
+  "[08:07:13] model done"
+ ],
+ "finished": "2026-11-04 08:07:13"
+}

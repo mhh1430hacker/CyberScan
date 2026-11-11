@@ -1,0 +1,295 @@
+{
+  "log": [
+    {
+      "startup_seconds": 3.3
+    },
+    {
+      "shot": "01_home_empty",
+      "view": "lens",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    {
+      "shot": "02_home_target_typed",
+      "view": "lens",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    {
+      "shot": "03_error_empty",
+      "view": "lens",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    {
+      "shot": "04_error_missing_file",
+      "view": "lens",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    {
+      "shot": "05_input_weird_text",
+      "view": "lens",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    {
+      "shot": "06_result_weird_text",
+      "view": "lens",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    {
+      "shot": "10_journey_start",
+      "view": "journey",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    {
+      "shot": "11_journey_scanning",
+      "view": "journey",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    {
+      "shot": "12_journey_echo",
+      "view": "journey",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    {
+      "shot": "13_journey_flag",
+      "view": "journey",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    {
+      "suspicious_scan_seconds": 6.01
+    },
+    {
+      "shot": "20_result_suspicious",
+      "view": "result",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    {
+      "shot": "21_result_details_open",
+      "view": "result",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    {
+      "shot": "22_result_advanced_open",
+      "view": "result",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    {
+      "shot": "23_result_inside_cube",
+      "view": "result",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    {
+      "benign_scan_seconds": 3.73
+    },
+    {
+      "shot": "24_result_benign_text",
+      "view": "result",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    {
+      "url_scan_seconds": 1.17
+    },
+    {
+      "shot": "25_result_url",
+      "view": "result",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    {
+      "hash_scan_seconds": 1.11
+    },
+    {
+      "shot": "26_result_hash",
+      "view": "result",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    {
+      "empty_scan_seconds": 1.34
+    },
+    {
+      "shot": "27_result_empty_file",
+      "view": "result",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    {
+      "shot": "28_result_image",
+      "view": "result",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    {
+      "shot": "30_home_with_history",
+      "view": "lens",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    {
+      "shot": "31_history_search",
+      "view": "lens",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    {
+      "shot": "32_journey_cancelled",
+      "view": "journey",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    {
+      "shot": "40_settings_sheet",
+      "view": "lens",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    {
+      "shot": "41_repair_mode",
+      "view": "repair",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    {
+      "shot": "50_ar_home",
+      "view": "lens",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    {
+      "shot": "51_ar_result",
+      "view": "result",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    {
+      "shot": "52_ar_details",
+      "view": "result",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    {
+      "shot": "53_ar_result_arabic_name",
+      "view": "result",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    {
+      "shot": "54_ar_repair",
+      "view": "repair",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    {
+      "shot": "60_small_home",
+      "view": "lens",
+      "size": [
+        900,
+        620
+      ]
+    },
+    {
+      "shot": "61_small_result",
+      "view": "result",
+      "size": [
+        900,
+        620
+      ]
+    },
+    {
+      "shot": "62_wide_home",
+      "view": "lens",
+      "size": [
+        1920,
+        1080
+      ]
+    },
+    {
+      "shot": "63_large_text_home",
+      "view": "lens",
+      "size": [
+        1440,
+        900
+      ]
+    },
+    {
+      "shot": "64_large_text_result",
+      "view": "result",
+      "size": [
+        1440,
+        900
+      ]
+    }
+  ],
+  "dialogs": []
+}
