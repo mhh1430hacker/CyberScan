@@ -10,7 +10,7 @@ I18N["vi"] = {
 "lTitle1": "Hãy nhìn vào bên trong mọi tệp",
 "lTitle2": "trước khi chúng nhìn vào bên trong",
 "lTitle3": "máy tính của bạn.",
-"lSub": "CyberScan phân tích tệp, liên kết hoặc đoạn mã đến từng byte, giải thích những gì tìm thấy bằng lời lẽ dễ hiểu và có thể dựng lại tệp bị nhiễm mà không còn phần độc hại.",
+"lSub": "CyberScan phân tích tệp, liên kết hoặc đoạn mã đến từng byte mà không bao giờ chạy chúng, giải thích những gì tìm thấy bằng lời lẽ dễ hiểu và có thể dựng lại một bản sao không còn những phần không thuộc về định dạng của tệp.",
 "lStart": "Bắt đầu quét",
 "lWatch": "Xem cách hoạt động",
 "lCardFile": "invoice_2026.pdf.exe",
@@ -49,7 +49,7 @@ I18N["vi"] = {
 ],
 [
 "Giải thích",
-"Kết luận dễ hiểu bằng tiếng Ả Rập hoặc tiếng Anh, mỗi phát hiện được diễn đạt đơn giản, kèm toàn bộ dữ liệu kỹ thuật bên dưới."
+"Kết luận dễ hiểu bằng ngôn ngữ của bạn, mỗi phát hiện được diễn đạt đơn giản, kèm toàn bộ dữ liệu kỹ thuật bên dưới."
 ]
 ],
 "lCubeTitle": "Nhìn tệp từ bên trong",
@@ -80,7 +80,7 @@ I18N["vi"] = {
 ],
 [
 "Tóm tắt AI cục bộ",
-"Một mô hình tùy chọn chạy ngay trên máy của bạn giải thích kết quả. Không có gì rời khỏi máy tính."
+"Trong ứng dụng máy tính, một mô hình tùy chọn chạy ngay trên máy của bạn sẽ giải thích kết quả. Không có gì rời khỏi máy tính."
 ],
 [
 "Theo dõi Tải xuống",
@@ -108,26 +108,26 @@ I18N["vi"] = {
 "stats": [
 [
 "lần quét lưu trên máy tính này",
-"lần quét"
+"scans"
 ],
 [
 "công cụ phân tích",
-"công cụ"
+"engines"
 ],
 [
-"byte gửi lên internet theo mặc định",
-"không"
+"byte ứng dụng máy tính gửi lên internet theo mặc định",
+"zero"
 ],
 [
 "ngôn ngữ, kể cả viết từ phải sang trái",
-"ngôn ngữ"
+"langs"
 ]
 ],
 "lPrivTitle": "Tệp của bạn vẫn là của bạn",
 "privs": [
 [
-"Chạy trên máy của bạn",
-"Trình quét, lịch sử và mô hình AI đều nằm trên máy tính này."
+"Rõ ràng về nơi nó chạy",
+"Ứng dụng máy tính và ứng dụng Android quét ngay trên thiết bị của bạn. Trên trang web này, tệp bạn kiểm tra được gửi đến máy chủ của CyberScan, được đọc trong bộ nhớ và bị xóa khi kiểm tra xong; máy chủ không lưu lại lịch sử nào."
 ],
 [
 "Không bao giờ chạy thứ nó kiểm tra",
@@ -206,6 +206,39 @@ I18N["vi"] = {
 "tRepairD": "Tìm phần bị hỏng của tệp và tạo một bản sao đã sửa.",
 "tPhoneT": "Quét trên thiết bị",
 "tPhoneD": "Quét tệp lớn trên điện thoại hoặc máy tính mà không cần tải lên.",
+"fileToolsTitle": "Phân tích tệp chuyên sâu",
+"fileToolsLede": "Các bước kiểm tra chuyên biệt cho tài liệu, tệp nén, ảnh mã QR, danh tính và tính toàn vẹn của tệp. Tệp tải lên chỉ được phân tích như dữ liệu và không bao giờ được chạy.",
+"ftPdfTitle": "Bảo mật PDF",
+"ftPdfDesc": "Kiểm tra các hành động trong tài liệu, liên kết, siêu dữ liệu và những cấu trúc nhúng đáng ngờ.",
+"ftArchiveTitle": "Kiểm tra tệp nén",
+"ftArchiveDesc": "Kiểm tra nội dung ZIP, các cấu trúc lồng nhau, tính toàn vẹn và những bất thường khi nén.",
+"ftQrTitle": "Kiểm tra mã QR",
+"ftQrDesc": "Giải mã địa chỉ mà mã QR dẫn tới và đánh giá rủi ro của URL mà không cần mở liên kết.",
+"ftOfficeTitle": "Kiểm tra tài liệu Office",
+"ftOfficeDesc": "Kiểm tra macro và nội dung bên ngoài trong các định dạng Word, Excel và PowerPoint được hỗ trợ.",
+"ftAuthenticityTitle": "Tính xác thực của tệp",
+"ftAuthenticityDesc": "So sánh phần mở rộng của tên tệp với chữ ký tệp được phát hiện.",
+"ftIntegrityTitle": "Tính toàn vẹn của tệp",
+"ftIntegrityDesc": "Tính mã băm mật mã và kiểm tra tính toàn vẹn của cấu trúc.",
+"ftChooseFile": "Chọn tệp",
+"ftRun": "Kiểm tra tệp",
+"ftAnalyzing": "Đang kiểm tra trên máy chủ…",
+"ftComplete": "Đã kiểm tra xong.",
+"ftIncomplete": "Việc kiểm tra chưa đầy đủ; một số bước chưa hoàn tất.",
+"ftFailed": "Kiểm tra thất bại:",
+"ftResults": "Kết quả kiểm tra",
+"ftRisk": "Đánh giá tổng hợp",
+"ftEvidence": "Bằng chứng",
+"ftDetails": "Chi tiết kỹ thuật",
+"ftLimitations": "Giới hạn",
+"ftNoEvidence": "Các bước kiểm tra hiện có không báo cáo thêm bằng chứng nào.",
+"ftRedacted": "[đã ẩn]",
+"detectionCombinedAdvice": "Đánh giá này kết hợp lần quét sẵn có với bước kiểm tra nội dung của Sentinel. Hãy xem các bằng chứng; kết quả sạch không phải là sự bảo đảm.",
+"detectionIncomplete": "Bước kiểm tra nội dung độc lập chưa hoàn tất. Hãy coi kết quả này là chưa được xác minh và đừng xem đó là lời xác nhận rằng tệp an toàn.",
+"verdictUnknown": "CHƯA RÕ",
+"verdictUnknownTitle": "Chúng tôi không thể xác minh tệp này",
+"verdictUnknownBody": "Bước kiểm tra độc lập không đưa ra được kết luận đầy đủ. Hãy xem các giới hạn được báo cáo rồi thử lại.",
+"contentEvidence": "Bằng chứng từ kiểm tra nội dung",
 "pwHow": "Mật khẩu của bạn không bao giờ rời khỏi thiết bị này. Nó được chuyển thành dấu vân tay (SHA-1) ngay tại đây, và chỉ 5 ký tự đầu của dấu vân tay đó được gửi đến Have I Been Pwned; dịch vụ này trả về mọi dấu vân tay bị lộ bắt đầu bằng các ký tự đó.",
 "pwLabel": "Mật khẩu cần kiểm tra",
 "pwPh": "Nhập mật khẩu",
@@ -399,6 +432,18 @@ I18N["vi"] = {
 "rUploadNote": "Tệp này được kéo thả vào, nên bản sao đã sửa được cung cấp dưới dạng tệp tải xuống.",
 "rChecksOk": "Đã qua kiểm tra: bản sao vẫn mở được như cùng loại tệp và cấu trúc còn nguyên vẹn.",
 "rChecksBad": "Một số bước kiểm tra cần chú ý.",
+"rSavedVerified": "Đã lưu bản sao đã sửa · đã xác minh cấu trúc",
+"rSavedUnverified": "Đã lưu bản sao đã sửa · xác minh độc lập chưa hoàn tất",
+"rVerificationTitle": "Xác minh độc lập",
+"rVerificationVerified": "Bản đề xuất có cấu trúc hợp lệ. Đây không phải là kết luận về độ an toàn hay bằng chứng cho thấy tệp đã được khôi phục hoàn toàn.",
+"rVerificationIncomplete": "Việc xác minh chưa hoàn tất. Đừng coi bản đề xuất này là đã được sửa hoàn toàn.",
+"rVerificationDamage": "Phát hiện hư hỏng trong bản đề xuất nên bản này không được lưu.",
+"rDataLoss": "Đã loại bỏ {n} khỏi bản đề xuất.",
+"rOriginalPreserved": "Tệp gốc được giữ nguyên.",
+"rCandidateHash": "SHA-256 của bản đề xuất",
+"rOriginalInspection": "Kiểm tra bảo mật tệp gốc",
+"rCandidateInspection": "Kiểm tra bảo mật bản đề xuất",
+"rUnavailable": "không có",
 "rAnother": "Sửa tệp khác",
 "rMap": "Vị trí các vấn đề",
 "settingsTitle": "Cài đặt",
@@ -468,7 +513,7 @@ I18N["vi"] = {
 "pScanThisText": "Quét văn bản này",
 "pLookup": "Tìm dấu vân tay này trong các lần quét",
 "pNoMatch": "Không có lần quét nào có dấu vân tay đó.",
-"pLang": "Chuyển sang tiếng Ả Rập",
+"pLang": "Đổi ngôn ngữ",
 "pShortcuts": "Phím tắt",
 "pInstall": "Cài đặt ứng dụng",
 "pPrint": "In / lưu thành PDF",
@@ -572,9 +617,46 @@ I18N["vi"] = {
 "Riêng tư ngay từ thiết kế",
 "Bắt đầu"
 ],
+"dSci": "Khoa học",
+"askOpen": "Hỏi AI",
+"askTitle": "Hỏi về CyberScan",
+"askSub": "Cách hoạt động, ý nghĩa của kết quả, những điều nó không làm được.",
+"askPlaceholder": "Đặt câu hỏi bằng bất kỳ ngôn ngữ nào…",
+"askSend": "Gửi",
+"askClose": "Đóng",
+"askClear": "Cuộc trò chuyện mới",
+"askBusy": "Đang suy nghĩ…",
+"askEmpty": "Hãy hỏi bất cứ điều gì về cách CyberScan kiểm tra tệp, ý nghĩa của phần khoa học đằng sau nó, hoặc cách đọc một kết quả.",
+"askChips": [
+"Nói đơn giản thì CyberScan làm gì?",
+"Nó có chạy tệp của tôi không?",
+"Entropy là gì và vì sao nó quan trọng?",
+"Điểm 30 có nghĩa là gì?",
+"Trên trang web này, tệp của tôi được kiểm tra ở đâu?"
+],
+"askNote": "Câu trả lời dựa trên một bản hướng dẫn về dự án đã được rà soát và đối chiếu với mã nguồn. AI vẫn có thể mắc lỗi; còn kết quả quét thì luôn do chính trình quét đưa ra.",
+"askSources": {
+"bedrock": "Câu trả lời của AI · dựa trên hướng dẫn dự án",
+"ollama": "Câu trả lời của AI (mô hình cục bộ) · dựa trên hướng dẫn dự án",
+"guide": "Trích từ hướng dẫn dự án · AI đang ngoại tuyến",
+"quota": "Trích từ hướng dẫn dự án · đã dùng hết số câu hỏi AI miễn phí hôm nay"
+},
+"askRefused": "Tôi không thể giúp với câu hỏi đó. Hãy hỏi tôi về cách CyberScan hoạt động hoặc ý nghĩa của một kết quả.",
+"askError": "Trợ lý chưa thể trả lời lúc này. Vui lòng thử lại.",
+"sciAskCta": "Vẫn còn tò mò? Hãy hỏi AI về bất kỳ nội dung nào ở đây",
+"sciPlainTitle": "Nói cho dễ hiểu",
+"sciPlainIntro": "Gói gọn trong một câu: CyberScan đọc tệp giống như một thám tử cẩn thận đọc một lá thư đáng ngờ, xem xét phong bì, nét chữ và điều lá thư yêu cầu, nhưng không bao giờ làm theo những gì thư viết.",
+"sciPlain1": "Một chương trình Windows giống như một kiện hàng có nhãn và phiếu kê hàng. CyberScan đọc nhãn (chương trình tự nhận mình là gì), phiếu kê hàng (những hàm hệ thống mà nó yêu cầu) và dấu niêm phong (chữ ký số) mà không mở kiện hàng. Một 'trình xem ảnh' lại đòi công cụ theo dõi bàn phím thì thật vô lý.",
+"sciPlain2": "Entropy đo mức độ dễ đoán của các byte. Một trang văn bản lặp lại các chữ cái và từ ngữ, khoảng trống thì chỗ nào cũng giống nhau, còn dữ liệu mã hóa trông như nhiễu hoàn toàn. CyberScan vẽ mức này dọc theo toàn bộ tệp; một bước nhảy đột ngột từ nội dung bình thường sang nhiễu thường là nơi bắt đầu của thứ gì đó bị nén hoặc bị giấu.",
+"sciPlain3": "Dữ liệu giống nhiễu là bình thường ở chỗ này nhưng bất thường ở chỗ khác: một bức ảnh nén nằm trong phần tài nguyên của chương trình thì không sao, nhưng cũng loại nhiễu đó nằm trong phần mã thì có vấn đề. CyberScan đã học được các chương trình lành mạnh thường chứa gì ở từng phần và chỉ ra những mảnh nằm sai chỗ.",
+"sciPlain4": "Không cần chạy chương trình, CyberScan dịch mã máy thành các lệnh và vẽ lại cách chương trình có thể nhảy giữa các lệnh đó, giống như vẽ bản đồ đường phố của một thành phố mà không cần lái xe qua. Có một dạng đường rất đáng chú ý: một vòng lặp ngắn ghi đè bộ nhớ từng chút một, đó chính là cách mã ẩn tự giải mã.",
+"sciPlain5": "Mọi số đo được gói vào một danh sách gồm 4.096 con số, tức dấu vân tay về hình dạng của tệp. Các tệp được tạo ra theo cách giống nhau sẽ có dấu vân tay tương tự nhau, và đó chính là điều một mô hình học máy cần. Đây là một công thức cố định chứ không phải 'bộ não', và mô hình dùng để đọc nó sẽ luôn tắt cho đến khi có người cài đặt một mô hình mà họ đã tự rà soát.",
+"sciPlain6": "Các nhà nghiên cứu bảo mật công bố danh sách những tệp và liên kết độc hại đã biết. Nếu bạn cho phép, CyberScan sẽ hỏi cùng lúc ba dịch vụ như vậy xem họ đã từng thấy dấu vân tay của tệp này chưa, mà không gửi chính tệp đi. Một kết quả trùng khớp là báo cáo của người khác chứ không phải bằng chứng; không trùng khớp cũng không có nghĩa là an toàn.",
+"sciPlain7": "Mỗi cảnh báo đều đi kèm một câu bạn có thể tự kiểm chứng và một trọng số. Điểm cuối cùng là cảnh báo đơn lẻ mạnh nhất chứ không phải tổng của nhiều cảnh báo nhỏ, nên nhiều gợi ý yếu không thể cộng dồn thành một con số đáng sợ. 0 nghĩa là không tìm thấy gì (không phải 'an toàn'), 1–49 nghĩa là nên xem qua, từ 50 trở lên nghĩa là hãy cẩn thận.",
 "pipeTitle": "Chín công cụ. Một câu trả lời trung thực.",
 "pipeSub": "Mọi tệp bạn thả vào đều đi qua con đường này. Di chuột lên từng phần để xem chức năng; theo dõi dữ liệu di chuyển qua đó.",
 "ppExample": "Những gì nó có thể báo cáo",
+"fxDrag": "kéo",
 "ppInput": "Điểm bắt đầu",
 "ppFusion": "Nơi mọi thứ hội tụ",
 "ppVerdict": "Những gì bạn thấy",
@@ -639,5 +721,43 @@ I18N["vi"] = {
 "Kết luận dễ hiểu",
 "Kết luận bằng ngôn ngữ của bạn, mỗi phát hiện được giải thích trong một câu, và toàn bộ dữ liệu kỹ thuật chỉ cách một thẻ.",
 "“Tệp này có vẻ đáng ngờ. Đừng mở nó.”"
-]
+],
+"tooBig": CS_LANGS.fn(["n"], "Tệp này lớn hơn giới hạn {n} MB đã đặt trong Cài đặt."),
+"scannedAt": CS_LANGS.fn(["d"], "Đã kiểm tra: {d}"),
+"elapsed": CS_LANGS.fn(["s"], "{s} giây"),
+"downloadSeen": CS_LANGS.fn(["name"], "Tệp tải xuống mới: {name}"),
+"count": CS_LANGS.fn(["n"], "Đã lưu {n}"),
+"delBody": CS_LANGS.fn(["name"], "“{name}” và báo cáo đã lưu của nó sẽ bị xóa. Bản thân tệp đã quét không bị động đến."),
+"rFound": CS_LANGS.fn(["n"], [
+"Không có gì cần sửa",
+"Tìm thấy {n} vấn đề",
+"Tìm thấy {n} vấn đề"
+]),
+"rSummary": CS_LANGS.fn(["removed", "before", "after"], "Đã loại bỏ {removed} · vấn đề: {before} trước, {after} sau"),
+"rWhere": CS_LANGS.fn(["p"], "Đã lưu tại {p}"),
+"mb": CS_LANGS.fn(["n"], "{n} MB"),
+"sec": CS_LANGS.fn(["n"], "{n} giây"),
+"seenBefore": CS_LANGS.fn(["n"], [
+"seen",
+"Đã kiểm tra trước đây",
+"Đã kiểm tra {n} lần trước đây"
+]),
+"hashedIn": CS_LANGS.fn(["ms"], "tạo dấu vân tay trong {ms} ms, không cần tải lên"),
+"bTitle": CS_LANGS.fn(["n"], [
+"Lô · {n} tệp",
+"Lô · {n} tệp"
+]),
+"bDone": CS_LANGS.fn(["d", "n"], "Đã xong {d}/{n}"),
+"bFinished": CS_LANGS.fn(["n"], "Đã kiểm tra xong cả {n} tệp"),
+"insWeekLine": CS_LANGS.fn(["n"], "{n} trong 7 ngày qua"),
+"apkMeta": CS_LANGS.fn(["v", "mb"], "APK đã ký · v{v} · {mb} MB · Android 7 trở lên"),
+"askLeft": CS_LANGS.fn(["n"], [
+"Hôm nay còn {n} câu hỏi AI miễn phí",
+"Hôm nay còn {n} câu hỏi AI miễn phí"
+]),
+"ppEngine": CS_LANGS.fn(["n"], "Công cụ {n}/9"),
+"rFindingCount": CS_LANGS.fn(["n"], [
+"{n} phát hiện",
+"{n} phát hiện"
+])
 };

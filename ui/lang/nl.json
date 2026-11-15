@@ -539,7 +539,10 @@
 "{size} cut out. Every part matches the original.": "{size} weggeknipt. Elk deel komt overeen met het origineel.",
 "{size} cut out. The fingerprint matches the original byte for byte.": "{size} weggeknipt. De vingerafdruk komt byte voor byte overeen met het origineel.",
 "{what}. It's harmless filler for the demo, placed the way real tampering is. The name hasn't changed; the size grew by {size}.": "{what}. Het is onschuldige opvulling voor de demo, geplaatst zoals echte manipulatie dat doet. De naam is niet veranderd; de grootte is met {size} gegroeid.",
-"“{name}” · {removed} removed · problems found: {before} before, {after} after.": "“{name}” · {removed} verwijderd · gevonden problemen: {before} voor, {after} na."
+"“{name}” · {removed} removed · problems found: {before} before, {after} after.": "“{name}” · {removed} verwijderd · gevonden problemen: {before} voor, {after} na.",
+"Malware rule: {rule}": "Malwareregel: {rule}",
+"A YARA-Forge rule by {author} matched this file: {description}": "Een YARA-Forge-regel van {author} kwam overeen met dit bestand: {description}",
+"We looked at the list of files inside ({count}) but did not scan each one.": "We hebben de lijst met bestanden erin ({count}) bekeken, maar niet elk bestand afzonderlijk gescand."
 },
 "counts": {
 "finding": {

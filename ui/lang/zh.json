@@ -539,7 +539,10 @@
 "{size} cut out. Every part matches the original.": "已切除 {size}。每个部分都与原始文件一致。",
 "{size} cut out. The fingerprint matches the original byte for byte.": "已切除 {size}。指纹与原始文件逐字节一致。",
 "{what}. It's harmless filler for the demo, placed the way real tampering is. The name hasn't changed; the size grew by {size}.": "{what}。这是用于演示的无害填充数据，放置方式与真实的篡改相同。名称未变，大小增加了 {size}。",
-"“{name}” · {removed} removed · problems found: {before} before, {after} after.": "“{name}” · 已移除 {removed} · 发现的问题：修复前 {before} 个，修复后 {after} 个。"
+"“{name}” · {removed} removed · problems found: {before} before, {after} after.": "“{name}” · 已移除 {removed} · 发现的问题：修复前 {before} 个，修复后 {after} 个。",
+"Malware rule: {rule}": "恶意软件规则：{rule}",
+"A YARA-Forge rule by {author} matched this file: {description}": "此文件匹配了一条由 {author} 编写的 YARA-Forge 规则：{description}",
+"We looked at the list of files inside ({count}) but did not scan each one.": "我们查看了压缩包内的文件列表（{count}），但没有逐个扫描其中的文件。"
 },
 "counts": {
 "finding": {

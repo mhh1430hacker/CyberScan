@@ -539,7 +539,10 @@
 "{size} cut out. Every part matches the original.": "Wycięto {size}. Każda część zgadza się z oryginałem.",
 "{size} cut out. The fingerprint matches the original byte for byte.": "Wycięto {size}. Odcisk zgadza się z oryginałem bajt w bajt.",
 "{what}. It's harmless filler for the demo, placed the way real tampering is. The name hasn't changed; the size grew by {size}.": "{what}. To nieszkodliwe wypełnienie na potrzeby demonstracji, umieszczone tak jak przy prawdziwej ingerencji. Nazwa się nie zmieniła; rozmiar wzrósł o {size}.",
-"“{name}” · {removed} removed · problems found: {before} before, {after} after.": "„{name}” · usunięto: {removed} · wykryte problemy: {before} przed, {after} po."
+"“{name}” · {removed} removed · problems found: {before} before, {after} after.": "„{name}” · usunięto: {removed} · wykryte problemy: {before} przed, {after} po.",
+"Malware rule: {rule}": "Reguła złośliwego oprogramowania: {rule}",
+"A YARA-Forge rule by {author} matched this file: {description}": "Do tego pliku pasuje reguła YARA-Forge, której autorem jest {author}: {description}",
+"We looked at the list of files inside ({count}) but did not scan each one.": "Przejrzeliśmy listę plików w środku ({count}), ale nie skanowaliśmy każdego z nich."
 },
 "counts": {
 "finding": {

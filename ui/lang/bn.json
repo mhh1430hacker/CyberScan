@@ -506,7 +506,7 @@
 "What the program says it is does not fit what it is able to do, or its name is a disguise.": "প্রোগ্রামটি নিজেকে যা বলে দাবি করে তার সঙ্গে এর ক্ষমতা মেলে না, অথবা এর নামটি একটি ছদ্মবেশ।",
 "What to check": "কী যাচাই করবেন",
 "What we checked": "আমরা যা যাচাই করেছি",
-"What's inside the archive": "আর্কাইভের ভেতরে কী আছে",
+"What's inside the archive": "আর্কাইভের ভেতরে যা আছে",
 "Where we found it": "যেখানে পাওয়া গেছে",
 "Why?": "কেন?",
 "Will be scanned as: {kind}": "যেভাবে স্ক্যান করা হবে: {kind}",
@@ -539,7 +539,10 @@
 "{size} cut out. Every part matches the original.": "{size} কেটে বাদ দেওয়া হয়েছে। প্রতিটি অংশ মূল ফাইলের সঙ্গে মেলে।",
 "{size} cut out. The fingerprint matches the original byte for byte.": "{size} কেটে বাদ দেওয়া হয়েছে। ফিঙ্গারপ্রিন্ট মূল ফাইলের সঙ্গে বাইট-বাই-বাইট মেলে।",
 "{what}. It's harmless filler for the demo, placed the way real tampering is. The name hasn't changed; the size grew by {size}.": "{what}। এটি ডেমোর জন্য নিরীহ বাড়তি ডেটা, আসল কারসাজির মতো করেই বসানো। নাম বদলায়নি; সাইজ {size} বেড়েছে।",
-"“{name}” · {removed} removed · problems found: {before} before, {after} after.": "“{name}” · {removed} সরানো হয়েছে · পাওয়া সমস্যা: আগে {before}টি, পরে {after}টি।"
+"“{name}” · {removed} removed · problems found: {before} before, {after} after.": "“{name}” · {removed} সরানো হয়েছে · পাওয়া সমস্যা: আগে {before}টি, পরে {after}টি।",
+"Malware rule: {rule}": "ম্যালওয়্যার রুল: {rule}",
+"A YARA-Forge rule by {author} matched this file: {description}": "{author}-এর লেখা একটি YARA-Forge রুল এই ফাইলের সঙ্গে মিলেছে: {description}",
+"We looked at the list of files inside ({count}) but did not scan each one.": "আমরা ভেতরের ফাইলগুলোর তালিকা ({count}টি) দেখেছি, কিন্তু প্রতিটি ফাইল আলাদা করে স্ক্যান করিনি।"
 },
 "counts": {
 "finding": {

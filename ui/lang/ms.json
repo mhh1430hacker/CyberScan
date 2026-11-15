@@ -539,7 +539,10 @@
 "{size} cut out. Every part matches the original.": "{size} dipotong. Setiap bahagian sepadan dengan yang asal.",
 "{size} cut out. The fingerprint matches the original byte for byte.": "{size} dipotong. Cap jarinya sepadan dengan yang asal, bait demi bait.",
 "{what}. It's harmless filler for the demo, placed the way real tampering is. The name hasn't changed; the size grew by {size}.": "{what}. Ia pengisi yang tidak berbahaya untuk demo, diletakkan seperti usikan sebenar. Namanya tidak berubah; saiznya bertambah sebanyak {size}.",
-"“{name}” · {removed} removed · problems found: {before} before, {after} after.": "“{name}” · {removed} dibuang · masalah ditemui: {before} sebelum, {after} selepas."
+"“{name}” · {removed} removed · problems found: {before} before, {after} after.": "“{name}” · {removed} dibuang · masalah ditemui: {before} sebelum, {after} selepas.",
+"Malware rule: {rule}": "Peraturan perisian hasad: {rule}",
+"A YARA-Forge rule by {author} matched this file: {description}": "Satu peraturan YARA-Forge oleh {author} sepadan dengan fail ini: {description}",
+"We looked at the list of files inside ({count}) but did not scan each one.": "Kami melihat senarai fail di dalamnya ({count}) tetapi tidak mengimbas setiap satu."
 },
 "counts": {
 "finding": {

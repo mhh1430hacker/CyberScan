@@ -539,7 +539,10 @@
 "{size} cut out. Every part matches the original.": "ตัดออก {size} ทุกส่วนตรงกับต้นฉบับ",
 "{size} cut out. The fingerprint matches the original byte for byte.": "ตัดออก {size} ลายนิ้วมือตรงกับต้นฉบับทุกไบต์",
 "{what}. It's harmless filler for the demo, placed the way real tampering is. The name hasn't changed; the size grew by {size}.": "{what} เป็นข้อมูลเติมที่ไม่เป็นอันตรายสำหรับการสาธิต วางไว้แบบเดียวกับการดัดแปลงจริง ชื่อไม่เปลี่ยน แต่ขนาดเพิ่มขึ้น {size}",
-"“{name}” · {removed} removed · problems found: {before} before, {after} after.": "“{name}” · นำออก {removed} · ปัญหาที่พบ: ก่อน {before} หลัง {after}"
+"“{name}” · {removed} removed · problems found: {before} before, {after} after.": "“{name}” · นำออก {removed} · ปัญหาที่พบ: ก่อน {before} หลัง {after}",
+"Malware rule: {rule}": "กฎตรวจจับมัลแวร์: {rule}",
+"A YARA-Forge rule by {author} matched this file: {description}": "กฎ YARA-Forge โดย {author} ตรงกับไฟล์นี้: {description}",
+"We looked at the list of files inside ({count}) but did not scan each one.": "เราดูรายการไฟล์ที่อยู่ข้างใน ({count}) แต่ไม่ได้สแกนทีละไฟล์"
 },
 "counts": {
 "finding": {

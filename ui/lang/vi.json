@@ -539,7 +539,10 @@
 "{size} cut out. Every part matches the original.": "Đã cắt bỏ {size}. Mọi phần đều khớp với bản gốc.",
 "{size} cut out. The fingerprint matches the original byte for byte.": "Đã cắt bỏ {size}. Dấu vân tay khớp với bản gốc đến từng byte.",
 "{what}. It's harmless filler for the demo, placed the way real tampering is. The name hasn't changed; the size grew by {size}.": "{what}. Đây là dữ liệu đệm vô hại cho bản demo, được chèn theo cách giống như can thiệp thật. Tên không đổi; kích thước tăng thêm {size}.",
-"“{name}” · {removed} removed · problems found: {before} before, {after} after.": "“{name}” · đã loại bỏ {removed} · vấn đề tìm thấy: trước {before}, sau {after}."
+"“{name}” · {removed} removed · problems found: {before} before, {after} after.": "“{name}” · đã loại bỏ {removed} · vấn đề tìm thấy: trước {before}, sau {after}.",
+"Malware rule: {rule}": "Quy tắc phần mềm độc hại: {rule}",
+"A YARA-Forge rule by {author} matched this file: {description}": "Một quy tắc YARA-Forge của {author} khớp với tệp này: {description}",
+"We looked at the list of files inside ({count}) but did not scan each one.": "Chúng tôi đã xem danh sách các tệp bên trong ({count}) nhưng không quét từng tệp."
 },
 "counts": {
 "finding": {

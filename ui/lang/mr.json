@@ -539,7 +539,10 @@
 "{size} cut out. Every part matches the original.": "{size} कापून काढले. प्रत्येक भाग मूळशी जुळतो.",
 "{size} cut out. The fingerprint matches the original byte for byte.": "{size} कापून काढले. फिंगरप्रिंट मूळशी बाइट-बाइट जुळते.",
 "{what}. It's harmless filler for the demo, placed the way real tampering is. The name hasn't changed; the size grew by {size}.": "{what}. डेमोसाठीचा हा निरुपद्रवी भराव आहे, खऱ्या छेडछाडीप्रमाणेच ठेवलेला. नाव बदललेले नाही; आकार {size} ने वाढला.",
-"“{name}” · {removed} removed · problems found: {before} before, {after} after.": "“{name}” · {removed} काढले · आढळलेल्या समस्या: आधी {before}, नंतर {after}."
+"“{name}” · {removed} removed · problems found: {before} before, {after} after.": "“{name}” · {removed} काढले · आढळलेल्या समस्या: आधी {before}, नंतर {after}.",
+"Malware rule: {rule}": "मालवेअर नियम: {rule}",
+"A YARA-Forge rule by {author} matched this file: {description}": "{author} यांनी लिहिलेला एक YARA-Forge नियम या फाइलशी जुळला: {description}",
+"We looked at the list of files inside ({count}) but did not scan each one.": "आम्ही आतील फाइल्सची यादी ({count}) पाहिली, पण प्रत्येक फाइल स्वतंत्रपणे स्कॅन केली नाही."
 },
 "counts": {
 "finding": {

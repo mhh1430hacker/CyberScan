@@ -539,7 +539,10 @@
 "{size} cut out. Every part matches the original.": "{size} ang tinanggal. Tugma sa orihinal ang bawat bahagi.",
 "{size} cut out. The fingerprint matches the original byte for byte.": "{size} ang tinanggal. Tugma ang fingerprint sa orihinal, byte por byte.",
 "{what}. It's harmless filler for the demo, placed the way real tampering is. The name hasn't changed; the size grew by {size}.": "{what}. Hindi mapanganib na filler ito para sa demo, inilagay sa paraang gaya ng tunay na pakikialam. Hindi nagbago ang pangalan; lumaki ang size nang {size}.",
-"“{name}” · {removed} removed · problems found: {before} before, {after} after.": "“{name}” · {removed} ang tinanggal · mga problemang nakita: {before} bago, {after} pagkatapos."
+"“{name}” · {removed} removed · problems found: {before} before, {after} after.": "“{name}” · {removed} ang tinanggal · mga problemang nakita: {before} bago, {after} pagkatapos.",
+"Malware rule: {rule}": "Rule laban sa malware: {rule}",
+"A YARA-Forge rule by {author} matched this file: {description}": "Tumugma sa file na ito ang isang YARA-Forge rule ni {author}: {description}",
+"We looked at the list of files inside ({count}) but did not scan each one.": "Tiningnan namin ang listahan ng mga file sa loob ({count}) pero hindi namin isa-isang in-scan ang mga ito."
 },
 "counts": {
 "finding": {

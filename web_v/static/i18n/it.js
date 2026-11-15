@@ -10,7 +10,7 @@ I18N["it"] = {
 "lTitle1": "Guarda dentro ogni file",
 "lTitle2": "prima che sia lui a guardare",
 "lTitle3": "dentro il tuo computer.",
-"lSub": "CyberScan smonta un file, un link o un frammento di testo byte per byte, spiega ciò che trova con parole semplici e può ricostruire un file infetto senza la parte dannosa.",
+"lSub": "CyberScan smonta un file, un link o un frammento di testo byte per byte senza mai eseguirlo, spiega ciò che trova con parole semplici e può ricostruirne una copia senza le parti che non appartengono al suo formato.",
 "lStart": "Inizia la scansione",
 "lWatch": "Scopri come funziona",
 "lCardFile": "invoice_2026.pdf.exe",
@@ -49,7 +49,7 @@ I18N["it"] = {
 ],
 [
 "Spiegazione",
-"Un verdetto chiaro in arabo o in inglese, ogni risultato in parole semplici e tutti i dati tecnici subito sotto."
+"Un verdetto chiaro nella tua lingua, ogni risultato in parole semplici e tutti i dati tecnici subito sotto."
 ]
 ],
 "lCubeTitle": "Guarda un file dall'interno",
@@ -80,14 +80,14 @@ I18N["it"] = {
 ],
 [
 "Riepilogo IA in locale",
-"Un modello facoltativo che gira sul tuo computer spiega il risultato. Nulla lascia il tuo dispositivo."
+"Nell'app desktop, un modello facoltativo che gira sul tuo computer spiega il risultato. Nulla lascia il tuo dispositivo."
 ],
 [
 "Monitoraggio dei download",
 "I nuovi file nella cartella Download compaiono qui, pronti per la scansione con un clic."
 ],
 [
-"Threat intelligence",
+"Intelligence sulle minacce",
 "Le ricerche facoltative negli elenchi pubblici inviano solo un'impronta o un link, mai il file."
 ],
 [
@@ -108,26 +108,26 @@ I18N["it"] = {
 "stats": [
 [
 "scansioni salvate su questo computer",
-"scansioni"
+"scans"
 ],
 [
 "motori di analisi",
-"motori"
+"engines"
 ],
 [
-"byte inviati a Internet per impostazione predefinita",
+"byte che l'app desktop invia a Internet per impostazione predefinita",
 "zero"
 ],
 [
 "lingue, comprese quelle da destra a sinistra",
-"lingue"
+"langs"
 ]
 ],
 "lPrivTitle": "I tuoi file restano tuoi",
 "privs": [
 [
-"Funziona sul tuo computer",
-"Lo scanner, la cronologia e il modello di IA risiedono tutti su questo computer."
+"Chiaro su dove avviene l'analisi",
+"L'app desktop e l'app Android eseguono la scansione sul tuo dispositivo. Su questo sito, il file che fai controllare viene inviato al server di CyberScan, letto in memoria ed eliminato al termine del controllo; lì non viene conservata alcuna cronologia."
 ],
 [
 "Non esegue mai ciò che controlla",
@@ -206,6 +206,39 @@ I18N["it"] = {
 "tRepairD": "Trova le parti danneggiate di un file e crea una copia riparata.",
 "tPhoneT": "Scansione sul dispositivo",
 "tPhoneD": "Scansiona file di grandi dimensioni sul telefono o sul computer senza caricarli.",
+"fileToolsTitle": "Analisi approfondita dei file",
+"fileToolsLede": "Ispezioni mirate per documenti, archivi, immagini QR, identità e integrità dei file. I file caricati vengono analizzati come semplici dati e non vengono mai eseguiti.",
+"ftPdfTitle": "Sicurezza dei PDF",
+"ftPdfDesc": "Ispeziona le azioni del documento, i link, i metadati e le strutture incorporate sospette.",
+"ftArchiveTitle": "Ispezione degli archivi",
+"ftArchiveDesc": "Controlla il contenuto di uno ZIP, le strutture annidate, l'integrità e le anomalie di compressione.",
+"ftQrTitle": "Controllo dei codici QR",
+"ftQrDesc": "Decodifica la destinazione di un codice QR e valuta il rischio dell'URL senza aprire il link.",
+"ftOfficeTitle": "Controllo dei documenti Office",
+"ftOfficeDesc": "Ispeziona i formati Word, Excel e PowerPoint supportati alla ricerca di macro e contenuti esterni.",
+"ftAuthenticityTitle": "Autenticità del file",
+"ftAuthenticityDesc": "Confronta l'estensione del nome del file con la firma del file rilevata.",
+"ftIntegrityTitle": "Integrità del file",
+"ftIntegrityDesc": "Calcola un'impronta crittografica e ispeziona l'integrità della struttura.",
+"ftChooseFile": "Scegli un file",
+"ftRun": "Ispeziona il file",
+"ftAnalyzing": "Ispezione in corso sul server…",
+"ftComplete": "Ispezione completata.",
+"ftIncomplete": "L'ispezione è incompleta; alcuni controlli non sono terminati.",
+"ftFailed": "Ispezione non riuscita:",
+"ftResults": "Risultati dell'ispezione",
+"ftRisk": "Valutazione unificata",
+"ftEvidence": "Prove",
+"ftDetails": "Dettagli tecnici",
+"ftLimitations": "Limiti",
+"ftNoEvidence": "I controlli disponibili non hanno segnalato altre prove.",
+"ftRedacted": "[oscurato]",
+"detectionCombinedAdvice": "Questa valutazione combina la scansione esistente con l'ispezione dei contenuti di Sentinel. Esamina le prove; un risultato pulito non è una garanzia.",
+"detectionIncomplete": "L'ispezione indipendente dei contenuti è rimasta incompleta. Considera questo risultato come non verificato e non prenderlo come prova che il file sia pulito.",
+"verdictUnknown": "INCERTO",
+"verdictUnknownTitle": "Non siamo riusciti a verificare questo file",
+"verdictUnknownBody": "L'ispezione indipendente non ha prodotto un verdetto completo. Controlla i limiti segnalati e riprova.",
+"contentEvidence": "Prove dell'ispezione dei contenuti",
 "pwHow": "La tua password non lascia mai questo dispositivo. Qui viene trasformata in un'impronta (SHA-1) e solo i primi 5 caratteri di questa impronta vengono inviati a Have I Been Pwned, che risponde con tutte le impronte violate che iniziano con quei caratteri.",
 "pwLabel": "Password da controllare",
 "pwPh": "Digita una password",
@@ -399,6 +432,18 @@ I18N["it"] = {
 "rUploadNote": "Questo file è stato trascinato qui, quindi la copia riparata viene offerta come download.",
 "rChecksOk": "Controlli superati: la copia si apre ancora come lo stesso tipo di file e la sua struttura è intatta.",
 "rChecksBad": "Alcuni controlli richiedono attenzione.",
+"rSavedVerified": "Copia riparata salvata · struttura verificata",
+"rSavedUnverified": "Copia riparata salvata · verifica indipendente incompleta",
+"rVerificationTitle": "Verifica indipendente",
+"rVerificationVerified": "La struttura della copia candidata è valida. Non è un verdetto di sicurezza né una prova di recupero completo.",
+"rVerificationIncomplete": "La verifica è incompleta. Non considerare questa copia candidata come completamente riparata.",
+"rVerificationDamage": "Sono stati rilevati danni nella copia candidata; non è stata salvata.",
+"rDataLoss": "Rimossi dalla copia candidata: {n}.",
+"rOriginalPreserved": "Il file originale è stato conservato.",
+"rCandidateHash": "SHA-256 della copia candidata",
+"rOriginalInspection": "Ispezione di sicurezza dell'originale",
+"rCandidateInspection": "Ispezione di sicurezza della copia candidata",
+"rUnavailable": "non disponibile",
 "rAnother": "Ripara un altro file",
 "rMap": "Dove sono i problemi",
 "settingsTitle": "Impostazioni",
@@ -468,7 +513,7 @@ I18N["it"] = {
 "pScanThisText": "Scansiona questo testo",
 "pLookup": "Cerca questa impronta nelle tue scansioni",
 "pNoMatch": "Nessuna scansione ha questa impronta.",
-"pLang": "Passa all'arabo",
+"pLang": "Cambia lingua",
 "pShortcuts": "Scorciatoie da tastiera",
 "pInstall": "Installa l'app",
 "pPrint": "Stampa / salva come PDF",
@@ -572,9 +617,46 @@ I18N["it"] = {
 "Privacy by design",
 "Inizia"
 ],
+"dSci": "Scienza",
+"askOpen": "Chiedi all'IA",
+"askTitle": "Fai una domanda su CyberScan",
+"askSub": "Come funziona, cosa significano i risultati, cosa non può fare.",
+"askPlaceholder": "Fai una domanda in qualsiasi lingua…",
+"askSend": "Invia",
+"askClose": "Chiudi",
+"askClear": "Nuova chat",
+"askBusy": "Sto pensando…",
+"askEmpty": "Chiedi qualsiasi cosa su come CyberScan controlla i file, su cosa significa la scienza che c'è dietro o su come leggere un risultato.",
+"askChips": [
+"Cosa fa CyberScan, in parole semplici?",
+"Esegue il mio file?",
+"Che cos'è l'entropia e perché è importante?",
+"Cosa significa un punteggio di 30?",
+"Dove viene controllato il mio file su questo sito?"
+],
+"askNote": "Le risposte si basano su una guida al progetto, rivista e verificata sul suo codice. L'IA può comunque sbagliare; il risultato della scansione, invece, arriva sempre dallo scanner.",
+"askSources": {
+"bedrock": "Risposta dell'IA · dalla guida al progetto",
+"ollama": "Risposta dell'IA (modello locale) · dalla guida al progetto",
+"guide": "Estratto dalla guida al progetto · l'IA è offline",
+"quota": "Estratto dalla guida al progetto · le domande gratuite all'IA di oggi sono esaurite"
+},
+"askRefused": "Su questo non posso aiutarti. Chiedimi come funziona CyberScan o cosa significa un risultato.",
+"askError": "In questo momento l'assistente non è riuscito a rispondere. Riprova.",
+"sciAskCta": "Hai ancora qualche curiosità? Chiedi all'IA quello che vuoi su questi argomenti",
+"sciPlainTitle": "In parole semplici",
+"sciPlainIntro": "In una frase: CyberScan legge un file come un detective scrupoloso legge una lettera sospetta, studiando la busta, la calligrafia e ciò che la lettera chiede, senza mai fare quello che dice.",
+"sciPlain1": "Un programma Windows è come un pacco con un'etichetta e una lista del contenuto. CyberScan legge l'etichetta (ciò che il programma dichiara di essere), la lista del contenuto (le funzioni di sistema che richiede) e il sigillo (la sua firma digitale) senza aprire il pacco. Un «visualizzatore di foto» che chiede gli strumenti per spiare la tastiera è qualcosa che non torna.",
+"sciPlain2": "L'entropia misura quanto sono prevedibili i byte. Una pagina di testo ripete lettere e parole, lo spazio vuoto è tutto uguale e i dati cifrati sembrano puro rumore. CyberScan traccia questo livello lungo tutto il file; un salto improvviso dal contenuto ordinario al rumore è spesso il punto in cui inizia qualcosa di compresso o nascosto.",
+"sciPlain3": "I dati che sembrano rumore sono normali in alcuni punti e non in altri: una foto compressa tra le risorse di un programma va benissimo, lo stesso rumore dentro il suo codice no. CyberScan ha imparato cosa tengono i programmi onesti in ciascuna parte e segnala i pezzi fuori posto.",
+"sciPlain4": "Senza eseguire il programma, CyberScan traduce il suo codice macchina in istruzioni e ricostruisce come può saltare dall'una all'altra, un po' come disegnare la mappa stradale di una città senza percorrerla in auto. C'è una forma di strada che dice molto: un ciclo stretto che riscrive la memoria un pezzo alla volta, ed è proprio così che il codice nascosto decifra se stesso.",
+"sciPlain5": "Tutte le misure vengono raccolte in un unico elenco di 4.096 numeri, un'impronta della forma del file. File costruiti in modo simile ottengono impronte simili, ed è ciò che serve a un modello di apprendimento. È una ricetta fissa, non un «cervello», e il modello che dovrebbe leggerla resta spento finché qualcuno non ne installa uno che ha esaminato di persona.",
+"sciPlain6": "I ricercatori di sicurezza pubblicano elenchi di file e link notoriamente dannosi. Se lo consenti, CyberScan chiede contemporaneamente a tre di questi servizi se hanno già visto l'impronta di questo file, senza inviare il file stesso. Una corrispondenza è la segnalazione di qualcun altro, non una prova; nessuna corrispondenza non significa che il file sia sicuro.",
+"sciPlain7": "Ogni avviso è accompagnato da una frase che puoi verificare e da un peso. Il punteggio finale è quello del singolo avviso più forte, non la somma di tanti piccoli avvisi, quindi molti indizi deboli non possono accumularsi fino a dare un numero allarmante. 0 significa che non è stato trovato nulla (non «sicuro»), da 1 a 49 che conviene dare un'occhiata, 50 o più che bisogna fare attenzione.",
 "pipeTitle": "Nove motori. Una risposta onesta.",
 "pipeSub": "Ogni file che trascini segue questo percorso. Passa sopra una parte per vedere cosa fa e guarda i dati attraversarla.",
 "ppExample": "Cosa può segnalare",
+"fxDrag": "trascina",
 "ppInput": "Dove inizia",
 "ppFusion": "Dove tutto converge",
 "ppVerdict": "Cosa vedi",
@@ -639,5 +721,43 @@ I18N["it"] = {
 "Verdetto chiaro",
 "Un verdetto nella tua lingua, ogni risultato spiegato in una frase e tutti i dati tecnici a portata di scheda.",
 "«Sembra sospetto. Non aprirlo.»"
-]
+],
+"tooBig": CS_LANGS.fn(["n"], "Questo file supera il limite di {n} MB impostato nelle Impostazioni."),
+"scannedAt": CS_LANGS.fn(["d"], "Controllato {d}"),
+"elapsed": CS_LANGS.fn(["s"], "{s} s"),
+"downloadSeen": CS_LANGS.fn(["name"], "Nuovo download: {name}"),
+"count": CS_LANGS.fn(["n"], "{n} salvate"),
+"delBody": CS_LANGS.fn(["name"], "«{name}» e il relativo report salvato verranno rimossi. Il file scansionato non viene toccato."),
+"rFound": CS_LANGS.fn(["n"], [
+"Nulla da riparare",
+"{n} problema trovato",
+"{n} problemi trovati"
+]),
+"rSummary": CS_LANGS.fn(["removed", "before", "after"], "{removed} rimossi · problemi: {before} prima, {after} dopo"),
+"rWhere": CS_LANGS.fn(["p"], "Salvato come {p}"),
+"mb": CS_LANGS.fn(["n"], "{n} MB"),
+"sec": CS_LANGS.fn(["n"], "{n} secondi"),
+"seenBefore": CS_LANGS.fn(["n"], [
+"seen",
+"Già controllato una volta",
+"Già controllato {n} volte"
+]),
+"hashedIn": CS_LANGS.fn(["ms"], "impronta calcolata in {ms} ms, senza caricare il file"),
+"bTitle": CS_LANGS.fn(["n"], [
+"Gruppo · {n} file",
+"Gruppo · {n} file"
+]),
+"bDone": CS_LANGS.fn(["d", "n"], "{d} di {n} completati"),
+"bFinished": CS_LANGS.fn(["n"], "Tutti i {n} file sono stati controllati"),
+"insWeekLine": CS_LANGS.fn(["n"], "{n} negli ultimi 7 giorni"),
+"apkMeta": CS_LANGS.fn(["v", "mb"], "APK firmato · v{v} · {mb} MB · Android 7+"),
+"askLeft": CS_LANGS.fn(["n"], [
+"Oggi ti resta {n} domanda gratuita all'IA",
+"Oggi ti restano {n} domande gratuite all'IA"
+]),
+"ppEngine": CS_LANGS.fn(["n"], "Motore {n} di 9"),
+"rFindingCount": CS_LANGS.fn(["n"], [
+"{n} risultato",
+"{n} risultati"
+])
 };

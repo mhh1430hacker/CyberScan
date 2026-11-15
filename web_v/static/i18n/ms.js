@@ -10,7 +10,7 @@ I18N["ms"] = {
 "lTitle1": "Lihat isi mana-mana fail",
 "lTitle2": "sebelum fail itu melihat isi",
 "lTitle3": "komputer anda.",
-"lSub": "CyberScan membedah fail, pautan atau petikan teks bait demi bait, menerangkan dapatannya dalam bahasa mudah, dan boleh membina semula fail yang dijangkiti tanpa bahagian yang berbahaya.",
+"lSub": "CyberScan membedah fail, pautan atau petikan teks bait demi bait tanpa sekali-kali menjalankannya, menerangkan dapatannya dalam bahasa mudah, dan boleh membina semula salinan tanpa bahagian yang tidak sepatutnya ada dalam formatnya.",
 "lStart": "Mula mengimbas",
 "lWatch": "Lihat cara ia berfungsi",
 "lCardFile": "invoice_2026.pdf.exe",
@@ -49,7 +49,7 @@ I18N["ms"] = {
 ],
 [
 "Terangkan",
-"Keputusan dalam bahasa mudah, setiap dapatan dengan perkataan ringkas, dan data teknikal penuh di bawahnya."
+"Keputusan dalam bahasa mudah mengikut bahasa anda, setiap dapatan diterangkan dengan perkataan ringkas, dan data teknikal penuh di bawahnya."
 ]
 ],
 "lCubeTitle": "Lihat fail dari dalam",
@@ -80,7 +80,7 @@ I18N["ms"] = {
 ],
 [
 "Ringkasan AI setempat",
-"Model pilihan yang berjalan pada peranti anda sendiri menerangkan keputusannya. Tiada apa yang keluar dari komputer anda."
+"Dalam aplikasi desktop, model pilihan yang berjalan pada peranti anda sendiri menerangkan keputusannya. Tiada apa yang keluar dari komputer anda."
 ],
 [
 "Pemantauan muat turun",
@@ -108,26 +108,26 @@ I18N["ms"] = {
 "stats": [
 [
 "imbasan disimpan pada komputer ini",
-"imbasan"
+"scans"
 ],
 [
 "enjin analisis",
-"enjin"
+"engines"
 ],
 [
-"bait dihantar ke internet secara lalai",
-"sifar"
+"bait dihantar oleh aplikasi desktop ke internet secara lalai",
+"zero"
 ],
 [
 "bahasa, termasuk kanan-ke-kiri",
-"bahasa"
+"langs"
 ]
 ],
 "lPrivTitle": "Fail anda kekal milik anda",
 "privs": [
 [
-"Berjalan pada peranti anda",
-"Pengimbas, sejarah dan model AI semuanya berada pada komputer ini."
+"Jelas tentang tempat ia berjalan",
+"Aplikasi desktop dan Android mengimbas pada peranti anda sendiri. Di laman web ini, fail yang anda semak dihantar ke pelayan CyberScan, dibaca dalam memori dan dipadam sebaik sahaja semakan selesai; tiada sejarah disimpan di sana."
 ],
 [
 "Tidak pernah menjalankan apa yang disemaknya",
@@ -206,6 +206,39 @@ I18N["ms"] = {
 "tRepairD": "Cari bahagian fail yang rosak dan buat salinan yang telah dibaiki.",
 "tPhoneT": "Imbasan pada peranti",
 "tPhoneD": "Imbas fail besar pada telefon atau komputer anda tanpa memuat naiknya.",
+"fileToolsTitle": "Risikan fail",
+"fileToolsLede": "Pemeriksaan khusus untuk dokumen, arkib, imej QR, identiti fail dan integritinya. Fail yang dimuat naik dianalisis sebagai data dan tidak sekali-kali dijalankan.",
+"ftPdfTitle": "Keselamatan PDF",
+"ftPdfDesc": "Periksa tindakan dalam dokumen, pautan, metadata dan struktur terbenam yang mencurigakan.",
+"ftArchiveTitle": "Pemeriksaan arkib",
+"ftArchiveDesc": "Semak kandungan ZIP, struktur bersarang, integriti dan kejanggalan pemampatan.",
+"ftQrTitle": "Semakan kod QR",
+"ftQrDesc": "Baca destinasi kod QR dan nilai risiko URL tanpa membuka pautannya.",
+"ftOfficeTitle": "Semakan dokumen Office",
+"ftOfficeDesc": "Periksa format Word, Excel dan PowerPoint yang disokong untuk mengesan makro dan kandungan luaran.",
+"ftAuthenticityTitle": "Ketulenan fail",
+"ftAuthenticityDesc": "Bandingkan sambungan nama fail dengan tandatangan fail yang dikesan.",
+"ftIntegrityTitle": "Integriti fail",
+"ftIntegrityDesc": "Kira cincangan kriptografi dan periksa integriti strukturnya.",
+"ftChooseFile": "Pilih fail",
+"ftRun": "Periksa fail",
+"ftAnalyzing": "Pemeriksaan sedang berjalan pada pelayan…",
+"ftComplete": "Pemeriksaan selesai.",
+"ftIncomplete": "Pemeriksaan tidak lengkap; beberapa semakan tidak selesai.",
+"ftFailed": "Pemeriksaan gagal:",
+"ftResults": "Hasil pemeriksaan",
+"ftRisk": "Penilaian bersepadu",
+"ftEvidence": "Bukti",
+"ftDetails": "Butiran teknikal",
+"ftLimitations": "Batasan",
+"ftNoEvidence": "Semakan yang tersedia tidak melaporkan bukti tambahan.",
+"ftRedacted": "[disunting]",
+"detectionCombinedAdvice": "Penilaian ini menggabungkan imbasan sedia ada dengan pemeriksaan kandungan oleh Sentinel. Teliti buktinya; hasil yang bersih bukanlah jaminan.",
+"detectionIncomplete": "Pemeriksaan kandungan bebas tidak lengkap. Anggap hasil ini belum disahkan dan jangan jadikannya bukti bahawa fail ini selamat.",
+"verdictUnknown": "TIDAK PASTI",
+"verdictUnknownTitle": "Kami tidak dapat mengesahkan fail ini",
+"verdictUnknownBody": "Pemeriksaan bebas tidak menghasilkan keputusan yang lengkap. Teliti batasan yang dilaporkan, kemudian cuba lagi.",
+"contentEvidence": "Bukti pemeriksaan kandungan",
 "pwHow": "Kata laluan anda tidak pernah meninggalkan peranti ini. Ia ditukar kepada cap jari (SHA-1) di sini dan hanya 5 aksara pertama cap jari itu dihantar ke Have I Been Pwned, yang membalas dengan semua cap jari bocor yang bermula dengan aksara tersebut.",
 "pwLabel": "Kata laluan untuk disemak",
 "pwPh": "Taip kata laluan",
@@ -399,6 +432,18 @@ I18N["ms"] = {
 "rUploadNote": "Fail ini dilepaskan terus ke sini, jadi salinan yang dibaiki ditawarkan sebagai muat turun.",
 "rChecksOk": "Semakan lulus: salinan masih dibuka sebagai jenis fail yang sama dan strukturnya utuh.",
 "rChecksBad": "Sesetengah semakan perlu diberi perhatian.",
+"rSavedVerified": "Salinan yang dibaiki telah disimpan · strukturnya disahkan",
+"rSavedUnverified": "Salinan yang dibaiki telah disimpan · pengesahan bebas tidak lengkap",
+"rVerificationTitle": "Pengesahan bebas",
+"rVerificationVerified": "Struktur salinan cadangan ini sah. Ini bukan keputusan keselamatan dan bukan bukti pemulihan sepenuhnya.",
+"rVerificationIncomplete": "Pengesahan tidak lengkap. Jangan anggap salinan cadangan ini telah dibaiki sepenuhnya.",
+"rVerificationDamage": "Kerosakan dikesan pada salinan cadangan; salinan itu tidak disimpan.",
+"rDataLoss": "{n} dibuang daripada salinan cadangan.",
+"rOriginalPreserved": "Fail asal dikekalkan.",
+"rCandidateHash": "SHA-256 salinan cadangan",
+"rOriginalInspection": "Pemeriksaan keselamatan fail asal",
+"rCandidateInspection": "Pemeriksaan keselamatan salinan cadangan",
+"rUnavailable": "tidak tersedia",
 "rAnother": "Baiki fail lain",
 "rMap": "Di mana masalahnya",
 "settingsTitle": "Tetapan",
@@ -468,7 +513,7 @@ I18N["ms"] = {
 "pScanThisText": "Imbas teks ini",
 "pLookup": "Cari cap jari ini dalam imbasan anda",
 "pNoMatch": "Tiada imbasan dengan cap jari itu.",
-"pLang": "Tukar kepada bahasa Arab",
+"pLang": "Tukar bahasa",
 "pShortcuts": "Pintasan papan kekunci",
 "pInstall": "Pasang aplikasi",
 "pPrint": "Cetak / simpan sebagai PDF",
@@ -572,9 +617,46 @@ I18N["ms"] = {
 "Privasi sejak reka bentuk",
 "Mulakan"
 ],
+"dSci": "Sains",
+"askOpen": "Tanya AI",
+"askTitle": "Tanya tentang CyberScan",
+"askSub": "Cara ia berfungsi, maksud keputusannya, dan apa yang tidak dapat dilakukannya.",
+"askPlaceholder": "Tanya soalan dalam apa-apa bahasa…",
+"askSend": "Hantar",
+"askClose": "Tutup",
+"askClear": "Sembang baharu",
+"askBusy": "Sedang berfikir…",
+"askEmpty": "Tanya apa sahaja tentang cara CyberScan menyemak fail, maksud sains di sebaliknya, atau cara membaca keputusan.",
+"askChips": [
+"Apakah yang CyberScan lakukan, dalam bahasa mudah?",
+"Adakah ia menjalankan fail saya?",
+"Apakah itu entropi dan mengapa ia penting?",
+"Apakah maksud skor 30?",
+"Di manakah fail saya disemak di laman web ini?"
+],
+"askNote": "Jawapan diambil daripada panduan projek yang telah disemak dan dipadankan dengan kodnya. AI masih boleh tersilap; keputusan imbasan itu sendiri sentiasa datang daripada pengimbas.",
+"askSources": {
+"bedrock": "Jawapan AI · daripada panduan projek",
+"ollama": "Jawapan AI (model setempat) · daripada panduan projek",
+"guide": "Petikan daripada panduan projek · AI di luar talian",
+"quota": "Petikan daripada panduan projek · soalan AI percuma hari ini sudah habis"
+},
+"askRefused": "Saya tidak dapat membantu untuk yang itu. Tanyalah saya tentang cara CyberScan berfungsi atau maksud sesuatu keputusan.",
+"askError": "Pembantu tidak dapat menjawab buat masa ini. Sila cuba lagi.",
+"sciAskCta": "Masih ingin tahu? Tanya AI tentang mana-mana perkara ini",
+"sciPlainTitle": "Dalam bahasa mudah",
+"sciPlainIntro": "Dalam satu ayat: CyberScan membaca fail seperti seorang detektif yang teliti membaca surat yang mencurigakan, iaitu dengan meneliti sampulnya, tulisan tangannya dan apa yang diminta oleh surat itu, tanpa sekali-kali melakukan apa yang disuruhnya.",
+"sciPlain1": "Program Windows ibarat bungkusan yang mempunyai label dan senarai kandungan. CyberScan membaca labelnya (apa yang didakwa oleh program itu tentang dirinya), senarai kandungannya (fungsi sistem yang dimintanya) dan meterainya (tandatangan digitalnya) tanpa membuka bungkusan itu. 'Pemapar foto' yang meminta alat untuk memerhati papan kekunci memang tidak masuk akal.",
+"sciPlain2": "Entropi mengukur sejauh mana bait-bait dalam fail boleh diramal. Sehalaman teks mengulang huruf dan perkataan, ruang kosong semuanya serupa, manakala data tersulit kelihatan seperti hingar semata-mata. CyberScan melakar tahap ini di sepanjang fail; lonjakan mendadak daripada kandungan biasa kepada hingar sering menjadi tempat bermulanya sesuatu yang dipadatkan atau disembunyikan.",
+"sciPlain3": "Data yang kelihatan seperti hingar adalah biasa di sesetengah tempat tetapi tidak di tempat lain: foto termampat di dalam sumber program tidak mengapa, tetapi hingar yang sama di dalam kodnya patut dicurigai. CyberScan telah mempelajari apa yang biasanya disimpan oleh program yang jujur dalam setiap bahagian, lalu menunjukkan cebisan yang tidak kena pada tempatnya.",
+"sciPlain4": "Tanpa menjalankan program, CyberScan menterjemah kod mesinnya kepada arahan dan memetakan cara program boleh melompat antara arahan itu, seperti melukis peta jalan sebuah bandar tanpa perlu memandu. Ada satu bentuk jalan yang ketara: gelung ketat yang menulis semula memori sedikit demi sedikit, dan begitulah cara kod tersembunyi menyahsulit dirinya sendiri.",
+"sciPlain5": "Semua ukuran dihimpunkan menjadi satu senarai 4,096 nombor, iaitu cap jari bagi bentuk fail. Fail yang dibina dengan cara serupa mendapat cap jari yang hampir sama, dan itulah yang diperlukan oleh model pembelajaran. Ia resipi yang tetap, bukan 'otak', dan model yang akan membacanya kekal dimatikan sehingga seseorang memasang model yang telah disemaknya sendiri.",
+"sciPlain6": "Penyelidik keselamatan menerbitkan senarai fail dan pautan yang diketahui berbahaya. Jika anda membenarkannya, CyberScan bertanya kepada tiga perkhidmatan ini serentak sama ada mereka pernah melihat cap jari fail ini, tanpa menghantar fail itu sendiri. Padanan ialah laporan pihak lain, bukan bukti; tiada padanan pula tidak bermakna selamat.",
+"sciPlain7": "Setiap amaran disertakan dengan satu ayat yang boleh anda semak dan satu pemberat. Skor akhir ialah amaran tunggal yang paling kuat, bukan longgokan amaran kecil, jadi banyak petunjuk lemah tidak boleh terkumpul menjadi angka yang menakutkan. 0 bermaksud tiada apa yang ditemui (bukan 'selamat'), 1–49 bermaksud perlu diteliti, 50 atau lebih bermaksud berhati-hatilah.",
 "pipeTitle": "Sembilan enjin. Satu jawapan yang jujur.",
 "pipeSub": "Setiap fail yang anda lepaskan melalui laluan ini. Tuding pada mana-mana bahagian untuk melihat fungsinya; perhatikan data bergerak melaluinya.",
 "ppExample": "Apa yang boleh dilaporkannya",
+"fxDrag": "seret",
 "ppInput": "Di mana ia bermula",
 "ppFusion": "Di mana semuanya bergabung",
 "ppVerdict": "Apa yang anda lihat",
@@ -639,5 +721,43 @@ I18N["ms"] = {
 "Keputusan mudah",
 "Keputusan dalam bahasa anda, setiap dapatan diterangkan dalam satu ayat, dan semua data teknikal hanya satu tab jauhnya.",
 "“Ini kelihatan mencurigakan. Jangan bukanya.”"
-]
+],
+"tooBig": CS_LANGS.fn(["n"], "Fail ini melebihi had {n} MB yang ditetapkan dalam Tetapan."),
+"scannedAt": CS_LANGS.fn(["d"], "Disemak {d}"),
+"elapsed": CS_LANGS.fn(["s"], "{s} s"),
+"downloadSeen": CS_LANGS.fn(["name"], "Muat turun baharu: {name}"),
+"count": CS_LANGS.fn(["n"], "{n} disimpan"),
+"delBody": CS_LANGS.fn(["name"], "“{name}” dan laporannya yang disimpan akan dialih keluar. Fail yang diimbas itu sendiri tidak disentuh."),
+"rFound": CS_LANGS.fn(["n"], [
+"Tiada apa yang perlu dibaiki",
+"{n} masalah ditemui",
+"{n} masalah ditemui"
+]),
+"rSummary": CS_LANGS.fn(["removed", "before", "after"], "{removed} dibuang · masalah: {before} sebelum, {after} selepas"),
+"rWhere": CS_LANGS.fn(["p"], "Disimpan sebagai {p}"),
+"mb": CS_LANGS.fn(["n"], "{n} MB"),
+"sec": CS_LANGS.fn(["n"], "{n} saat"),
+"seenBefore": CS_LANGS.fn(["n"], [
+"seen",
+"Pernah dilihat sebelum ini",
+"Sudah dilihat {n} kali sebelum ini"
+]),
+"hashedIn": CS_LANGS.fn(["ms"], "cap jari diambil dalam {ms} ms, tanpa memuat naik"),
+"bTitle": CS_LANGS.fn(["n"], [
+"Kumpulan · {n} fail",
+"Kumpulan · {n} fail"
+]),
+"bDone": CS_LANGS.fn(["d", "n"], "{d} daripada {n} selesai"),
+"bFinished": CS_LANGS.fn(["n"], "Kesemua {n} fail telah disemak"),
+"insWeekLine": CS_LANGS.fn(["n"], "{n} dalam 7 hari yang lalu"),
+"apkMeta": CS_LANGS.fn(["v", "mb"], "APK bertandatangan · v{v} · {mb} MB · Android 7+"),
+"askLeft": CS_LANGS.fn(["n"], [
+"{n} soalan AI percuma lagi hari ini",
+"{n} soalan AI percuma lagi hari ini"
+]),
+"ppEngine": CS_LANGS.fn(["n"], "Enjin {n} daripada 9"),
+"rFindingCount": CS_LANGS.fn(["n"], [
+"{n} dapatan",
+"{n} dapatan"
+])
 };

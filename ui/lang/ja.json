@@ -539,7 +539,10 @@
 "{size} cut out. Every part matches the original.": "{size} を切り取りました。すべての部分が元のファイルと一致します。",
 "{size} cut out. The fingerprint matches the original byte for byte.": "{size} を切り取りました。フィンガープリントは元のファイルとバイト単位で一致します。",
 "{what}. It's harmless filler for the demo, placed the way real tampering is. The name hasn't changed; the size grew by {size}.": "{what}。これはデモ用の無害な埋め草データで、実際の改ざんと同じ方法で配置されています。名前は変わっておらず、サイズが {size} 増えています。",
-"“{name}” · {removed} removed · problems found: {before} before, {after} after.": "「{name}」 · {removed} を除去 · 検出された問題：修復前 {before} 件、修復後 {after} 件。"
+"“{name}” · {removed} removed · problems found: {before} before, {after} after.": "「{name}」 · {removed} を除去 · 検出された問題：修復前 {before} 件、修復後 {after} 件。",
+"Malware rule: {rule}": "マルウェアルール：{rule}",
+"A YARA-Forge rule by {author} matched this file: {description}": "{author} 作成の YARA-Forge ルールがこのファイルに一致しました：{description}",
+"We looked at the list of files inside ({count}) but did not scan each one.": "中にあるファイルの一覧（{count}）は確認しましたが、個々のファイルはスキャンしていません。"
 },
 "counts": {
 "finding": {
