@@ -1,5 +1,5 @@
 """The "Ask the AI" assistant (web_v/assistant.py): input checks, rate limit, the offline guide,
-and the exact request it sends to the Claude API (checked against a mock transport, no network)."""
+and the exact request it sends to Amazon Bedrock (checked with botocore Stubber, no network)."""
 from __future__ import annotations
 
 import json
@@ -30,8 +30,8 @@ def test_history_is_trimmed_and_alternates_from_a_user_turn():
     assert all("be evil" not in m["content"] for m in messages)   # no system role from the page
 
 
-def test_rate_limiter_caps_each_client():
-    limiter = assistant.RateLimiter(per_client=2, total=10, window=60)
+def test_burst_guard_caps_each_client():
+    limiter = assistant.Limits(per_visitor=5, total=10, burst=2)
     assert limiter.allow("a") and limiter.allow("a")
     assert not limiter.allow("a")
     assert limiter.allow("b")
@@ -61,58 +61,93 @@ def test_guide_says_when_something_is_not_covered(monkeypatch):
     assert "can't answer" in result["answer"]
 
 
-# ------------------------------------------------------------------ Claude (mock transport)
-anthropic = pytest.importorskip("anthropic")
-httpx2 = pytest.importorskip("httpx2")
+# ------------------------------------------------------------------ limits
+def test_burst_guard_and_daily_allowance():
+    limits = assistant.Limits(per_visitor=2, total=10, burst=3)
+    assert all(limits.allow("a") for _ in range(3)) and not limits.allow("a")
+    assert limits.allow("b")
+    assert limits.remaining("a") == 2
+    limits.spend("a"); limits.spend("a")
+    assert limits.remaining("a") == 0 and limits.remaining("b") == 2
 
 
-def _with_mock(monkeypatch, reply):
-    """Route the SDK through a mock transport; returns the list of captured request bodies."""
-    sent: list[dict] = []
-
-    def handler(request):
-        sent.append(json.loads(request.content))
-        status, body = reply(request)
-        return httpx2.Response(status, json=body, headers={"request-id": "req_test"})
-
-    real = anthropic.Anthropic
-    monkeypatch.setattr(anthropic, "Anthropic", lambda **kw: real(
-        api_key="test", http_client=httpx2.Client(transport=httpx2.MockTransport(handler)), **kw))
-    monkeypatch.setenv("ANTHROPIC_API_KEY", "test")
-    monkeypatch.setattr(assistant, "_claude_off_until", 0.0)
-    return sent
+def test_overall_cap_limits_everyone():
+    limits = assistant.Limits(per_visitor=5, total=3, burst=10)
+    for visitor in ("a", "b", "c"):
+        limits.spend(visitor)
+    assert limits.remaining("d") == 0
 
 
-def _message(text, stop="end_turn"):
-    return {"id": "msg_1", "type": "message", "role": "assistant", "model": assistant.MODEL,
-            "content": [{"type": "thinking", "thinking": "", "signature": "x"}, {"type": "text", "text": text}] if text else [],
-            "stop_reason": stop, "stop_sequence": None,
-            "usage": {"input_tokens": 10, "output_tokens": 5}}
+# ------------------------------------------------------------------ Amazon Bedrock (botocore Stubber)
+boto3 = pytest.importorskip("boto3")
+from botocore.stub import ANY, Stubber  # noqa: E402
 
 
-def test_claude_request_shape_and_answer(monkeypatch):
-    sent = _with_mock(monkeypatch, lambda r: (200, _message("It never runs your file.")))
-    result = assistant.ask("Does it run my file?", [{"role": "user", "text": "hi"}, {"role": "assistant", "text": "hello"}], local=False)
-    assert result == {"answer": "It never runs your file.", "source": "claude", "refused": False}
-    body = sent[0]
-    assert body["model"] == "claude-opus-5-5"
-    assert body["fallbacks"] == "default"
-    assert body["output_config"] == {"effort": "low"}
-    assert "thinking" not in body and "temperature" not in body
-    system = body["system"][0]
-    assert system["cache_control"] == {"type": "ephemeral", "ttl": "1h"}
-    assert "<knowledge>" in system["text"] and "Static analysis" in system["text"]
-    assert [m["role"] for m in body["messages"]] == ["user", "assistant", "user"]
+@pytest.fixture
+def bedrock(monkeypatch):
+    """A stubbed bedrock-runtime client; the assistant behaves as it does on Lambda."""
+    client = boto3.client("bedrock-runtime", region_name="eu-north-1",
+                          aws_access_key_id="test", aws_secret_access_key="test")
+    stub = Stubber(client)
+    monkeypatch.setattr(assistant, "_client", client)
+    monkeypatch.setattr(assistant, "_bedrock_off_until", 0.0)
+    monkeypatch.setattr(assistant, "LIMITS", assistant.Limits(per_visitor=2, total=100, burst=10))
+    monkeypatch.setenv("AWS_LAMBDA_FUNCTION_NAME", "cyberscan-test")
+    monkeypatch.delenv("CYBERSCAN_ASSISTANT", raising=False)
+    with stub:
+        yield stub
 
 
-def test_claude_refusal_is_reported_not_shown(monkeypatch):
-    _with_mock(monkeypatch, lambda r: (200, _message("", stop="refusal")))
-    result = assistant.ask("anything", [], local=False)
+def _reply(text, stop="end_turn"):
+    content = [{"reasoningContent": {"reasoningText": {"text": "thinking about it"}}}]
+    if text:
+        content.append({"text": text})
+    return {"output": {"message": {"role": "assistant", "content": content}}, "stopReason": stop,
+            "usage": {"inputTokens": 10, "outputTokens": 5, "totalTokens": 15}, "metrics": {"latencyMs": 100}}
+
+
+def test_bedrock_request_shape_and_answer(bedrock):
+    expected = {
+        "modelId": "openai.gpt-oss-120b-1:0",
+        "system": [{"text": assistant.SYSTEM}],
+        "messages": [{"role": "user", "content": [{"text": "hi"}]},
+                     {"role": "assistant", "content": [{"text": "hello"}]},
+                     {"role": "user", "content": [{"text": "Does it run my file?"}]}],
+        "inferenceConfig": ANY,
+    }
+    bedrock.add_response("converse", _reply("It never runs your file."), expected)
+    result = assistant.ask("Does it run my file?", [{"role": "user", "text": "hi"}, {"role": "assistant", "text": "hello"}],
+                           local=False, client="v1")
+    assert result == {"answer": "It never runs your file.", "source": "bedrock", "refused": False, "remaining": 1}
+    assert "thinking about it" not in result["answer"]   # reasoning blocks are not shown
+    assert "<knowledge>" in assistant.SYSTEM
+
+
+def test_daily_allowance_then_the_guide_answers(bedrock):
+    for _ in range(2):
+        bedrock.add_response("converse", _reply("An AI answer."), None)
+        assert assistant.ask("Does it run my file?", [], local=False, client="v2")["source"] == "bedrock"
+    result = assistant.ask("Does it run my file?", [], local=False, client="v2")   # no third Bedrock call
+    assert result["source"] == "quota" and result["remaining"] == 0
+    assert "Never" in result["answer"]
+    assert assistant.ask("Does it run my file?", [], local=False, client="v3")["source"] == "guide"  # stub has no more replies
+
+
+def test_filtered_answer_is_reported_not_shown(bedrock):
+    bedrock.add_response("converse", _reply("", stop="content_filtered"), None)
+    result = assistant.ask("anything", [], local=False, client="v4")
     assert result["refused"] is True and result["answer"] == ""
 
 
-def test_claude_auth_error_falls_back_to_the_guide(monkeypatch):
-    _with_mock(monkeypatch, lambda r: (401, {"type": "error", "error": {"type": "authentication_error", "message": "bad key"}}))
-    result = assistant.ask("Does it run my file?", [], local=False)
+def test_access_error_falls_back_to_the_guide_and_pauses_bedrock(bedrock):
+    bedrock.add_client_error("converse", service_error_code="AccessDeniedException", http_status_code=403)
+    result = assistant.ask("Does it run my file?", [], local=False, client="v5")
     assert result["source"] == "guide"
-    assert assistant._claude_off_until > 0   # don't retry a bad key on every question
+    assert assistant._bedrock_off_until > 0
+    assert assistant.LIMITS.remaining("v5") == 2   # a failed call costs the visitor nothing
+
+
+def test_bedrock_is_off_outside_lambda(monkeypatch):
+    monkeypatch.delenv("AWS_LAMBDA_FUNCTION_NAME", raising=False)
+    monkeypatch.delenv("CYBERSCAN_ASSISTANT", raising=False)
+    assert assistant._bedrock_configured() is False

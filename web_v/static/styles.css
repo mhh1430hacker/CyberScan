@@ -331,6 +331,15 @@ form { display: grid; gap: 16px; }
 .r-mark path { stroke-dasharray: 40; stroke-dashoffset: 40; animation: draw .6s .8s var(--ease) forwards; }
 .r-outcome.fail .r-mark { stroke: var(--bad); }
 .r-outcome.fail .r-mark path { d: path("M22 22 42 42M42 22 22 42"); }
+.r-outcome.partial .r-mark { stroke: var(--warn); }
+.r-verification { width: min(760px, 100%); margin-top: 8px; padding: 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface-2); text-align: start; overflow-wrap: anywhere; }
+.r-verification:empty { display: none; }
+.r-verification h3 { margin: 0 0 6px; }
+.r-verification p { margin: 6px 0; }
+.r-verification-state { font-weight: 650; color: var(--ok); }
+.r-outcome.partial .r-verification-state { color: var(--warn); }
+.r-outcome.fail .r-verification-state { color: var(--bad); }
+.r-verification-checks { margin: 8px 0; padding-inline-start: 22px; color: var(--muted); font-size: 13px; }
 .hashes { font: 12px Consolas, ui-monospace, monospace; color: var(--muted); white-space: pre-wrap; overflow-wrap: anywhere; direction: ltr; text-align: left; background: var(--surface-2); padding: 10px 14px; border-radius: 10px; max-width: 100%; }
 .hashes:empty { display: none; }
 .r-outcome .r-foot { width: 100%; margin-top: 10px; }

@@ -6,13 +6,19 @@ isn't covered, so it explains the project instead of inventing capabilities.
 
 Three ways to answer, tried in order:
 
-1. **Claude** (Anthropic API) when the server has credentials (``ANTHROPIC_API_KEY`` or
-   ``ANTHROPIC_AUTH_TOKEN``). This is the one for the public website. The knowledge document is a
-   cached system prompt, so repeated questions cost little. Model: ``claude-opus-5-5`` unless
-   ``CYBERSCAN_ASSISTANT_MODEL`` names another.
+1. **Amazon Bedrock** on the site's own AWS account (the public website on Lambda). Lambda calls
+   it with its execution role: no API key anywhere, no third-party service. Default model:
+   OpenAI's open-weight ``gpt-oss-120b`` (strong reasoning at a low price); any Bedrock chat
+   model works through the Converse API, set ``CYBERSCAN_ASSISTANT_MODEL`` to change it.
+   Off outside Lambda unless ``CYBERSCAN_ASSISTANT=bedrock``.
 2. **Ollama** on this computer, when the site runs locally (the desktop's own local model).
 3. **The guide**: no model at all. The question is matched against the document's sections and
    the closest one is returned, labelled as an excerpt, so the button never goes dead.
+
+Every visitor gets a daily allowance of free AI questions (``CYBERSCAN_ASSISTANT_DAILY``,
+default 20); after that, and whenever the model is unavailable, answers come from the guide.
+A per-instance daily cap (``CYBERSCAN_ASSISTANT_DAILY_TOTAL``) bounds what the site can spend.
+Counts live in the function's memory, so they are per Lambda instance: a guard, not a ledger.
 
 It receives only what the visitor types: never scanned files, results or anything from disk.
 """
@@ -29,7 +35,9 @@ from pathlib import Path
 from typing import Any
 
 KNOWLEDGE = (Path(__file__).resolve().parent / "assistant_knowledge.md").read_text(encoding="utf-8")
-MODEL = os.environ.get("CYBERSCAN_ASSISTANT_MODEL", "claude-opus-5-5")
+MODEL = os.environ.get("CYBERSCAN_ASSISTANT_MODEL", "openai.gpt-oss-120b-1:0")
+DAILY_PER_VISITOR = int(os.environ.get("CYBERSCAN_ASSISTANT_DAILY", "20"))
+DAILY_TOTAL = int(os.environ.get("CYBERSCAN_ASSISTANT_DAILY_TOTAL", "3000"))
 MAX_QUESTION = 800
 MAX_TURNS = 8          # earlier messages kept from the conversation
 MAX_TURN_CHARS = 2000
@@ -86,80 +94,118 @@ def clean_conversation(question: Any, history: Any) -> list[dict[str, str]]:
     return messages
 
 
-# ------------------------------------------------------------------ rate limit
-class RateLimiter:
-    """At most ``per_client`` questions per client in ``window`` seconds, and ``total`` overall."""
+# ------------------------------------------------------------------ limits
+class Limits:
+    """Burst guard (``burst`` questions a minute) and daily AI allowances, per visitor and overall.
 
-    def __init__(self, per_client: int = 12, total: int = 400, window: float = 600.0) -> None:
-        self.per_client, self.total, self.window = per_client, total, window
-        self.clients: dict[str, deque[float]] = {}
-        self.all: deque[float] = deque()
+    ``check`` answers two things: may this visitor ask at all right now (burst), and is an AI
+    answer still free for them today (otherwise the guide answers, which costs nothing).
+    """
+
+    DAY = 86400.0
+
+    def __init__(self, per_visitor: int = DAILY_PER_VISITOR, total: int = DAILY_TOTAL, burst: int = 6) -> None:
+        self.per_visitor, self.total, self.burst = per_visitor, total, burst
+        self.recent: dict[str, deque[float]] = {}   # last minute, any answer
+        self.daily: dict[str, deque[float]] = {}    # last 24 h, AI answers
+        self.all_daily: deque[float] = deque()
         self.lock = threading.Lock()
 
+    @staticmethod
+    def _trim(q: deque[float], now: float, span: float) -> deque[float]:
+        while q and now - q[0] > span:
+            q.popleft()
+        return q
+
     def allow(self, client: str) -> bool:
+        """The burst guard: False means "too fast, wait a moment"."""
         now = time.monotonic()
         with self.lock:
-            while self.all and now - self.all[0] > self.window:
-                self.all.popleft()
-            seen = self.clients.setdefault(client, deque())
-            while seen and now - seen[0] > self.window:
-                seen.popleft()
-            if len(seen) >= self.per_client or len(self.all) >= self.total:
+            q = self._trim(self.recent.setdefault(client, deque()), now, 60.0)
+            if len(q) >= self.burst:
                 return False
-            seen.append(now)
-            self.all.append(now)
-            if len(self.clients) > 5000:  # forget idle clients
-                for key in [k for k, v in self.clients.items() if not v][:2500]:
-                    del self.clients[key]
+            q.append(now)
+            if len(self.recent) > 5000:  # forget idle visitors
+                for key in [k for k, v in self.recent.items() if not v][:2500]:
+                    del self.recent[key]
             return True
 
+    def remaining(self, client: str) -> int:
+        now = time.monotonic()
+        with self.lock:
+            used = len(self._trim(self.daily.setdefault(client, deque()), now, self.DAY))
+            left_total = self.total - len(self._trim(self.all_daily, now, self.DAY))
+            return max(0, min(self.per_visitor - used, left_total))
 
-LIMITER = RateLimiter()
+    def spend(self, client: str) -> None:
+        now = time.monotonic()
+        with self.lock:
+            self.daily.setdefault(client, deque()).append(now)
+            self.all_daily.append(now)
+            if len(self.daily) > 20000:
+                for key in [k for k, v in self.daily.items() if not v][:10000]:
+                    del self.daily[key]
 
 
-# ------------------------------------------------------------------ 1. Claude
-_claude_off_until = 0.0  # after a credentials error, don't retry on every question
+LIMITS = Limits()
 
 
-def _claude_configured() -> bool:
-    if time.monotonic() < _claude_off_until:
+# ------------------------------------------------------------------ 1. Amazon Bedrock
+_bedrock_off_until = 0.0  # after a permission or model error, don't retry on every question
+_client = None
+
+
+def _bedrock_configured() -> bool:
+    if time.monotonic() < _bedrock_off_until:
         return False
-    if not (os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("ANTHROPIC_AUTH_TOKEN")):
+    choice = os.environ.get("CYBERSCAN_ASSISTANT", "").lower()
+    if choice == "off" or not (choice == "bedrock" or os.environ.get("AWS_LAMBDA_FUNCTION_NAME")):
         return False
     try:
-        import anthropic  # noqa: F401
+        import boto3  # noqa: F401  (always present in AWS Lambda's Python runtime)
     except ImportError:
         return False
     return True
 
 
-def _ask_claude(messages: list[dict[str, str]]) -> dict[str, Any]:
-    global _claude_off_until
-    import anthropic
+def _bedrock():
+    global _client
+    if _client is None:
+        import boto3
+        from botocore.config import Config
 
-    client = anthropic.Anthropic(timeout=45.0, max_retries=1)
+        region = os.environ.get("CYBERSCAN_ASSISTANT_REGION") or os.environ.get("AWS_REGION")
+        _client = boto3.client("bedrock-runtime", region_name=region, config=Config(
+            connect_timeout=5, read_timeout=40, retries={"max_attempts": 2, "mode": "standard"}))
+    return _client
+
+
+def _ask_bedrock(messages: list[dict[str, str]]) -> dict[str, Any]:
+    global _bedrock_off_until
+    from botocore.exceptions import ClientError
+
     try:
-        response = client.beta.messages.create(
-            model=MODEL,
-            max_tokens=8000,
-            # chat answers: low effort keeps them quick and concise
-            output_config={"effort": "low"},
-            # if a safety classifier declines a harmless question, the API retries it on a fallback model
-            betas=["server-side-fallback-2026-07-01"],
-            fallbacks="default",
-            # the knowledge document is identical for every visitor: cache it for an hour
-            system=[{"type": "text", "text": SYSTEM, "cache_control": {"type": "ephemeral", "ttl": "1h"}}],
-            messages=messages,
+        response = _bedrock().converse(
+            modelId=MODEL,
+            system=[{"text": SYSTEM}],
+            messages=[{"role": m["role"], "content": [{"text": m["content"]}]} for m in messages],
+            inferenceConfig={"maxTokens": 3000, "temperature": 0.3},
         )
-    except (anthropic.AuthenticationError, anthropic.PermissionDeniedError, anthropic.NotFoundError):
-        _claude_off_until = time.monotonic() + 600
+    except ClientError as exc:
+        code = exc.response.get("Error", {}).get("Code", "")
+        if code in ("AccessDeniedException", "ResourceNotFoundException", "ValidationException"):
+            _bedrock_off_until = time.monotonic() + 600   # misconfigured: model access, IAM or model id
         raise
-    if response.stop_reason == "refusal":
-        return {"answer": "", "source": "claude", "refused": True}
-    text = "".join(block.text for block in response.content if block.type == "text").strip()
-    if response.stop_reason == "max_tokens" and text:
+    stop = response.get("stopReason")
+    if stop in ("guardrail_intervened", "content_filtered"):
+        return {"answer": "", "source": "bedrock", "refused": True}
+    blocks = response.get("output", {}).get("message", {}).get("content", [])
+    # reasoning models return their thinking in separate reasoningContent blocks: keep the answer only
+    text = "".join(block["text"] for block in blocks if "text" in block)
+    text = re.sub(r"<reasoning>.*?</reasoning>", "", text, flags=re.DOTALL).strip()
+    if stop == "max_tokens" and text:
         text += " …"
-    return {"answer": text, "source": "claude", "refused": False}
+    return {"answer": text, "source": "bedrock", "refused": False}
 
 
 # ------------------------------------------------------------------ 2. Ollama (local only)
@@ -268,15 +314,17 @@ def _ask_guide(question: str) -> dict[str, Any]:
 
 
 # ------------------------------------------------------------------ entry point
-def ask(question: Any, history: Any, *, local: bool, ollama_model: str = "qwen3:8b") -> dict[str, Any]:
-    """Answer one question. ``local`` is True when the site runs on the user's own machine."""
+def ask(question: Any, history: Any, *, local: bool, client: str = "local", ollama_model: str = "qwen3:8b") -> dict[str, Any]:
+    """Answer one question for ``client`` (the visitor). ``local``: the site runs on the user's own machine."""
     messages = clean_conversation(question, history)
-    if _claude_configured():
+    remaining = LIMITS.remaining(client)
+    if _bedrock_configured() and remaining > 0:
         try:
-            result = _ask_claude(messages)
+            result = _ask_bedrock(messages)
             if result["refused"] or result["answer"]:
-                return result
-        except Exception:  # noqa: BLE001 - any API failure falls through to the next way to answer
+                LIMITS.spend(client)
+                return {**result, "remaining": remaining - 1}
+        except Exception:  # noqa: BLE001 - any failure falls through to the next way to answer
             pass
     if local and _ollama_ready(ollama_model):
         try:
@@ -285,4 +333,8 @@ def ask(question: Any, history: Any, *, local: bool, ollama_model: str = "qwen3:
                 return result
         except Exception:  # noqa: BLE001
             pass
-    return _ask_guide(messages[-1]["content"].split("\n\n")[-1])
+    result = _ask_guide(messages[-1]["content"].split("\n\n")[-1])
+    if _bedrock_configured() and remaining <= 0:
+        result["source"] = "quota"   # today's free AI questions are used up: the guide answers
+        result["remaining"] = 0
+    return result

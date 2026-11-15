@@ -29,6 +29,7 @@ from __future__ import annotations
 import base64
 import dataclasses
 import json
+import logging
 import mimetypes
 import os
 import re
@@ -60,11 +61,15 @@ from ui.scan_service import ScanService  # noqa: E402
 
 import services  # noqa: E402
 import assistant  # noqa: E402
+from detection import service as detection_service  # noqa: E402
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 STAGES = 4
 MAX_JOBS = 32
 MAX_TEXT = 1024 * 1024
+MAX_DETECTION_TEXT = 200_000
+MAX_DETECTION_UPLOAD = 50 * 1024 * 1024
+MAX_ACTIVE_SCANS = max(1, min(4, int(os.environ.get("CYBERSCAN_WEB_CONCURRENCY", "2"))))
 HISTORY_LIMIT = 200
 HISTORY_DIR = Path(REPORT_DIR) / "history"
 ID = r"([0-9a-f]{32})"
@@ -83,9 +88,9 @@ SITE_ORIGINS = {o.strip().rstrip("/") for o in os.environ.get("CYBERSCAN_SITE_OR
 # the landing and its heavy scripts (particle field, film, scroll scenes…).
 SCAN_URL = os.environ.get("CYBERSCAN_SCAN_URL", "app.html")    # where the landing sends people
 HOME_URL = os.environ.get("CYBERSCAN_HOME_URL", "/")           # where the scan page's logo leads
-LANDING_ONLY_CSS = ("landing.css", "scroll.css", "science.css", "theme.css", "ask.css", "get-app.css")
+LANDING_ONLY_CSS = ("landing.css", "scroll.css", "science.css", "lab.css", "theme.css", "ask.css", "get-app.css")
 LANDING_ONLY_JS = ("js/gl-hero.js", "js/pipeline.js", "js/film.js", "js/story.js", "js/landing.js",
-                   "js/get-app.js", "js/lite.js", "js/scroll.js", "js/science.js", "js/ask.js", "js/sound.js")
+                   "js/get-app.js", "js/lite.js", "js/scroll.js", "js/science.js", "js/lab-i18n.js", "js/lab.js", "js/ask.js", "js/sound.js")
 
 
 def _cut(html: str, start: str, end: str) -> str:
@@ -97,7 +102,7 @@ def _cut(html: str, start: str, end: str) -> str:
     return html if j < 0 else html[:i] + html[j + len(end):]
 
 
-APP_ONLY_JS = ("js/repair.js", "js/tools.js", "js/batch.js", "js/palette.js", "js/pwa.js", "js/insights.js", "js/workspace.js")
+APP_ONLY_JS = ("js/file-tools.js", "js/repair.js", "js/tools.js", "js/batch.js", "js/palette.js", "js/pwa.js", "js/insights.js", "js/workspace.js")
 
 
 def landing_page(html: str) -> str:
@@ -184,6 +189,54 @@ class ApiError(Exception):
     def __init__(self, status: int, message: str) -> None:
         super().__init__(message)
         self.status = status
+
+
+FILE_TOOL_ROUTES = {"pdf_tool", "archive_tool", "qr_tool", "office_tool", "authenticity_tool", "integrity_tool"}
+SCAN_API_ROUTES = {"scan_start", "scan_upload"} | FILE_TOOL_ROUTES
+
+
+def _unknown_detection_summary(host_classification: str = "UNKNOWN") -> dict[str, Any]:
+    return {
+        "classification": "UNKNOWN",
+        "needs_attention": True,
+        "host_classification": host_classification,
+        "content_classification": "UNKNOWN",
+        "content_score": 0,
+        "evidence_agreement": "none",
+        "privacy_exposure": "unknown",
+    }
+
+
+def _scan_error_envelope(status: int, message: str) -> dict[str, Any]:
+    if status in {
+        HTTPStatus.BAD_REQUEST,
+        HTTPStatus.FORBIDDEN,
+        HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
+        HTTPStatus.UNSUPPORTED_MEDIA_TYPE,
+        HTTPStatus.UNPROCESSABLE_ENTITY,
+    }:
+        state = "rejected"
+        code = {
+            HTTPStatus.BAD_REQUEST: "invalid_request",
+            HTTPStatus.FORBIDDEN: "forbidden",
+            HTTPStatus.REQUEST_ENTITY_TOO_LARGE: "too_large",
+            HTTPStatus.UNSUPPORTED_MEDIA_TYPE: "unsupported_format",
+            HTTPStatus.UNPROCESSABLE_ENTITY: "invalid_request",
+        }[HTTPStatus(status)]
+    elif status == HTTPStatus.SERVICE_UNAVAILABLE:
+        state, code = "busy", "busy"
+    elif status == HTTPStatus.GATEWAY_TIMEOUT:
+        state, code = "timeout", "timeout"
+    else:
+        state, code = "error", "analysis_failed"
+    return {
+        "status": state,
+        "result": None,
+        "error": {"code": code, "message": message},
+        "elapsed_ms": 0,
+        "engine": {"version": detection_service.ENGINE_VERSION, "isolation": "not_started"},
+        "detection_summary": _unknown_detection_summary(),
+    }
 
 
 # ---------------------------------------------------------------- settings
@@ -464,9 +517,20 @@ class App:
         self.token = os.environ.get("CYBERSCAN_TOKEN") or ("cyberscan-public" if PUBLIC else secrets.token_urlsafe(32))
         self.jobs: dict[str, Job] = {}
         self.lock = threading.Lock()
+        self.active_scans = threading.BoundedSemaphore(MAX_ACTIVE_SCANS)
         self.upload_root = Path(tempfile.mkdtemp(prefix="cyberscan-web-"))
 
-    def start_job(self, candidate: str, mode: str, display: str, cleanup: Path | None, lang: str | None = None) -> Job:
+    def start_job(
+        self,
+        candidate: str,
+        mode: str,
+        display: str,
+        cleanup: Path | None,
+        lang: str | None = None,
+        detection_data: bytes | None = None,
+    ) -> Job:
+        if not self.active_scans.acquire(blocking=False):
+            raise ApiError(HTTPStatus.SERVICE_UNAVAILABLE, "The scanner is at capacity. Try again shortly.")
         job = Job()
         with self.lock:
             if len(self.jobs) >= MAX_JOBS:
@@ -482,11 +546,67 @@ class App:
         def run() -> None:
             started = time.monotonic()
             try:
+                try:
+                    detector = detection_service.default_service()
+                    if mode == "File":
+                        if detection_data is None:
+                            file_path = Path(candidate)
+                            if file_path.stat().st_size > detector.limits.max_bytes:
+                                detection_result = _scan_error_envelope(
+                                    HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
+                                    f"The file is larger than {detector.limits.max_bytes:,} bytes for the bounded content scanner.",
+                                )
+                            else:
+                                detection_result = detector.analyze_upload(
+                                    file_path.read_bytes(), Path(display).name or file_path.name, load_settings()
+                                )
+                        else:
+                            detection_result = detector.analyze_upload(
+                                detection_data, Path(display).name or "upload.bin", load_settings()
+                            )
+                    else:
+                        detection_result = detector.analyze_text(candidate, load_settings())
+                except Exception as exc:  # noqa: BLE001 - preserve the established scan if Sentinel is unavailable
+                    logging.exception("Sentinel scan failed")
+                    detection_result = _scan_error_envelope(
+                        HTTPStatus.INTERNAL_SERVER_ERROR,
+                        f"Sentinel inspection failed: {type(exc).__name__}: {exc}",
+                    )
+
                 payload = ScanService().analyze(candidate, mode, load_settings(), progress)
                 result, raw = payload[0], payload[5]
                 # Uploaded copies are not where the user keeps the file: present them by name.
                 shown_mode = "File" if mode == "File" else mode
                 job.result = serialize_result(result, display, shown_mode, raw, time.monotonic() - started, lang)
+                legacy_classification = str(job.result.get("classification") or "UNKNOWN")
+                if detection_result.get("status") == "ok" and isinstance(detection_result.get("result"), dict):
+                    combined = detection_result["result"]
+                    summary = combined.get("detection_summary")
+                    if not isinstance(summary, dict) or not summary.get("classification"):
+                        detection_result = _scan_error_envelope(
+                            HTTPStatus.INTERNAL_SERVER_ERROR,
+                            "Sentinel returned no unified detection summary.",
+                        )
+                    else:
+                        job.result["platform_classification"] = legacy_classification
+                        job.result["classification"] = summary["classification"]
+                        job.result["detection_summary"] = summary
+                        job.result["content_analysis"] = combined.get("content_analysis") or {}
+                        job.result["detection_status"] = (
+                            "partial"
+                            if job.result["content_analysis"].get("analyzer_errors")
+                            or job.result["content_analysis"].get("truncated_input")
+                            else "complete"
+                        )
+                        job.result["detection_engine"] = detection_result.get("engine")
+                if detection_result.get("status") != "ok":
+                    error = detection_result.get("error") or {}
+                    job.result["platform_classification"] = legacy_classification
+                    job.result["classification"] = "UNKNOWN"
+                    job.result["detection_summary"] = _unknown_detection_summary(legacy_classification)
+                    job.result["detection_status"] = detection_result.get("status", "error")
+                    job.result["detection_error"] = error.get("message", "Sentinel inspection did not complete.")
+                    job.result["detection_engine"] = detection_result.get("engine")
                 if not PUBLIC:  # a public server keeps no shared history
                     try:
                         job.result["record_id"] = record_history(result, display)
@@ -494,13 +614,15 @@ class App:
                         job.result["history_error"] = f"{type(exc).__name__}: {exc}"
                 job.result["exists"] = cleanup is None and mode == "File"
                 job.result["quarantined"] = False
-                job.status = "done"
+                job.status = "partial" if job.result.get("detection_status") != "complete" else "done"
             except Exception as exc:  # noqa: BLE001 - reported to the page
+                logging.exception("Web scan job failed")
                 job.error = f"{type(exc).__name__}: {exc}"
                 job.status = "failed"
             finally:
                 if cleanup is not None:
                     shutil.rmtree(cleanup, ignore_errors=True)
+                self.active_scans.release()
 
         if PUBLIC:
             run()  # Lambda freezes background threads once the response is sent
@@ -661,9 +783,21 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
                     try:
                         handler(self, *match.groups(), query=parse_qs(query))
                     except ApiError as exc:
-                        self._json(exc.status, {"error": str(exc)})
+                        body = (
+                            _scan_error_envelope(exc.status, str(exc))
+                            if getattr(handler, "route_name", "") in SCAN_API_ROUTES
+                            else {"error": str(exc)}
+                        )
+                        self._json(exc.status, body)
                     except (OSError, ValueError, RuntimeError) as exc:
-                        self._json(HTTPStatus.INTERNAL_SERVER_ERROR, {"error": f"{type(exc).__name__}: {exc}"})
+                        logging.exception("API route failed")
+                        status = HTTPStatus.INTERNAL_SERVER_ERROR
+                        body = (
+                            _scan_error_envelope(status, f"{type(exc).__name__}: {exc}")
+                            if getattr(handler, "route_name", "") in SCAN_API_ROUTES
+                            else {"error": f"{type(exc).__name__}: {exc}"}
+                        )
+                        self._json(status, body)
                     return
             self._json(HTTPStatus.NOT_FOUND, {"error": "not found"})
 
@@ -752,6 +886,8 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
                 raise ApiError(400, "empty input")
             if mode == "File" and PUBLIC:
                 raise ApiError(403, "Scanning files by path isn't available online. Upload the file instead.")
+            if mode != "File" and len(value) > MAX_DETECTION_TEXT:
+                raise ApiError(413, f"Text is longer than the {MAX_DETECTION_TEXT:,}-character scan limit.")
             if mode == "File":
                 file_path = Path(value.strip('"')).expanduser()
                 if not file_path.is_absolute() or not file_path.is_file():
@@ -765,15 +901,191 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
             self._json(HTTPStatus.OK if PUBLIC else HTTPStatus.ACCEPTED, job.snapshot() if PUBLIC else {"id": job.id})
 
         def scan_upload(self, query: dict) -> None:
-            limit = int(load_settings().get("maximum_file_size", 50 * 1024 * 1024))
+            limit = min(
+                int(load_settings().get("maximum_file_size", MAX_DETECTION_UPLOAD)),
+                MAX_DETECTION_UPLOAD,
+                PUBLIC_MAX_UPLOAD if PUBLIC else MAX_DETECTION_UPLOAD,
+            )
             raw = self._raw_body(limit)
             original = unquote(self.headers.get("X-Filename", "upload.bin"))
-            safe = re.sub(r"[^\w.\- ]", "_", Path(original).name)[:120] or "upload.bin"
+            from detection.engine import safe_file_name
+            safe = safe_file_name(original)[:120]
             folder = Path(tempfile.mkdtemp(dir=app.upload_root))
             file_path = folder / safe
-            file_path.write_bytes(raw)
-            job = app.start_job(str(file_path), "File", Path(original).name[:300], folder, self._lang)
+            try:
+                file_path.write_bytes(raw)
+                job = app.start_job(
+                    str(file_path), "File", Path(original).name[:300], folder, self._lang, detection_data=raw
+                )
+            except Exception:
+                shutil.rmtree(folder, ignore_errors=True)
+                raise
             self._json(HTTPStatus.OK if PUBLIC else HTTPStatus.ACCEPTED, job.snapshot() if PUBLIC else {"id": job.id})
+
+        def _file_tool(self, raw: bytes, name: str, analyze: Callable[[bytes, str, dict[str, Any]], dict[str, Any]]) -> None:
+            if not app.active_scans.acquire(blocking=False):
+                raise ApiError(HTTPStatus.SERVICE_UNAVAILABLE, "The scanner is at capacity. Try again shortly.")
+            try:
+                from detection.engine import safe_file_name
+
+                safe_name = safe_file_name(name)
+                envelope = detection_service.default_service().analyze_upload(raw, safe_name, load_settings())
+                status_code = detection_service.ScanService.http_status(envelope)
+                if status_code != HTTPStatus.OK:
+                    envelope.setdefault("detection_summary", _unknown_detection_summary())
+                    self._json(status_code, envelope)
+                    return
+
+                inspection = envelope.get("result")
+                if not isinstance(inspection, dict):
+                    raise RuntimeError("Sentinel returned an invalid inspection result.")
+                content = inspection.get("content_analysis")
+                summary = inspection.get("detection_summary")
+                if not isinstance(content, dict) or not isinstance(summary, dict):
+                    raise RuntimeError("Sentinel returned an incomplete unified scan result.")
+                result = analyze(raw, safe_name, content)
+                if not isinstance(result, dict):
+                    raise RuntimeError("The file analyzer returned an invalid result.")
+
+                tool_status = str(result.get("status", ""))
+                if tool_status in {"timeout", "decoder_timeout"}:
+                    response_status = "timeout"
+                    http_status = HTTPStatus.GATEWAY_TIMEOUT
+                    error = {"code": "timeout", "message": "The format-specific inspection exceeded its time limit."}
+                elif (
+                    tool_status in {
+                        "partial", "parser_unavailable", "parse_error", "decoder_unavailable",
+                        "decoder_error", "not_decodable", "limit_exceeded", "encrypted",
+                    }
+                    or content.get("analyzer_errors")
+                    or inspection.get("truncated_input")
+                ):
+                    response_status = "partial"
+                    http_status = HTTPStatus.OK
+                    error = {"code": "incomplete", "message": "Some inspection steps could not be completed."}
+                else:
+                    response_status = "ok"
+                    http_status = HTTPStatus.OK
+                    error = None
+
+                self._json(http_status, {
+                    "status": response_status,
+                    "result": result,
+                    "content_analysis": content,
+                    "detection_summary": summary,
+                    "error": error,
+                    "elapsed_ms": envelope.get("elapsed_ms", 0),
+                    "engine": envelope.get("engine"),
+                })
+            finally:
+                app.active_scans.release()
+
+        def pdf_tool(self, query: dict) -> None:
+            from detection.engine import sniff_type
+
+            raw = self._raw_body(min(PUBLIC_MAX_UPLOAD if PUBLIC else MAX_DETECTION_UPLOAD, 16 * 1024 * 1024))
+            name = unquote(self.headers.get("X-Filename", "upload.pdf"))
+
+            def analyze(data: bytes, safe_name: str, inspection: dict[str, Any]) -> dict[str, Any]:
+                if sniff_type(data) != "pdf":
+                    raise ApiError(400, "The uploaded file is not a PDF.")
+                from core.pdf_scanner import analyze_pdf, assess_pdf_links
+
+                report = analyze_pdf(data, safe_name)
+                return {
+                    **report,
+                    "link_assessments": assess_pdf_links(report).get("link_assessments", []),
+                }
+
+            self._file_tool(raw, name, analyze)
+
+        def archive_tool(self, query: dict) -> None:
+            from detection.engine import sniff_type
+
+            raw = self._raw_body(min(PUBLIC_MAX_UPLOAD if PUBLIC else MAX_DETECTION_UPLOAD, MAX_DETECTION_UPLOAD))
+            name = unquote(self.headers.get("X-Filename", "upload.zip"))
+
+            def analyze(data: bytes, safe_name: str, inspection: dict[str, Any]) -> dict[str, Any]:
+                if Path(safe_name).suffix.lower() == ".rar":
+                    raise ApiError(HTTPStatus.UNSUPPORTED_MEDIA_TYPE, "RAR inspection is not supported by the installed parsers.")
+                if sniff_type(data) != "zip":
+                    raise ApiError(400, "The uploaded file is not a supported ZIP-based archive.")
+                from core.archive_inspector import inspect_zip
+
+                archive = inspect_zip(data)
+                return {
+                    "file_name": safe_name,
+                    "status": archive.status,
+                    "archive_inspection": archive.as_dict(),
+                    "sentinel_details": inspection.get("details") or {},
+                }
+
+            self._file_tool(raw, name, analyze)
+
+        def qr_tool(self, query: dict) -> None:
+            from detection.engine import sniff_type
+
+            raw = self._raw_body(min(PUBLIC_MAX_UPLOAD if PUBLIC else MAX_DETECTION_UPLOAD, 8 * 1024 * 1024))
+            name = unquote(self.headers.get("X-Filename", "upload-image"))
+
+            def analyze(data: bytes, safe_name: str, inspection: dict[str, Any]) -> dict[str, Any]:
+                if sniff_type(data) != "image":
+                    raise ApiError(400, "The uploaded file is not a supported image.")
+                details = inspection.get("details") or {}
+                qr_report = details.get("qr_codes")
+                if not isinstance(qr_report, dict):
+                    return {
+                        "status": "decoder_unavailable",
+                        "file_name": safe_name,
+                        "codes": [],
+                        "limitations": ["The bounded content inspection did not return QR decoding results."],
+                    }
+                return {"file_name": safe_name, **qr_report}
+
+            self._file_tool(raw, name, analyze)
+
+        def office_tool(self, query: dict) -> None:
+            from detection.engine import sniff_type
+
+            raw = self._raw_body(min(PUBLIC_MAX_UPLOAD if PUBLIC else MAX_DETECTION_UPLOAD, MAX_DETECTION_UPLOAD))
+            name = unquote(self.headers.get("X-Filename", "upload-office"))
+
+            def analyze(data: bytes, safe_name: str, inspection: dict[str, Any]) -> dict[str, Any]:
+                kind = sniff_type(data)
+                details = inspection.get("details") or {}
+                extension = Path(safe_name).suffix.lower()
+                office_extensions = {
+                    ".doc", ".docm", ".docx", ".dotm", ".xls", ".xlsm", ".xlsx", ".xltm",
+                    ".ppt", ".pptm", ".pptx", ".potm",
+                }
+                if extension not in office_extensions or kind not in {"ole", "zip"}:
+                    raise ApiError(400, "Upload a supported DOC, XLS, PPT, DOCX, XLSX, or PPTX document.")
+                if kind == "zip" and details.get("type") != "ooxml":
+                    raise ApiError(400, "The ZIP container is not a recognized Office Open XML document.")
+                return {"file_name": safe_name, "format": details.get("type", kind), **details}
+
+            self._file_tool(raw, name, analyze)
+
+        def authenticity_tool(self, query: dict) -> None:
+            from core.file_authenticity import identify_file_format
+
+            raw = self._raw_body(min(PUBLIC_MAX_UPLOAD if PUBLIC else MAX_DETECTION_UPLOAD, MAX_DETECTION_UPLOAD))
+            name = unquote(self.headers.get("X-Filename", "upload.bin"))
+
+            def analyze(data: bytes, safe_name: str, inspection: dict[str, Any]) -> dict[str, Any]:
+                return identify_file_format(data, safe_name)
+
+            self._file_tool(raw, name, analyze)
+
+        def integrity_tool(self, query: dict) -> None:
+            raw = self._raw_body(min(PUBLIC_MAX_UPLOAD if PUBLIC else MAX_DETECTION_UPLOAD, MAX_DETECTION_UPLOAD))
+            name = unquote(self.headers.get("X-Filename", "upload.bin"))
+
+            def analyze(data: bytes, safe_name: str, inspection: dict[str, Any]) -> dict[str, Any]:
+                report = services.verify_uploaded_bytes(data, max_file_size=MAX_DETECTION_UPLOAD)
+                return {"file_name": safe_name, **report}
+
+            self._file_tool(raw, name, analyze)
 
         def scan_status(self, job_id: str, query: dict) -> None:
             job = app.jobs.get(job_id)
@@ -882,11 +1194,11 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
             # behind CloudFront the visitor is the first X-Forwarded-For address
             forwarded = self.headers.get("X-Forwarded-For", "") if PUBLIC else ""
             client = forwarded.split(",")[0].strip() or self.client_address[0]
-            if not assistant.LIMITER.allow(client):
-                raise ApiError(429, "Too many questions at once. Please wait a few minutes.")
+            if not assistant.LIMITS.allow(client):
+                raise ApiError(429, "Too many questions at once. Please wait a minute.")
             model = "qwen3:8b" if PUBLIC else str(load_settings().get("ai_model", "qwen3:8b"))
             try:
-                result = assistant.ask(data.get("question"), data.get("history"), local=not PUBLIC, ollama_model=model)
+                result = assistant.ask(data.get("question"), data.get("history"), local=not PUBLIC, client=client, ollama_model=model)
             except assistant.AskError as exc:
                 raise ApiError(400, str(exc)) from exc
             self._json(HTTPStatus.OK, result)
@@ -1008,6 +1320,12 @@ def _route(method: str, pattern: str, name: str) -> tuple[str, str, Callable]:
 ROUTES = [
     _route("POST", r"/api/scan", "scan_start"),
     _route("POST", r"/api/scan/file", "scan_upload"),
+    _route("POST", r"/api/tools/pdf", "pdf_tool"),
+    _route("POST", r"/api/tools/archive", "archive_tool"),
+    _route("POST", r"/api/tools/qr", "qr_tool"),
+    _route("POST", r"/api/tools/office", "office_tool"),
+    _route("POST", r"/api/tools/authenticity", "authenticity_tool"),
+    _route("POST", r"/api/tools/integrity", "integrity_tool"),
     _route("GET", rf"/api/scan/{ID}", "scan_status"),
     _route("GET", r"/api/history", "history_index"),
     _route("GET", r"/api/history/lookup", "history_lookup"),

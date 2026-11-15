@@ -32,8 +32,9 @@ PLATFORM = "manylinux2014_x86_64"
 PLATFORM_NEW = "manylinux_2_28_x86_64"   # Lambda's Python 3.13 runs on Amazon Linux 2023 (glibc 2.34)
 # yara: pure-Python reader for the bundled rules (yara_lite.py); yara-x runs YARA-Forge (core/protection.py)
 YARA_X = "yara-x==1.23.0"
-LIBS = ["numpy", "pefile", "cryptography", "capstone", YARA_X,
-        "anthropic>=2.6"]  # "Ask the AI" (web_v/assistant.py); used only when ANTHROPIC_API_KEY is set
+LIBS = ["numpy", "pefile", "cryptography", "capstone", YARA_X]
+# "Ask the AI" (web_v/assistant.py) calls Amazon Bedrock with boto3, which Lambda's Python runtime
+# already includes; the function's role needs web_v/aws/iam/lambda-bedrock-policy.json.
 ASSET_PREFIXES = ("web_v/static/pyodide/",)
 
 

@@ -148,3 +148,27 @@ private: CloudFront only serves `assets/`). `GET /api/protection` shows what is 
 Locally: `.venv\Scripts\python.exe intel\fetch.py` fills `intel/data/` (not committed).
 The leaked-password check runs in the visitor's browser against `api.pwnedpasswords.com`
 (k-anonymity: only 5 characters of the password's SHA-1 leave the browser).
+
+## "Ask the AI" on Amazon Bedrock
+
+The landing page's assistant (`web_v/assistant.py`) answers questions about the project from
+`web_v/assistant_knowledge.md`. On Lambda it uses Amazon Bedrock in the same account: no API
+key, and boto3 is already part of Lambda's Python runtime. Without these steps it still works,
+answering from the guide only.
+
+1. **Bedrock › Model access** (in the function's region): make sure **OpenAI gpt-oss-120b**
+   is available to the account.
+2. **Lambda › Configuration › Permissions › the execution role › Add permissions › Create
+   inline policy › JSON**: paste `web_v/aws/iam/lambda-bedrock-policy.json`.
+3. **Lambda › Configuration › General**: keep **Timeout 1 min** (an answer takes a few seconds).
+4. Optional variables:
+   - `CYBERSCAN_ASSISTANT_MODEL`: another Bedrock chat model id (default `openai.gpt-oss-120b-1:0`).
+     Change the policy's `Resource` to match.
+   - `CYBERSCAN_ASSISTANT_DAILY`: free AI questions per visitor per day (default 20).
+   - `CYBERSCAN_ASSISTANT_DAILY_TOTAL`: AI questions per function instance per day (default 3000),
+     a ceiling on what the site can spend. Counts are per instance, a guard rather than a ledger;
+     an AWS Budgets alert on Bedrock is the exact one.
+   - `CYBERSCAN_ASSISTANT=off`: guide answers only.
+
+When a visitor's daily questions are used up, or Bedrock can't answer, the assistant replies
+with the closest passage of the guide and says so.

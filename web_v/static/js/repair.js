@@ -134,9 +134,12 @@
     show("r-outcome");
     const box = $("r-outcome");
     box.classList.toggle("fail", !o.ok);
+    box.classList.toggle("partial", o.ok && o.verification_status !== "verified");
     const mark = box.querySelector(".r-mark");
     mark.replaceWith(mark.cloneNode(true)); // replay the drawing
-    $("r-out-title").textContent = o.ok ? t("rSaved") : t("rNotWritten");
+    $("r-out-title").textContent = !o.ok
+      ? t("rNotWritten")
+      : o.verification_status === "verified" ? t("rSavedVerified") : t("rSavedUnverified");
     const lines = [];
     if (o.ok) {
       lines.push(t("rSummary")(formatBytes(o.removed_bytes), o.before, o.after));
@@ -148,6 +151,47 @@
     $("r-out-body").style.whiteSpace = "pre-line";
     const checksOk = Object.entries(o.checks || {}).every(([k, v]) => k === "scores" || String(v).startsWith("ok"));
     $("r-out-checks").textContent = o.ok ? (checksOk ? t("rChecksOk") : t("rChecksBad")) : Object.entries(o.failures || {}).map(([k, v]) => `${k}: ${v}`).join("; ");
+    const verification = $("r-out-verification");
+    verification.replaceChildren();
+    if (o.verification_status) {
+      const stateKey = {
+        verified: "rVerificationVerified",
+        verification_incomplete: "rVerificationIncomplete",
+        damage_detected: "rVerificationDamage",
+      }[o.verification_status] || "rVerificationIncomplete";
+      verification.append(el("h3", "", t("rVerificationTitle")), el("p", "r-verification-state", t(stateKey)));
+      const loss = o.data_loss || {};
+      verification.append(el(
+        "p",
+        "",
+        t("rDataLoss").replace("{n}", formatBytes(loss.bytes_removed || 0))
+          + (loss.original_preserved ? ` ${t("rOriginalPreserved")}` : ""),
+      ));
+
+      const candidate = o.candidate_verification || {};
+      if (candidate.sha256) verification.append(el("p", "muted", `${t("rCandidateHash")}: ${candidate.sha256}`));
+      const checks = candidate.checks || [];
+      if (checks.length) {
+        const list = el("ul", "r-verification-checks");
+        checks.slice(0, 10).forEach((check) => {
+          list.append(el("li", "", `${check.name}: ${check.status} — ${check.detail}`));
+        });
+        verification.append(list);
+      }
+
+      [["rOriginalInspection", o.original_security_inspection], ["rCandidateInspection", o.candidate_security_inspection]]
+        .forEach(([label, report]) => {
+          if (!report) return;
+          const summary = report.detection_summary || {};
+          const classification = summary.classification || t("rUnavailable");
+          const count = (report.findings || []).length;
+          verification.append(el(
+            "p",
+            "muted",
+            `${t(label)}: ${classification} · ${report.status || report.scan_status || t("rUnavailable")} · ${t("rFindingCount").replace("{n}", count)}`,
+          ));
+        });
+    }
     $("r-out-hashes").textContent = o.ok ? `SHA-256 before  ${o.sha256_before}\nSHA-256 after   ${o.sha256_after || ""}` : "";
     $("r-download").hidden = !(o.ok && o.download && !o.saved_to);
   }

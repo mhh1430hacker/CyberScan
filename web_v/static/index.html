@@ -20,6 +20,7 @@
   <link rel="stylesheet" href="motion.css">
   <link rel="stylesheet" href="scroll.css">
   <link rel="stylesheet" href="science.css">
+  <link rel="stylesheet" href="lab.css">
   <link rel="stylesheet" href="cyber.css">
   <link rel="stylesheet" href="theme.css">
   <link rel="stylesheet" href="ask.css">
@@ -258,13 +259,26 @@
     </section>
 
     <!-- ============ THE SCIENCE BEHIND CYBERSCAN (science.css, js/science.js, data/science.json) ============ -->
-    <section id="science" class="sci" lang="en" dir="ltr" aria-labelledby="sci-title" data-shape="hex" data-shape-fade="0.08" data-tint="#080512">
-      <header class="sci-head">
-        <span class="sec-tag">// The science</span>
-        <h2 class="l-h2 center" id="sci-title">The science behind CyberScan</h2>
+    <section id="science" class="sci" aria-labelledby="sci-title" data-tint="#080512">
+      <header class="sci-head" data-shape="hex" data-shape-fade="0.12">
+        <span class="sec-tag" data-i18n="sciTag">// The science</span>
+        <h2 class="l-h2 center" id="sci-title" data-i18n="sciTitle">The science behind CyberScan</h2>
+        <p class="sci-sub" data-i18n="sciSub">See beyond the surface: explore CyberScan's technology hands-on, then read the full technical detail.</p>
+        <aside class="sci-plain sci-plain-intro"><b data-i18n="sciPlainTitle">In plain words</b><p dir="auto" data-i18n="sciPlainIntro">In one sentence: CyberScan reads a file the way a careful detective reads a suspicious letter, studying the envelope, the handwriting and what the letter asks for, without ever doing what it says.</p></aside>
+      </header>
+
+      <!-- ============ THE CYBERSCAN LAB (lab.css, js/lab.js, js/lab-i18n.js, data/lab.json from web_v/make_lab_data.py) ============ -->
+      <div class="lab" id="lab" data-shape="hex" data-shape-fade="0.06" data-level="1">
+        <p class="lab-fallback" data-i18n="labNoscript">The CyberScan Lab needs JavaScript. The technical deep dive below works without it.</p>
+      </div>
+      <!-- ============ /THE CYBERSCAN LAB ============ -->
+
+      <div class="sci-deep" id="sci-deep" lang="en" dir="ltr" data-shape="hex" data-shape-fade="0.08">
+      <header class="sci-head sci-deep-head">
+        <h3 class="sci-deep-title" id="sci-deep-h" tabindex="-1" dir="auto" data-i18n="sciDeepTitle">The technical deep dive</h3>
+        <p class="sci-deep-note" dir="auto" data-i18n="sciDeepNote">The engine step by step, with its maths and real output on a harmless demo file. This part is in English.</p>
         <p class="sci-sub">Beyond detection. Into the science of threat characterization.</p>
         <p class="sci-lede">CyberScan never runs the file it examines. Everything below is measured from the bytes at rest: how information is distributed, what the code's branches look like, which capabilities the program declares, and what public intelligence says about its fingerprint. Each step shows the method in the code, its maths, and real output from the engine on a harmless demo file.</p>
-        <aside class="sci-plain sci-plain-intro"><b data-i18n="sciPlainTitle">In plain words</b><p dir="auto" data-i18n="sciPlainIntro">In one sentence: CyberScan reads a file the way a careful detective reads a suspicious letter, studying the envelope, the handwriting and what the letter asks for, without ever doing what it says.</p></aside>
         <div class="sci-intro" aria-hidden="true">
           <svg viewBox="0 0 720 64" class="sci-intro-svg">
             <g class="sci-intro-bytes"></g>
@@ -523,6 +537,7 @@
       </div>
       <div class="sci-ask"><button type="button" class="ghost big" data-ask-open="" data-i18n="sciAskCta">Still curious? Ask the AI about any of this</button></div>
       <p class="sci-foot">CyberScan is static analysis. It describes structure and evidence; it does not observe behaviour at run time, and a clean result is not a guarantee of safety.</p>
+      </div>
     </section>
 
     <section id="features" class="l-section skewable" data-shape="hex" data-shape-fade="0.18" data-tint="#0b0517">
@@ -833,6 +848,47 @@
               <b data-i18n="tPhoneT">On-device scan</b><small data-i18n="tPhoneD"></small></a>
           </div>
 
+          <section class="file-tools" aria-labelledby="file-tools-title">
+            <h2 id="file-tools-title" data-i18n="fileToolsTitle">File intelligence</h2>
+            <p class="hint" data-i18n="fileToolsLede"></p>
+            <div class="file-tool-grid">
+              <button class="tool" type="button" data-file-tool="pdf" aria-pressed="false">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8l4 4v14H6zM14 3v5h5M8 15h8M8 18h5"/></svg>
+                <b data-i18n="ftPdfTitle">PDF security</b><small data-i18n="ftPdfDesc"></small>
+              </button>
+              <button class="tool" type="button" data-file-tool="archive" aria-pressed="false">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16v13H4zM3 4h18v3H3zM10 10h4v2h-4z"/></svg>
+                <b data-i18n="ftArchiveTitle">Archive inspection</b><small data-i18n="ftArchiveDesc"></small>
+              </button>
+              <button class="tool" type="button" data-file-tool="qr" aria-pressed="false">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h3v3h-3zM19 14v2M19 19h2M14 20v1M17 20h2"/></svg>
+                <b data-i18n="ftQrTitle">QR code check</b><small data-i18n="ftQrDesc"></small>
+              </button>
+              <button class="tool" type="button" data-file-tool="office" aria-pressed="false">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v18H5zM8 7h8M8 11h8M8 15h3M14 15h2"/></svg>
+                <b data-i18n="ftOfficeTitle">Office document check</b><small data-i18n="ftOfficeDesc"></small>
+              </button>
+              <button class="tool" type="button" data-file-tool="authenticity" aria-pressed="false">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4zM8 9h8M8 13h4M16 15l2 2 3-4"/></svg>
+                <b data-i18n="ftAuthenticityTitle">File authenticity</b><small data-i18n="ftAuthenticityDesc"></small>
+              </button>
+              <button class="tool" type="button" data-file-tool="integrity" aria-pressed="false">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 5 3 8 7 10 4-2 7-5 7-10V6zM9 12l2 2 4-4"/></svg>
+                <b data-i18n="ftIntegrityTitle">File integrity</b><small data-i18n="ftIntegrityDesc"></small>
+              </button>
+            </div>
+            <form id="file-tool-form" class="file-tool-form" hidden>
+              <label class="file-tool-input">
+                <span data-i18n="ftChooseFile">Choose a file</span>
+                <input id="file-tool-file" type="file" required>
+              </label>
+              <span id="file-tool-name" class="muted" aria-live="polite"></span>
+              <button id="file-tool-run" class="primary" type="submit" disabled data-i18n="ftRun">Inspect file</button>
+            </form>
+            <div id="file-tool-status" class="file-tool-status" role="status" aria-live="polite" hidden></div>
+            <section id="file-tool-result" class="file-tool-result" aria-live="polite" hidden></section>
+          </section>
+
           <form class="pw-panel" id="pw-panel" hidden autocomplete="off">
             <h2 data-i18n="tPwT">Leaked password check</h2>
             <p class="hint" data-i18n="pwHow"></p>
@@ -936,6 +992,7 @@
             <h2 id="r-out-title"></h2>
             <p id="r-out-body"></p>
             <p id="r-out-checks" class="muted"></p>
+            <div id="r-out-verification" class="r-verification"></div>
             <pre id="r-out-hashes" class="hashes"></pre>
             <div class="r-foot">
               <button class="ghost" type="button" id="r-again" data-i18n="rAnother">Repair another file</button>
@@ -1057,11 +1114,13 @@
   </div>
 
   <script src="js/i18n.js"></script>
+  <script src="js/lab-i18n.js"></script>
   <script src="js/languages.js"></script>
   <script src="js/cells.js"></script>
   <script src="js/cube.js"></script>
   <script src="app.js"></script>
   <script src="js/lang-gate.js"></script>
+  <script src="js/file-tools.js"></script>
   <script src="js/repair.js"></script>
   <script src="js/tools.js"></script>
   <script src="js/batch.js"></script>
@@ -1082,6 +1141,7 @@
   <script src="js/lite.js"></script>
   <script src="js/scroll.js"></script>
   <script src="js/science.js"></script>
+  <script src="js/lab.js"></script>
   <script src="js/ask.js"></script>
 </body>
 </html>

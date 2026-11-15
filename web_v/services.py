@@ -10,6 +10,7 @@ import dataclasses
 import hashlib
 import subprocess
 import sys
+import tempfile
 import threading
 import time
 import uuid
@@ -333,6 +334,85 @@ class RepairSession:
 REPAIRS: dict[str, RepairSession] = {}
 
 
+def verify_uploaded_bytes(
+    data: bytes,
+    *,
+    expected_sha256: str | None = None,
+    max_file_size: int = 50 * 1024 * 1024,
+) -> dict[str, Any]:
+    """Run the read-only integrity verifier on a private temporary copy."""
+    from core.file_integrity import verify_file_integrity
+
+    with tempfile.TemporaryDirectory(prefix="cyberscan-integrity-") as directory:
+        target = Path(directory) / "candidate.bin"
+        target.write_bytes(data)
+        return verify_file_integrity(
+            target,
+            expected_sha256=expected_sha256,
+            max_file_size=max_file_size,
+        )
+
+
+def summarize_inspection(report: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
+    from detection.common import Indicator
+    from detection.engine import content_summary, detection_summary
+
+    indicators = []
+    for item in report.get("indicators", []):
+        if not isinstance(item, dict) or item.get("category") == "privacy":
+            continue
+        try:
+            indicators.append(Indicator(
+                category=str(item["category"]),
+                severity=str(item["severity"]),
+                label=str(item["label"]),
+                explanation=str(item["explanation"]),
+                contribution=int(item.get("contribution", 0)),
+                data=item.get("data") if isinstance(item.get("data"), dict) else {},
+            ))
+        except (KeyError, TypeError, ValueError):
+            continue
+    content = content_summary({**report, "indicators": indicators})
+    summary = detection_summary({"classification": "UNKNOWN", "content_analysis": content})
+    return content, summary
+
+
+def inspect_uploaded_content(data: bytes, name: str) -> dict[str, Any]:
+    """Use Sentinel's bounded request service and return its shared JSON schema."""
+    from detection.service import default_service
+
+    envelope = default_service().inspect_upload(data, name)
+    if envelope.get("status") != "ok" or not isinstance(envelope.get("result"), dict):
+        error = envelope.get("error") or {}
+        return {
+            "status": "inspection_incomplete",
+            "scan_status": envelope.get("status", "error"),
+            "error": error.get("message", "Sentinel inspection did not complete."),
+            "analyzer_errors": [error.get("message", "Sentinel inspection did not complete.")],
+            "indicators": [],
+            "engine": envelope.get("engine"),
+            "elapsed_ms": envelope.get("elapsed_ms", 0),
+        }
+
+    report = envelope["result"]
+    content, summary = summarize_inspection(report)
+    status = (
+        "inspection_incomplete"
+        if content.get("analyzer_errors") or report.get("truncated_input")
+        else "complete"
+    )
+    return {
+        **content,
+        "status": status,
+        "scan_status": envelope.get("status"),
+        "indicators": content.get("findings", []),
+        "detection_summary": summary,
+        "engine": envelope.get("engine"),
+        "elapsed_ms": envelope.get("elapsed_ms", 0),
+        "truncated_input": bool(report.get("truncated_input")),
+    }
+
+
 # One fixed sentence per kind of repair finding (the same sentences as the
 # desktop app's ui/repair.py, kept here so the web edition needs no Qt).
 # ui.copy translates them.
@@ -445,6 +525,35 @@ def repair_run(session: RepairSession, keys: list[str]) -> dict[str, Any]:
     }
     if not out["ok"]:
         return out
+    for key, data, digest in (
+        ("original_verification", session.data, out["sha256_before"]),
+        ("candidate_verification", result.repaired, out["sha256_after"]),
+    ):
+        try:
+            out[key] = verify_uploaded_bytes(data, expected_sha256=digest)
+        except (OSError, ValueError) as exc:
+            out[key] = {
+                "status": "verification_incomplete",
+                "error": f"Independent verification could not complete ({type(exc).__name__}).",
+            }
+    candidate_status = (out.get("candidate_verification") or {}).get("status")
+    out["verification_status"] = (
+        "verified" if candidate_status == "structurally_valid"
+        else "verification_incomplete" if candidate_status == "verification_incomplete"
+        else "damage_detected" if candidate_status == "damage_detected"
+        else "verification_incomplete"
+    )
+    out["data_loss"] = {
+        "status": "bytes_removed" if result.removed_bytes else "none_detected",
+        "bytes_removed": int(result.removed_bytes or 0),
+        "original_preserved": True,
+    }
+    if candidate_status == "damage_detected":
+        out["ok"] = False
+        out["message"] = "Independent verification found damage in the repair candidate; it was not saved."
+        return out
+    out["original_security_inspection"] = inspect_uploaded_content(session.data, session.name)
+    out["candidate_security_inspection"] = inspect_uploaded_content(result.repaired, result.name)
     if result.removed:
         try:
             from repair_engine.executor.vault import seal

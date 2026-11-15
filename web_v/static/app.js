@@ -56,7 +56,12 @@ document.querySelectorAll(".lang-btn").forEach((b) => b.addEventListener("click"
 async function api(path, options = {}) {
   const res = await fetch(path, { ...options, headers: { "X-CyberScan-Token": TOKEN, "X-CyberScan-Lang": lang, ...(options.headers || {}) } });
   const body = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`);
+  if (!res.ok) {
+    const error = body.error;
+    const failure = new Error((typeof error === "string" ? error : error && error.message) || `HTTP ${res.status}`);
+    failure.response = body;
+    throw failure;
+  }
   return body;
 }
 const postJSON = (path, data, method = "POST") => api(path, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(data || {}) });
@@ -403,17 +408,27 @@ function renderResult(r, animate) {
 
   const plain = plainOf(r);
   const s = plain && plain.summary;
-  const fallback = t("verdicts")[r.classification] || [r.classification, r.classification, r.summary];
-  const tone = s ? (TONE_COLOR[s.tone] || "--accent") : (RISK_COLOR[r.classification] || "--accent");
+  const classification = r.detection_summary?.classification || r.classification;
+  const fallback = t("verdicts")[classification] || [t("verdictUnknown"), t("verdictUnknownTitle"), t("verdictUnknownBody")];
+  const tone = r.detection_summary
+    ? (RISK_COLOR[classification] || "--warn")
+    : s ? (TONE_COLOR[s.tone] || "--accent") : (RISK_COLOR[classification] || "--accent");
   document.documentElement.style.setProperty("--risk", `var(${tone})`);
-  $("badge").textContent = s ? `${s.symbol} ${t("toneBadge")[s.tone] || fallback[0]}` : fallback[0];
-  $("verdict-title").textContent = s ? s.headline : fallback[1];
-  $("verdict-body").textContent = s ? s.sentence : fallback[2];
-  $("verdict-advice").textContent = s ? [s.advice, s.limit].filter(Boolean).join(" ") : "";
-  $("verdict-advice").hidden = !(s && (s.advice || s.limit));
+  $("badge").textContent = r.detection_summary ? fallback[0] : s ? `${s.symbol} ${t("toneBadge")[s.tone] || fallback[0]}` : fallback[0];
+  $("verdict-title").textContent = r.detection_summary ? fallback[1] : s ? s.headline : fallback[1];
+  $("verdict-body").textContent = r.detection_summary ? fallback[2] : s ? s.sentence : fallback[2];
+  $("verdict-advice").textContent = r.detection_summary
+    ? t("detectionCombinedAdvice")
+    : s ? [s.advice, s.limit].filter(Boolean).join(" ") : "";
+  $("verdict-advice").hidden = r.detection_summary ? false : !(s && (s.advice || s.limit));
   const notice = $("notice");
   notice.hidden = !(s && s.notice);
   if (s && s.notice) { notice.textContent = s.notice; notice.classList.toggle("danger", s.notice_tone === "danger"); }
+  if (r.detection_status && r.detection_status !== "complete") {
+    notice.hidden = false;
+    notice.textContent = t("detectionIncomplete");
+    notice.classList.add("danger");
+  }
   const chips = $("facts-chips");
   chips.replaceChildren(...((s && s.facts) || []).map((f) => el("li", "", f)));
   if (r.elapsed) chips.append(el("li", "", t("elapsed")(r.elapsed)));
@@ -480,7 +495,21 @@ function impact(r) {
 function renderFindings(r, plain, animate) {
   const list = $("evidence");
   list.replaceChildren();
-  const findings = plain ? plain.details.findings : r.evidence.map((f) => ({ severity: String(f.severity).toLowerCase(), title: f.evidence, body: f.explanation, word: f.severity, where: f.category, count: 1 }));
+  const findings = plain
+    ? [...plain.details.findings]
+    : (r.evidence || []).map((f) => ({ severity: String(f.severity).toLowerCase(), title: f.evidence, body: f.explanation, word: f.severity, where: f.category, count: 1 }));
+  (r.content_analysis?.findings || []).forEach((f) => {
+    const title = f.label || f.evidence || f.type || t("contentEvidence");
+    if (findings.some((item) => item.title === title)) return;
+    findings.push({
+      severity: String(f.severity || "info").toLowerCase(),
+      title,
+      body: f.explanation || f.evidence || "",
+      word: f.severity || "info",
+      where: f.category || "content",
+      count: f.count || 1,
+    });
+  });
   if (!findings.length) {
     const li = el("li", "empty");
     const top = el("div", "ev-top");
@@ -576,7 +605,19 @@ function renderAttack(r) {
 function renderTech(r) {
   const raw = $("raw");
   raw.replaceChildren();
-  r.evidence.forEach((f) => {
+  const evidence = [...(r.evidence || [])];
+  (r.content_analysis?.findings || []).forEach((item) => {
+    if (!evidence.some((f) => f.evidence === (item.label || item.evidence))) {
+      evidence.push({
+        severity: item.severity || "info",
+        evidence: item.label || item.evidence || t("contentEvidence"),
+        contribution: item.contribution || 0,
+        category: item.category || "content",
+        explanation: item.explanation || item.evidence || "",
+      });
+    }
+  });
+  evidence.forEach((f) => {
     const li = el("li");
     li.append(el("b", "", `[${String(f.severity).toUpperCase()}] ${f.evidence}`), document.createTextNode(` · +${f.contribution} · ${f.category}\n${f.explanation}`));
     li.style.whiteSpace = "pre-wrap";

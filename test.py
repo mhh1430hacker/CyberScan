@@ -11,7 +11,7 @@ class UniversalEntropyMapEngine:
         """حساب إنتروبيا شانون للكتلة البايتية بدقة."""
         if not data:
             return 0.0
-        length = len(data)
+        length = len(data) # to intro
         counts = [0] * 256
         for b in data:
             counts[b] += 1

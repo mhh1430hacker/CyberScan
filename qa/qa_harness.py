@@ -1,4 +1,4 @@
-"""CyberScan NextGen - independent QA / benchmark / security harness.
+﻿"""CyberScan NextGen - independent QA / benchmark / security harness.
 
 Agent 3 (QA). Non-invasive: this file only *imports* the application and drives it
 through its public entry points. It writes nothing into tracked project paths; all
@@ -139,7 +139,7 @@ def fixture_truncated_pe() -> Path:
 
 
 def fixture_unicode_name() -> Path:
-    p = FIXTURES / "\u0645\u0644\u0641-\u30c6\u30b9\u30c8-ñ.bin"
+    p = FIXTURES / "\u0645\u0644\u0641-\u30c6\u30b9\u30c8-أ±.bin"
     p.write_bytes(b"\x90" * 4096)
     return p
 
@@ -254,7 +254,7 @@ def run_functional() -> None:
     record("F-15", "functional", "200k-char text", "accepted, bounded", long_text)
 
     def unicode_text():
-        sample = "Съешь же ещё этих мягких французских булок ﷽ \U0001F600 \u202e"
+        sample = "ذ،رٹذµرˆرŒ ذ¶ذµ ذµر‰ر‘ رچر‚ذ¸ر… ذ¼رڈذ³ذ؛ذ¸ر… ر„ر€ذ°ذ½ر†رƒذ·رپذ؛ذ¸ر… ذ±رƒذ»ذ¾ذ؛ ï·½ \U0001F600 \u202e"
         result, nextgen, *_ = ScanService().analyze(sample, "Text", settings)
         assert nextgen["file_size"] == len(sample.encode("utf-8"))
         return {"_detail": f"bytes={nextgen['file_size']}"}
@@ -374,7 +374,8 @@ def run_bench() -> None:
     from config import DEFAULT_SETTINGS
 
     settings = dict(DEFAULT_SETTINGS)
-    report = {"environment": environment(), "sizes": {}, "stages": {}, "osint": {}, "concurrency": {}}
+    report = {"environment": environment(), "sizes": {}, "stages": {}, "native_scan_target": {}}
+    write_json("benchmark_results.json", report)   # write-ahead: never lose completed phases
 
     print("\n== warm-up ==")
     warm = fixture_random(256 * 1024)
@@ -401,15 +402,16 @@ def run_bench() -> None:
             "throughput_mb_s": round((size / (1024 * 1024)) / (stats["median_ms"] / 1000), 2),
         })
         report["sizes"][str(size)] = stats
+        write_json("benchmark_results.json", report)
         print(f"  {size/1024:>8.0f} KiB  median {stats['median_ms']:>9.1f} ms  p95 {stats['p95_ms']:>9.1f} ms  "
               f"cpu {stats['cpu_ratio']*100:>5.1f}%  rss+{stats['rss_delta_mb_peak']:>6.1f} MB  "
-              f"{stats['throughput_mb_s']:>6.2f} MB/s")
+              f"{stats['throughput_mb_s']:>6.2f} MB/s", flush=True)
 
     print("\n== per-stage breakdown (4 MiB random, median of 7) ==")
     path = fixture_random(4 * 1024 * 1024)
     raw = path.read_bytes()
     stage_samples: dict[str, list[float]] = {k: [] for k in
-        ("stage0_scan_target", "stage1_entropy", "stage2_embedding", "stage3_osint_disabled", "total")}
+        ("stage0_scan_target", "stage1_entropy", "stage2_cfg", "total")}
 
     def timed(fn):
         t = time.perf_counter()
@@ -430,7 +432,7 @@ def run_bench() -> None:
     for k, v in stage_samples.items():
         if v:
             report["stages"][k] = _latency_stats(v)
-            print(f"  {k:<26} median {_latency_stats(v)['median_ms']:>9.1f} ms")
+            print(f"  {k:<26} median {_latency_stats(v)['median_ms']:>9.1f} ms", flush=True)
 
     print("\n== native pipeline only (scan_target: YARA + PE + heuristics), by size ==")
     native = {}
@@ -442,224 +444,17 @@ def run_bench() -> None:
             samples.append(wall)
             print(f"    rep {len(samples)}/{NATIVE_REPEATS}: {wall:.0f} ms", flush=True)
         native[str(size)] = _latency_stats(samples)
-        print(f"  {size/1024:>8.0f} KiB  median {native[str(size)]['median_ms']:>9.1f} ms")
+        write_json("benchmark_results.json", report)
+        print(f"  {size/1024:>8.0f} KiB  median {native[str(size)]['median_ms']:>9.1f} ms", flush=True)
     report["native_scan_target"] = native
 
     # Persist what we have before the network-dependent phases, so a later
     # interruption never costs the measurements already taken.
     write_json("benchmark_results.json", report)
 
-    print("\n== OSINT correlation: the 1.5 s claim ==", flush=True)
-    report["osint"] = osint_benchmarks()
-    write_json("benchmark_results.json", report)
-
-    print("\n== concurrency: N parallel scans of 1 MiB ==", flush=True)
-    report["concurrency"] = concurrency_benchmarks()
-    write_json("benchmark_results.json", report)
-
-    print("\n== web API latency (real HTTP server) ==", flush=True)
-    report["http_api"] = http_benchmarks()
-
-    write_json("benchmark_results.json", report)
+    # OSINT, HTTP API and concurrency live in qa/net_bench.py so this run stays bounded.
     print("\nwrote qa/artifacts/benchmark_results.json", flush=True)
 
-
-def osint_benchmarks() -> dict:
-    import asyncio
-    from core.global_intelligence import GlobalIntelligenceEngine
-    from unittest import mock
-
-    out = {"claim": "sub-1.5-second correlation performance", "measurements": {}}
-
-    indicators = {
-        "sha256_unknown": "a" * 64,
-        "domain": "example.com",
-        "url": "https://example.com/login",
-        "invalid": "not an indicator",
-    }
-
-    for label, ind in indicators.items():
-        samples, elapsed_reported, statuses = [], [], []
-        for _ in range(3):
-            GlobalIntelligenceEngine._shared_cache.clear()
-            t0 = time.perf_counter()
-            res = asyncio.run(GlobalIntelligenceEngine().query_indicator(ind))
-            samples.append((time.perf_counter() - t0) * 1000)
-            elapsed_reported.append(res.get("elapsed_ms"))
-            statuses.append(res.get("status"))
-        out["measurements"][label] = {
-            "wall": _latency_stats(samples),
-            "self_reported_elapsed_ms": elapsed_reported,
-            "status": statuses,
-            "feed_states": res.get("feeds"),
-        }
-        st = _latency_stats(samples)
-        print(f"  {label:<16} median {st['median_ms']:>8.1f} ms  p95 {st['p95_ms']:>8.1f} ms  status={statuses[0]}")
-
-    # cache-hit path
-    GlobalIntelligenceEngine._shared_cache.clear()
-    asyncio.run(GlobalIntelligenceEngine().query_indicator("example.com"))
-    hits = []
-    for _ in range(10):
-        t0 = time.perf_counter()
-        asyncio.run(GlobalIntelligenceEngine().query_indicator("example.com"))
-        hits.append((time.perf_counter() - t0) * 1000)
-    out["measurements"]["cache_hit"] = _latency_stats(hits)
-    print(f"  {'cache_hit':<16} median {out['measurements']['cache_hit']['median_ms']:>8.1f} ms")
-
-    # what a *fully responsive* feed set would look like (mocked fast responses)
-    async def fake_feed(*_a, **_k):
-        await asyncio.sleep(0.01)
-        return GlobalIntelligenceEngine._feed_result("no_match")
-
-    with mock.patch.object(GlobalIntelligenceEngine, "_query_threatfox", side_effect=fake_feed), \
-         mock.patch.object(GlobalIntelligenceEngine, "_query_urlhaus", side_effect=fake_feed), \
-         mock.patch.object(GlobalIntelligenceEngine, "_query_otx", side_effect=fake_feed):
-        GlobalIntelligenceEngine._shared_cache.clear()
-        sim = []
-        for _ in range(10):
-            GlobalIntelligenceEngine._shared_cache.clear()
-            t0 = time.perf_counter()
-            asyncio.run(GlobalIntelligenceEngine().query_indicator("b" * 64))
-            sim.append((time.perf_counter() - t0) * 1000)
-    out["simulated_responsive_feeds"] = {**_latency_stats(sim),
-                                         "note": "mocked 10 ms feed responses - NOT a real network measurement"}
-    print(f"  {'simulated_feeds':<16} median {out['simulated_responsive_feeds']['median_ms']:>8.1f} ms (mocked)")
-
-    out["code_facts"] = {
-        "per_feed_timeout_s": GlobalIntelligenceEngine.MAX_FAST_FEED_TIMEOUT_SECONDS,
-        "overall_deadline_s": GlobalIntelligenceEngine().total_timeout_seconds,
-        "cache_ttl_s": GlobalIntelligenceEngine.CACHE_TTL_SECONDS,
-    }
-    return out
-
-
-def concurrency_benchmarks() -> dict:
-    from concurrent.futures import ThreadPoolExecutor
-    from ui.scan_service import ScanService
-    from config import DEFAULT_SETTINGS
-
-    settings = dict(DEFAULT_SETTINGS)
-    path = fixture_random(1024 * 1024)
-    out = {}
-    # sequential reference
-    seq = []
-    svc = ScanService()
-    for _ in range(8):
-        t0 = time.perf_counter()
-        svc.analyze(str(path), "File", settings)
-        seq.append((time.perf_counter() - t0) * 1000)
-    out["sequential_8"] = _latency_stats(seq)
-    for workers in (2, 4, 8, 16):
-        t0 = time.perf_counter()
-        failures = 0
-
-        def one(_i, svc=svc):
-            nonlocal failures
-            try:
-                svc.analyze(str(path), "File", settings)
-            except Exception:  # noqa: BLE001
-                failures += 1
-
-        with ThreadPoolExecutor(max_workers=workers) as pool:
-            list(pool.map(one, range(8)))
-        total = (time.perf_counter() - t0) * 1000
-        out[f"parallel_{workers}x8"] = {"wall_ms": round(total, 1), "failures": failures,
-                                        "per_scan_ms": round(total / 8, 1),
-                                        "speedup_vs_seq": round(out["sequential_8"]["median_ms"] * 8 / total, 2)}
-        print(f"  {workers:>2} workers x 8 scans  wall {total:>9.1f} ms  per-scan {total/8:>8.1f} ms  failures {failures}")
-    return out
-
-
-def http_benchmarks() -> dict:
-    """Real HTTP against web_v/server.py on a free port, using only public API routes."""
-    import http.client
-    import threading
-    import json as _json
-
-    from server import create_server, cleanup
-
-    server, app = create_server(0)
-    port = server.server_address[1]
-    threading.Thread(target=server.serve_forever, daemon=True).start()
-    token = app.token
-    base = {"Host": f"127.0.0.1:{port}", "X-CyberScan-Token": token}
-    out = {"port": port, "endpoints": {}}
-
-    def req(method, path, body=None, extra=None):
-        conn = http.client.HTTPConnection("127.0.0.1", port, timeout=180)
-        headers = dict(base)
-        if extra:
-            headers.update(extra)
-        payload = b""
-        if body is not None:
-            payload = body if isinstance(body, bytes) else _json.dumps(body).encode()
-            headers["Content-Type"] = "application/json"
-        conn.request(method, path, body=payload, headers=headers)
-        r = conn.getresponse()
-        data = r.read()
-        conn.close()
-        return r.status, data
-
-    try:
-        # static assets
-        for asset in ("/", "/app.html", "/static/styles.css", "/static/app.js"):
-            samples = []
-            for _ in range(5):
-                t0 = time.perf_counter()
-                status, data = req("GET", asset)
-                samples.append((time.perf_counter() - t0) * 1000)
-            out["endpoints"][f"GET {asset}"] = {**_latency_stats(samples), "status": status, "bytes": len(data)}
-            print(f"  GET {asset:<26} median {_latency_stats(samples)['median_ms']:>8.1f} ms  {len(data):>7} B")
-
-        # text scan end-to-end (submit + poll)
-        path = fixture_random(256 * 1024)
-        samples = []
-        for _ in range(5):
-            t0 = time.perf_counter()
-            status, data = req("POST", "/api/scan", {"mode": "text", "value": "hello world " * 500})
-            job = _json.loads(data)["id"]
-            while True:
-                st, d = req("GET", f"/api/scan/{job}")
-                if _json.loads(d)["status"] != "running":
-                    break
-                time.sleep(0.01)
-            samples.append((time.perf_counter() - t0) * 1000)
-        out["endpoints"]["POST /api/scan (text, e2e)"] = _latency_stats(samples)
-        print(f"  POST /api/scan (text e2e)     median {_latency_stats(samples)['median_ms']:>8.1f} ms")
-
-        # upload scan end-to-end at several sizes
-        for size in (64 * 1024, 1024 * 1024, 4 * 1024 * 1024):
-            blob = fixture_random(size).read_bytes()
-            samples = []
-            for _ in range(3):
-                t0 = time.perf_counter()
-                status, data = req("POST", "/api/scan/file", blob, {"X-Filename": "u.bin",
-                                                                   "Content-Type": "application/octet-stream"})
-                job = _json.loads(data)["id"]
-                while True:
-                    st, d = req("GET", f"/api/scan/{job}")
-                    if _json.loads(d)["status"] != "running":
-                        break
-                    time.sleep(0.01)
-                samples.append((time.perf_counter() - t0) * 1000)
-            out["endpoints"][f"POST /api/scan/file {size//1024}KiB"] = {**_latency_stats(samples), "status": status}
-            print(f"  POST /api/scan/file {size//1024:>5}KiB   median {_latency_stats(samples)['median_ms']:>8.1f} ms")
-
-        # simple GET API
-        for ep in ("/api/settings", "/api/history", "/api/stats"):
-            samples = []
-            for _ in range(5):
-                t0 = time.perf_counter()
-                status, data = req("GET", ep)
-                samples.append((time.perf_counter() - t0) * 1000)
-            out["endpoints"][f"GET {ep}"] = {**_latency_stats(samples), "status": status}
-            print(f"  GET {ep:<26} median {_latency_stats(samples)['median_ms']:>8.1f} ms")
-    finally:
-        server.shutdown()
-        server.server_close()
-        cleanup(app)
-    return out
 
 
 # --------------------------------------------------------------------------- security
@@ -753,10 +548,7 @@ def run_security() -> None:
                    lambda s=s, d=d: {"_outcome": "PASS" if s in (400, 422) else "FAIL",
                                      "_detail": f"status={s} body={d[:80]!r}"})
 
-        # S10: Unicode filename normalisation and control chars
-        s, d, _ = raw("POST", "/api/scan/file", b"abc", headers={"X-Filename": "\u0000\r\nInjected: x\r\n\r\n"})
-        record("S-10", "security", "header-injection in X-Filename", "reflected safely",
-               lambda: {"_outcome": "PASS" if s in (200, 202, 400) else "FAIL", "_detail": f"status={s}"})
+        # S10 (X-Filename CRLF / NUL / length abuse) needs a raw socket: see qa/security_probe.py
 
         # S11: error message leakage
         s, d, _ = raw("POST", "/api/scan", body=b'{"mode":"path","value":"C:\\\\nonexistent\\\\x.bin"}')
@@ -796,10 +588,15 @@ def run_security() -> None:
         except ValueError:
             record("S-15", "security", "short AES key rejected", "ValueError", lambda: {"_detail": "rejected"})
         try:
-            quarantine_file(p, b"k" * 32, qdir, dry_run=False)  # authorized=False
+            raised = ""
+            try:
+                quarantine_file(p, b"k" * 32, qdir, dry_run=False)  # authorized=False
+            except PermissionError as exc:
+                raised = str(exc)
             kept = p.exists()
-            record("S-16", "security", "deletion without authorization refused", "source kept",
-                   lambda: {"_outcome": "PASS" if kept else "FAIL", "_detail": f"kept={kept}"})
+            record("S-16", "security", "deletion without authorization refused", "PermissionError, source kept",
+                   lambda: {"_outcome": "PASS" if kept and raised else "FAIL",
+                            "_detail": f"kept={kept} raised={raised[:60]!r}"})
         finally:
             p.unlink(missing_ok=True)
 

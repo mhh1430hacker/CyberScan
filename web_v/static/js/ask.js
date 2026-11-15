@@ -67,6 +67,7 @@
         <textarea class="ask-input" rows="1" maxlength="800" autocomplete="off"></textarea>
         <button type="submit" class="ask-send"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h14M13 6l6 6-6 6"/></svg></button>
       </form>
+      <p class="ask-left" aria-live="polite" hidden></p>
       <p class="ask-note"></p>`;
     document.body.append(panel);
     list = panel.querySelector(".ask-list");
@@ -84,6 +85,13 @@
     panel.addEventListener("keydown", (e) => { if (e.key === "Escape") { e.preventDefault(); close(); } });
     texts();
     render();
+  }
+
+  // the visitor's free AI questions for today, as the server counted them
+  function showLeft(n) {
+    const box = panel.querySelector(".ask-left");
+    box.textContent = t("askLeft")(n);
+    box.hidden = false;
   }
 
   function grow() { input.style.height = "auto"; input.style.height = Math.min(input.scrollHeight, 140) + "px"; }
@@ -159,6 +167,7 @@
       });
       const answer = res.refused ? t("askRefused") : String(res.answer || "").trim() || t("askError");
       history.push({ role: "assistant", text: answer, source: res.source });
+      if (typeof res.remaining === "number") showLeft(res.remaining);
     } catch (err) {
       history.push({ role: "assistant", text: String(err && err.message ? err.message : t("askError")), error: true });
     } finally {

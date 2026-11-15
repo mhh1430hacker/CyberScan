@@ -15,6 +15,7 @@ MAX_ARCHIVE_ENTRIES = 1000
 MAX_ARCHIVE_ENTRY_SIZE = 16 * 1024 * 1024
 MAX_ARCHIVE_TOTAL_SIZE = 64 * 1024 * 1024
 MAX_ARCHIVE_INPUT_SIZE = 50 * 1024 * 1024
+COMPRESSION_RATIO_WARNING = 100.0
 _ZIP_SIGNATURES = (b"PK\x03\x04", b"PK\x05\x06", b"PK\x07\x08")
 
 
@@ -34,6 +35,7 @@ class ArchiveInspection:
     limits: dict[str, int] = field(default_factory=dict)
     entries: list[ArchiveEntry] = field(default_factory=list)
     duplicate_contents: list[dict[str, str]] = field(default_factory=list)
+    compression_anomalies: list[dict[str, object]] = field(default_factory=list)
     decompressed_bytes: int = 0
     unsafe_member_paths: int = 0
     encrypted_members: int = 0
@@ -45,6 +47,7 @@ class ArchiveInspection:
             **asdict(self),
             "entries": [asdict(entry) for entry in self.entries],
             "entry_count": len(self.entries),
+            "compression_anomalies": self.compression_anomalies,
             "member_contents_analyzed_for_malware": False,
         }
 
@@ -231,8 +234,21 @@ def inspect_zip(
                 mark_partial("ZIP central-directory entry count is inconsistent.")
                 return
             for info in infos:
-
                 path = f"{prefix}!/{info.filename}" if prefix else info.filename
+                if info.file_size:
+                    ratio = info.file_size / info.compress_size if info.compress_size else None
+                    if ratio is None or ratio >= COMPRESSION_RATIO_WARNING:
+                        result.compression_anomalies.append({
+                            "path": path,
+                            "file_size": info.file_size,
+                            "compressed_size": info.compress_size,
+                            "compression_ratio": round(ratio, 1) if ratio is not None else None,
+                            "reason": (
+                                f"Compression ratio is at least {COMPRESSION_RATIO_WARNING:g}:1."
+                                if ratio is not None
+                                else "Non-empty member declares zero compressed bytes."
+                            ),
+                        })
                 if info.is_dir():
                     result.entries.append(
                         ArchiveEntry(path, depth, info.file_size, "directory")
