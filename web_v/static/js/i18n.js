@@ -267,7 +267,7 @@ window.I18N = {
     pipeTitle: "Nine engines. One honest answer.",
     pipeSub: "Every file you drop travels this path. Hover any part to see what it does; watch the data move through it.",
     ppExample: "What it can report",
-    ppEngine: (n) => `Engine ${n} of 9`, ppInput: "Where it starts", ppFusion: "Where it comes together", ppVerdict: "What you see",
+    ppEngine: (n) => `Engine ${n} of 9`, fxDrag: "drag", ppInput: "Where it starts", ppFusion: "Where it comes together", ppVerdict: "What you see",
     pipeIn: ["Your file", "A file, a link or a pasted snippet. It is read once into memory, up to your size limit, and never opened by another program.", "invoice_2026.pdf.exe · 412 KB"],
     pipeEngines: [
       ["File type", "Reads the first bytes to learn what the file really is, whatever its name claims.", "Named .pdf, but starts with MZ: it's a program"],
@@ -322,7 +322,7 @@ window.I18N = {
     lBefore: "قبل", lAfter: "بعد",
     lRepairChecks: ["نوع الملف نفسه", "البنية سليمة", "الأجزاء المحذوفة مختومة في الحجر الصحي"],
     lStatsTitle: "صُمّم ليكون صادقًا",
-    stats: [["فحصًا محفوظًا على هذا الجهاز", "scans"], ["محركات تحليل", "engines"], ["بايت يرسله تطبيق سطح المكتب إلى الإنترنت افتراضيًا", "zero"], ["لغتان، مع دعم الكتابة من اليمين", "langs"]],
+    stats: [["فحصًا محفوظًا على هذا الجهاز", "scans"], ["محركات تحليل", "engines"], ["بايت يرسله تطبيق سطح المكتب إلى الإنترنت افتراضيًا", "zero"], ["لغة، مع دعم الكتابة من اليمين", "langs"]],
     lPrivTitle: "ملفاتك تبقى لك",
     privs: [
       ["واضح في مكان عمله", "تطبيقا سطح المكتب وأندرويد يفحصان على جهازك. أما في هذا الموقع فيُرسل الملف إلى خادم CyberScan، ويُقرأ في الذاكرة ثم يُحذف عند انتهاء الفحص، ولا يُحفظ أي سجل هناك."],
@@ -544,7 +544,7 @@ window.I18N = {
     pipeTitle: "تسعة محركات. إجابة واحدة صادقة.",
     pipeSub: "كل ملف تسقطه يسلك هذا المسار. مرّر المؤشر على أي جزء لترى ما يفعله، وشاهد البيانات تتدفق خلاله.",
     ppExample: "ما يمكن أن يُبلغ عنه",
-    ppEngine: (n) => `المحرك ${n} من 9`, ppInput: "نقطة البداية", ppFusion: "حيث تجتمع الإشارات", ppVerdict: "ما تراه أنت",
+    ppEngine: (n) => `المحرك ${n} من 9`, fxDrag: "اسحب", ppInput: "نقطة البداية", ppFusion: "حيث تجتمع الإشارات", ppVerdict: "ما تراه أنت",
     pipeIn: ["ملفك", "ملف أو رابط أو نص ملصوق. يُقرأ مرة واحدة إلى الذاكرة ضمن حد الحجم، ولا يفتحه أي برنامج آخر.", "invoice_2026.pdf.exe · 412 KB"],
     pipeEngines: [
       ["نوع الملف", "يقرأ البايتات الأولى ليعرف حقيقة الملف، أيًا كان ما يدّعيه اسمه.", "اسمه ‎.pdf لكنه يبدأ بـ MZ: إنه برنامج"],

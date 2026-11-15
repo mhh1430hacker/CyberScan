@@ -10,7 +10,7 @@ I18N["sw"] = {
 "lTitle1": "Tazama ndani ya faili yoyote",
 "lTitle2": "kabla haijatazama ndani",
 "lTitle3": "ya kompyuta yako.",
-"lSub": "CyberScan huchambua faili, kiungo au kipande cha maandishi baiti kwa baiti, hueleza inachokipata kwa maneno rahisi, na inaweza kuunda upya faili iliyoambukizwa bila sehemu hatari.",
+"lSub": "CyberScan huchambua faili, kiungo au kipande cha maandishi baiti kwa baiti bila kamwe kukiendesha, hueleza inachokipata kwa maneno rahisi, na inaweza kuunda upya nakala isiyo na sehemu zisizostahili kuwa katika muundo wake.",
 "lStart": "Anza kuchanganua",
 "lWatch": "Tazama jinsi inavyofanya kazi",
 "lCardFile": "invoice_2026.pdf.exe",
@@ -49,7 +49,7 @@ I18N["sw"] = {
 ],
 [
 "Eleza",
-"Uamuzi kwa lugha rahisi kwa Kiarabu au Kiingereza, kila ugunduzi kwa maneno rahisi, na data kamili ya kiufundi chini yake."
+"Uamuzi kwa lugha rahisi katika lugha yako, kila ugunduzi kwa maneno rahisi, na data kamili ya kiufundi chini yake."
 ]
 ],
 "lCubeTitle": "Tazama faili kutoka ndani",
@@ -80,7 +80,7 @@ I18N["sw"] = {
 ],
 [
 "Muhtasari wa AI wa ndani",
-"Modeli ya hiari inayoendeshwa kwenye kompyuta yako mwenyewe hueleza matokeo. Hakuna kinachotoka kwenye kompyuta yako."
+"Kwenye programu ya kompyuta, modeli ya hiari inayoendeshwa kwenye kompyuta yako mwenyewe hueleza matokeo. Hakuna kinachotoka kwenye kompyuta yako."
 ],
 [
 "Ufuatiliaji wa vipakuliwa",
@@ -108,26 +108,26 @@ I18N["sw"] = {
 "stats": [
 [
 "uchanganuzi uliohifadhiwa kwenye kompyuta hii",
-"uchanganuzi"
+"scans"
 ],
 [
 "injini za uchanganuzi",
-"injini"
+"engines"
 ],
 [
-"baiti zinazotumwa mtandaoni kwa chaguomsingi",
-"sifuri"
+"baiti ambazo programu ya kompyuta hutuma mtandaoni kwa chaguomsingi",
+"zero"
 ],
 [
 "lugha, zikiwemo za kulia kwenda kushoto",
-"lugha"
+"langs"
 ]
 ],
 "lPrivTitle": "Faili zako zinabaki kuwa zako",
 "privs": [
 [
-"Inaendeshwa kwenye kifaa chako",
-"Kichanganuzi, historia na modeli ya AI vyote viko kwenye kompyuta hii."
+"Wazi kuhusu inakoendeshwa",
+"Programu ya kompyuta na ya Android huchanganua kwenye kifaa chako mwenyewe. Kwenye tovuti hii, faili unayokagua hutumwa kwa seva ya CyberScan, husomwa kwenye kumbukumbu na kufutwa ukaguzi unapoisha; hakuna historia inayohifadhiwa huko."
 ],
 [
 "Haiendeshi kamwe inachokagua",
@@ -206,6 +206,39 @@ I18N["sw"] = {
 "tRepairD": "Tafuta sehemu zilizoharibika za faili na utengeneze nakala iliyorekebishwa.",
 "tPhoneT": "Uchanganuzi kwenye kifaa",
 "tPhoneD": "Changanua faili kubwa kwenye simu au kompyuta yako bila kuzipakia.",
+"fileToolsTitle": "Uchunguzi wa kina wa faili",
+"fileToolsLede": "Ukaguzi mahususi wa hati, kumbukumbu zilizobanwa, picha za QR, utambulisho wa faili na ukamilifu wake. Faili zinazopakiwa huchambuliwa kama data na haziendeshwi kamwe.",
+"ftPdfTitle": "Usalama wa PDF",
+"ftPdfDesc": "Kagua vitendo vya hati, viungo, metadata na miundo iliyopachikwa inayotia shaka.",
+"ftArchiveTitle": "Ukaguzi wa kumbukumbu zilizobanwa",
+"ftArchiveDesc": "Kagua yaliyomo kwenye ZIP, miundo iliyo ndani ya mingine, ukamilifu na kasoro za ubanaji.",
+"ftQrTitle": "Ukaguzi wa msimbo wa QR",
+"ftQrDesc": "Soma mahali msimbo wa QR unakoelekeza na utathmini hatari ya URL bila kufungua kiungo.",
+"ftOfficeTitle": "Ukaguzi wa hati za Office",
+"ftOfficeDesc": "Kagua miundo inayotumika ya Word, Excel na PowerPoint ili kubaini makro na maudhui ya nje.",
+"ftAuthenticityTitle": "Uhalisi wa faili",
+"ftAuthenticityDesc": "Linganisha kiendelezi cha jina la faili na saini ya faili iliyotambuliwa.",
+"ftIntegrityTitle": "Ukamilifu wa faili",
+"ftIntegrityDesc": "Kokotoa heshi ya kriptografia na ukague ukamilifu wa muundo.",
+"ftChooseFile": "Chagua faili",
+"ftRun": "Kagua faili",
+"ftAnalyzing": "Ukaguzi unaendelea kwenye seva…",
+"ftComplete": "Ukaguzi umekamilika.",
+"ftIncomplete": "Ukaguzi haujakamilika; baadhi ya vipimo havikumalizika.",
+"ftFailed": "Ukaguzi umeshindwa:",
+"ftResults": "Matokeo ya ukaguzi",
+"ftRisk": "Tathmini ya pamoja",
+"ftEvidence": "Ushahidi",
+"ftDetails": "Maelezo ya kiufundi",
+"ftLimitations": "Mipaka",
+"ftNoEvidence": "Ukaguzi uliopo haukuripoti ushahidi wowote wa ziada.",
+"ftRedacted": "[imefichwa]",
+"detectionCombinedAdvice": "Tathmini hii inaunganisha uchanganuzi uliopo na ukaguzi wa maudhui wa Sentinel. Pitia ushahidi; matokeo safi si hakikisho.",
+"detectionIncomplete": "Ukaguzi huru wa maudhui haukukamilika. Yachukulie matokeo haya kuwa hayajathibitishwa, wala usiyategemee kama uthibitisho kwamba faili ni salama.",
+"verdictUnknown": "HAIJULIKANI",
+"verdictUnknownTitle": "Hatukuweza kuthibitisha faili hii",
+"verdictUnknownBody": "Ukaguzi huru haukutoa uamuzi kamili. Pitia mipaka iliyoripotiwa kisha ujaribu tena.",
+"contentEvidence": "Ushahidi wa ukaguzi wa maudhui",
 "pwHow": "Nenosiri lako halitoki kamwe kwenye kifaa hiki. Hubadilishwa hapa kuwa alama ya kidijitali (SHA-1) na herufi 5 za kwanza tu za alama hiyo hutumwa kwa Have I Been Pwned, ambayo hujibu kwa alama zote zilizovuja zinazoanza nazo.",
 "pwLabel": "Nenosiri la kukagua",
 "pwPh": "Andika nenosiri",
@@ -399,6 +432,18 @@ I18N["sw"] = {
 "rUploadNote": "Faili hii ilidondoshwa, kwa hiyo nakala iliyorekebishwa inatolewa kama kipakuliwa.",
 "rChecksOk": "Ukaguzi umefaulu: nakala bado inafunguka kama aina ileile ya faili na muundo wake uko salama.",
 "rChecksBad": "Baadhi ya ukaguzi unahitaji kuangaliwa.",
+"rSavedVerified": "Nakala iliyorekebishwa imehifadhiwa · muundo umethibitishwa",
+"rSavedUnverified": "Nakala iliyorekebishwa imehifadhiwa · uthibitishaji huru haujakamilika",
+"rVerificationTitle": "Uthibitishaji huru",
+"rVerificationVerified": "Muundo wa nakala inayopendekezwa ni sahihi. Huu si uamuzi wa usalama wala uthibitisho kwamba kila kitu kimerejeshwa.",
+"rVerificationIncomplete": "Uthibitishaji haujakamilika. Usiichukulie nakala hii inayopendekezwa kuwa imerekebishwa kikamilifu.",
+"rVerificationDamage": "Uharibifu umegunduliwa katika nakala inayopendekezwa; haikuhifadhiwa.",
+"rDataLoss": "{n} zimeondolewa kwenye nakala inayopendekezwa.",
+"rOriginalPreserved": "Faili asili imehifadhiwa.",
+"rCandidateHash": "SHA-256 ya nakala inayopendekezwa",
+"rOriginalInspection": "Ukaguzi wa usalama wa faili asili",
+"rCandidateInspection": "Ukaguzi wa usalama wa nakala inayopendekezwa",
+"rUnavailable": "haipatikani",
 "rAnother": "Rekebisha faili nyingine",
 "rMap": "Matatizo yako wapi",
 "settingsTitle": "Mipangilio",
@@ -468,7 +513,7 @@ I18N["sw"] = {
 "pScanThisText": "Changanua maandishi haya",
 "pLookup": "Tafuta alama hii ya kidijitali katika uchanganuzi wako",
 "pNoMatch": "Hakuna uchanganuzi wenye alama hiyo ya kidijitali.",
-"pLang": "Badilisha kuwa Kiarabu",
+"pLang": "Badilisha lugha",
 "pShortcuts": "Mikato ya kibodi",
 "pInstall": "Sakinisha programu",
 "pPrint": "Chapisha / hifadhi kama PDF",
@@ -572,9 +617,46 @@ I18N["sw"] = {
 "Faragha tangu mwanzo",
 "Anza"
 ],
+"dSci": "Sayansi",
+"askOpen": "Uliza AI",
+"askTitle": "Uliza kuhusu CyberScan",
+"askSub": "Jinsi inavyofanya kazi, matokeo yanamaanisha nini, na isichoweza kufanya.",
+"askPlaceholder": "Uliza swali kwa lugha yoyote…",
+"askSend": "Tuma",
+"askClose": "Funga",
+"askClear": "Mazungumzo mapya",
+"askBusy": "Inafikiri…",
+"askEmpty": "Uliza chochote kuhusu jinsi CyberScan inavyokagua faili, sayansi yake inamaanisha nini, au jinsi ya kusoma matokeo.",
+"askChips": [
+"CyberScan hufanya nini, kwa maneno rahisi?",
+"Je, huendesha faili yangu?",
+"Entropia ni nini na kwa nini ni muhimu?",
+"Alama ya 30 inamaanisha nini?",
+"Faili yangu hukaguliwa wapi kwenye tovuti hii?"
+],
+"askNote": "Majibu hutoka kwenye mwongozo wa mradi uliopitiwa na kulinganishwa na msimbo wake. AI bado inaweza kukosea; matokeo ya uchanganuzi yenyewe hutoka kwa kichanganuzi daima.",
+"askSources": {
+"bedrock": "Jibu la AI · kutoka kwenye mwongozo wa mradi",
+"ollama": "Jibu la AI (modeli ya ndani) · kutoka kwenye mwongozo wa mradi",
+"guide": "Dondoo kutoka kwenye mwongozo wa mradi · AI haipatikani kwa sasa",
+"quota": "Dondoo kutoka kwenye mwongozo wa mradi · maswali ya AI ya bila malipo ya leo yamekwisha"
+},
+"askRefused": "Siwezi kusaidia kwa hilo. Niulize kuhusu jinsi CyberScan inavyofanya kazi au matokeo yanamaanisha nini.",
+"askError": "Msaidizi hakuweza kujibu kwa sasa. Tafadhali jaribu tena.",
+"sciAskCta": "Bado una hamu ya kujua? Uliza AI kuhusu lolote kati ya haya",
+"sciPlainTitle": "Kwa maneno rahisi",
+"sciPlainIntro": "Kwa sentensi moja: CyberScan husoma faili jinsi mpelelezi makini anavyosoma barua inayotia shaka: huchunguza bahasha, mwandiko na kile ambacho barua inaomba, bila kamwe kufanya inachosema.",
+"sciPlain1": "Programu ya Windows ni kama kifurushi chenye lebo na orodha ya vilivyomo. CyberScan husoma lebo (programu inajieleza kuwa nini), orodha ya vilivyomo (vitendakazi vya mfumo inavyoviomba) na lakiri (sahihi yake ya kidijitali) bila kufungua kifurushi. ‘Programu ya kutazama picha’ inayoomba zana za kufuatilia kibodi haileti maana.",
+"sciPlain2": "Entropia hupima jinsi baiti zinavyotabirika. Ukurasa wa maandishi hurudia herufi na maneno, nafasi tupu yote hufanana, na data iliyosimbwa huonekana kama kelele tupu. CyberScan huchora kiwango hiki katika faili nzima; kuruka ghafla kutoka maudhui ya kawaida hadi kelele mara nyingi ndipo kitu kilichobanwa au kufichwa kinapoanzia.",
+"sciPlain3": "Data inayofanana na kelele ni ya kawaida mahali fulani na si ya kawaida mahali pengine: picha iliyobanwa ndani ya rasilimali za programu haina tatizo, lakini kelele hiyohiyo ndani ya msimbo wake ina tatizo. CyberScan ilijifunza kile ambacho programu halali huweka katika kila sehemu, na huonyesha vipande vilivyo mahali pasipostahili.",
+"sciPlain4": "Bila kuendesha programu, CyberScan hutafsiri msimbo wake wa mashine kuwa maelekezo na kuchora ramani ya jinsi inavyoweza kuruka kati ya maelekezo hayo, kama kuchora ramani ya barabara za jiji bila kuendesha gari. Umbo moja la barabara hufichua mengi: kitanzi kifupi kinachoandika upya kumbukumbu kipande kwa kipande, na hivyo ndivyo msimbo uliofichwa unavyojisimbua wenyewe.",
+"sciPlain5": "Vipimo vyote hufungashwa katika orodha moja ya namba 4,096, ambayo ni alama ya kidijitali ya umbo la faili. Faili zilizoundwa kwa namna inayofanana hupata alama zinazofanana, na hicho ndicho modeli ya kujifunza inachohitaji. Ni kanuni isiyobadilika, si ‘ubongo’, na modeli ambayo ingeisoma hubaki imezimwa hadi mtu asakinishe modeli aliyoikagua mwenyewe.",
+"sciPlain6": "Watafiti wa usalama huchapisha orodha za faili na viungo hatari vinavyojulikana. Ukiruhusu, CyberScan huuliza huduma tatu kati ya hizi kwa wakati mmoja kama zimewahi kuona alama ya kidijitali ya faili hii, bila kutuma faili yenyewe. Mlingano ni ripoti ya mtu mwingine, si uthibitisho; kukosekana kwa mlingano hakumaanishi kuwa faili ni salama.",
+"sciPlain7": "Kila onyo huja na sentensi unayoweza kuihakiki pamoja na uzito wake. Alama ya mwisho ni onyo moja lenye nguvu zaidi, si rundo la maonyo madogo, kwa hiyo vidokezo vingi dhaifu haviwezi kujumlishwa na kuwa namba ya kutisha. 0 inamaanisha hakuna kilichopatikana (si ‘salama’), 1–49 inamaanisha angalia kwa makini, 50 au zaidi inamaanisha kuwa mwangalifu.",
 "pipeTitle": "Injini tisa. Jibu moja la kweli.",
 "pipeSub": "Kila faili unayodondosha hupitia njia hii. Elekeza kipanya juu ya sehemu yoyote kuona inachofanya; tazama data ikipita ndani yake.",
 "ppExample": "Inachoweza kuripoti",
+"fxDrag": "buruta",
 "ppInput": "Inapoanzia",
 "ppFusion": "Vinapounganika",
 "ppVerdict": "Unachokiona",
@@ -639,5 +721,43 @@ I18N["sw"] = {
 "Uamuzi rahisi",
 "Uamuzi kwa lugha yako, kila ugunduzi umeelezwa kwa sentensi, na data yote ya kiufundi iko kichupo kimoja tu mbali.",
 "“Hii inatia shaka. Usiifungue.”"
-]
+],
+"tooBig": CS_LANGS.fn(["n"], "Faili hii ni kubwa kuliko kikomo cha MB {n} kilichowekwa kwenye Mipangilio."),
+"scannedAt": CS_LANGS.fn(["d"], "Ilikaguliwa {d}"),
+"elapsed": CS_LANGS.fn(["s"], "sek {s}"),
+"downloadSeen": CS_LANGS.fn(["name"], "Kipakuliwa kipya: {name}"),
+"count": CS_LANGS.fn(["n"], "Zilizohifadhiwa: {n}"),
+"delBody": CS_LANGS.fn(["name"], "“{name}” na ripoti yake iliyohifadhiwa vitaondolewa. Faili yenyewe iliyochanganuliwa haiguswi."),
+"rFound": CS_LANGS.fn(["n"], [
+"Hakuna cha kurekebisha",
+"Tatizo {n} limepatikana",
+"Matatizo {n} yamepatikana"
+]),
+"rSummary": CS_LANGS.fn(["removed", "before", "after"], "Vilivyoondolewa: {removed} · matatizo: {before} kabla, {after} baada"),
+"rWhere": CS_LANGS.fn(["p"], "Imehifadhiwa kama {p}"),
+"mb": CS_LANGS.fn(["n"], "MB {n}"),
+"sec": CS_LANGS.fn(["n"], "Sekunde {n}"),
+"seenBefore": CS_LANGS.fn(["n"], [
+"seen",
+"Imewahi kuonekana",
+"Imewahi kuonekana mara {n}"
+]),
+"hashedIn": CS_LANGS.fn(["ms"], "alama ya kidijitali imechukuliwa kwa ms {ms}, bila kupakia faili"),
+"bTitle": CS_LANGS.fn(["n"], [
+"Kundi · faili {n}",
+"Kundi · faili {n}"
+]),
+"bDone": CS_LANGS.fn(["d", "n"], "{d} kati ya {n} zimekamilika"),
+"bFinished": CS_LANGS.fn(["n"], "Faili zote {n} zimekaguliwa"),
+"insWeekLine": CS_LANGS.fn(["n"], "{n} katika siku 7 zilizopita"),
+"apkMeta": CS_LANGS.fn(["v", "mb"], "APK iliyosainiwa · v{v} · MB {mb} · Android 7+"),
+"askLeft": CS_LANGS.fn(["n"], [
+"Limebaki swali {n} la AI la bila malipo leo",
+"Yamebaki maswali {n} ya AI ya bila malipo leo"
+]),
+"ppEngine": CS_LANGS.fn(["n"], "Injini {n} kati ya 9"),
+"rFindingCount": CS_LANGS.fn(["n"], [
+"ugunduzi {n}",
+"ugunduzi {n}"
+])
 };

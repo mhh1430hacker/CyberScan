@@ -25,7 +25,7 @@ OUT = ROOT / "web_v" / "static" / "m" / "engine.zip"
 FILES = [
     "config.py",
     "reports/__init__.py", "reports/exporter.py", "reports/report_generator.py",
-    "ui/__init__.py", "ui/ai_summary.py", "ui/copy.py", "ui/file_kind.py", "ui/finding_text.py",
+    "ui/__init__.py", "ui/ai_summary.py", "ui/copy.py", "ui/file_kind.py", "ui/finding_text.py", "ui/i18n.py",
     "ui/link_hints.py", "ui/names.py", "ui/persistence.py", "ui/plain_language.py", "ui/result_view.py",
     "ui/scan_service.py", "ui/secrets.py", "ui/structure.py", "ui/vault.py",
     "ml/__init__.py", "ml/model_runtime.py", "ml/structural_classifier.py", "ml/forest_format.py",

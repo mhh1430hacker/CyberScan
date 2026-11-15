@@ -539,7 +539,10 @@
 "{size} cut out. Every part matches the original.": "{size} வெட்டி நீக்கப்பட்டது. ஒவ்வொரு பகுதியும் மூலக் கோப்புடன் பொருந்துகிறது.",
 "{size} cut out. The fingerprint matches the original byte for byte.": "{size} வெட்டி நீக்கப்பட்டது. கைரேகை மூலக் கோப்புடன் பைட்டுக்குப் பைட் பொருந்துகிறது.",
 "{what}. It's harmless filler for the demo, placed the way real tampering is. The name hasn't changed; the size grew by {size}.": "{what}. இது டெமோவுக்கான தீங்கற்ற நிரப்பு, உண்மையான மாற்றங்கள் செய்யப்படும் விதத்திலேயே வைக்கப்பட்டது. பெயர் மாறவில்லை; அளவு {size} அதிகரித்தது.",
-"“{name}” · {removed} removed · problems found: {before} before, {after} after.": "“{name}” · {removed} நீக்கப்பட்டது · கண்டறியப்பட்ட சிக்கல்கள்: முன் {before}, பின் {after}."
+"“{name}” · {removed} removed · problems found: {before} before, {after} after.": "“{name}” · {removed} நீக்கப்பட்டது · கண்டறியப்பட்ட சிக்கல்கள்: முன் {before}, பின் {after}.",
+"Malware rule: {rule}": "மால்வேர் விதி: {rule}",
+"A YARA-Forge rule by {author} matched this file: {description}": "{author} எழுதிய YARA-Forge விதி ஒன்று இந்தக் கோப்புடன் பொருந்தியது: {description}",
+"We looked at the list of files inside ({count}) but did not scan each one.": "உள்ளே இருக்கும் கோப்புகளின் பட்டியலை ({count}) பார்த்தோம், ஆனால் ஒவ்வொன்றையும் ஸ்கேன் செய்யவில்லை."
 },
 "counts": {
 "finding": {

@@ -332,7 +332,7 @@
 "Risk score {score} out of 100 · a guide, not a probability": "Alama ya hatari {score} kati ya 100 · mwongozo, si uwezekano",
 "Runs a script straight from memory": "Huendesha skripti moja kwa moja kutoka kwenye kumbukumbu",
 "Runs on this computer through Ollama. It only sees the scan's findings, never the file itself, and it never changes the verdict.": "Inaendeshwa kwenye kompyuta hii kupitia Ollama. Huona ugunduzi wa uchanganuzi tu, kamwe si faili yenyewe, na haibadilishi uamuzi kamwe.",
-"Save as wallpaper": "Hifadhi kama picha ya skrini",
+"Save as wallpaper": "Hifadhi kama mandhari ya skrini",
 "Save settings": "Hifadhi mipangilio",
 "Saved": "Imehifadhiwa",
 "Saved · type to replace": "Imehifadhiwa · andika ili kubadilisha",
@@ -451,7 +451,7 @@
 "The site name is one letter away from {0}, a common way to imitate a real site.": "Jina la tovuti linatofautiana kwa herufi moja tu na {0}, njia ya kawaida ya kuiga tovuti halisi.",
 "The site name uses letters from a non-Latin alphabet. Usually fine, but make sure it is the site you expect.": "Jina la tovuti linatumia herufi za alfabeti isiyo ya Kilatini. Kwa kawaida si tatizo, lakini hakikisha ni tovuti unayoitarajia.",
 "The text contains what looks like a real {0}. Anyone who sees it can use it: if it is real, revoke it and create a new one.": "Maandishi yana kitu kinachoonekana kama {0} halisi. Yeyote anayekiona anaweza kukitumia: ikiwa ni halisi, kibatilishe na utengeneze kipya.",
-"The wallpaper couldn't be saved.": "Picha ya skrini haikuweza kuhifadhiwa.",
+"The wallpaper couldn't be saved.": "Mandhari ya skrini haikuweza kuhifadhiwa.",
 "This address uses letters from other alphabets that can imitate familiar ones.": "Anwani hii inatumia herufi za alfabeti nyingine zinazoweza kuiga herufi zinazojulikana.",
 "This check reads files; it doesn't apply to links or text.": "Ukaguzi huu husoma faili; hautumiki kwa viungo wala maandishi.",
 "This exact link is on URLhaus, a public list of links that are serving malware right now.": "Kiungo hiki hasa kiko kwenye URLhaus, orodha ya umma ya viungo vinavyosambaza programu hasidi sasa hivi.",
@@ -490,7 +490,7 @@
 "Very random content": "Maudhui yenye unasibu mwingi",
 "Very random · often compressed or encrypted": "Unasibu mwingi · mara nyingi imebanwa au kusimbwa",
 "Wait for the current scan to finish, then close CyberScan.": "Subiri uchanganuzi unaoendelea ukamilike, kisha ufunge CyberScan.",
-"Wallpaper saved in Pictures › CyberScan galaxies": "Picha ya skrini imehifadhiwa katika Pictures › CyberScan galaxies",
+"Wallpaper saved in Pictures › CyberScan galaxies": "Mandhari ya skrini imehifadhiwa katika Pictures › CyberScan galaxies",
 "Warning level": "Kiwango cha onyo",
 "Warning signs": "Dalili za hatari",
 "Warning-sign rules": "Sheria za dalili za hatari",
@@ -539,7 +539,10 @@
 "{size} cut out. Every part matches the original.": "{size} imeondolewa. Kila sehemu inalingana na asili.",
 "{size} cut out. The fingerprint matches the original byte for byte.": "{size} imeondolewa. Alama ya kidijitali inalingana na asili baiti kwa baiti.",
 "{what}. It's harmless filler for the demo, placed the way real tampering is. The name hasn't changed; the size grew by {size}.": "{what}. Ni kijazo kisicho na madhara kwa ajili ya onyesho, kilichowekwa kama uchezeaji halisi unavyofanyika. Jina halijabadilika; ukubwa umeongezeka kwa {size}.",
-"“{name}” · {removed} removed · problems found: {before} before, {after} after.": "“{name}” · {removed} imeondolewa · matatizo yaliyopatikana: {before} kabla, {after} baada."
+"“{name}” · {removed} removed · problems found: {before} before, {after} after.": "“{name}” · {removed} imeondolewa · matatizo yaliyopatikana: {before} kabla, {after} baada.",
+"Malware rule: {rule}": "Sheria ya programu hasidi: {rule}",
+"A YARA-Forge rule by {author} matched this file: {description}": "Sheria ya YARA-Forge iliyoandikwa na {author} imelingana na faili hii: {description}",
+"We looked at the list of files inside ({count}) but did not scan each one.": "Tuliangalia orodha ya faili zilizomo ndani ({count}) lakini hatukuchanganua kila moja."
 },
 "counts": {
 "finding": {

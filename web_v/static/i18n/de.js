@@ -10,7 +10,7 @@ I18N["de"] = {
 "lTitle1": "Blicken Sie in jede Datei,",
 "lTitle2": "bevor sie in Ihren",
 "lTitle3": "Computer blickt.",
-"lSub": "CyberScan zerlegt eine Datei, einen Link oder einen Textausschnitt Byte für Byte, erklärt seine Funde in einfachen Worten und kann eine infizierte Datei ohne den schädlichen Teil neu aufbauen.",
+"lSub": "CyberScan zerlegt eine Datei, einen Link oder einen Textausschnitt Byte für Byte, ohne je etwas davon auszuführen, erklärt seine Funde in einfachen Worten und kann eine Kopie neu aufbauen, ohne die Teile, die nicht in ihr Format gehören.",
 "lStart": "Jetzt prüfen",
 "lWatch": "So funktioniert's",
 "lCardFile": "invoice_2026.pdf.exe",
@@ -80,7 +80,7 @@ I18N["de"] = {
 ],
 [
 "Lokale KI-Zusammenfassung",
-"Ein optionales Modell auf Ihrem eigenen Rechner erklärt das Ergebnis. Nichts verlässt Ihren Computer."
+"In der Desktop-App erklärt ein optionales Modell auf Ihrem eigenen Rechner das Ergebnis. Nichts verlässt Ihren Computer."
 ],
 [
 "Download-Überwachung",
@@ -108,26 +108,26 @@ I18N["de"] = {
 "stats": [
 [
 "auf diesem Computer gespeicherte Scans",
-"Scans"
+"scans"
 ],
 [
 "Analyse-Engines",
-"Engines"
+"engines"
 ],
 [
-"standardmäßig ins Internet gesendete Bytes",
-"null"
+"Bytes, die die Desktop-App standardmäßig ins Internet sendet",
+"zero"
 ],
 [
 "Sprachen, inklusive Rechts-nach-links",
-"Sprachen"
+"langs"
 ]
 ],
 "lPrivTitle": "Ihre Dateien bleiben Ihre",
 "privs": [
 [
-"Läuft auf Ihrem Rechner",
-"Der Scanner, der Verlauf und das KI-Modell befinden sich alle auf diesem Computer."
+"Offen darüber, wo es läuft",
+"Die Desktop-App und die Android-App prüfen auf Ihrem eigenen Gerät. Auf dieser Website wird eine Datei, die Sie prüfen, an den Server von CyberScan gesendet, im Arbeitsspeicher gelesen und gelöscht, sobald die Prüfung endet; ein Verlauf wird dort nicht gespeichert."
 ],
 [
 "Führt nie aus, was es prüft",
@@ -206,6 +206,39 @@ I18N["de"] = {
 "tRepairD": "Beschädigte Teile einer Datei finden und eine reparierte Kopie erstellen.",
 "tPhoneT": "Prüfung auf dem Gerät",
 "tPhoneD": "Große Dateien auf Ihrem Smartphone oder Computer prüfen, ohne sie hochzuladen.",
+"fileToolsTitle": "Datei-Analyse",
+"fileToolsLede": "Gezielte Prüfungen für Dokumente, Archive, QR-Bilder, Dateiidentität und Integrität. Hochgeladene Dateien werden als Daten analysiert und nie ausgeführt.",
+"ftPdfTitle": "PDF-Sicherheit",
+"ftPdfDesc": "Prüft Dokumentaktionen, Links, Metadaten und verdächtige eingebettete Strukturen.",
+"ftArchiveTitle": "Archivprüfung",
+"ftArchiveDesc": "Prüft ZIP-Inhalte, verschachtelte Strukturen, Integrität und Auffälligkeiten bei der Komprimierung.",
+"ftQrTitle": "QR-Code-Prüfung",
+"ftQrDesc": "Liest das Ziel eines QR-Codes aus und bewertet das Risiko der Adresse, ohne den Link zu öffnen.",
+"ftOfficeTitle": "Office-Dokumentprüfung",
+"ftOfficeDesc": "Prüft unterstützte Word-, Excel- und PowerPoint-Formate auf Makros und externe Inhalte.",
+"ftAuthenticityTitle": "Echtheit der Datei",
+"ftAuthenticityDesc": "Vergleicht die Dateiendung mit der erkannten Dateisignatur.",
+"ftIntegrityTitle": "Integrität der Datei",
+"ftIntegrityDesc": "Berechnet einen kryptografischen Fingerabdruck und prüft, ob die Struktur intakt ist.",
+"ftChooseFile": "Datei auswählen",
+"ftRun": "Datei prüfen",
+"ftAnalyzing": "Die Prüfung läuft auf dem Server…",
+"ftComplete": "Prüfung abgeschlossen.",
+"ftIncomplete": "Die Prüfung ist unvollständig; einige Prüfschritte wurden nicht abgeschlossen.",
+"ftFailed": "Prüfung fehlgeschlagen:",
+"ftResults": "Prüfergebnisse",
+"ftRisk": "Gesamtbewertung",
+"ftEvidence": "Belege",
+"ftDetails": "Technische Details",
+"ftLimitations": "Einschränkungen",
+"ftNoEvidence": "Die verfügbaren Prüfungen haben keine weiteren Belege gemeldet.",
+"ftRedacted": "[geschwärzt]",
+"detectionCombinedAdvice": "Diese Bewertung verbindet die bisherige Prüfung mit der Inhaltsprüfung durch Sentinel. Sehen Sie sich die Belege an; ein unauffälliges Ergebnis ist keine Garantie.",
+"detectionIncomplete": "Die unabhängige Inhaltsprüfung war unvollständig. Betrachten Sie dieses Ergebnis als unbestätigt und verstehen Sie es nicht als Unbedenklichkeitsbescheinigung.",
+"verdictUnknown": "UNSICHER",
+"verdictUnknownTitle": "Wir konnten diese Datei nicht verifizieren",
+"verdictUnknownBody": "Die unabhängige Prüfung hat keine vollständige Bewertung ergeben. Lesen Sie die genannten Einschränkungen und versuchen Sie es erneut.",
+"contentEvidence": "Belege aus der Inhaltsprüfung",
 "pwHow": "Ihr Passwort verlässt dieses Gerät nie. Es wird hier in einen Fingerabdruck (SHA-1) umgewandelt, und nur die ersten 5 Zeichen dieses Fingerabdrucks werden an Have I Been Pwned gesendet. Der Dienst antwortet mit allen geleakten Fingerabdrücken, die damit beginnen.",
 "pwLabel": "Zu prüfendes Passwort",
 "pwPh": "Passwort eingeben",
@@ -399,6 +432,18 @@ I18N["de"] = {
 "rUploadNote": "Diese Datei wurde hochgeladen, daher wird die reparierte Kopie als Download angeboten.",
 "rChecksOk": "Prüfungen bestanden: Die Kopie lässt sich weiterhin als derselbe Dateityp öffnen und ihre Struktur ist intakt.",
 "rChecksBad": "Einige Prüfungen erfordern Ihre Aufmerksamkeit.",
+"rSavedVerified": "Reparierte Kopie gespeichert · Struktur verifiziert",
+"rSavedUnverified": "Reparierte Kopie gespeichert · unabhängige Verifizierung unvollständig",
+"rVerificationTitle": "Unabhängige Verifizierung",
+"rVerificationVerified": "Die vorgeschlagene Kopie ist strukturell gültig. Das ist weder eine Sicherheitsbewertung noch ein Beweis für eine vollständige Wiederherstellung.",
+"rVerificationIncomplete": "Die Verifizierung ist unvollständig. Betrachten Sie diese vorgeschlagene Kopie nicht als vollständig repariert.",
+"rVerificationDamage": "In der vorgeschlagenen Kopie wurden Schäden festgestellt; sie wurde nicht gespeichert.",
+"rDataLoss": "Aus der vorgeschlagenen Kopie entfernt: {n}.",
+"rOriginalPreserved": "Die Originaldatei blieb erhalten.",
+"rCandidateHash": "SHA-256 der vorgeschlagenen Kopie",
+"rOriginalInspection": "Sicherheitsprüfung des Originals",
+"rCandidateInspection": "Sicherheitsprüfung der vorgeschlagenen Kopie",
+"rUnavailable": "nicht verfügbar",
 "rAnother": "Andere Datei reparieren",
 "rMap": "Wo die Probleme liegen",
 "settingsTitle": "Einstellungen",
@@ -468,7 +513,7 @@ I18N["de"] = {
 "pScanThisText": "Diesen Text prüfen",
 "pLookup": "Diesen Fingerabdruck in Ihren Scans suchen",
 "pNoMatch": "Kein Scan hat diesen Fingerabdruck.",
-"pLang": "Zu Arabisch wechseln",
+"pLang": "Sprache ändern",
 "pShortcuts": "Tastenkürzel",
 "pInstall": "App installieren",
 "pPrint": "Drucken / als PDF speichern",
@@ -572,9 +617,46 @@ I18N["de"] = {
 "Privat von Grund auf",
 "Loslegen"
 ],
+"dSci": "Wissenschaft",
+"askOpen": "KI fragen",
+"askTitle": "Fragen zu CyberScan",
+"askSub": "Wie es funktioniert, was Ergebnisse bedeuten, was es nicht kann.",
+"askPlaceholder": "Stellen Sie eine Frage in beliebiger Sprache…",
+"askSend": "Senden",
+"askClose": "Schließen",
+"askClear": "Neuer Chat",
+"askBusy": "Denkt nach…",
+"askEmpty": "Fragen Sie alles dazu, wie CyberScan Dateien prüft, was die Wissenschaft dahinter bedeutet oder wie ein Ergebnis zu lesen ist.",
+"askChips": [
+"Was macht CyberScan, einfach erklärt?",
+"Führt es meine Datei aus?",
+"Was ist Entropie und warum ist sie wichtig?",
+"Was bedeutet ein Wert von 30?",
+"Wo wird meine Datei auf dieser Website geprüft?"
+],
+"askNote": "Die Antworten stammen aus einem geprüften Leitfaden zum Projekt, der mit dem Code abgeglichen wurde. KI kann trotzdem Fehler machen; das Scan-Ergebnis selbst kommt immer vom Scanner.",
+"askSources": {
+"bedrock": "KI-Antwort · aus dem Projektleitfaden",
+"ollama": "KI-Antwort (lokales Modell) · aus dem Projektleitfaden",
+"guide": "Auszug aus dem Projektleitfaden · KI ist offline",
+"quota": "Auszug aus dem Projektleitfaden · die kostenlosen KI-Fragen für heute sind aufgebraucht"
+},
+"askRefused": "Dabei kann ich nicht helfen. Fragen Sie mich, wie CyberScan funktioniert oder was ein Ergebnis bedeutet.",
+"askError": "Der Assistent konnte gerade nicht antworten. Bitte versuchen Sie es erneut.",
+"sciAskCta": "Noch neugierig? Fragen Sie die KI zu allem, was hier steht",
+"sciPlainTitle": "In einfachen Worten",
+"sciPlainIntro": "In einem Satz: CyberScan liest eine Datei so, wie ein sorgfältiger Detektiv einen verdächtigen Brief liest: Er untersucht den Umschlag, die Handschrift und das, was der Brief verlangt, ohne je zu tun, was darin steht.",
+"sciPlain1": "Ein Windows-Programm ist wie ein Paket mit einem Etikett und einer Packliste. CyberScan liest das Etikett (was das Programm zu sein behauptet), die Packliste (die Systemfunktionen, die es anfordert) und das Siegel (seine digitale Signatur), ohne das Paket zu öffnen. Wenn ein „Bildbetrachter“ Werkzeuge zum Überwachen der Tastatur anfordert, passt etwas nicht zusammen.",
+"sciPlain2": "Entropie misst, wie vorhersehbar die Bytes sind. Eine Textseite wiederholt Buchstaben und Wörter, leerer Platz ist überall gleich, und verschlüsselte Daten sehen aus wie reines Rauschen. CyberScan zeichnet diesen Wert über die gesamte Datei hinweg auf; ein plötzlicher Sprung von gewöhnlichem Inhalt zu Rauschen ist oft die Stelle, an der etwas Gepacktes oder Verstecktes beginnt.",
+"sciPlain3": "Daten, die wie Rauschen aussehen, sind an manchen Stellen normal und an anderen nicht: Ein komprimiertes Foto in den Ressourcen eines Programms ist in Ordnung, dasselbe Rauschen in seinem Code nicht. CyberScan hat gelernt, was ehrliche Programme in welchem Teil aufbewahren, und weist auf Stücke hin, die fehl am Platz sind.",
+"sciPlain4": "Ohne das Programm auszuführen, übersetzt CyberScan dessen Maschinencode in Befehle und kartiert, wie es zwischen ihnen springen kann, so wie man den Straßenplan einer Stadt zeichnet, ohne durch sie zu fahren. Eine Straßenform ist verräterisch: eine enge Schleife, die den Speicher Stück für Stück umschreibt. Genau so entschlüsselt sich versteckter Code selbst.",
+"sciPlain5": "Alle Messwerte werden in eine Liste aus 4.096 Zahlen gepackt, einen Fingerabdruck der Form der Datei. Ähnlich gebaute Dateien erhalten ähnliche Fingerabdrücke, und genau das braucht ein Lernmodell. Dahinter steckt ein festes Rezept, kein „Gehirn“, und das Modell, das diese Liste lesen würde, bleibt ausgeschaltet, bis jemand eines installiert, das er selbst geprüft hat.",
+"sciPlain6": "Sicherheitsforscher veröffentlichen Listen bekannter schädlicher Dateien und Links. Wenn Sie es erlauben, fragt CyberScan drei dieser Dienste gleichzeitig, ob sie den Fingerabdruck dieser Datei schon gesehen haben, ohne die Datei selbst zu senden. Ein Treffer ist die Meldung eines anderen, kein Beweis; kein Treffer heißt nicht „sicher“.",
+"sciPlain7": "Zu jeder Warnung gehören ein Satz, den Sie nachprüfen können, und ein Gewicht. Der Gesamtwert entspricht der stärksten einzelnen Warnung, nicht einer Summe vieler kleiner, sodass sich viele schwache Hinweise nicht zu einer beängstigenden Zahl aufaddieren können. 0 heißt, es wurde nichts gefunden (nicht „sicher“), 1–49 heißt: genauer hinsehen, 50 oder mehr heißt: Vorsicht.",
 "pipeTitle": "Neun Engines. Eine ehrliche Antwort.",
 "pipeSub": "Jede Datei, die Sie ablegen, durchläuft diesen Weg. Fahren Sie über einen Teil, um zu sehen, was er tut, und verfolgen Sie, wie die Daten hindurchfließen.",
 "ppExample": "Was es melden kann",
+"fxDrag": "ziehen",
 "ppInput": "Wo es beginnt",
 "ppFusion": "Wo alles zusammenläuft",
 "ppVerdict": "Was Sie sehen",
@@ -639,5 +721,43 @@ I18N["de"] = {
 "Klare Bewertung",
 "Eine Bewertung in Ihrer Sprache, jeder Befund in einem Satz erklärt und alle technischen Daten nur einen Tab entfernt.",
 "„Das sieht verdächtig aus. Nicht öffnen.“"
-]
+],
+"tooBig": CS_LANGS.fn(["n"], "Diese Datei ist größer als das in den Einstellungen festgelegte Limit von {n} MB."),
+"scannedAt": CS_LANGS.fn(["d"], "Geprüft: {d}"),
+"elapsed": CS_LANGS.fn(["s"], "{s} s"),
+"downloadSeen": CS_LANGS.fn(["name"], "Neuer Download: {name}"),
+"count": CS_LANGS.fn(["n"], "{n} gespeichert"),
+"delBody": CS_LANGS.fn(["name"], "„{name}“ und der dazu gespeicherte Bericht werden entfernt. Die geprüfte Datei selbst bleibt unberührt."),
+"rFound": CS_LANGS.fn(["n"], [
+"Nichts zu reparieren",
+"{n} Problem gefunden",
+"{n} Probleme gefunden"
+]),
+"rSummary": CS_LANGS.fn(["removed", "before", "after"], "{removed} entfernt · Probleme: {before} vorher, {after} nachher"),
+"rWhere": CS_LANGS.fn(["p"], "Gespeichert als {p}"),
+"mb": CS_LANGS.fn(["n"], "{n} MB"),
+"sec": CS_LANGS.fn(["n"], "{n} Sekunden"),
+"seenBefore": CS_LANGS.fn(["n"], [
+"seen",
+"Schon einmal gesehen",
+"Schon {n}-mal gesehen"
+]),
+"hashedIn": CS_LANGS.fn(["ms"], "Fingerabdruck in {ms} ms berechnet, ohne Upload"),
+"bTitle": CS_LANGS.fn(["n"], [
+"Stapel · {n} Datei",
+"Stapel · {n} Dateien"
+]),
+"bDone": CS_LANGS.fn(["d", "n"], "{d} von {n} fertig"),
+"bFinished": CS_LANGS.fn(["n"], "Alle {n} Dateien geprüft"),
+"insWeekLine": CS_LANGS.fn(["n"], "{n} in den letzten 7 Tagen"),
+"apkMeta": CS_LANGS.fn(["v", "mb"], "Signierte APK · v{v} · {mb} MB · Android 7+"),
+"askLeft": CS_LANGS.fn(["n"], [
+"Heute noch {n} kostenlose KI-Frage übrig",
+"Heute noch {n} kostenlose KI-Fragen übrig"
+]),
+"ppEngine": CS_LANGS.fn(["n"], "Engine {n} von 9"),
+"rFindingCount": CS_LANGS.fn(["n"], [
+"{n} Befund",
+"{n} Befunde"
+])
 };

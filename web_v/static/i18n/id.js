@@ -10,7 +10,7 @@ I18N["id"] = {
 "lTitle1": "Lihat isi file apa pun",
 "lTitle2": "sebelum file itu melihat isi",
 "lTitle3": "komputer Anda.",
-"lSub": "CyberScan membedah file, tautan, atau potongan teks byte demi byte, menjelaskan temuannya dengan bahasa sederhana, dan dapat membangun ulang file yang terinfeksi tanpa bagian berbahayanya.",
+"lSub": "CyberScan membedah file, tautan, atau potongan teks byte demi byte tanpa pernah menjalankannya, menjelaskan temuannya dengan bahasa sederhana, dan dapat membangun ulang salinan tanpa bagian yang tidak semestinya ada dalam formatnya.",
 "lStart": "Mulai memindai",
 "lWatch": "Lihat cara kerjanya",
 "lCardFile": "invoice_2026.pdf.exe",
@@ -49,7 +49,7 @@ I18N["id"] = {
 ],
 [
 "Jelaskan",
-"Putusan dalam bahasa sederhana, setiap temuan dengan kata-kata yang mudah, dan data teknis lengkap di bawahnya."
+"Putusan dengan bahasa sederhana dalam bahasa Anda, setiap temuan dijelaskan dengan kata-kata yang mudah, dan data teknis lengkap di bawahnya."
 ]
 ],
 "lCubeTitle": "Lihat file dari dalam",
@@ -80,7 +80,7 @@ I18N["id"] = {
 ],
 [
 "Ringkasan AI lokal",
-"Model opsional yang berjalan di perangkat Anda sendiri menjelaskan hasilnya. Tidak ada yang keluar dari komputer Anda."
+"Di aplikasi desktop, model opsional yang berjalan di perangkat Anda sendiri menjelaskan hasilnya. Tidak ada yang keluar dari komputer Anda."
 ],
 [
 "Pemantauan unduhan",
@@ -108,26 +108,26 @@ I18N["id"] = {
 "stats": [
 [
 "pemindaian tersimpan di komputer ini",
-"pindaian"
+"scans"
 ],
 [
 "mesin analisis",
-"mesin"
+"engines"
 ],
 [
-"byte yang dikirim ke internet secara default",
-"nol"
+"byte yang dikirim aplikasi desktop ke internet secara default",
+"zero"
 ],
 [
 "bahasa, termasuk kanan-ke-kiri",
-"bahasa"
+"langs"
 ]
 ],
 "lPrivTitle": "File Anda tetap milik Anda",
 "privs": [
 [
-"Berjalan di perangkat Anda",
-"Pemindai, riwayat, dan model AI semuanya ada di komputer ini."
+"Terbuka soal tempat pemeriksaan berjalan",
+"Aplikasi desktop dan Android memindai di perangkat Anda sendiri. Di situs web ini, file yang Anda periksa dikirim ke server CyberScan, dibaca di memori, lalu dihapus begitu pemeriksaan selesai; tidak ada riwayat yang disimpan di sana."
 ],
 [
 "Tidak pernah menjalankan yang diperiksanya",
@@ -206,6 +206,39 @@ I18N["id"] = {
 "tRepairD": "Temukan bagian file yang rusak dan buat salinan yang sudah diperbaiki.",
 "tPhoneT": "Pindai di perangkat",
 "tPhoneD": "Pindai file besar di ponsel atau komputer Anda tanpa mengunggahnya.",
+"fileToolsTitle": "Inteligensi file",
+"fileToolsLede": "Pemeriksaan khusus untuk dokumen, arsip, gambar QR, identitas file, dan integritasnya. File yang diunggah dianalisis sebagai data dan tidak pernah dijalankan.",
+"ftPdfTitle": "Keamanan PDF",
+"ftPdfDesc": "Periksa tindakan dalam dokumen, tautan, metadata, dan struktur tertanam yang mencurigakan.",
+"ftArchiveTitle": "Inspeksi arsip",
+"ftArchiveDesc": "Periksa isi ZIP, struktur bersarang, integritas, dan kejanggalan kompresi.",
+"ftQrTitle": "Pemeriksaan kode QR",
+"ftQrDesc": "Baca tujuan kode QR dan nilai risiko URL-nya tanpa membuka tautannya.",
+"ftOfficeTitle": "Pemeriksaan dokumen Office",
+"ftOfficeDesc": "Periksa format Word, Excel, dan PowerPoint yang didukung untuk menemukan makro dan konten eksternal.",
+"ftAuthenticityTitle": "Keaslian file",
+"ftAuthenticityDesc": "Bandingkan ekstensi nama file dengan tanda tangan file yang terdeteksi.",
+"ftIntegrityTitle": "Integritas file",
+"ftIntegrityDesc": "Hitung hash kriptografis dan periksa integritas strukturnya.",
+"ftChooseFile": "Pilih file",
+"ftRun": "Periksa file",
+"ftAnalyzing": "Pemeriksaan sedang berjalan di server…",
+"ftComplete": "Pemeriksaan selesai.",
+"ftIncomplete": "Pemeriksaan belum lengkap; beberapa pengecekan tidak selesai.",
+"ftFailed": "Pemeriksaan gagal:",
+"ftResults": "Hasil pemeriksaan",
+"ftRisk": "Penilaian terpadu",
+"ftEvidence": "Bukti",
+"ftDetails": "Detail teknis",
+"ftLimitations": "Keterbatasan",
+"ftNoEvidence": "Pengecekan yang tersedia tidak melaporkan bukti tambahan.",
+"ftRedacted": "[disamarkan]",
+"detectionCombinedAdvice": "Penilaian ini menggabungkan pemindaian yang sudah ada dengan pemeriksaan konten oleh Sentinel. Tinjau buktinya; hasil bersih bukanlah jaminan.",
+"detectionIncomplete": "Pemeriksaan konten independen belum lengkap. Anggap hasil ini belum terverifikasi dan jangan menjadikannya bukti bahwa file ini aman.",
+"verdictUnknown": "TIDAK PASTI",
+"verdictUnknownTitle": "Kami tidak dapat memverifikasi file ini",
+"verdictUnknownBody": "Pemeriksaan independen tidak menghasilkan putusan yang lengkap. Tinjau keterbatasan yang dilaporkan, lalu coba lagi.",
+"contentEvidence": "Bukti pemeriksaan konten",
 "pwHow": "Kata sandi Anda tidak pernah meninggalkan perangkat ini. Kata sandi diubah menjadi sidik jari (SHA-1) di sini, dan hanya 5 karakter pertama sidik jari itu yang dikirim ke Have I Been Pwned, yang membalas dengan semua sidik jari bocor yang diawali karakter tersebut.",
 "pwLabel": "Kata sandi yang akan diperiksa",
 "pwPh": "Ketik kata sandi",
@@ -399,6 +432,18 @@ I18N["id"] = {
 "rUploadNote": "File ini diletakkan langsung, jadi salinan yang diperbaiki ditawarkan sebagai unduhan.",
 "rChecksOk": "Pemeriksaan lolos: salinan tetap terbuka sebagai jenis file yang sama dan strukturnya utuh.",
 "rChecksBad": "Beberapa pemeriksaan perlu perhatian.",
+"rSavedVerified": "Salinan yang diperbaiki telah disimpan · strukturnya terverifikasi",
+"rSavedUnverified": "Salinan yang diperbaiki telah disimpan · verifikasi independen belum lengkap",
+"rVerificationTitle": "Verifikasi independen",
+"rVerificationVerified": "Struktur salinan usulan ini valid. Ini bukan putusan keamanan dan bukan bukti bahwa pemulihannya lengkap.",
+"rVerificationIncomplete": "Verifikasi belum lengkap. Jangan anggap salinan usulan ini sudah diperbaiki sepenuhnya.",
+"rVerificationDamage": "Kerusakan terdeteksi pada salinan usulan; salinan itu tidak disimpan.",
+"rDataLoss": "{n} dihapus dari salinan usulan.",
+"rOriginalPreserved": "File asli tetap utuh.",
+"rCandidateHash": "SHA-256 salinan usulan",
+"rOriginalInspection": "Pemeriksaan keamanan file asli",
+"rCandidateInspection": "Pemeriksaan keamanan salinan usulan",
+"rUnavailable": "tidak tersedia",
 "rAnother": "Perbaiki file lain",
 "rMap": "Letak masalahnya",
 "settingsTitle": "Setelan",
@@ -468,7 +513,7 @@ I18N["id"] = {
 "pScanThisText": "Pindai teks ini",
 "pLookup": "Cari sidik jari ini di pemindaian Anda",
 "pNoMatch": "Tidak ada pemindaian dengan sidik jari itu.",
-"pLang": "Beralih ke bahasa Arab",
+"pLang": "Ganti bahasa",
 "pShortcuts": "Pintasan keyboard",
 "pInstall": "Pasang aplikasi",
 "pPrint": "Cetak / simpan sebagai PDF",
@@ -572,9 +617,46 @@ I18N["id"] = {
 "Privat sejak awal",
 "Mulai"
 ],
+"dSci": "Sains",
+"askOpen": "Tanya AI",
+"askTitle": "Tanya tentang CyberScan",
+"askSub": "Cara kerjanya, arti hasilnya, dan apa yang tidak bisa dilakukannya.",
+"askPlaceholder": "Ajukan pertanyaan dalam bahasa apa pun…",
+"askSend": "Kirim",
+"askClose": "Tutup",
+"askClear": "Obrolan baru",
+"askBusy": "Sedang berpikir…",
+"askEmpty": "Tanyakan apa saja tentang cara CyberScan memeriksa file, arti sains di baliknya, atau cara membaca hasil.",
+"askChips": [
+"Apa yang dilakukan CyberScan, dengan bahasa sederhana?",
+"Apakah file saya dijalankan?",
+"Apa itu entropi dan mengapa penting?",
+"Apa arti skor 30?",
+"Di mana file saya diperiksa di situs web ini?"
+],
+"askNote": "Jawaban bersumber dari panduan proyek yang sudah ditinjau dan dicocokkan dengan kodenya. AI tetap bisa keliru; hasil pemindaian itu sendiri selalu berasal dari pemindai.",
+"askSources": {
+"bedrock": "Jawaban AI · dari panduan proyek",
+"ollama": "Jawaban AI (model lokal) · dari panduan proyek",
+"guide": "Kutipan dari panduan proyek · AI sedang offline",
+"quota": "Kutipan dari panduan proyek · jatah pertanyaan AI gratis hari ini sudah habis"
+},
+"askRefused": "Saya tidak bisa membantu untuk yang itu. Tanyakan tentang cara kerja CyberScan atau arti sebuah hasil.",
+"askError": "Asisten belum bisa menjawab saat ini. Silakan coba lagi.",
+"sciAskCta": "Masih penasaran? Tanyakan semua ini kepada AI",
+"sciPlainTitle": "Dengan bahasa sederhana",
+"sciPlainIntro": "Dalam satu kalimat: CyberScan membaca file seperti detektif yang teliti membaca surat mencurigakan, yaitu mempelajari amplopnya, tulisan tangannya, dan apa yang diminta surat itu, tanpa pernah melakukan apa yang tertulis di dalamnya.",
+"sciPlain1": "Program Windows itu ibarat paket yang dilengkapi label dan daftar isi. CyberScan membaca labelnya (pengakuan program tentang dirinya), daftar isinya (fungsi sistem yang dimintanya), dan segelnya (tanda tangan digitalnya) tanpa membuka paket itu. 'Penampil foto' yang meminta alat untuk memantau keyboard jelas tidak masuk akal.",
+"sciPlain2": "Entropi mengukur seberapa mudah byte-byte dalam file ditebak. Satu halaman teks mengulang huruf dan kata, ruang kosong isinya sama semua, sedangkan data terenkripsi tampak seperti derau murni. CyberScan menggambar tingkat ini di sepanjang file; lonjakan mendadak dari isi biasa ke derau sering kali menjadi awal dari sesuatu yang dikemas atau disembunyikan.",
+"sciPlain3": "Data yang mirip derau itu wajar di tempat tertentu dan tidak wajar di tempat lain: foto terkompresi di dalam sumber daya program tidak masalah, tetapi derau yang sama di dalam kodenya patut dicurigai. CyberScan telah mempelajari apa yang biasa disimpan program yang jujur di setiap bagiannya dan menunjukkan potongan yang tidak pada tempatnya.",
+"sciPlain4": "Tanpa menjalankan program, CyberScan menerjemahkan kode mesinnya menjadi instruksi dan memetakan bagaimana program bisa melompat dari satu instruksi ke instruksi lain, seperti menggambar peta jalan sebuah kota tanpa perlu berkendara. Ada satu bentuk jalan yang mencolok: putaran rapat yang menulis ulang memori sedikit demi sedikit, dan begitulah cara kode tersembunyi mendekripsi dirinya sendiri.",
+"sciPlain5": "Semua pengukuran dirangkum menjadi satu daftar berisi 4.096 angka, yaitu sidik jari dari bentuk file. File yang dibuat dengan cara serupa mendapat sidik jari yang mirip, dan itulah yang dibutuhkan model pembelajaran. Ini resep yang tetap, bukan 'otak', dan model yang akan membacanya tetap nonaktif sampai seseorang memasang model yang sudah ditinjaunya sendiri.",
+"sciPlain6": "Para peneliti keamanan menerbitkan daftar file dan tautan yang diketahui berbahaya. Jika Anda mengizinkan, CyberScan bertanya kepada tiga layanan ini sekaligus apakah mereka pernah melihat sidik jari file ini, tanpa mengirim filenya sendiri. Kecocokan adalah laporan pihak lain, bukan bukti; tidak ada kecocokan pun bukan berarti aman.",
+"sciPlain7": "Setiap peringatan disertai satu kalimat yang bisa Anda periksa dan sebuah bobot. Skor akhir adalah peringatan tunggal yang paling kuat, bukan tumpukan peringatan kecil, sehingga banyak petunjuk lemah tidak bisa terjumlah menjadi angka yang menakutkan. 0 berarti tidak ada yang ditemukan (bukan 'aman'), 1–49 berarti perlu dicermati, 50 atau lebih berarti berhati-hatilah.",
 "pipeTitle": "Sembilan mesin. Satu jawaban jujur.",
 "pipeSub": "Setiap file yang Anda letakkan menempuh jalur ini. Arahkan kursor ke bagian mana pun untuk melihat fungsinya; saksikan data mengalir melaluinya.",
 "ppExample": "Yang bisa dilaporkannya",
+"fxDrag": "seret",
 "ppInput": "Titik awal",
 "ppFusion": "Tempat semuanya menyatu",
 "ppVerdict": "Yang Anda lihat",
@@ -639,5 +721,43 @@ I18N["id"] = {
 "Putusan sederhana",
 "Putusan dalam bahasa Anda, setiap temuan dijelaskan dalam satu kalimat, dan semua data teknis hanya satu tab jauhnya.",
 "“Ini tampak mencurigakan. Jangan dibuka.”"
-]
+],
+"tooBig": CS_LANGS.fn(["n"], "File ini melebihi batas {n} MB yang diatur di Setelan."),
+"scannedAt": CS_LANGS.fn(["d"], "Diperiksa {d}"),
+"elapsed": CS_LANGS.fn(["s"], "{s} dtk"),
+"downloadSeen": CS_LANGS.fn(["name"], "Unduhan baru: {name}"),
+"count": CS_LANGS.fn(["n"], "{n} tersimpan"),
+"delBody": CS_LANGS.fn(["name"], "“{name}” dan laporan tersimpannya akan dihapus. File yang dipindai itu sendiri tidak disentuh."),
+"rFound": CS_LANGS.fn(["n"], [
+"Tidak ada yang perlu diperbaiki",
+"{n} masalah ditemukan",
+"{n} masalah ditemukan"
+]),
+"rSummary": CS_LANGS.fn(["removed", "before", "after"], "{removed} dihapus · masalah: {before} sebelum, {after} sesudah"),
+"rWhere": CS_LANGS.fn(["p"], "Disimpan sebagai {p}"),
+"mb": CS_LANGS.fn(["n"], "{n} MB"),
+"sec": CS_LANGS.fn(["n"], "{n} detik"),
+"seenBefore": CS_LANGS.fn(["n"], [
+"seen",
+"Pernah terlihat sebelumnya",
+"Sudah terlihat {n} kali sebelumnya"
+]),
+"hashedIn": CS_LANGS.fn(["ms"], "sidik jari dibuat dalam {ms} ms, tanpa mengunggah"),
+"bTitle": CS_LANGS.fn(["n"], [
+"Kelompok · {n} file",
+"Kelompok · {n} file"
+]),
+"bDone": CS_LANGS.fn(["d", "n"], "{d} dari {n} selesai"),
+"bFinished": CS_LANGS.fn(["n"], "Semua {n} file sudah diperiksa"),
+"insWeekLine": CS_LANGS.fn(["n"], "{n} dalam 7 hari terakhir"),
+"apkMeta": CS_LANGS.fn(["v", "mb"], "APK bertanda tangan · v{v} · {mb} MB · Android 7+"),
+"askLeft": CS_LANGS.fn(["n"], [
+"Sisa {n} pertanyaan AI gratis hari ini",
+"Sisa {n} pertanyaan AI gratis hari ini"
+]),
+"ppEngine": CS_LANGS.fn(["n"], "Mesin {n} dari 9"),
+"rFindingCount": CS_LANGS.fn(["n"], [
+"{n} temuan",
+"{n} temuan"
+])
 };

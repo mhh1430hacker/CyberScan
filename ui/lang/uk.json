@@ -539,7 +539,10 @@
 "{size} cut out. Every part matches the original.": "Вирізано: {size}. Кожна частина збігається з оригіналом.",
 "{size} cut out. The fingerprint matches the original byte for byte.": "Вирізано: {size}. Відбиток збігається з оригіналом байт у байт.",
 "{what}. It's harmless filler for the demo, placed the way real tampering is. The name hasn't changed; the size grew by {size}.": "{what}. Це нешкідливий заповнювач для демонстрації, розміщений так само, як під час справжнього втручання. Назва не змінилася, а розмір зріс на {size}.",
-"“{name}” · {removed} removed · problems found: {before} before, {after} after.": "«{name}» · вилучено: {removed} · знайдено проблем: до — {before}, після — {after}."
+"“{name}” · {removed} removed · problems found: {before} before, {after} after.": "«{name}» · вилучено: {removed} · знайдено проблем: до — {before}, після — {after}.",
+"Malware rule: {rule}": "Правило для шкідливих програм: {rule}",
+"A YARA-Forge rule by {author} matched this file: {description}": "На цьому файлі спрацювало правило YARA-Forge (автор: {author}): {description}",
+"We looked at the list of files inside ({count}) but did not scan each one.": "Ми переглянули список файлів усередині ({count}), але не перевіряли кожен із них."
 },
 "counts": {
 "finding": {

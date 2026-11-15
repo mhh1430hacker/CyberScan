@@ -539,7 +539,10 @@
 "{size} cut out. Every part matches the original.": "{size} dipotong. Setiap bagian cocok dengan aslinya.",
 "{size} cut out. The fingerprint matches the original byte for byte.": "{size} dipotong. Sidik jarinya cocok dengan aslinya, byte demi byte.",
 "{what}. It's harmless filler for the demo, placed the way real tampering is. The name hasn't changed; the size grew by {size}.": "{what}. Ini pengisi tak berbahaya untuk demo, ditempatkan seperti modifikasi berbahaya sungguhan. Namanya tidak berubah; ukurannya bertambah {size}.",
-"“{name}” · {removed} removed · problems found: {before} before, {after} after.": "“{name}” · {removed} dihapus · masalah ditemukan: {before} sebelum, {after} sesudah."
+"“{name}” · {removed} removed · problems found: {before} before, {after} after.": "“{name}” · {removed} dihapus · masalah ditemukan: {before} sebelum, {after} sesudah.",
+"Malware rule: {rule}": "Aturan malware: {rule}",
+"A YARA-Forge rule by {author} matched this file: {description}": "Sebuah aturan YARA-Forge buatan {author} cocok dengan file ini: {description}",
+"We looked at the list of files inside ({count}) but did not scan each one.": "Kami melihat daftar file di dalamnya ({count}), tetapi tidak memindai satu per satu."
 },
 "counts": {
 "finding": {

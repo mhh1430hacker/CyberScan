@@ -51,10 +51,20 @@
   function buildManifesto() {
     const keys = new Set(t("mfKeys"));
     mfText.replaceChildren();
-    mfWords = t("manifesto").split(/\s+/).map((w, i, all) => {
-      const span = el("span", keys.has(w) ? "mw key" : "mw", w);
-      mfText.append(span);
-      if (i < all.length - 1) mfText.append(" ");
+    const text = t("manifesto");
+    const add = (word, key) => { const span = el("span", key ? "mw key" : "mw", word); mfText.append(span); return span; };
+    if (["zh", "ja", "th"].includes(window.CS.lang) && window.Intl && Intl.Segmenter) {
+      // no spaces between words here: the browser finds the words, and a word is a key word
+      // when it lies inside the first place one of the key phrases appears
+      const marks = [...keys].map((k) => [text.indexOf(k), k.length]).filter(([at]) => at >= 0);
+      mfWords = [...new Intl.Segmenter(window.CS.lang, { granularity: "word" }).segment(text)]
+        .filter((s) => s.segment.trim())
+        .map((s) => add(s.segment, marks.some(([at, n]) => s.index >= at && s.index + s.segment.length <= at + n)));
+      return;
+    }
+    mfWords = text.split(/\s+/).map((w, i, all) => {
+      const span = add(w, keys.has(w));
+      if (i < all.length - 1) span.after(" ");
       return span;
     });
   }

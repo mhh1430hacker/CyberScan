@@ -10,7 +10,7 @@ I18N["nl"] = {
 "lTitle1": "Kijk in elk bestand",
 "lTitle2": "voordat het in",
 "lTitle3": "je computer kijkt.",
-"lSub": "CyberScan haalt een bestand, link of tekstfragment byte voor byte uit elkaar, legt in gewone taal uit wat het vindt en kan een geïnfecteerd bestand opnieuw opbouwen zonder het schadelijke deel.",
+"lSub": "CyberScan haalt een bestand, link of tekstfragment byte voor byte uit elkaar zonder het ooit uit te voeren, legt in gewone taal uit wat het vindt en kan een kopie opnieuw opbouwen zonder de delen die niet in de bestandsindeling thuishoren.",
 "lStart": "Begin met scannen",
 "lWatch": "Bekijk hoe het werkt",
 "lCardFile": "invoice_2026.pdf.exe",
@@ -80,7 +80,7 @@ I18N["nl"] = {
 ],
 [
 "Lokale AI-samenvatting",
-"Een optioneel model op je eigen computer legt het resultaat uit. Niets verlaat je computer."
+"In de desktop-app legt een optioneel model op je eigen computer het resultaat uit. Niets verlaat je computer."
 ],
 [
 "Downloads bewaken",
@@ -115,19 +115,19 @@ I18N["nl"] = {
 "engines"
 ],
 [
-"bytes standaard naar internet verstuurd",
-"nul"
+"bytes die de desktop-app standaard naar internet verstuurt",
+"zero"
 ],
 [
 "talen, inclusief rechts-naar-links",
-"talen"
+"langs"
 ]
 ],
 "lPrivTitle": "Jouw bestanden blijven van jou",
 "privs": [
 [
-"Draait op je eigen computer",
-"De scanner, de geschiedenis en het AI-model staan allemaal op deze computer."
+"Duidelijk over waar het draait",
+"De desktop-app en de Android-app scannen op je eigen apparaat. Op deze website wordt een bestand dat je controleert naar de server van CyberScan gestuurd, in het geheugen gelezen en verwijderd zodra de controle klaar is; daar wordt geen geschiedenis bewaard."
 ],
 [
 "Voert nooit uit wat het controleert",
@@ -206,6 +206,39 @@ I18N["nl"] = {
 "tRepairD": "Vind beschadigde delen van een bestand en maak een herstelde kopie.",
 "tPhoneT": "Scan op je apparaat",
 "tPhoneD": "Scan grote bestanden op je telefoon of computer zonder ze te uploaden.",
+"fileToolsTitle": "Bestandsanalyse",
+"fileToolsLede": "Gerichte inspecties voor documenten, archieven, QR-afbeeldingen, bestandsidentiteit en integriteit. Geüploade bestanden worden als gegevens geanalyseerd en nooit uitgevoerd.",
+"ftPdfTitle": "PDF-beveiliging",
+"ftPdfDesc": "Inspecteert documentacties, links, metadata en verdachte ingesloten structuren.",
+"ftArchiveTitle": "Archiefinspectie",
+"ftArchiveDesc": "Controleert ZIP-inhoud, geneste structuren, integriteit en afwijkingen in de compressie.",
+"ftQrTitle": "QR-codecontrole",
+"ftQrDesc": "Leest de bestemming van een QR-code uit en beoordeelt het risico van de URL zonder de link te openen.",
+"ftOfficeTitle": "Controle van Office-documenten",
+"ftOfficeDesc": "Inspecteert ondersteunde Word-, Excel- en PowerPoint-indelingen op macro's en externe inhoud.",
+"ftAuthenticityTitle": "Echtheid van het bestand",
+"ftAuthenticityDesc": "Vergelijkt de bestandsextensie met de gedetecteerde bestandshandtekening.",
+"ftIntegrityTitle": "Integriteit van het bestand",
+"ftIntegrityDesc": "Berekent een cryptografische vingerafdruk en inspecteert of de structuur intact is.",
+"ftChooseFile": "Kies een bestand",
+"ftRun": "Bestand inspecteren",
+"ftAnalyzing": "De inspectie wordt op de server uitgevoerd…",
+"ftComplete": "Inspectie voltooid.",
+"ftIncomplete": "De inspectie is onvolledig; sommige controles zijn niet afgerond.",
+"ftFailed": "Inspectie mislukt:",
+"ftResults": "Inspectieresultaten",
+"ftRisk": "Totaalbeoordeling",
+"ftEvidence": "Bewijs",
+"ftDetails": "Technische details",
+"ftLimitations": "Beperkingen",
+"ftNoEvidence": "De beschikbare controles hebben geen aanvullend bewijs gemeld.",
+"ftRedacted": "[weggelaten]",
+"detectionCombinedAdvice": "Deze beoordeling combineert de bestaande scan met de inhoudsinspectie van Sentinel. Bekijk het bewijs; een schoon resultaat is geen garantie.",
+"detectionIncomplete": "De onafhankelijke inhoudsinspectie was onvolledig. Beschouw dit resultaat als niet geverifieerd en zie het niet als bewijs dat het bestand in orde is.",
+"verdictUnknown": "ONZEKER",
+"verdictUnknownTitle": "We konden dit bestand niet verifiëren",
+"verdictUnknownBody": "De onafhankelijke inspectie heeft geen volledig oordeel opgeleverd. Bekijk de gemelde beperkingen en probeer het opnieuw.",
+"contentEvidence": "Bewijs uit de inhoudsinspectie",
 "pwHow": "Je wachtwoord verlaat dit apparaat nooit. Het wordt hier omgezet in een vingerafdruk (SHA-1) en alleen de eerste 5 tekens daarvan worden naar Have I Been Pwned gestuurd. Die antwoordt met alle gelekte vingerafdrukken die daarmee beginnen.",
 "pwLabel": "Te controleren wachtwoord",
 "pwPh": "Typ een wachtwoord",
@@ -399,6 +432,18 @@ I18N["nl"] = {
 "rUploadNote": "Dit bestand is hierheen gesleept, dus de herstelde kopie wordt als download aangeboden.",
 "rChecksOk": "Controles geslaagd: de kopie opent nog als hetzelfde soort bestand en de structuur is intact.",
 "rChecksBad": "Sommige controles vragen aandacht.",
+"rSavedVerified": "Herstelde kopie opgeslagen · structuur geverifieerd",
+"rSavedUnverified": "Herstelde kopie opgeslagen · onafhankelijke verificatie onvolledig",
+"rVerificationTitle": "Onafhankelijke verificatie",
+"rVerificationVerified": "De voorgestelde kopie is structureel geldig. Dit is geen veiligheidsoordeel en geen bewijs van volledig herstel.",
+"rVerificationIncomplete": "De verificatie is onvolledig. Beschouw deze voorgestelde kopie niet als volledig hersteld.",
+"rVerificationDamage": "Er is schade gevonden in de voorgestelde kopie; de kopie is niet opgeslagen.",
+"rDataLoss": "{n} verwijderd uit de voorgestelde kopie.",
+"rOriginalPreserved": "Het originele bestand is bewaard gebleven.",
+"rCandidateHash": "SHA-256 van de voorgestelde kopie",
+"rOriginalInspection": "Beveiligingsinspectie van het origineel",
+"rCandidateInspection": "Beveiligingsinspectie van de voorgestelde kopie",
+"rUnavailable": "niet beschikbaar",
 "rAnother": "Herstel een ander bestand",
 "rMap": "Waar de problemen zitten",
 "settingsTitle": "Instellingen",
@@ -468,7 +513,7 @@ I18N["nl"] = {
 "pScanThisText": "Scan deze tekst",
 "pLookup": "Zoek deze vingerafdruk in je scans",
 "pNoMatch": "Geen scan heeft die vingerafdruk.",
-"pLang": "Overschakelen naar Arabisch",
+"pLang": "Taal wijzigen",
 "pShortcuts": "Sneltoetsen",
 "pInstall": "App installeren",
 "pPrint": "Afdrukken / opslaan als PDF",
@@ -572,9 +617,46 @@ I18N["nl"] = {
 "Privé vanaf de basis",
 "Aan de slag"
 ],
+"dSci": "Wetenschap",
+"askOpen": "Vraag het de AI",
+"askTitle": "Vragen over CyberScan",
+"askSub": "Hoe het werkt, wat resultaten betekenen, wat het niet kan.",
+"askPlaceholder": "Stel een vraag in welke taal je wilt…",
+"askSend": "Versturen",
+"askClose": "Sluiten",
+"askClear": "Nieuwe chat",
+"askBusy": "Even denken…",
+"askEmpty": "Vraag wat je wilt over hoe CyberScan bestanden controleert, wat de wetenschap erachter betekent of hoe je een resultaat leest.",
+"askChips": [
+"Wat doet CyberScan, in eenvoudige woorden?",
+"Voert het mijn bestand uit?",
+"Wat is entropie en waarom is die belangrijk?",
+"Wat betekent een score van 30?",
+"Waar wordt mijn bestand op deze website gecontroleerd?"
+],
+"askNote": "De antwoorden komen uit een nagekeken gids over het project, die naast de code is gelegd. AI kan nog steeds fouten maken; het scanresultaat zelf komt altijd van de scanner.",
+"askSources": {
+"bedrock": "AI-antwoord · uit de projectgids",
+"ollama": "AI-antwoord (lokaal model) · uit de projectgids",
+"guide": "Fragment uit de projectgids · AI is offline",
+"quota": "Fragment uit de projectgids · de gratis AI-vragen van vandaag zijn op"
+},
+"askRefused": "Daar kan ik je niet mee helpen. Vraag me hoe CyberScan werkt of wat een resultaat betekent.",
+"askError": "De assistent kon nu even geen antwoord geven. Probeer het opnieuw.",
+"sciAskCta": "Nog steeds nieuwsgierig? Vraag de AI hier alles over",
+"sciPlainTitle": "In gewone taal",
+"sciPlainIntro": "In één zin: CyberScan leest een bestand zoals een zorgvuldige detective een verdachte brief leest: hij bestudeert de envelop, het handschrift en wat de brief vraagt, zonder ooit te doen wat erin staat.",
+"sciPlain1": "Een Windows-programma is als een pakket met een etiket en een paklijst. CyberScan leest het etiket (wat het programma zegt te zijn), de paklijst (de systeemfuncties waar het om vraagt) en het zegel (de digitale handtekening) zonder het pakket te openen. Een 'fotoviewer' die vraagt om hulpmiddelen waarmee je het toetsenbord in de gaten houdt: dat klopt niet.",
+"sciPlain2": "Entropie meet hoe voorspelbaar de bytes zijn. Een pagina tekst herhaalt letters en woorden, lege ruimte is overal hetzelfde en versleutelde data lijkt op pure ruis. CyberScan tekent dit niveau uit over het hele bestand; een plotselinge sprong van gewone inhoud naar ruis is vaak de plek waar iets begint dat gecomprimeerd of verstopt is.",
+"sciPlain3": "Data die op ruis lijkt is op sommige plekken normaal en op andere niet: een gecomprimeerde foto tussen de bronnen van een programma is prima, dezelfde ruis in de code niet. CyberScan heeft geleerd wat eerlijke programma's in elk deel bewaren en wijst stukken aan die niet op hun plek zijn.",
+"sciPlain4": "Zonder het programma uit te voeren vertaalt CyberScan de machinecode naar instructies en brengt het in kaart hoe het programma daartussen kan springen, zoals je de wegenkaart van een stad tekent zonder er zelf te rijden. Eén soort weg zegt veel: een korte lus die het geheugen stukje bij beetje herschrijft. Zo ontsleutelt verborgen code zichzelf.",
+"sciPlain5": "Alle metingen worden samengevoegd tot één lijst van 4.096 getallen, een vingerafdruk van de vorm van het bestand. Bestanden die op dezelfde manier zijn opgebouwd krijgen vergelijkbare vingerafdrukken, en dat is precies wat een leermodel nodig heeft. Het is een vast recept, geen 'brein', en het model dat de lijst zou lezen blijft uit totdat iemand er een installeert dat hij zelf heeft beoordeeld.",
+"sciPlain6": "Beveiligingsonderzoekers publiceren lijsten met bekende schadelijke bestanden en links. Als je het toestaat, vraagt CyberScan drie van deze diensten tegelijk of ze de vingerafdruk van dit bestand eerder hebben gezien, zonder het bestand zelf te versturen. Een treffer is een melding van iemand anders, geen bewijs; geen treffer betekent niet dat het veilig is.",
+"sciPlain7": "Bij elke waarschuwing hoort een zin die je kunt controleren en een gewicht. De eindscore is de sterkste afzonderlijke waarschuwing, geen optelsom van kleine, zodat veel zwakke aanwijzingen samen geen eng getal kunnen opleveren. 0 betekent dat er niets is gevonden (niet 'veilig'), 1–49 betekent: kijk er even naar, 50 of meer betekent: wees voorzichtig.",
 "pipeTitle": "Negen engines. Eén eerlijk antwoord.",
 "pipeSub": "Elk bestand dat je hierheen sleept, volgt deze route. Wijs een onderdeel aan om te zien wat het doet en kijk hoe de data erdoorheen stroomt.",
 "ppExample": "Wat het kan melden",
+"fxDrag": "sleep",
 "ppInput": "Waar het begint",
 "ppFusion": "Waar het samenkomt",
 "ppVerdict": "Wat jij ziet",
@@ -639,5 +721,43 @@ I18N["nl"] = {
 "Helder oordeel",
 "Een oordeel in jouw taal, elke bevinding uitgelegd in één zin, en alle technische gegevens één tabblad verderop.",
 "“Dit ziet er verdacht uit. Open het niet.”"
-]
+],
+"tooBig": CS_LANGS.fn(["n"], "Dit bestand is groter dan de limiet van {n} MB die in Instellingen is ingesteld."),
+"scannedAt": CS_LANGS.fn(["d"], "Gecontroleerd: {d}"),
+"elapsed": CS_LANGS.fn(["s"], "{s} s"),
+"downloadSeen": CS_LANGS.fn(["name"], "Nieuwe download: {name}"),
+"count": CS_LANGS.fn(["n"], "{n} opgeslagen"),
+"delBody": CS_LANGS.fn(["name"], "“{name}” en het bijbehorende opgeslagen rapport worden verwijderd. Het gescande bestand zelf blijft onaangeroerd."),
+"rFound": CS_LANGS.fn(["n"], [
+"Niets te herstellen",
+"{n} probleem gevonden",
+"{n} problemen gevonden"
+]),
+"rSummary": CS_LANGS.fn(["removed", "before", "after"], "{removed} verwijderd · problemen: {before} voor, {after} na"),
+"rWhere": CS_LANGS.fn(["p"], "Opgeslagen als {p}"),
+"mb": CS_LANGS.fn(["n"], "{n} MB"),
+"sec": CS_LANGS.fn(["n"], "{n} seconden"),
+"seenBefore": CS_LANGS.fn(["n"], [
+"seen",
+"Eerder gezien",
+"{n} keer eerder gezien"
+]),
+"hashedIn": CS_LANGS.fn(["ms"], "vingerafdruk berekend in {ms} ms, zonder te uploaden"),
+"bTitle": CS_LANGS.fn(["n"], [
+"Reeks · {n} bestand",
+"Reeks · {n} bestanden"
+]),
+"bDone": CS_LANGS.fn(["d", "n"], "{d} van {n} klaar"),
+"bFinished": CS_LANGS.fn(["n"], "Alle {n} bestanden gecontroleerd"),
+"insWeekLine": CS_LANGS.fn(["n"], "{n} in de afgelopen 7 dagen"),
+"apkMeta": CS_LANGS.fn(["v", "mb"], "Ondertekende APK · v{v} · {mb} MB · Android 7+"),
+"askLeft": CS_LANGS.fn(["n"], [
+"Nog {n} gratis AI-vraag over vandaag",
+"Nog {n} gratis AI-vragen over vandaag"
+]),
+"ppEngine": CS_LANGS.fn(["n"], "Engine {n} van 9"),
+"rFindingCount": CS_LANGS.fn(["n"], [
+"{n} bevinding",
+"{n} bevindingen"
+])
 };

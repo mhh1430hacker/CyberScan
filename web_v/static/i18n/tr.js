@@ -10,7 +10,7 @@ I18N["tr"] = {
 "lTitle1": "Her dosyanın içini görün,",
 "lTitle2": "o, bilgisayarınızın",
 "lTitle3": "içini görmeden önce.",
-"lSub": "CyberScan bir dosyayı, bağlantıyı ya da metin parçasını bayt bayt inceler, bulduklarını sade bir dille açıklar ve virüslü bir dosyayı zararlı kısmı olmadan yeniden oluşturabilir.",
+"lSub": "CyberScan bir dosyayı, bağlantıyı ya da metin parçasını hiç çalıştırmadan bayt bayt inceler, bulduklarını sade bir dille açıklar ve dosyanın biçimine ait olmayan kısımları çıkararak bir kopyasını yeniden oluşturabilir.",
 "lStart": "Taramaya başla",
 "lWatch": "Nasıl çalıştığını görün",
 "lCardFile": "invoice_2026.pdf.exe",
@@ -49,7 +49,7 @@ I18N["tr"] = {
 ],
 [
 "Açıkla",
-"Arapça ya da İngilizce sade bir karar, her bulgu basit sözcüklerle ve altında tüm teknik veriler."
+"Kendi dilinizde sade bir karar, her bulgu basit sözcüklerle ve altında tüm teknik veriler."
 ]
 ],
 "lCubeTitle": "Bir dosyaya içeriden bakın",
@@ -80,7 +80,7 @@ I18N["tr"] = {
 ],
 [
 "Yerel yapay zekâ özeti",
-"Kendi bilgisayarınızda çalışan isteğe bağlı bir model sonucu açıklar. Hiçbir şey bilgisayarınızdan çıkmaz."
+"Masaüstü uygulamada, kendi bilgisayarınızda çalışan isteğe bağlı bir model sonucu açıklar. Hiçbir şey bilgisayarınızdan çıkmaz."
 ],
 [
 "İndirmeleri izleme",
@@ -108,26 +108,26 @@ I18N["tr"] = {
 "stats": [
 [
 "bu bilgisayarda kayıtlı tarama",
-"tarama"
+"scans"
 ],
 [
 "analiz motoru",
-"motor"
+"engines"
 ],
 [
-"varsayılan olarak internete gönderilen bayt",
-"sıfır"
+"masaüstü uygulamanın varsayılan olarak internete gönderdiği bayt",
+"zero"
 ],
 [
 "dil, sağdan sola yazılanlar dahil",
-"dil"
+"langs"
 ]
 ],
 "lPrivTitle": "Dosyalarınız size ait kalır",
 "privs": [
 [
-"Kendi bilgisayarınızda çalışır",
-"Tarayıcı, geçmiş ve yapay zekâ modeli bu bilgisayarda bulunur."
+"Nerede çalıştığını açıkça söyler",
+"Masaüstü ve Android uygulamaları taramayı kendi cihazınızda yapar. Bu web sitesinde kontrol ettiğiniz dosya CyberScan'in sunucusuna gönderilir, bellekte okunur ve kontrol bitince silinir; orada geçmiş tutulmaz."
 ],
 [
 "Kontrol ettiğini asla çalıştırmaz",
@@ -206,6 +206,39 @@ I18N["tr"] = {
 "tRepairD": "Bir dosyanın hasarlı kısımlarını bulun ve onarılmış bir kopya oluşturun.",
 "tPhoneT": "Cihaz üzerinde tarama",
 "tPhoneD": "Büyük dosyaları yüklemeden telefonunuzda ya da bilgisayarınızda tarayın.",
+"fileToolsTitle": "Dosya analizi",
+"fileToolsLede": "Belgeler, arşivler, QR görselleri, dosya kimliği ve bütünlüğü için odaklı incelemeler. Yüklenen dosyalar veri olarak analiz edilir ve asla çalıştırılmaz.",
+"ftPdfTitle": "PDF güvenliği",
+"ftPdfDesc": "Belge eylemlerini, bağlantıları, üst verileri ve şüpheli gömülü yapıları inceler.",
+"ftArchiveTitle": "Arşiv incelemesi",
+"ftArchiveDesc": "ZIP içeriğini, iç içe yapıları, bütünlüğü ve sıkıştırma anormalliklerini kontrol eder.",
+"ftQrTitle": "QR kod kontrolü",
+"ftQrDesc": "QR kodun götürdüğü adresi çözer ve bağlantıyı açmadan URL riskini değerlendirir.",
+"ftOfficeTitle": "Office belgesi kontrolü",
+"ftOfficeDesc": "Desteklenen Word, Excel ve PowerPoint biçimlerini makrolar ve harici içerik açısından inceler.",
+"ftAuthenticityTitle": "Dosya özgünlüğü",
+"ftAuthenticityDesc": "Dosya adındaki uzantıyı, tespit edilen dosya imzasıyla karşılaştırır.",
+"ftIntegrityTitle": "Dosya bütünlüğü",
+"ftIntegrityDesc": "Kriptografik bir parmak izi hesaplar ve yapısal bütünlüğü inceler.",
+"ftChooseFile": "Bir dosya seçin",
+"ftRun": "Dosyayı incele",
+"ftAnalyzing": "İnceleme sunucuda sürüyor…",
+"ftComplete": "İnceleme tamamlandı.",
+"ftIncomplete": "İnceleme eksik kaldı; bazı kontroller tamamlanmadı.",
+"ftFailed": "İnceleme başarısız oldu:",
+"ftResults": "İnceleme sonuçları",
+"ftRisk": "Birleşik değerlendirme",
+"ftEvidence": "Kanıtlar",
+"ftDetails": "Teknik ayrıntılar",
+"ftLimitations": "Sınırlamalar",
+"ftNoEvidence": "Mevcut kontroller ek bir kanıt bildirmedi.",
+"ftRedacted": "[gizlendi]",
+"detectionCombinedAdvice": "Bu değerlendirme, mevcut taramayı Sentinel içerik incelemesiyle birleştirir. Kanıtları inceleyin; temiz bir sonuç garanti değildir.",
+"detectionIncomplete": "Bağımsız içerik incelemesi eksik kaldı. Bu sonucu doğrulanmamış sayın ve dosyanın temiz olduğunun kanıtı olarak görmeyin.",
+"verdictUnknown": "BELİRSİZ",
+"verdictUnknownTitle": "Bu dosyayı doğrulayamadık",
+"verdictUnknownBody": "Bağımsız inceleme eksiksiz bir karar üretmedi. Bildirilen sınırlamaları inceleyin ve tekrar deneyin.",
+"contentEvidence": "İçerik incelemesi kanıtları",
 "pwHow": "Parolanız bu cihazdan asla çıkmaz. Burada bir parmak izine (SHA-1) dönüştürülür ve bu parmak izinin yalnızca ilk 5 karakteri Have I Been Pwned'a gönderilir; hizmet de bu karakterlerle başlayan tüm sızdırılmış parmak izleriyle yanıt verir.",
 "pwLabel": "Kontrol edilecek parola",
 "pwPh": "Bir parola yazın",
@@ -399,6 +432,18 @@ I18N["tr"] = {
 "rUploadNote": "Bu dosya sürükleyip bırakıldığı için onarılmış kopya indirme olarak sunuluyor.",
 "rChecksOk": "Kontroller başarılı: kopya hâlâ aynı türde dosya olarak açılıyor ve yapısı sağlam.",
 "rChecksBad": "Bazı kontroller dikkat gerektiriyor.",
+"rSavedVerified": "Onarılmış kopya kaydedildi · yapısı doğrulandı",
+"rSavedUnverified": "Onarılmış kopya kaydedildi · bağımsız doğrulama eksik",
+"rVerificationTitle": "Bağımsız doğrulama",
+"rVerificationVerified": "Önerilen kopyanın yapısı geçerli. Bu, bir güvenlik kararı ya da eksiksiz kurtarmanın kanıtı değildir.",
+"rVerificationIncomplete": "Doğrulama eksik. Bu önerilen kopyayı tamamen onarılmış saymayın.",
+"rVerificationDamage": "Önerilen kopyada hasar tespit edildi; kopya kaydedilmedi.",
+"rDataLoss": "Önerilen kopyadan çıkarılan: {n}.",
+"rOriginalPreserved": "Orijinal dosya korundu.",
+"rCandidateHash": "Önerilen kopyanın SHA-256 değeri",
+"rOriginalInspection": "Orijinalin güvenlik incelemesi",
+"rCandidateInspection": "Önerilen kopyanın güvenlik incelemesi",
+"rUnavailable": "kullanılamıyor",
 "rAnother": "Başka bir dosya onar",
 "rMap": "Sorunlar nerede",
 "settingsTitle": "Ayarlar",
@@ -468,7 +513,7 @@ I18N["tr"] = {
 "pScanThisText": "Bu metni tara",
 "pLookup": "Bu parmak izini taramalarınızda bulun",
 "pNoMatch": "Bu parmak izine sahip tarama yok.",
-"pLang": "Arapçaya geç",
+"pLang": "Dili değiştir",
 "pShortcuts": "Klavye kısayolları",
 "pInstall": "Uygulamayı yükle",
 "pPrint": "Yazdır / PDF olarak kaydet",
@@ -572,9 +617,46 @@ I18N["tr"] = {
 "Tasarımı gereği gizli",
 "Başlayın"
 ],
+"dSci": "Bilim",
+"askOpen": "Yapay zekâya sorun",
+"askTitle": "CyberScan hakkında sorun",
+"askSub": "Nasıl çalışır, sonuçlar ne anlama gelir, neleri yapamaz.",
+"askPlaceholder": "İstediğiniz dilde bir soru sorun…",
+"askSend": "Gönder",
+"askClose": "Kapat",
+"askClear": "Yeni sohbet",
+"askBusy": "Düşünüyor…",
+"askEmpty": "CyberScan'in dosyaları nasıl kontrol ettiği, ardındaki bilimin ne anlama geldiği ya da bir sonucun nasıl okunacağı hakkında istediğinizi sorun.",
+"askChips": [
+"CyberScan ne yapar, basitçe anlatır mısınız?",
+"Dosyamı çalıştırıyor mu?",
+"Entropi nedir ve neden önemlidir?",
+"30 puan ne anlama gelir?",
+"Bu web sitesinde dosyam nerede kontrol ediliyor?"
+],
+"askNote": "Yanıtlar, projenin koduyla karşılaştırılarak gözden geçirilmiş bir proje kılavuzuna dayanır. Yapay zekâ yine de hata yapabilir; tarama sonucunun kendisi her zaman tarayıcıdan gelir.",
+"askSources": {
+"bedrock": "Yapay zekâ yanıtı · proje kılavuzundan",
+"ollama": "Yapay zekâ yanıtı (yerel model) · proje kılavuzundan",
+"guide": "Proje kılavuzundan alıntı · yapay zekâ çevrimdışı",
+"quota": "Proje kılavuzundan alıntı · bugünkü ücretsiz yapay zekâ soruları tükendi"
+},
+"askRefused": "Bu konuda yardımcı olamıyorum. Bana CyberScan'in nasıl çalıştığını ya da bir sonucun ne anlama geldiğini sorabilirsiniz.",
+"askError": "Asistan şu anda yanıt veremedi. Lütfen tekrar deneyin.",
+"sciAskCta": "Merakınız sürüyor mu? Bunların herhangi birini yapay zekâya sorun",
+"sciPlainTitle": "Sade bir dille",
+"sciPlainIntro": "Tek cümleyle: CyberScan bir dosyayı, dikkatli bir dedektifin şüpheli bir mektubu okuduğu gibi okur; zarfı, el yazısını ve mektubun ne istediğini inceler ama mektupta yazanı asla yapmaz.",
+"sciPlain1": "Bir Windows programı, üzerinde etiket ve içindekiler listesi bulunan bir koli gibidir. CyberScan koliyi açmadan etiketi (programın kendini nasıl tanıttığını), içindekiler listesini (istediği sistem işlevlerini) ve mührü (dijital imzasını) okur. Klavyeyi izlemeye yarayan araçları isteyen bir “fotoğraf görüntüleyici”de bir tutarsızlık vardır.",
+"sciPlain2": "Entropi, baytların ne kadar öngörülebilir olduğunu ölçer. Bir sayfa metinde harfler ve sözcükler tekrar eder, boş alan baştan sona aynıdır, şifrelenmiş veri ise saf gürültü gibi görünür. CyberScan bu düzeyi dosyanın tamamı boyunca çizer; sıradan içerikten gürültüye ani bir sıçrama, çoğu zaman sıkıştırılmış ya da gizlenmiş bir şeyin başladığı yerdir.",
+"sciPlain3": "Gürültüye benzeyen veri bazı yerlerde normaldir, bazı yerlerde değildir: bir programın kaynakları arasındaki sıkıştırılmış bir fotoğraf sorun değildir, ama aynı gürültü programın kodunun içindeyse sorundur. CyberScan dürüst programların her bölümde ne bulundurduğunu öğrenmiştir ve olmaması gereken yerde duran parçalara dikkat çeker.",
+"sciPlain4": "CyberScan programı çalıştırmadan makine kodunu komutlara çevirir ve bu komutlar arasında nasıl atlanabileceğinin haritasını çıkarır; tıpkı bir şehrin yol haritasını araba sürmeden çizmek gibi. Yol biçimlerinden biri çok şey anlatır: belleği parça parça yeniden yazan dar bir döngü. Gizli kod kendi şifresini işte böyle çözer.",
+"sciPlain5": "Tüm ölçümler 4.096 sayıdan oluşan tek bir listede toplanır; bu, dosyanın biçiminin parmak izidir. Benzer şekilde oluşturulmuş dosyaların parmak izleri de benzer olur; öğrenen bir modelin ihtiyaç duyduğu da budur. Bu sabit bir tariftir, bir “beyin” değil; onu okuyacak model ise biri kendi incelediği bir modeli yükleyene kadar kapalı kalır.",
+"sciPlain6": "Güvenlik araştırmacıları bilinen zararlı dosya ve bağlantıların listelerini yayımlar. İzin verirseniz CyberScan, dosyanın kendisini göndermeden, bu hizmetlerden üçüne aynı anda bu dosyanın parmak izini daha önce görüp görmediklerini sorar. Bir eşleşme başkasının bildirimidir, kanıt değildir; eşleşme olmaması da dosyanın güvenli olduğu anlamına gelmez.",
+"sciPlain7": "Her uyarı, kontrol edebileceğiniz bir cümle ve bir ağırlıkla birlikte gelir. Nihai puan küçük uyarıların toplamı değil, en güçlü tek uyarıdır; bu yüzden çok sayıda zayıf ipucu birikip korkutucu bir sayıya dönüşemez. 0 hiçbir şey bulunmadığı anlamına gelir (“güvenli” değil), 1–49 “bir göz atın”, 50 ve üzeri ise “dikkatli olun” demektir.",
 "pipeTitle": "Dokuz motor. Tek bir dürüst yanıt.",
 "pipeSub": "Bıraktığınız her dosya bu yoldan geçer. Ne yaptığını görmek için herhangi bir parçanın üzerine gelin; verinin içinden nasıl aktığını izleyin.",
 "ppExample": "Neler bildirebilir",
+"fxDrag": "sürükleyin",
 "ppInput": "Nerede başlar",
 "ppFusion": "Nerede birleşir",
 "ppVerdict": "Ne görürsünüz",
@@ -639,5 +721,43 @@ I18N["tr"] = {
 "Sade karar",
 "Kendi dilinizde bir karar, tek cümleyle açıklanan her bulgu ve bir sekme ötede tüm teknik veriler.",
 "“Bu şüpheli görünüyor. Açmayın.”"
-]
+],
+"tooBig": CS_LANGS.fn(["n"], "Bu dosya, Ayarlar'da belirlenen {n} MB sınırından büyük."),
+"scannedAt": CS_LANGS.fn(["d"], "Kontrol edildi: {d}"),
+"elapsed": CS_LANGS.fn(["s"], "{s} sn"),
+"downloadSeen": CS_LANGS.fn(["name"], "Yeni indirme: {name}"),
+"count": CS_LANGS.fn(["n"], "{n} kayıtlı"),
+"delBody": CS_LANGS.fn(["name"], "“{name}” ve kayıtlı raporu kaldırılacak. Taranan dosyanın kendisine dokunulmaz."),
+"rFound": CS_LANGS.fn(["n"], [
+"Onarılacak bir şey yok",
+"{n} sorun bulundu",
+"{n} sorun bulundu"
+]),
+"rSummary": CS_LANGS.fn(["removed", "before", "after"], "Kaldırılan: {removed} · sorunlar: önce {before}, sonra {after}"),
+"rWhere": CS_LANGS.fn(["p"], "{p} olarak kaydedildi"),
+"mb": CS_LANGS.fn(["n"], "{n} MB"),
+"sec": CS_LANGS.fn(["n"], "{n} saniye"),
+"seenBefore": CS_LANGS.fn(["n"], [
+"seen",
+"Daha önce görüldü",
+"Daha önce {n} kez görüldü"
+]),
+"hashedIn": CS_LANGS.fn(["ms"], "parmak izi {ms} ms içinde alındı, dosya yüklenmeden"),
+"bTitle": CS_LANGS.fn(["n"], [
+"Grup · {n} dosya",
+"Grup · {n} dosya"
+]),
+"bDone": CS_LANGS.fn(["d", "n"], "{d} / {n} tamamlandı"),
+"bFinished": CS_LANGS.fn(["n"], "{n} dosyanın tümü kontrol edildi"),
+"insWeekLine": CS_LANGS.fn(["n"], "Son 7 günde {n}"),
+"apkMeta": CS_LANGS.fn(["v", "mb"], "İmzalı APK · v{v} · {mb} MB · Android 7+"),
+"askLeft": CS_LANGS.fn(["n"], [
+"Bugün için {n} ücretsiz yapay zekâ sorunuz kaldı",
+"Bugün için {n} ücretsiz yapay zekâ sorunuz kaldı"
+]),
+"ppEngine": CS_LANGS.fn(["n"], "Motor {n} / 9"),
+"rFindingCount": CS_LANGS.fn(["n"], [
+"{n} bulgu",
+"{n} bulgu"
+])
 };

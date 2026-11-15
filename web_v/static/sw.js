@@ -11,11 +11,11 @@
  *
  * API calls are never touched.
  */
-const CACHE = "cyberscan-v11";
+const CACHE = "cyberscan-v12";
 const ENGINE = "cyberscan-engine-v1";
 const SHELL = [
   "offline.html", "styles.css", "tech.css", "icon.svg", "manifest.webmanifest",
-  "get-app.css", "js/get-app.js", "a11y.css", "js/a11y.js", "js/a11y-early.js", "js/perf.js", "scan.css", "js/site.js", "js/tools.js",
+  "get-app.css", "js/get-app.js", "a11y.css", "js/a11y.js", "js/a11y-early.js", "js/perf.js", "scan.css", "js/site.js", "js/tools.js", "js/i18n.js", "js/languages.js",
   "m/", "m/m.css", "m/m.js", "m/native.js", "m/caps.js", "m/viz.js", "m/report.js", "m/lookup.js", "m/privacy.html", "m/licenses.html", "m/doc.css", "m/doc.js", "m/engine-worker.js", "m/manifest.webmanifest",
   "m/icon-192.png", "m/icon-512.png", "m/icon-maskable-512.png", "m/apple-touch-icon.png",
 ];

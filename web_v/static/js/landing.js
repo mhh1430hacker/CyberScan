@@ -400,7 +400,7 @@
   /* ---------------- stats ---------------- */
   let stats = null, counted = false;
   api("/api/stats").then((s) => { stats = s; fillStats(); }).catch(() => { stats = { scans: 0 }; fillStats(); });
-  function values() { return { scans: stats ? stats.scans : 0, engines: 9, zero: 0, langs: 2 }; }
+  function values() { return { scans: stats ? stats.scans : 0, engines: 9, zero: 0, langs: window.CS_LANGS ? CS_LANGS.list.length : 2 }; }
   function fillStats() { if (counted) countStats(true); }
   function countStats(instant) {
     if (!stats) return;

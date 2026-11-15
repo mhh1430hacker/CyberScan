@@ -539,7 +539,10 @@
 "{size} cut out. Every part matches the original.": "{size} 잘라 냄. 모든 부분이 원본과 일치합니다.",
 "{size} cut out. The fingerprint matches the original byte for byte.": "{size} 잘라 냄. 지문이 원본과 바이트 단위까지 일치합니다.",
 "{what}. It's harmless filler for the demo, placed the way real tampering is. The name hasn't changed; the size grew by {size}.": "{what}. 데모용 무해한 채움 데이터로, 실제 변조와 같은 방식으로 삽입했습니다. 이름은 그대로이며 크기가 {size} 늘었습니다.",
-"“{name}” · {removed} removed · problems found: {before} before, {after} after.": "“{name}” · {removed} 제거 · 발견된 문제: 복구 전 {before}개, 복구 후 {after}개."
+"“{name}” · {removed} removed · problems found: {before} before, {after} after.": "“{name}” · {removed} 제거 · 발견된 문제: 복구 전 {before}개, 복구 후 {after}개.",
+"Malware rule: {rule}": "악성코드 규칙: {rule}",
+"A YARA-Forge rule by {author} matched this file: {description}": "YARA-Forge 규칙(작성자: {author})이 이 파일과 일치했습니다: {description}",
+"We looked at the list of files inside ({count}) but did not scan each one.": "내부 파일 목록({count})은 확인했지만 파일을 하나하나 검사하지는 않았습니다."
 },
 "counts": {
 "finding": {

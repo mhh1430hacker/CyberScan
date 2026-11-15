@@ -10,7 +10,7 @@ I18N["fil"] = {
 "lTitle1": "Silipin ang loob ng anumang file",
 "lTitle2": "bago nito masilip ang loob",
 "lTitle3": "ng computer mo.",
-"lSub": "Hinihimay ng CyberScan ang isang file, link o snippet byte por byte, ipinapaliwanag sa simpleng salita ang nakikita nito, at kaya nitong buuin muli ang isang infected na file nang wala ang mapanganib na bahagi.",
+"lSub": "Hinihimay ng CyberScan ang isang file, link o snippet byte por byte nang hindi ito kailanman pinapatakbo, ipinapaliwanag sa simpleng salita ang nakikita nito, at kaya nitong bumuo muli ng kopya nang wala ang mga bahaging hindi dapat nasa format nito.",
 "lStart": "Simulan ang pag-scan",
 "lWatch": "Tingnan kung paano gumagana",
 "lCardFile": "invoice_2026.pdf.exe",
@@ -49,7 +49,7 @@ I18N["fil"] = {
 ],
 [
 "Ipaliwanag",
-"Isang simpleng hatol sa Arabic o English, bawat natuklasan sa payak na salita, at ang buong teknikal na datos sa ilalim."
+"Isang simpleng hatol sa wika mo, bawat natuklasan sa payak na salita, at ang buong teknikal na datos sa ilalim."
 ]
 ],
 "lCubeTitle": "Tingnan ang file mula sa loob",
@@ -80,7 +80,7 @@ I18N["fil"] = {
 ],
 [
 "Lokal na buod ng AI",
-"Ipinapaliwanag ang resulta ng isang opsyonal na model na tumatakbo sa sarili mong computer. Walang lumalabas sa computer mo."
+"Sa desktop app, ipinapaliwanag ang resulta ng isang opsyonal na model na tumatakbo sa sarili mong computer. Walang lumalabas sa computer mo."
 ],
 [
 "Pagbabantay sa Downloads",
@@ -108,26 +108,26 @@ I18N["fil"] = {
 "stats": [
 [
 "mga scan na naka-save sa computer na ito",
-"scan"
+"scans"
 ],
 [
 "mga analysis engine",
-"engine"
+"engines"
 ],
 [
-"byte na ipinapadala sa internet bilang default",
+"byte na ipinapadala ng desktop app sa internet bilang default",
 "zero"
 ],
 [
 "wika, kasama ang right-to-left",
-"wika"
+"langs"
 ]
 ],
 "lPrivTitle": "Sa iyo pa rin ang mga file mo",
 "privs": [
 [
-"Tumatakbo sa computer mo",
-"Nasa computer na ito ang scanner, ang history at ang AI model."
+"Malinaw kung saan ito tumatakbo",
+"Sa sarili mong device nag-i-scan ang desktop app at ang Android app. Sa website na ito, ang file na ipinasusuri mo ay ipinapadala sa server ng CyberScan, binabasa sa memory at binubura kapag natapos ang pagsusuri; walang history na itinatago roon."
 ],
 [
 "Hindi pinapatakbo ang sinusuri",
@@ -206,6 +206,39 @@ I18N["fil"] = {
 "tRepairD": "Hanapin ang mga sirang bahagi ng file at gumawa ng inayos na kopya.",
 "tPhoneT": "Scan sa device",
 "tPhoneD": "I-scan ang malalaking file sa phone o computer mo nang hindi ina-upload.",
+"fileToolsTitle": "Masusing pagsusuri ng file",
+"fileToolsLede": "Mga nakatutok na pagsusuri para sa mga dokumento, archive, QR image, at sa pagkakakilanlan at integridad ng file. Sinusuri bilang datos ang mga in-upload na file at hindi kailanman pinapatakbo.",
+"ftPdfTitle": "Seguridad ng PDF",
+"ftPdfDesc": "Suriin ang mga action ng dokumento, mga link, metadata at mga kahina-hinalang naka-embed na istruktura.",
+"ftArchiveTitle": "Pagsusuri ng archive",
+"ftArchiveDesc": "Suriin ang laman ng ZIP, mga nakapaloob na istruktura, integridad at mga kakaiba sa compression.",
+"ftQrTitle": "Pagsusuri ng QR code",
+"ftQrDesc": "Alamin kung saan papunta ang QR code at suriin ang panganib ng URL nang hindi binubuksan ang link.",
+"ftOfficeTitle": "Pagsusuri ng Office document",
+"ftOfficeDesc": "Suriin ang mga sinusuportahang format ng Word, Excel at PowerPoint para sa mga macro at panlabas na nilalaman.",
+"ftAuthenticityTitle": "Pagiging tunay ng file",
+"ftAuthenticityDesc": "Ihambing ang extension ng filename sa natukoy na signature ng file.",
+"ftIntegrityTitle": "Integridad ng file",
+"ftIntegrityDesc": "Kalkulahin ang cryptographic hash at suriin ang integridad ng istruktura.",
+"ftChooseFile": "Pumili ng file",
+"ftRun": "Suriin ang file",
+"ftAnalyzing": "Tumatakbo ang pagsusuri sa server…",
+"ftComplete": "Tapos na ang pagsusuri.",
+"ftIncomplete": "Hindi kumpleto ang pagsusuri; may ilang check na hindi natapos.",
+"ftFailed": "Nabigo ang pagsusuri:",
+"ftResults": "Mga resulta ng pagsusuri",
+"ftRisk": "Pinagsamang pagtatasa",
+"ftEvidence": "Ebidensya",
+"ftDetails": "Mga teknikal na detalye",
+"ftLimitations": "Mga limitasyon",
+"ftNoEvidence": "Walang karagdagang ebidensyang iniulat ang mga available na pagsusuri.",
+"ftRedacted": "[itinago]",
+"detectionCombinedAdvice": "Pinagsasama ng pagtatasang ito ang kasalukuyang scan at ang pagsusuri ng nilalaman ng Sentinel. Basahin ang ebidensya; hindi garantiya ang malinis na resulta.",
+"detectionIncomplete": "Hindi natapos ang hiwalay na pagsusuri ng nilalaman. Ituring na hindi pa beripikado ang resultang ito at huwag itong gawing patunay na ligtas ang file.",
+"verdictUnknown": "DI-TIYAK",
+"verdictUnknownTitle": "Hindi namin na-verify ang file na ito",
+"verdictUnknownBody": "Hindi nakapagbigay ng kumpletong hatol ang hiwalay na pagsusuri. Basahin ang mga iniulat na limitasyon at subukang muli.",
+"contentEvidence": "Ebidensya mula sa pagsusuri ng nilalaman",
 "pwHow": "Hindi kailanman lumalabas sa device na ito ang password mo. Dito ito ginagawang fingerprint (SHA-1) at ang unang 5 character lang ng fingerprint na iyon ang ipinapadala sa Have I Been Pwned, na sumasagot ng lahat ng na-leak na fingerprint na nagsisimula sa mga iyon.",
 "pwLabel": "Password na susuriin",
 "pwPh": "Mag-type ng password",
@@ -399,6 +432,18 @@ I18N["fil"] = {
 "rUploadNote": "In-drop ang file na ito, kaya iniaalok ang inayos na kopya bilang download.",
 "rChecksOk": "Pumasa sa mga pagsusuri: nabubuksan pa rin ang kopya bilang parehong uri ng file at buo ang istruktura nito.",
 "rChecksBad": "May ilang pagsusuri na kailangang tingnan.",
+"rSavedVerified": "Na-save ang inayos na kopya · beripikado ang istruktura",
+"rSavedUnverified": "Na-save ang inayos na kopya · hindi kumpleto ang hiwalay na beripikasyon",
+"rVerificationTitle": "Hiwalay na beripikasyon",
+"rVerificationVerified": "Wasto ang istruktura ng iminumungkahing kopya. Hindi ito hatol na ligtas ito o patunay na ganap itong naibalik.",
+"rVerificationIncomplete": "Hindi kumpleto ang beripikasyon. Huwag ituring na ganap nang naayos ang iminumungkahing kopyang ito.",
+"rVerificationDamage": "May nakitang sira sa iminumungkahing kopya; hindi ito na-save.",
+"rDataLoss": "{n} ang inalis mula sa iminumungkahing kopya.",
+"rOriginalPreserved": "Napanatili ang orihinal na file.",
+"rCandidateHash": "SHA-256 ng iminumungkahing kopya",
+"rOriginalInspection": "Pagsusuri sa seguridad ng orihinal",
+"rCandidateInspection": "Pagsusuri sa seguridad ng iminumungkahing kopya",
+"rUnavailable": "hindi available",
 "rAnother": "Mag-ayos ng ibang file",
 "rMap": "Nasaan ang mga problema",
 "settingsTitle": "Settings",
@@ -468,7 +513,7 @@ I18N["fil"] = {
 "pScanThisText": "I-scan ang text na ito",
 "pLookup": "Hanapin ang fingerprint na ito sa mga scan mo",
 "pNoMatch": "Walang scan na may ganoong fingerprint.",
-"pLang": "Lumipat sa Arabic",
+"pLang": "Palitan ang wika",
 "pShortcuts": "Mga keyboard shortcut",
 "pInstall": "I-install ang app",
 "pPrint": "I-print / i-save bilang PDF",
@@ -572,9 +617,46 @@ I18N["fil"] = {
 "Pribado mula sa disenyo",
 "Magsimula"
 ],
+"dSci": "Agham",
+"askOpen": "Tanungin ang AI",
+"askTitle": "Magtanong tungkol sa CyberScan",
+"askSub": "Paano ito gumagana, ano ang ibig sabihin ng mga resulta, at ano ang hindi nito kaya.",
+"askPlaceholder": "Magtanong sa anumang wika…",
+"askSend": "Ipadala",
+"askClose": "Isara",
+"askClear": "Bagong chat",
+"askBusy": "Nag-iisip…",
+"askEmpty": "Magtanong ng kahit ano tungkol sa kung paano sinusuri ng CyberScan ang mga file, ano ang ibig sabihin ng agham sa likod nito, o kung paano basahin ang isang resulta.",
+"askChips": [
+"Ano ang ginagawa ng CyberScan, sa simpleng salita?",
+"Pinapatakbo ba nito ang file ko?",
+"Ano ang entropy at bakit ito mahalaga?",
+"Ano ang ibig sabihin ng score na 30?",
+"Saan sinusuri ang file ko sa website na ito?"
+],
+"askNote": "Galing ang mga sagot sa isang nirepasong gabay ng proyekto na itinugma sa code nito. Maaari pa ring magkamali ang AI; ang mismong resulta ng scan ay laging galing sa scanner.",
+"askSources": {
+"bedrock": "Sagot ng AI · mula sa gabay ng proyekto",
+"ollama": "Sagot ng AI (lokal na model) · mula sa gabay ng proyekto",
+"guide": "Sipi mula sa gabay ng proyekto · offline ang AI",
+"quota": "Sipi mula sa gabay ng proyekto · naubos na ang mga libreng tanong sa AI ngayong araw"
+},
+"askRefused": "Hindi kita matutulungan diyan. Tanungin mo ako kung paano gumagana ang CyberScan o kung ano ang ibig sabihin ng isang resulta.",
+"askError": "Hindi makasagot ang assistant sa ngayon. Pakisubukang muli.",
+"sciAskCta": "May gusto ka pang malaman? Tanungin ang AI tungkol sa alinman dito",
+"sciPlainTitle": "Sa simpleng salita",
+"sciPlainIntro": "Sa isang pangungusap: binabasa ng CyberScan ang isang file gaya ng pagbasa ng maingat na detektib sa isang kahina-hinalang liham. Pinag-aaralan nito ang sobre, ang sulat-kamay at ang hinihiling ng liham, nang hindi kailanman ginagawa ang sinasabi nito.",
+"sciPlain1": "Ang isang Windows program ay parang parsela na may label at listahan ng laman. Binabasa ng CyberScan ang label (kung ano ang sinasabi ng program na siya), ang listahan ng laman (ang mga function ng system na hinihingi nito) at ang selyo (ang digital signature nito) nang hindi binubuksan ang parsela. Hindi tugma kapag ang isang 'photo viewer' ay humihingi ng mga tool para bantayan ang keyboard.",
+"sciPlain2": "Sinusukat ng entropy kung gaano kadaling hulaan ang mga byte. Sa isang pahina ng text, paulit-ulit ang mga letra at salita; pare-pareho ang bakanteng espasyo; at ang naka-encrypt na datos ay mukhang purong ingay. Iginuguhit ng CyberScan ang antas na ito sa kahabaan ng buong file; ang biglaang pagtalon mula sa karaniwang nilalaman papunta sa ingay ay kadalasang simula ng isang bagay na naka-pack o nakatago.",
+"sciPlain3": "Normal ang datos na parang ingay sa ilang lugar pero hindi sa iba: ayos lang ang naka-compress na larawan sa loob ng resources ng isang program, pero hindi ang ganoon ding ingay sa loob ng code nito. Natutunan ng CyberScan kung ano ang inilalagay ng mga tapat na program sa bawat bahagi, at itinuturo nito ang mga pirasong wala sa tamang lugar.",
+"sciPlain4": "Nang hindi pinapatakbo ang program, isinasalin ng CyberScan ang machine code nito sa mga instruction at minamapa kung paano ito nakakatalon sa pagitan ng mga iyon, parang pagguhit ng mapa ng mga kalsada ng isang lungsod nang hindi nagmamaneho. May isang hugis ng kalsada na maraming sinasabi: isang masikip na loop na paisa-isang bahaging muling isinusulat ang memory, na siyang paraan ng nakatagong code para i-decrypt ang sarili nito.",
+"sciPlain5": "Pinagsasama ang lahat ng sukat sa iisang listahan ng 4,096 na numero, isang fingerprint ng hugis ng file. Nagkakaroon ng magkakahawig na fingerprint ang mga file na magkakatulad ang pagkakabuo, at iyon ang kailangan ng isang learning model. Isa itong nakapirming resipe, hindi 'utak', at nananatiling naka-off ang model na babasa nito hangga't walang nag-i-install ng model na sila mismo ang nagrepaso.",
+"sciPlain6": "Naglalathala ang mga security researcher ng mga listahan ng mga kilalang mapanganib na file at link. Kung papayagan mo, sabay-sabay na tinatanong ng CyberScan ang tatlo sa mga serbisyong ito kung nakita na nila ang fingerprint ng file na ito, nang hindi ipinapadala ang mismong file. Ang tugma ay ulat ng iba, hindi patunay; at ang kawalan ng tugma ay hindi nangangahulugang ligtas.",
+"sciPlain7": "Bawat babala ay may kasamang pangungusap na masusuri mo at isang timbang. Ang huling score ay ang nag-iisang pinakamalakas na babala, hindi patong-patong na maliliit, kaya hindi mauuwi sa nakakatakot na numero ang maraming mahihinang pahiwatig. Ang 0 ay nangangahulugang walang nakita (hindi 'ligtas'), ang 1–49 ay sulit na tingnan, at ang 50 pataas ay mag-ingat.",
 "pipeTitle": "Siyam na engine. Isang tapat na sagot.",
 "pipeSub": "Dumadaan sa landas na ito ang bawat file na i-drop mo. I-hover ang anumang bahagi para makita ang ginagawa nito; panoorin ang pagdaloy ng datos dito.",
 "ppExample": "Ang maaari nitong iulat",
+"fxDrag": "i-drag",
 "ppInput": "Kung saan ito nagsisimula",
 "ppFusion": "Kung saan ito nagsasama-sama",
 "ppVerdict": "Ang makikita mo",
@@ -639,5 +721,43 @@ I18N["fil"] = {
 "Simpleng hatol",
 "Isang hatol sa wika mo, bawat natuklasan ay ipinaliwanag sa isang pangungusap, at lahat ng teknikal na datos ay isang tab lang ang layo.",
 "“Mukhang kahina-hinala ito. Huwag itong buksan.”"
-]
+],
+"tooBig": CS_LANGS.fn(["n"], "Mas malaki ang file na ito kaysa sa {n} MB na limit na itinakda sa Settings."),
+"scannedAt": CS_LANGS.fn(["d"], "Sinuri: {d}"),
+"elapsed": CS_LANGS.fn(["s"], "{s} s"),
+"downloadSeen": CS_LANGS.fn(["name"], "Bagong download: {name}"),
+"count": CS_LANGS.fn(["n"], "{n} naka-save"),
+"delBody": CS_LANGS.fn(["name"], "Aalisin ang “{name}” at ang naka-save nitong ulat. Hindi gagalawin ang mismong file na na-scan."),
+"rFound": CS_LANGS.fn(["n"], [
+"Walang kailangang ayusin",
+"{n} problema ang nakita",
+"{n} problema ang nakita"
+]),
+"rSummary": CS_LANGS.fn(["removed", "before", "after"], "{removed} ang tinanggal · mga problema: {before} bago, {after} pagkatapos"),
+"rWhere": CS_LANGS.fn(["p"], "Na-save bilang {p}"),
+"mb": CS_LANGS.fn(["n"], "{n} MB"),
+"sec": CS_LANGS.fn(["n"], "{n} segundo"),
+"seenBefore": CS_LANGS.fn(["n"], [
+"seen",
+"Nasuri na dati",
+"Nasuri na nang {n} beses dati"
+]),
+"hashedIn": CS_LANGS.fn(["ms"], "nakuha ang fingerprint sa loob ng {ms} ms, nang hindi ina-upload"),
+"bTitle": CS_LANGS.fn(["n"], [
+"Batch na may {n} file",
+"Batch na may {n} file"
+]),
+"bDone": CS_LANGS.fn(["d", "n"], "{d} sa {n} ang tapos na"),
+"bFinished": CS_LANGS.fn(["n"], "Nasuri na ang lahat ng {n} file"),
+"insWeekLine": CS_LANGS.fn(["n"], "{n} sa huling 7 araw"),
+"apkMeta": CS_LANGS.fn(["v", "mb"], "Pinirmahang APK · v{v} · {mb} MB · Android 7+"),
+"askLeft": CS_LANGS.fn(["n"], [
+"{n} libreng tanong sa AI ang natitira ngayong araw",
+"{n} libreng tanong sa AI ang natitira ngayong araw"
+]),
+"ppEngine": CS_LANGS.fn(["n"], "Engine {n} sa 9"),
+"rFindingCount": CS_LANGS.fn(["n"], [
+"{n} natuklasan",
+"{n} natuklasan"
+])
 };

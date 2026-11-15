@@ -539,7 +539,10 @@
 "{size} cut out. Every part matches the original.": "{size} kesilip çıkarıldı. Her parça orijinalle eşleşiyor.",
 "{size} cut out. The fingerprint matches the original byte for byte.": "{size} kesilip çıkarıldı. Parmak izi orijinalle bayt bayt eşleşiyor.",
 "{what}. It's harmless filler for the demo, placed the way real tampering is. The name hasn't changed; the size grew by {size}.": "{what}. Tanıtım için konmuş zararsız bir dolgu; gerçek bir kurcalamadaki gibi yerleştirildi. Ad değişmedi; boyut {size} arttı.",
-"“{name}” · {removed} removed · problems found: {before} before, {after} after.": "“{name}” · kaldırılan: {removed} · bulunan sorunlar: önce {before}, sonra {after}."
+"“{name}” · {removed} removed · problems found: {before} before, {after} after.": "“{name}” · kaldırılan: {removed} · bulunan sorunlar: önce {before}, sonra {after}.",
+"Malware rule: {rule}": "Kötü amaçlı yazılım kuralı: {rule}",
+"A YARA-Forge rule by {author} matched this file: {description}": "{author} tarafından yazılmış bir YARA-Forge kuralı bu dosyayla eşleşti: {description}",
+"We looked at the list of files inside ({count}) but did not scan each one.": "İçindeki dosyaların listesine baktık ({count}) ama her birini tek tek taramadık."
 },
 "counts": {
 "finding": {

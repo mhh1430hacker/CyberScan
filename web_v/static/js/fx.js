@@ -67,7 +67,7 @@
       ring.classList.toggle("drag", !!drag);
       ring.classList.toggle("hover", !!hover);
       dot.classList.toggle("text", !!field);
-      mid.textContent = drag ? (window.CS.lang === "ar" ? "اسحب" : "drag") : hover ? "/" : "";
+      mid.textContent = drag ? t("fxDrag") : hover ? "/" : "";
       if (reduced) { rx = x; ry = y; ring.style.transform = `translate(${rx}px, ${ry}px)`; }
     }, { passive: true });
     window.addEventListener("pointerdown", () => ring.classList.add("press"));

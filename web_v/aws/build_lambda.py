@@ -63,6 +63,7 @@ def main() -> None:
     assets = [p for p in web if is_asset(p)]
     paths |= {p for p in web if not is_asset(p)}
     paths |= {"config.py"}
+    paths |= set(git("ls-files", "ui/lang").splitlines())  # scan results in 28 more languages (ui/i18n.py)
     for rel in sorted(paths):
         target = BUILD / rel
         target.parent.mkdir(parents=True, exist_ok=True)

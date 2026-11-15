@@ -114,8 +114,23 @@
     search.focus();
   }
 
+  /* A counted message for the language files: fn(["n"], "{n} saved") or, with forms,
+   * [one, more], ["seen", once, more] or [none, one, more]; the first argument is the number. */
+  function fn(args, forms) {
+    return (...values) => {
+      const n = Number(values[0]);
+      let text = forms;
+      if (Array.isArray(forms)) {
+        if (forms[0] === "seen") text = n > 1 ? forms[2] : forms[1];
+        else if (forms.length === 3) text = !n ? forms[0] : n === 1 ? forms[1] : forms[2];
+        else text = n === 1 ? forms[0] : forms[1];
+      }
+      return text.replace(/\{(\w+)\}/g, (all, name) => (args.includes(name) ? values[args.indexOf(name)] : all));
+    };
+  }
+
   window.CS_LANGS = {
-    list: LIST, names, rtl: RTL, load, suggest, openMenu, closeMenu,
+    list: LIST, names, rtl: RTL, load, suggest, openMenu, closeMenu, fn,
     has: (code) => !!names[code],
     dir: (code) => (RTL.has(code) ? "rtl" : "ltr"),
   };
