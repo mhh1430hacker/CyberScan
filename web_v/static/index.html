@@ -20,7 +20,7 @@
   <link rel="stylesheet" href="motion.css">
   <link rel="stylesheet" href="scroll.css">
   <link rel="stylesheet" href="science.css">
-  <link rel="stylesheet" href="lab.css">
+  <link rel="stylesheet" href="scrolly.css">
   <link rel="stylesheet" href="cyber.css">
   <link rel="stylesheet" href="theme.css">
   <link rel="stylesheet" href="ask.css">
@@ -263,20 +263,101 @@
       <header class="sci-head" data-shape="hex" data-shape-fade="0.12">
         <span class="sec-tag" data-i18n="sciTag">// The science</span>
         <h2 class="l-h2 center" id="sci-title" data-i18n="sciTitle">The science behind CyberScan</h2>
-        <p class="sci-sub" data-i18n="sciSub">See beyond the surface: explore CyberScan's technology hands-on, then read the full technical detail.</p>
+        <p class="sci-sub" data-i18n="sciSub">Scroll to see how CyberScan works.</p>
         <aside class="sci-plain sci-plain-intro"><b data-i18n="sciPlainTitle">In plain words</b><p dir="auto" data-i18n="sciPlainIntro">In one sentence: CyberScan reads a file the way a careful detective reads a suspicious letter, studying the envelope, the handwriting and what the letter asks for, without ever doing what it says.</p></aside>
       </header>
 
-      <!-- ============ THE CYBERSCAN LAB (lab.css, js/lab.js, js/lab-i18n.js, data/lab.json from web_v/make_lab_data.py) ============ -->
-      <div class="lab" id="lab" data-shape="hex" data-shape-fade="0.06" data-level="1">
-        <p class="lab-fallback" data-i18n="labNoscript">The CyberScan Lab needs JavaScript. The technical deep dive below works without it.</p>
+      <!-- ============ THE CYBERSCAN STORY (scrolly.css, js/scrolly.js, js/scrolly-i18n.js) ============ -->
+      <div class="sy" id="sci-story">
+        <nav class="sy-nav" aria-label="Story chapters" data-i18n-aria="syNav"><ol><li><a href="#sy-1" data-go="1"><i>01</i><span data-i18n="syK1">The digital world</span></a></li><li><a href="#sy-2" data-go="2"><i>02</i><span data-i18n="syK2">Inside a file</span></a></li><li><a href="#sy-3" data-go="3"><i>03</i><span data-i18n="syK3">How CyberScan analyzes</span></a></li><li><a href="#sy-4" data-go="4"><i>04</i><span data-i18n="syK4">Beyond files</span></a></li><li><a href="#sy-5" data-go="5"><i>05</i><span data-i18n="syK5">One ecosystem</span></a></li><li><a href="#sy-6" data-go="6"><i>06</i><span data-i18n="syK6">CyberScan</span></a></li></ol></nav>
+        <section class="sy-scene sy-s1" id="sy-1" data-scene="1" data-shape="sphere" data-shape-fade="0.14" aria-labelledby="sy1-h">
+          <div class="sy-stage"><div class="sy-inner">
+            <div class="sy-copy">
+              <p class="sy-kicker"><span>01</span> <b data-i18n="syK1">The digital world</b></p>
+              <h3 class="sy-title" data-i18n="syT1" id="sy1-h">Everything is connected.</h3>
+              <div class="sy-beats"><p class="sy-beat" data-i18n="sy1b0" data-b="0">Files, apps, websites and devices talk to each other all day.</p><p class="sy-beat" data-i18n="sy1b1" data-b="1">Almost everything that moves between them is safe.</p><p class="sy-beat" data-i18n="sy1b2" data-b="2">But a threat can look exactly like everything else.</p></div>
+            </div>
+            <div class="sy-visual sy-world" aria-hidden="true">
+              <svg class="sy-svg" viewBox="0 0 600 500"><path class="sy-ring" pathLength="1" d="M96 105 L504 105 L546 300 L408 440 L192 440 L54 300 Z"/><path class="sy-spoke" data-i="0" pathLength="1" d="M96 105L300 250"/><path class="sy-spoke" data-i="1" pathLength="1" d="M504 105L300 250"/><path class="sy-spoke" data-i="2" pathLength="1" d="M546 300L300 250"/><path class="sy-spoke" data-i="3" pathLength="1" d="M408 440L300 250"/><path class="sy-spoke" data-i="4" pathLength="1" d="M192 440L300 250"/><path class="sy-spoke" data-i="5" pathLength="1" d="M54 300L300 250"/><circle class="sy-pk" r="3.4" cx="96" cy="105"/><circle class="sy-pk" r="3.4" cx="504" cy="105"/><circle class="sy-pk" r="3.4" cx="546" cy="300"/><circle class="sy-pk" r="3.4" cx="408" cy="440"/><circle class="sy-pk" r="3.4" cx="192" cy="440"/><circle class="sy-pk" r="3.4" cx="54" cy="300"/></svg>
+              <div class="sy-node n-you" data-i="0"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v10H4zM2 19h20M9 16v3m6-3v3"/></svg><span data-i18n="syYou">You</span></div><div class="sy-node n-files" data-i="1"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7zM14 3v5h5"/></svg><span data-i18n="syFiles">Files</span></div><div class="sy-node n-apps" data-i="2"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h7v7H4zm9 0h7v7h-7zM4 13h7v7H4zm9 0h7v7h-7z"/></svg><span data-i18n="syApps">Apps</span></div><div class="sy-node n-web" data-i="3"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM3 12h18M12 3c2.8 3 2.8 15 0 18M12 3c-2.8 3-2.8 15 0 18"/></svg><span data-i18n="syWeb">Websites</span></div><div class="sy-node n-devices" data-i="4"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h8v18H8zM11 18h2"/></svg><span data-i18n="syDevices">Devices</span></div><div class="sy-node n-cloud" data-i="5"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18h10a4 4 0 0 0 .6-8A6 6 0 0 0 6.2 9.5 4.3 4.3 0 0 0 7 18z"/></svg><span data-i18n="syCloud">Cloud</span></div><div class="sy-node n-net" data-i="6"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 15h14v5H5zM12 15V9m-4-2a5.5 5.5 0 0 1 8 0M5.5 4.5a9 9 0 0 1 13 0"/></svg><span data-i18n="syNet">Networks</span></div>
+              <div class="sy-threat"><i></i><span data-i18n="syLooks">Looks normal</span></div>
+            </div>
+          </div></div>
+        </section>
+        <section class="sy-scene sy-s2" id="sy-2" data-scene="2" data-shape="file" data-shape-fade="0.12" aria-labelledby="sy2-h">
+          <div class="sy-stage"><div class="sy-inner">
+            <div class="sy-copy">
+              <p class="sy-kicker"><span>02</span> <b data-i18n="syK2">Inside a file</b></p>
+              <h3 class="sy-title" data-i18n="syT2" id="sy2-h">A name is only a label.</h3>
+              <div class="sy-beats"><p class="sy-beat" data-i18n="sy2b0" data-b="0">This file says it is an invoice.</p><p class="sy-beat" data-i18n="sy2b1" data-b="1">CyberScan looks inside it, layer by layer.</p><p class="sy-beat" data-i18n="sy2b2" data-b="2">The name says document. The inside says program.</p></div>
+            </div>
+            <div class="sy-visual sy-file" aria-hidden="true">
+              <div class="sy-persp"><div class="sy-stack"><div class="sy-layer" data-i="0"><span class="ly-name"><svg class="sy-ic lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7zM14 3v5h5"/></svg>invoice.pdf</span></div><div class="sy-layer" data-i="1"><span class="ly-hex"><b>4D 5A</b> 90 00 03 00 · · · <em>M Z</em></span></div><div class="sy-layer" data-i="2"><span class="ly-blocks"><i></i><i></i><i></i><i></i></span></div><div class="sy-layer" data-i="3"><span class="ly-noise"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></div><div class="sy-layer" data-i="4"><span class="ly-hash">SHA-256<b>d8957b11…167c97c</b></span></div></div></div>
+              <ol class="sy-lbls"><li class="sy-lbl" data-i="0"><b data-i18n="syL1">Name</b><span data-i18n="syL1d">What it claims to be</span></li><li class="sy-lbl" data-i="1"><b data-i18n="syL2">First bytes</b><span data-i18n="syL2d">What it really is: a program</span></li><li class="sy-lbl" data-i="2"><b data-i18n="syL3">Structure</b><span data-i18n="syL3d">How it is built</span></li><li class="sy-lbl" data-i="3"><b data-i18n="syL4">Contents</b><span data-i18n="syL4d">Ordered, or scrambled?</span></li><li class="sy-lbl" data-i="4"><b data-i18n="syL5">Fingerprint</b><span data-i18n="syL5d">A unique ID for these exact bytes</span></li></ol>
+            </div>
+          </div></div>
+        </section>
+        <section class="sy-scene sy-s3" id="sy-3" data-scene="3" data-shape="hex" data-shape-fade="0.1" aria-labelledby="sy3-h">
+          <div class="sy-stage"><div class="sy-inner">
+            <div class="sy-copy">
+              <p class="sy-kicker"><span>03</span> <b data-i18n="syK3">How CyberScan analyzes</b></p>
+              <h3 class="sy-title" data-i18n="syT3" id="sy3-h">Six steps. Nothing runs.</h3>
+              <div class="sy-beats"></div>
+            </div>
+            <div class="sy-visual sy-pipe">
+              <div class="sy-trackwrap" aria-hidden="true"><div class="sy-track"><span class="sy-rail"><i></i></span><div class="sy-st" data-i="0"><span class="sy-st-dot"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v12m-5-5 5 5 5-5M5 20h14"/></svg></span><b data-i18n="syS1">Receive</b></div><div class="sy-st" data-i="1"><span class="sy-st-dot"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v4H4zm0 6h7v10H4zm9 0h7v4h-7zm0 6h7v4h-7z"/></svg></span><b data-i18n="syS2">Structure</b></div><div class="sy-st" data-i="2"><span class="sy-st-dot"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4-4"/></svg></span><b data-i18n="syS3">Indicators</b></div><div class="sy-st" data-i="3"><span class="sy-st-dot"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M5 7h14M5 7l-3 7a3 3 0 0 0 6 0zm14 0-3 7a3 3 0 0 0 6 0z"/></svg></span><b data-i18n="syS4">Weigh</b></div><div class="sy-st" data-i="4"><span class="sy-st-dot"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4v6a6 6 0 0 0 12 0V4M12 16v5"/></svg></span><b data-i18n="syS5">Combine</b></div><div class="sy-st" data-i="5"><span class="sy-st-dot"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.4 8.4 8 9.5 4.6-1.1 8-4.5 8-9.5V6zM8.5 12l2.5 2.5 4.5-5"/></svg></span><b data-i18n="syS6">Assess</b></div><span class="sy-token"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7zM14 3v5h5"/></svg></span></div></div>
+              <div class="sy-capts"><div class="sy-capt" data-i="0"><span>01</span><p data-i18n="syS1d">The file arrives. It is never opened or run.</p></div><div class="sy-capt" data-i="1"><span>02</span><p data-i18n="syS2d">Its real format and parts are read.</p></div><div class="sy-capt" data-i="2"><span>03</span><p data-i18n="syS3d">Clues are collected: name, signature, scrambled data, known patterns.</p></div><div class="sy-capt" data-i="3"><span>04</span><p data-i18n="syS4d">Each clue is weighed: harmless alone, or a real warning sign?</p></div><div class="sy-capt" data-i="4"><span>05</span><p data-i18n="syS5d">Clues about the same thing count once. The strongest decides.</p></div><div class="sy-capt sy-result" data-i="5"><span>06</span><p data-i18n="syS6d">A score and a plain explanation.</p>
+                  <div class="sy-res"><code>invoice.pdf.exe</code><div class="sy-gauge"><i></i></div>
+                  <p class="sy-score"><b>55</b><small>/100</small> <strong data-i18n="syRes">Suspicious</strong></p><p class="sy-why" data-i18n="syResWhy">A program pretending to be a document. A warning sign, not proof.</p><small class="sy-note" data-i18n="syResNote">Real result from CyberScan's engine on a harmless test file.</small></div></div></div>
+            </div>
+          </div></div>
+        </section>
+        <section class="sy-scene sy-s4" id="sy-4" data-scene="4" data-shape="sphere" data-shape-fade="0.12" aria-labelledby="sy4-h">
+          <div class="sy-stage"><div class="sy-inner">
+            <div class="sy-copy">
+              <p class="sy-kicker"><span>04</span> <b data-i18n="syK4">Beyond files</b></p>
+              <h3 class="sy-title" data-i18n="syT4" id="sy4-h">Threats don't only hide in files.</h3>
+              <div class="sy-beats"><p class="sy-beat" data-i18n="sy4b0" data-b="0">Danger also travels in links, emails and websites.</p><p class="sy-beat" data-i18n="sy4b1" data-b="1">It hides in networks, systems, code and the cloud.</p><p class="sy-beat" data-i18n="sy4b2" data-b="2">Solid: on the website today. Dashed: being built.</p></div>
+            </div>
+            <div class="sy-visual sy-eco" aria-hidden="true">
+              <svg class="sy-svg" viewBox="0 0 600 600"><circle class="sy-orbit" cx="300" cy="300" r="228"/><path class="sy-espoke live" data-i="0" pathLength="1" d="M300 300L300.0 72.0"/><path class="sy-espoke live" data-i="1" pathLength="1" d="M300 300L434.0 115.5"/><path class="sy-espoke live" data-i="2" pathLength="1" d="M300 300L516.8 229.5"/><path class="sy-espoke dev" data-i="3" pathLength="1" d="M300 300L516.8 370.5"/><path class="sy-espoke live" data-i="4" pathLength="1" d="M300 300L434.0 484.5"/><path class="sy-espoke dev" data-i="5" pathLength="1" d="M300 300L300.0 528.0"/><path class="sy-espoke dev" data-i="6" pathLength="1" d="M300 300L166.0 484.5"/><path class="sy-espoke part" data-i="7" pathLength="1" d="M300 300L83.2 370.5"/><path class="sy-espoke dev" data-i="8" pathLength="1" d="M300 300L83.2 229.5"/><path class="sy-espoke dev" data-i="9" pathLength="1" d="M300 300L166.0 115.5"/></svg>
+              <div class="sy-core"><span class="sy-core-ring"></span><b>CyberScan</b></div>
+              <div class="sy-dom live" data-i="0"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7zM14 3v5h5"/></svg><span data-i18n="syD1">File security</span></div><div class="sy-dom live" data-i="1"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4a5 5 0 0 0-5 5v3l-2 3h14l-2-3V9a5 5 0 0 0-5-5zM9 18a3 3 0 0 0 6 0"/></svg><span data-i18n="syD2">Malware analysis</span></div><div class="sy-dom live" data-i="2"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><span data-i18n="syD3">URL &amp; domain</span></div><div class="sy-dom dev" data-i="3"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18v14H3zM3 9h18M7 7h.01"/></svg><span data-i18n="syD4">Website security</span></div><div class="sy-dom live" data-i="4"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18v12H3zM3 7l9 6 9-6"/></svg><span data-i18n="syD5">Email security</span></div><div class="sy-dom dev" data-i="5"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 15h14v5H5zM12 15V9m-4-2a5.5 5.5 0 0 1 8 0"/></svg><span data-i18n="syD6">Network security</span></div><div class="sy-dom dev" data-i="6"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H4zM2 20h20"/></svg><span data-i18n="syD7">System security</span></div><div class="sy-dom part" data-i="7"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.5 3 8.2 7 9.5 4-1.3 7-5 7-9.5V6zM9.5 11h5v4h-5zm1-2a1.5 1.5 0 0 1 3 0v2h-3z"/></svg><span data-i18n="syD8">Privacy</span></div><div class="sy-dom dev" data-i="8"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8 4 12l4 4m8-8 4 4-4 4M14 5l-4 14"/></svg><span data-i18n="syD9">Code &amp; dependencies</span></div><div class="sy-dom dev" data-i="9"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18h10a4 4 0 0 0 .6-8A6 6 0 0 0 6.2 9.5 4.3 4.3 0 0 0 7 18z"/></svg><span data-i18n="syD10">Cloud &amp; infrastructure</span></div>
+            </div>
+          </div></div>
+        </section>
+        <section class="sy-scene sy-s5" id="sy-5" data-scene="5" data-shape="ring" data-shape-fade="0.14" aria-labelledby="sy5-h">
+          <div class="sy-stage"><div class="sy-inner">
+            <div class="sy-copy">
+              <p class="sy-kicker"><span>05</span> <b data-i18n="syK5">One ecosystem</b></p>
+              <h3 class="sy-title" data-i18n="syT5" id="sy5-h">Many checks. One clear answer.</h3>
+              <div class="sy-beats"><p class="sy-beat" data-i18n="sy5b0" data-b="0">Each area needs its own checks.</p><p class="sy-beat" data-i18n="sy5b1" data-b="1">CyberScan connects them: a link inside an email, the download behind a link, a secret inside code.</p><p class="sy-beat" data-i18n="sy5b2" data-b="2">The aim: one clear answer you can understand, wherever the risk comes from.</p></div>
+            </div>
+            <div class="sy-visual sy-eco sy-eco2" aria-hidden="true">
+              <svg class="sy-svg" viewBox="0 0 600 600"><circle class="sy-orbit" cx="300" cy="300" r="228"/><path class="sy-espoke live" data-i="0" pathLength="1" d="M300 300L300.0 72.0"/><path class="sy-espoke live" data-i="1" pathLength="1" d="M300 300L434.0 115.5"/><path class="sy-espoke live" data-i="2" pathLength="1" d="M300 300L516.8 229.5"/><path class="sy-espoke dev" data-i="3" pathLength="1" d="M300 300L516.8 370.5"/><path class="sy-espoke live" data-i="4" pathLength="1" d="M300 300L434.0 484.5"/><path class="sy-espoke dev" data-i="5" pathLength="1" d="M300 300L300.0 528.0"/><path class="sy-espoke dev" data-i="6" pathLength="1" d="M300 300L166.0 484.5"/><path class="sy-espoke part" data-i="7" pathLength="1" d="M300 300L83.2 370.5"/><path class="sy-espoke dev" data-i="8" pathLength="1" d="M300 300L83.2 229.5"/><path class="sy-espoke dev" data-i="9" pathLength="1" d="M300 300L166.0 115.5"/><path class="sy-rel" data-a="4" data-b="2" pathLength="1" d="M434.0 484.5Q378.9 325.6 516.8 229.5"/><path class="sy-rel" data-a="4" data-b="0" pathLength="1" d="M434.0 484.5Q330.1 290.2 300.0 72.0"/><path class="sy-rel" data-a="0" data-b="1" pathLength="1" d="M300.0 72.0Q330.1 207.2 434.0 115.5"/><path class="sy-rel" data-a="2" data-b="0" pathLength="1" d="M516.8 229.5Q348.8 232.8 300.0 72.0"/><path class="sy-rel" data-a="2" data-b="3" pathLength="1" d="M516.8 229.5Q397.6 300.0 516.8 370.5"/><path class="sy-rel" data-a="3" data-b="5" pathLength="1" d="M516.8 370.5Q348.8 367.2 300.0 528.0"/><path class="sy-rel" data-a="5" data-b="6" pathLength="1" d="M300.0 528.0Q269.9 392.8 166.0 484.5"/><path class="sy-rel" data-a="6" data-b="1" pathLength="1" d="M166.0 484.5Q300.0 300.0 434.0 115.5"/><path class="sy-rel" data-a="7" data-b="0" pathLength="1" d="M83.2 370.5Q251.2 264.6 300.0 72.0"/><path class="sy-rel" data-a="8" data-b="7" pathLength="1" d="M83.2 229.5Q202.4 300.0 83.2 370.5"/><path class="sy-rel" data-a="9" data-b="8" pathLength="1" d="M166.0 115.5Q221.1 242.6 83.2 229.5"/><path class="sy-rel" data-a="9" data-b="5" pathLength="1" d="M166.0 115.5Q269.9 309.8 300.0 528.0"/></svg>
+              <div class="sy-core"><span class="sy-core-ring"></span><b>CyberScan</b></div>
+              <div class="sy-dom live" data-i="0"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7zM14 3v5h5"/></svg><span data-i18n="syD1">File security</span></div><div class="sy-dom live" data-i="1"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4a5 5 0 0 0-5 5v3l-2 3h14l-2-3V9a5 5 0 0 0-5-5zM9 18a3 3 0 0 0 6 0"/></svg><span data-i18n="syD2">Malware analysis</span></div><div class="sy-dom live" data-i="2"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><span data-i18n="syD3">URL &amp; domain</span></div><div class="sy-dom dev" data-i="3"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18v14H3zM3 9h18M7 7h.01"/></svg><span data-i18n="syD4">Website security</span></div><div class="sy-dom live" data-i="4"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18v12H3zM3 7l9 6 9-6"/></svg><span data-i18n="syD5">Email security</span></div><div class="sy-dom dev" data-i="5"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 15h14v5H5zM12 15V9m-4-2a5.5 5.5 0 0 1 8 0"/></svg><span data-i18n="syD6">Network security</span></div><div class="sy-dom dev" data-i="6"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H4zM2 20h20"/></svg><span data-i18n="syD7">System security</span></div><div class="sy-dom part" data-i="7"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.5 3 8.2 7 9.5 4-1.3 7-5 7-9.5V6zM9.5 11h5v4h-5zm1-2a1.5 1.5 0 0 1 3 0v2h-3z"/></svg><span data-i18n="syD8">Privacy</span></div><div class="sy-dom dev" data-i="8"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8 4 12l4 4m8-8 4 4-4 4M14 5l-4 14"/></svg><span data-i18n="syD9">Code &amp; dependencies</span></div><div class="sy-dom dev" data-i="9"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18h10a4 4 0 0 0 .6-8A6 6 0 0 0 6.2 9.5 4.3 4.3 0 0 0 7 18z"/></svg><span data-i18n="syD10">Cloud &amp; infrastructure</span></div>
+            </div>
+          </div></div>
+        </section>
+        <section class="sy-scene sy-s6" id="sy-6" data-scene="6" data-shape="shield" data-shape-fade="0.45" aria-labelledby="sy6-h">
+          <div class="sy-stage"><div class="sy-inner"><div class="sy-end">
+              <div class="sy-mark" aria-hidden="true"><span class="r r1"></span><span class="r r2"></span><span class="r r3"></span>
+                <svg viewBox="0 0 24 24"><path d="M12 2 4 5v6c0 5.25 3.4 9.4 8 11 4.6-1.6 8-5.75 8-11V5z"/><path class="ck" d="M8.5 12l2.5 2.5 4.5-5"/></svg></div>
+              <p class="sy-word">CyberScan</p>
+              <h3 class="sy-title sy-tagline" data-i18n="syT6" id="sy6-h">See beyond the surface.</h3>
+              <p class="sy-state" data-i18n="sy6s">CyberScan reads what things really are, explains it in plain words, and is honest about what it cannot know.</p>
+              <div class="sy-ctas"><button class="primary enter" type="button"><span data-i18n="syCtaScan">Scan something now</span></button><button class="ghost" type="button" data-ask-open=""><span data-i18n="syCtaAsk">Ask the AI</span></button></div>
+            </div></div></div>
+        </section>
       </div>
-      <!-- ============ /THE CYBERSCAN LAB ============ -->
+      <!-- ============ /THE CYBERSCAN STORY ============ -->
 
       <div class="sci-deep" id="sci-deep" lang="en" dir="ltr" data-shape="hex" data-shape-fade="0.08">
       <header class="sci-head sci-deep-head">
         <h3 class="sci-deep-title" id="sci-deep-h" tabindex="-1" dir="auto" data-i18n="sciDeepTitle">The technical deep dive</h3>
         <p class="sci-deep-note" dir="auto" data-i18n="sciDeepNote">The engine step by step, with its maths and real output on a harmless demo file. This part is in English.</p>
+        <button type="button" class="ghost sci-deep-toggle" id="sci-deep-toggle" aria-expanded="false" aria-controls="sci-deep-body"><span data-i18n="sciDeepShow">Show the full technical detail</span></button>
         <p class="sci-sub">Beyond detection. Into the science of threat characterization.</p>
         <p class="sci-lede">CyberScan never runs the file it examines. Everything below is measured from the bytes at rest: how information is distributed, what the code's branches look like, which capabilities the program declares, and what public intelligence says about its fingerprint. Each step shows the method in the code, its maths, and real output from the engine on a harmless demo file.</p>
         <div class="sci-intro" aria-hidden="true">
@@ -289,7 +370,7 @@
         <p class="sci-provenance"><b>Provenance.</b> Figures marked <span class="sci-tag real">engine output</span> were produced by CyberScan's own code (<code>web_v/make_science_data.py</code>) on synthetic inputs built for this page: no real program and no malware. Figures marked <span class="sci-tag demo">illustrative</span> explain a mechanism without claiming a measurement.</p>
       </header>
 
-      <div class="sci-body">
+      <div class="sci-body" id="sci-deep-body">
         <nav class="sci-rail" aria-label="Analysis stages">
           <ol>
             <li><a href="#sci-structure" data-ch="sci-structure"><i>01</i><span>Structure</span></a></li>
@@ -1114,7 +1195,7 @@
   </div>
 
   <script src="js/i18n.js"></script>
-  <script src="js/lab-i18n.js"></script>
+  <script src="js/scrolly-i18n.js"></script>
   <script src="js/languages.js"></script>
   <script src="js/cells.js"></script>
   <script src="js/cube.js"></script>
@@ -1141,7 +1222,7 @@
   <script src="js/lite.js"></script>
   <script src="js/scroll.js"></script>
   <script src="js/science.js"></script>
-  <script src="js/lab.js"></script>
+  <script src="js/scrolly.js"></script>
   <script src="js/ask.js"></script>
 </body>
 </html>

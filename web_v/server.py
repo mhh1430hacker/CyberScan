@@ -88,9 +88,9 @@ SITE_ORIGINS = {o.strip().rstrip("/") for o in os.environ.get("CYBERSCAN_SITE_OR
 # the landing and its heavy scripts (particle field, film, scroll scenes…).
 SCAN_URL = os.environ.get("CYBERSCAN_SCAN_URL", "app.html")    # where the landing sends people
 HOME_URL = os.environ.get("CYBERSCAN_HOME_URL", "/")           # where the scan page's logo leads
-LANDING_ONLY_CSS = ("landing.css", "scroll.css", "science.css", "lab.css", "theme.css", "ask.css", "get-app.css")
+LANDING_ONLY_CSS = ("landing.css", "scroll.css", "science.css", "scrolly.css", "theme.css", "ask.css", "get-app.css")
 LANDING_ONLY_JS = ("js/gl-hero.js", "js/pipeline.js", "js/film.js", "js/story.js", "js/landing.js",
-                   "js/get-app.js", "js/lite.js", "js/scroll.js", "js/science.js", "js/lab-i18n.js", "js/lab.js", "js/ask.js", "js/sound.js")
+                   "js/get-app.js", "js/lite.js", "js/scroll.js", "js/science.js", "js/scrolly-i18n.js", "js/scrolly.js", "js/ask.js", "js/sound.js")
 
 
 def _cut(html: str, start: str, end: str) -> str:
