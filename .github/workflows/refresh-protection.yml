@@ -1,0 +1,83 @@
+# Daily: fresh YARA-Forge rules, malware links, phishing domains and secret patterns for the live site.
+#
+# It takes the package the site is running (s3://ASSET_BUCKET/deploy/cyberscan-lambda.zip), replaces
+# only intel/data/ in it and puts it back. The site's code is not rebuilt, so this never changes
+# what the site does, only how current its lists are. If the site fails its check afterwards, the
+# previous package is restored.
+#
+# Uses the same secrets and variables as the deploy (web_v/aws/DEPLOY_AWS.md):
+#   secrets AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY; variables AWS_REGION, LAMBDA_FUNCTION,
+#   ASSET_BUCKET, SITE_URL.
+name: Refresh protection data
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 3 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-aws
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      FN: ${{ vars.LAMBDA_FUNCTION }}
+      BUCKET: ${{ vars.ASSET_BUCKET }}
+      SITE: ${{ vars.SITE_URL }}
+      KEY: deploy/cyberscan-lambda.zip
+      PREVIOUS: deploy/cyberscan-lambda-previous.zip
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Download the fresh data
+        run: |
+          python -m pip install --quiet --upgrade pip
+          python -m pip install --quiet "yara-x==1.23.0"   # same version as in the package
+          python -I intel/fetch.py --out fresh
+          ls -la fresh
+
+      - name: Sign in to AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Put the data into the running package
+        run: |
+          aws s3 cp "s3://$BUCKET/$KEY" live.zip --only-show-errors
+          python web_v/aws/refresh_data.py live.zip fresh new.zip
+          aws s3 cp live.zip "s3://$BUCKET/$PREVIOUS" --only-show-errors
+          aws s3 cp new.zip "s3://$BUCKET/$KEY" --only-show-errors
+          aws lambda update-function-code --function-name "$FN" --s3-bucket "$BUCKET" --s3-key "$KEY" --query 'LastModified' --output text
+          aws lambda wait function-updated --function-name "$FN"
+
+      - name: Check the live site
+        id: check
+        run: |
+          sleep 20
+          code=$(curl -s -o /dev/null -w '%{http_code}' "$SITE/")
+          echo "GET / -> $code"; test "$code" = 200
+          curl -sf -H 'X-CyberScan-Token: cyberscan-public' "$SITE/api/protection" | tee /dev/stderr | grep -q '"forge": true'
+          out=$(curl -s -X POST "$SITE/api/scan" -H 'X-CyberScan-Token: cyberscan-public' -H 'Content-Type: application/json' \
+                -H "Origin: $SITE" -d '{"mode":"text","value":"powershell -enc SQBFAFgA"}')
+          echo "$out" | head -c 160; echo
+          echo "$out" | grep -q '"status": "done"'
+
+      - name: Restore the previous package if the check failed
+        if: ${{ failure() && steps.check.conclusion == 'failure' }}
+        run: |
+          aws s3 cp "s3://$BUCKET/$PREVIOUS" "s3://$BUCKET/$KEY" --only-show-errors
+          aws lambda update-function-code --function-name "$FN" --s3-bucket "$BUCKET" --s3-key "$KEY" --query 'LastModified' --output text
+          aws lambda wait function-updated --function-name "$FN"
+          echo "restored the previous package"
