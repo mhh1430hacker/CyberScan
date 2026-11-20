@@ -10,7 +10,7 @@ body.on-landing::before {
 body:not(.on-landing) .tint { display: none; }
 
 /* ---------- manifesto: words light up as you scroll ---------- */
-.manifesto { position: relative; height: 320vh; }
+.manifesto { position: relative; height: 220vh; }   /* was 320vh */
 .mf-pin { position: sticky; top: 0; height: 100vh; display: grid; align-content: center; gap: 28px; max-width: 1240px; margin: 0 auto; padding: 0 24px; }
 .mf-kicker { font: 600 12px Consolas, ui-monospace, monospace; letter-spacing: .22em; text-transform: uppercase; color: var(--accent); }
 [dir="rtl"] .mf-kicker { font-family: inherit; letter-spacing: 0; font-size: 14px; }
@@ -80,7 +80,7 @@ body:not(.on-landing) .tint { display: none; }
 .skewable .l-h2, .skewable .bento, .skewable .stats-grid { transform: skewY(var(--skew)); transition: transform .1s linear; }
 
 @media (max-width: 800px) {
-  .manifesto { height: 260vh; }
+  .manifesto { height: 200vh; }
   .htrack.l-steps li { min-height: 300px; padding: 30px 24px; }
   .hpin-sticky { padding-top: 70px; gap: 20px; }
   .stack .priv { padding: 30px 24px; min-height: 240px; top: calc(80px + var(--i) * 18px); }

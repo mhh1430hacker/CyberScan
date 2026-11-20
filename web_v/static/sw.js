@@ -11,11 +11,12 @@
  *
  * API calls are never touched.
  */
-const CACHE = "cyberscan-v12";
+const CACHE = "cyberscan-v15";
 const ENGINE = "cyberscan-engine-v1";
+// Precached: the offline page and what it shows, the install icons, and the phone app's shell
+// (it works with no server). The desktop app's own files are cached as they are used.
 const SHELL = [
-  "offline.html", "styles.css", "tech.css", "icon.svg", "manifest.webmanifest",
-  "get-app.css", "js/get-app.js", "a11y.css", "js/a11y.js", "js/a11y-early.js", "js/perf.js", "scan.css", "js/site.js", "js/tools.js", "js/i18n.js", "js/languages.js",
+  "offline.html", "styles.css", "tech.css", "icon.svg", "favicon.ico", "icon-192.png", "manifest.webmanifest",
   "m/", "m/m.css", "m/m.js", "m/native.js", "m/caps.js", "m/viz.js", "m/report.js", "m/lookup.js", "m/privacy.html", "m/licenses.html", "m/doc.css", "m/doc.js", "m/engine-worker.js", "m/manifest.webmanifest",
   "m/icon-192.png", "m/icon-512.png", "m/icon-maskable-512.png", "m/apple-touch-icon.png",
 ];
@@ -32,12 +33,34 @@ self.addEventListener("activate", (event) => {
   );
 });
 
+// /_v/<hash>/<file>: one exact version of a file (the server versions the page's own CSS/JS)
+const VERSIONED = /^\/_v\/[0-9a-f]{10}\//;
+
+async function remember(request, response) {
+  const cache = await caches.open(CACHE);
+  const path = new URL(request.url).pathname;
+  if (VERSIONED.test(path)) {
+    // keep only the newest version of each file
+    const plain = path.replace(VERSIONED, "/");
+    for (const key of await cache.keys()) {
+      const p = new URL(key.url).pathname;
+      if (p !== path && VERSIONED.test(p) && p.replace(VERSIONED, "/") === plain) cache.delete(key);
+    }
+  }
+  await cache.put(request, response);
+}
+
 async function networkFirst(request, fallbackUrl) {
   try {
     const response = await fetch(request);
-    if (response.ok) {
+    // never keep what the server says not to store (pages carrying the API token), partial
+    // responses (audio ranges) or a desktop HTML page
+    const type = response.headers.get("Content-Type") || "";
+    const noStore = /no-store/.test(response.headers.get("Cache-Control") || "");
+    const page = type.startsWith("text/html") && !new URL(request.url).pathname.startsWith("/m/");
+    if (response.status === 200 && !noStore && !page) {
       const copy = response.clone();
-      caches.open(CACHE).then((c) => c.put(request, copy));
+      remember(request, copy).catch(() => { /* storage full: fine */ });
     }
     return response;
   } catch {
@@ -92,6 +115,6 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(fetch(request).catch(() => caches.match("offline.html")));
     return;
   }
-  if (url.pathname === "/" || url.pathname === "/index.html") return;
+  if (["/", "/index.html", "/app.html", "/scan", "/scan/"].includes(url.pathname)) return;   // pages with the API token
   event.respondWith(networkFirst(request, null));
 });

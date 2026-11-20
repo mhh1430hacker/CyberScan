@@ -78,7 +78,21 @@ def _pdf(data: bytes) -> str:
     return "ok"
 
 
-_STRUCTURE = {"pe": _pe, "zip": _zip, "ooxml": _zip, "pdf": _pdf}
+def _ole(data: bytes) -> str:
+    try:
+        import olefile
+    except ImportError:
+        return "ok (olefile not installed: parse check only)"
+    try:
+        with olefile.OleFileIO(data) as ole:
+            for path in ole.listdir(streams=True, storages=False):
+                ole.openstream(path).read()
+    except Exception as exc:  # noqa: BLE001
+        return f"unreadable compound file: {type(exc).__name__}: {exc}"
+    return "ok"
+
+
+_STRUCTURE = {"pe": _pe, "zip": _zip, "ooxml": _zip, "pdf": _pdf, "ole": _ole}
 
 
 def validate(infected: bytes, repaired: bytes, scorers: tuple[Scorer, ...] = (), *,

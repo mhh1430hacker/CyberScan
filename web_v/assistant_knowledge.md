@@ -12,8 +12,8 @@ arranged, what the file claims to be, what a program says it can do, and whether
 known threats appear. Then it explains what it found in everyday language, in the visitor's
 language, with the technical evidence underneath.
 
-It is a defensive research and education project by Ainex,
-published at https://ainex-ai.xyz. It is not a replacement for commercial antivirus or endpoint
+It is a defensive research and education project built by the ONYX team,
+published at https://ainex-ai.xyz (ainex-ai.xyz is the website's address). It is not a replacement for commercial antivirus or endpoint
 protection, and it says so.
 
 Where it runs:
@@ -212,7 +212,7 @@ There are reduced-motion and light (performance) modes.
 ## 16. Arabic quick answers (أجوبة سريعة بالعربية)
 
 - **ما هو CyberScan؟** أداة تفحص الملفات والروابط والنصوص بحثًا عن علامات التحذير **دون تشغيلها أبدًا**،
-  وتشرح ما تجده بكلمات بسيطة. مشروع بحثي تعليمي دفاعي من Ainex، وليس بديلًا لبرامج مكافحة الفيروسات التجارية.
+  وتشرح ما تجده بكلمات بسيطة. مشروع بحثي تعليمي دفاعي بناه فريق ONYX، ومنشور على الموقع ainex-ai.xyz، وليس بديلًا لبرامج مكافحة الفيروسات التجارية.
 - **هل يشغّل الملف؟** لا. التحليل ساكن فقط: يقرأ البايتات كبيانات.
 - **هل النتيجة النظيفة تعني أن الملف آمن؟** لا. تعني "لم تُرصد علامات تحذير"، وليست ضمانًا.
 - **ماذا تعني الدرجة؟** مؤشر قابل للشرح من 0 إلى 100 وليس احتمالًا. 0 لا مؤشرات، 1–49 مراجعة، 50 فأكثر مشبوه.

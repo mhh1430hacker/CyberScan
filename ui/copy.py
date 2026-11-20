@@ -493,6 +493,13 @@ AR: dict[str, str] = {
     "That's a folder. Choose a file inside it, or drop the file here.": 'هذا مجلد. اختر ملفًا داخله، أو أفلت الملف هنا.',
     "This is a program. Repair can only show its true name; it can't make it safe. If you don't trust it, move it to quarantine from its scan result.": 'هذا برنامج. الإصلاح يستطيع فقط إظهار اسمه الحقيقي، ولا يستطيع أن يجعله آمنًا. إن لم تكن تثق به فانقله إلى العزل من نتيجة فحصه.',
     'Clear the field': 'امسح الحقل',
+    # web scan: categories of merged findings and the archive member scan
+    "Known-malware database": "قاعدة بيانات البرامج الضارة المعروفة",
+    "Inside the content": "داخل المحتوى",
+    "We opened the archive in memory and scanned {scanned} of the {count} files inside with the same rules.":
+        "فتحنا الأرشيف في الذاكرة وفحصنا {scanned} من أصل {count} ملفات بداخله بالقواعد نفسها.",
+    "We looked at the list of files inside ({count}); scanning each one is turned off or ran out of time.":
+        "اطّلعنا على قائمة الملفات بداخله ({count})؛ وفحص كل ملف منها متوقف أو انتهى وقته.",
 }
 
 _COUNT_FORMS = {

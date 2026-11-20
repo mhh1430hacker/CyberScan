@@ -106,9 +106,35 @@
     chips.hidden = history.length > 0;
   }
 
+  /* An answer is text, never HTML. Blank lines separate paragraphs; a line that starts with "-", "*",
+   * "•" or "1." is a list item; any other single line break is a hard wrap from the guide's source
+   * text and becomes a space, so sentences are never cut in the middle. */
+  const BULLET = /^\s*(?:[-*•]|\d{1,2}[.)])\s+/;
+  function paragraphs(text) {
+    const box = el("div", "ask-text ask-rich");
+    String(text).replace(/\r/g, "").split(/\n\s*\n/).forEach((block) => {
+      const lines = block.split("\n").map((l) => l.trim()).filter(Boolean);
+      if (!lines.length) return;
+      let para = [], list = null;
+      const flush = () => { if (para.length) { box.append(el("p", "", para.join(" "))); para = []; } };
+      lines.forEach((line) => {
+        if (BULLET.test(line)) {
+          flush();
+          const ordered = /^\s*\d/.test(line);
+          if (!list || list.ordered !== ordered) { list = el(ordered ? "ol" : "ul"); list.ordered = ordered; box.append(list); }
+          list.append(el("li", "", line.replace(BULLET, "")));
+        } else if (list && para.length === 0 && list.lastChild && !/[.!?؟。:]$/.test(list.lastChild.textContent)) {
+          list.lastChild.textContent += ` ${line}`;          // a wrapped list item continues
+        } else { list = null; para.push(line); }
+      });
+      flush();
+    });
+    return box;
+  }
+
   function bubble(m) {
     const row = el("div", `ask-msg ${m.role}${m.error ? " error" : ""}`);
-    const body = el("p", "ask-text", m.text);
+    const body = m.role === "assistant" ? paragraphs(m.text) : el("p", "ask-text", m.text);
     body.dir = "auto";
     row.append(body);
     if (m.role === "assistant" && m.source) {

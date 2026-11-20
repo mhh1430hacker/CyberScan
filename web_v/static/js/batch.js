@@ -10,7 +10,7 @@
   const { $, el, t, api, toast, formatBytes } = window.CS;
   const MAX_HASH = 512 * 1024 * 1024;
   const CONCURRENCY = 2;
-  const RISK = { NO_INDICATORS_OBSERVED: "--ok", REVIEW: "--warn", SUSPICIOUS: "--bad" };
+  const RISK = { KNOWN_MALWARE: "--bad", NO_INDICATORS_OBSERVED: "--ok", REVIEW: "--warn", SUSPICIOUS: "--bad" };
 
   /* ---------------- fingerprints ---------------- */
   let worker = null, nextId = 0;
@@ -48,7 +48,7 @@
     hash.title = result.hex;
     if (matches.length) {
       const m = matches[0];
-      const verdict = (t("verdicts")[m.classification] || [m.classification])[0];
+      const v = t("verdicts")[m.classification], verdict = v ? v[1] || v[0] : m.classification;   // the plain-language name, not the short code
       line.append(el("b", "", t("seenBefore")(matches.length)), el("span", "", ` ${verdict} · ${m.score}/100 · ${new Date(m.timestamp).toLocaleString(window.CS.lang)}`));
       const open = el("button", "link-btn", t("openEarlier"));
       open.type = "button";
@@ -126,7 +126,7 @@
         first = null;
         const done = s.stages.filter((x) => x.state === "complete").length;
         item.card.style.setProperty("--p", `${(done / 4) * 100}%`);
-        if (s.status === "done") { finish(item, s.result, null); return; }
+        if (s.status === "done" || s.status === "partial") { finish(item, s.result, null); return; }
         if (s.status === "failed") { finish(item, null, s.error); return; }
       }
     } catch (err) {

@@ -87,5 +87,9 @@
    "file": "en/14.mp3",
    "duration": 3.16
   }
- ]
+ ],
+ "track": {
+  "file": "en-full.mp3",
+  "duration": 86.0
+ }
 }

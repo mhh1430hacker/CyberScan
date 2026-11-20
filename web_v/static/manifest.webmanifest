@@ -2,22 +2,66 @@
   "name": "CyberScan",
   "short_name": "CyberScan",
   "description": "Static analysis of files, links and text, explained in plain words. Nothing you check is ever run.",
-  "start_url": "/#/scan",
+  "start_url": "/app.html#/scan",
   "scope": "/",
   "display": "standalone",
-  "display_override": ["window-controls-overlay", "standalone"],
+  "display_override": [
+    "window-controls-overlay",
+    "standalone"
+  ],
   "background_color": "#050912",
   "theme_color": "#050912",
   "lang": "en",
   "dir": "auto",
-  "categories": ["security", "utilities"],
+  "categories": [
+    "security",
+    "utilities"
+  ],
   "icons": [
-    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
-    { "src": "icon-maskable.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
   ],
   "shortcuts": [
-    { "name": "Scan", "url": "/#/scan" },
-    { "name": "History", "url": "/#/history" },
-    { "name": "Repair", "url": "/#/repair" }
-  ]
+    {
+      "name": "Scan",
+      "url": "/app.html#/scan"
+    },
+    {
+      "name": "History",
+      "url": "/app.html#/history"
+    },
+    {
+      "name": "Repair",
+      "url": "/app.html#/repair"
+    }
+  ],
+  "id": "/"
 }

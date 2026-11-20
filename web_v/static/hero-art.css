@@ -1,0 +1,45 @@
+/* ===== The hero title: "Inspect every / › file▌ / before you open it." (js/landing.js) =====
+ * Three lines with a clear hierarchy: a bright lead, the typed word as the hero (larger, in a
+ * gradient that changes with every word, with a terminal prompt and a matching caret), and a
+ * softer tail. Colour changes are a class switch per word; the caret blink is an opacity
+ * animation (composited). Overrides the older title rules (landing, motion, cyber, theme). */
+.hero .type-title { position: relative; display: grid; gap: .02em; margin: 24px 0 26px; font-weight: 800; letter-spacing: -.035em; line-height: 1.02; text-shadow: none; }
+[dir="rtl"] .hero .type-title { letter-spacing: 0; line-height: 1.25; }
+.hero .type-title .line { display: block; overflow: visible; padding: 0; }
+
+/* lead and tail */
+.hero .type-title .t-lead { color: #f7f3ff; font-size: .82em; }
+.hero .type-title .t-tail { font-size: .62em; font-weight: 600; letter-spacing: -.015em; color: #b9acd9; margin-top: .12em; }
+[dir="rtl"] .hero .type-title .t-tail { letter-spacing: 0; }
+
+/* the typed word: the largest thing on the page */
+.hero .type-title .t-typed { position: relative; display: flex; align-items: center; gap: .14em; font-size: 1.32em; line-height: 1.08; min-height: 1.1em; white-space: nowrap; }
+[dir="rtl"] .hero .type-title .t-typed { line-height: 1.3; }
+.hero .type-title .t-prompt { flex: none; font: 700 .5em/1 Consolas, ui-monospace, monospace; color: var(--tc1); opacity: .9; transform: translateY(.06em); transition: color .4s; }
+[dir="rtl"] .hero .type-title .t-prompt { transform: translateY(.06em) scaleX(-1); }
+.hero .type-title .t-word { background: linear-gradient(100deg, var(--tc1), var(--tc2) 55%, var(--tc3)); -webkit-background-clip: text; background-clip: text;
+  color: transparent; -webkit-text-fill-color: transparent; padding-bottom: .06em; }
+.hero .type-title .t-caret { flex: none; width: .07em; min-width: 4px; height: .82em; border-radius: 3px; background: var(--tc2); margin-inline-start: .04em;
+  box-shadow: 0 0 18px var(--tc2); animation: t-blink 1.05s steps(1, end) infinite; transition: background .4s, box-shadow .4s; }
+.hero .type-title.t-typing .t-caret { animation: none; opacity: 1; }
+@keyframes t-blink { 0%, 55% { opacity: 1; } 56%, 100% { opacity: 0; } }
+
+/* a palette per word (set by data-p) */
+.hero .type-title { --tc1: #67e8f9; --tc2: #a78bfa; --tc3: #f0abfc; }
+.hero .type-title[data-p="1"] { --tc1: #f472b6; --tc2: #c084fc; --tc3: #818cf8; }
+.hero .type-title[data-p="2"] { --tc1: #34d399; --tc2: #22d3ee; --tc3: #a5b4fc; }
+.hero .type-title[data-p="3"] { --tc1: #fbbf24; --tc2: #fb7185; --tc3: #e879f9; }
+.hero .type-title[data-p="4"] { --tc1: #60a5fa; --tc2: #a78bfa; --tc3: #67e8f9; }
+
+/* arrival: the three lines rise in turn (once, transform + opacity) */
+.hero .type-title .line { opacity: 0; transform: translate3d(0, .35em, 0); transition: opacity .8s cubic-bezier(.22, 1, .36, 1), transform .9s cubic-bezier(.22, 1, .36, 1); }
+.hero .type-title .t-typed { transition-delay: .12s; } .hero .type-title .t-tail { transition-delay: .24s; }
+.ready .hero .type-title .line, .hero .type-title.art-in .line { opacity: 1; transform: none; }
+
+/* still: no blink, no arrival */
+@media (prefers-reduced-motion: reduce) { .hero .type-title .line { opacity: 1; transform: none; transition: none; } .hero .type-title .t-caret { animation: none; } }
+html.reduce-motion .hero .type-title .line { opacity: 1; transform: none; transition: none; }
+html.reduce-motion .hero .type-title .t-caret, .hero .type-title.t-still .t-caret { animation: none; }
+html.fx-glow-flat .hero .type-title .t-caret { box-shadow: none; }
+@media (forced-colors: active) { .hero .type-title .t-word { color: CanvasText; -webkit-text-fill-color: CanvasText; background: none; } .hero .type-title .t-caret { background: CanvasText; box-shadow: none; } }
+@media (max-width: 560px) { .hero .type-title .t-typed { font-size: 1.5em; } .hero .type-title .t-tail { font-size: .7em; } }

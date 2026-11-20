@@ -18,6 +18,7 @@ import json
 import math
 import os
 import re
+import sys
 import threading
 import unicodedata
 import warnings
@@ -27,7 +28,13 @@ from typing import Any
 from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
-DATA = Path(os.environ.get("CYBERSCAN_INTEL_DIR") or ROOT / "intel" / "data")
+
+# In PyInstaller bundle, data files are extracted to sys._MEIPASS
+if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
+    DATA = Path(sys._MEIPASS) / "intel" / "data"
+else:
+    DATA = Path(os.environ.get("CYBERSCAN_INTEL_DIR") or ROOT / "intel" / "data")
+
 _lock = threading.Lock()
 
 # YARA-Forge rules carry a score (65-100 in the core set): how strongly a match means "malicious".
@@ -277,6 +284,47 @@ def check_url(url: str) -> list[dict[str, Any]]:
     return findings
 
 
+def url_list_status(url: str) -> dict[str, Any]:
+    """Was this link checked against the threat lists, and what did they say? (offline, no network)
+
+    ``{"checked": bool, "urlhaus": "listed_url" | "listed_host" | "not_listed" | "unavailable",
+    "phishing": "listed" | "not_listed" | "unavailable", "listed": bool, "updated": str,
+    "host": str}``"""
+    text = (url or "").strip()
+    out: dict[str, Any] = {"checked": False, "urlhaus": "unavailable", "phishing": "unavailable", "listed": False,
+                           "updated": str(manifest().get("updated", "") or ""), "host": ""}
+    if not re.match(r"(?i)^https?://", text):
+        return out
+    try:
+        parts = urlsplit(text)
+        raw_host = (parts.hostname or "").rstrip(".")
+    except ValueError:
+        return out
+    if not raw_host:
+        return out
+    try:
+        host = raw_host.encode("idna").decode("ascii").lower() if not raw_host.isascii() else raw_host.lower()
+    except UnicodeError:
+        host = raw_host.lower()
+    out["host"] = host
+    urls, hosts = _urlhaus()
+    if urls or hosts:
+        key = (host + unquote(parts.path or "/")).lower().rstrip("/")
+        if key.removeprefix("www.") in urls or (key + ("?" + parts.query if parts.query else "")).removeprefix("www.") in urls:
+            out["urlhaus"] = "listed_url"
+        elif host in hosts or host.removeprefix("www.") in hosts:
+            out["urlhaus"] = "listed_host"
+        else:
+            out["urlhaus"] = "not_listed"
+    phishing = _phishing()
+    if phishing:
+        labels = host.split(".")
+        out["phishing"] = "listed" if any(".".join(labels[i:]) in phishing for i in range(len(labels) - 1)) else "not_listed"
+    out["checked"] = out["urlhaus"] != "unavailable" or out["phishing"] != "unavailable"
+    out["listed"] = out["urlhaus"].startswith("listed") or out["phishing"] == "listed"
+    return out
+
+
 # ---------------------------------------------------------------- secrets in text
 @lru_cache(maxsize=1)
 def _secret_rules() -> tuple[list[dict[str, Any]], list[re.Pattern[str]], tuple[str, ...]]:
@@ -358,4 +406,12 @@ def status() -> dict[str, str]:
         out["Threat lists"] = f"URLhaus {info.get('urlhaus', 0)}, phishing {info.get('phishing', 0)} ({info.get('updated', '')})"
     if _secret_rules()[0]:
         out["Secret patterns"] = f"gitleaks {len(_secret_rules()[0])} rules"
+    if info.get("malware_hashes"):
+        out["Hash database"] = f"{info['malware_hashes']:,} known-malware hashes ({info.get('hashes_updated', '')})"
     return out
+
+
+def reload() -> None:
+    """Forget the loaded data so the next scan reads the files the updater just replaced."""
+    for cached in (_forge, _phishing, _urlhaus, _secret_rules):
+        cached.cache_clear()

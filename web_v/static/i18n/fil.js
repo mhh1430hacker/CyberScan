@@ -7,10 +7,13 @@ I18N["fil"] = {
 "lPrivacy": "Privacy",
 "lOpen": "Buksan ang app",
 "lEyebrow": "Static analysis · hindi kailanman pinapatakbo ang anumang sinusuri mo",
-"lTitle1": "Silipin ang loob ng anumang file",
-"lTitle2": "bago nito masilip ang loob",
-"lTitle3": "ng computer mo.",
-"lSub": "Hinihimay ng CyberScan ang isang file, link o snippet byte por byte nang hindi ito kailanman pinapatakbo, ipinapaliwanag sa simpleng salita ang nakikita nito, at kaya nitong bumuo muli ng kopya nang wala ang mga bahaging hindi dapat nasa format nito.",
+"lTitle1": "Bawat file, link",
+"lTitle2": "at mensahe, sinusuri",
+"lTitle3": "bago mo ito buksan.",
+"lTypeLead": "Suriin ang bawat",
+"lTypeWords": ["file", "link", "mensahe", "email", "attachment"],
+"lTypeTail": "bago mo ito buksan.",
+"lSub": "Sinusuri ng CyberScan ang mga file, link at teksto nang hindi kailanman pinapatakbo ang mga ito. Itinutugma ang bawat isa sa libu-libong bukas na panuntunan sa banta at higit sa 1.5 milyong fingerprint ng kilalang malware, ipinapaliwanag ang bawat natuklasan sa malinaw na wika, at inaayos ang isang beripikadong kopya kapag may bahaging hindi dapat naroon.",
 "lStart": "Simulan ang pag-scan",
 "lWatch": "Tingnan kung paano gumagana",
 "lCardFile": "invoice_2026.pdf.exe",
@@ -103,25 +106,6 @@ I18N["fil"] = {
 "Parehong uri ng file",
 "Buo ang istruktura",
 "Nakasilyo sa quarantine ang mga tinanggal na bahagi"
-],
-"lStatsTitle": "Ginawa para maging tapat",
-"stats": [
-[
-"mga scan na naka-save sa computer na ito",
-"scans"
-],
-[
-"mga analysis engine",
-"engines"
-],
-[
-"byte na ipinapadala ng desktop app sa internet bilang default",
-"zero"
-],
-[
-"wika, kasama ang right-to-left",
-"langs"
-]
 ],
 "lPrivTitle": "Sa iyo pa rin ang mga file mo",
 "privs": [
@@ -565,8 +549,6 @@ I18N["fil"] = {
 "ghMove": "Gumalaw para hatiin ang field",
 "ghHold": "Pindutin nang matagal para hilahin",
 "ghRelease": "Bitawan para ikalat",
-"soundOn": "Naka-on ang lo-fi",
-"soundOff": "Naka-off ang lo-fi",
 "lPhone": "Kunin ang app",
 "apkTitle": "I-download para sa Android",
 "apkSigned": "Pinirmahan ng CyberScan",

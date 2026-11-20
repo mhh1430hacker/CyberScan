@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#07040f">
+  <meta name="cyberscan-token" content="__CYBERSCAN_TOKEN__">
+  <meta name="description" content="Support Mahdi Al-Hajji, the developer leading CyberScan.">
+  <title>ادعم المطوّر · CyberScan</title>
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="support.css">
+  <link rel="stylesheet" href="site-shell.css">
+  <script src="js/nav-early.js"></script>
+</head>
+<body>
+  <canvas id="sp-robot" aria-hidden="true"></canvas>
+  <div class="sp-glow" aria-hidden="true"></div>
+
+  <header class="sp-top">
+    <a class="sp-brand" href="/"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 14 20 19v8c0 7.5 5.1 13.4 12 15 6.9-1.6 12-7.5 12-15v-8z"/><path d="m26.5 28.5 3.8 3.8 7.4-8"/></svg>CyberScan</a>
+    <button class="sp-lang" id="sp-lang" type="button">EN</button>
+  </header>
+
+  <main class="sp-main">
+    <section class="sp-card">
+      <figure class="sp-photo">
+        <img src="support/mahdi.jpg" width="720" height="900" alt="" id="sp-photo">
+        <span class="sp-ring" aria-hidden="true"></span>
+      </figure>
+      <div class="sp-text">
+        <p class="sp-kicker" data-t="kicker">المطوّر</p>
+        <h1 data-t="name">مهدي آل حاجي</h1>
+        <p class="sp-role" data-t="role">مطوّر برمجيات وباحث في الذكاء الاصطناعي</p>
+        <p class="sp-bio" data-t="bio1"></p>
+        <p class="sp-bio" data-t="bio2"></p>
+        <ul class="sp-tags"><li data-t="t1"></li><li data-t="t2"></li><li data-t="t3"></li></ul>
+        <button class="sp-cta" id="sp-cta" type="button" aria-expanded="false" aria-controls="sp-bank">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.4-7.5-10.2A4.3 4.3 0 0 1 12 7.6a4.3 4.3 0 0 1 7.5 2.7c0 5.8-7.5 10.2-7.5 10.2z"/></svg>
+          <span data-t="cta">ادعم المطوّر</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="sp-bank" id="sp-bank" hidden aria-labelledby="sp-bank-title">
+      <h2 id="sp-bank-title" data-t="bankTitle">الدعم عبر التحويل البنكي</h2>
+      <p class="sp-note" data-t="bankNote"></p>
+      <div class="sp-bank-grid">
+        <div class="sp-fields">
+          <div class="sp-field"><span data-t="holder">اسم المستفيد</span><b>مهدي حسن يوسف آل حاجي</b></div>
+          <div class="sp-field"><span data-t="bank">البنك</span><b data-t="bankName">مصرف الراجحي</b></div>
+          <div class="sp-field"><span data-t="iban">رقم الآيبان (IBAN)</span><b dir="ltr" class="mono">SA55 8000 0135 6080 1036 3339</b>
+            <button class="sp-copy" type="button" data-copy="SA5580000135608010363339" data-t="copy">نسخ</button></div>
+          <div class="sp-field"><span data-t="account">رقم الحساب</span><b dir="ltr" class="mono">135000010006080363339</b>
+            <button class="sp-copy" type="button" data-copy="135000010006080363339" data-t="copy">نسخ</button></div>
+        </div>
+        <figure class="sp-qr"><img src="support/iban-qr.png" width="280" height="280" alt="" id="sp-qr"><figcaption data-t="qr">امسحه من تطبيق البنك</figcaption></figure>
+      </div>
+      <p class="sp-thanks" data-t="thanks">شكرًا لدعمك، كل مساهمة تساعد على استمرار CyberScan وتطويره.</p>
+    </section>
+  </main>
+
+  <footer class="sp-foot"><a href="/" data-t="back">العودة إلى CyberScan</a></footer>
+  <div class="sp-toast" id="sp-toast" role="status" hidden></div>
+  <script src="js/cs-audio.js"></script>
+  <script src="js/sound.js"></script>
+  <script src="js/ui-sound.js"></script>
+  <script src="js/cursor.js"></script>
+  <script src="js/site-nav.js"></script>
+  <script src="js/support.js" type="module"></script>
+</body>
+</html>

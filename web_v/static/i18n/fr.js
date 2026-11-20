@@ -7,10 +7,13 @@ I18N["fr"] = {
 "lPrivacy": "Confidentialité",
 "lOpen": "Ouvrir l'application",
 "lEyebrow": "Analyse statique · rien de ce que vous vérifiez n'est jamais exécuté",
-"lTitle1": "Regardez dans chaque fichier",
-"lTitle2": "avant qu'il ne regarde",
-"lTitle3": "dans votre ordinateur.",
-"lSub": "CyberScan décortique un fichier, un lien ou un extrait octet par octet sans jamais l'exécuter, explique ce qu'il trouve avec des mots simples et peut en reconstruire une copie sans les parties qui n'ont pas leur place dans son format.",
+"lTitle1": "Chaque fichier, lien",
+"lTitle2": "et message, inspecté",
+"lTitle3": "avant que vous l'ouvriez.",
+"lTypeLead": "Inspectez chaque",
+"lTypeWords": ["fichier", "lien", "e-mail", "message", "téléchargement"],
+"lTypeTail": "avant de l'ouvrir.",
+"lSub": "CyberScan inspecte fichiers, liens et textes sans jamais les exécuter. Il compare chacun à des milliers de règles de menaces ouvertes et à plus de 1,5 million d'empreintes de logiciels malveillants connus, explique chaque résultat en termes clairs et répare une copie vérifiée lorsqu'un élément n'a pas sa place.",
 "lStart": "Lancer une analyse",
 "lWatch": "Voir comment ça marche",
 "lCardFile": "invoice_2026.pdf.exe",
@@ -103,25 +106,6 @@ I18N["fr"] = {
 "Même type de fichier",
 "Structure intacte",
 "Parties retirées scellées en quarantaine"
-],
-"lStatsTitle": "Conçu pour être honnête",
-"stats": [
-[
-"analyses enregistrées sur cet ordinateur",
-"scans"
-],
-[
-"moteurs d'analyse",
-"engines"
-],
-[
-"octets envoyés sur Internet par défaut par l'application de bureau",
-"zero"
-],
-[
-"langues, y compris de droite à gauche",
-"langs"
-]
 ],
 "lPrivTitle": "Vos fichiers restent à vous",
 "privs": [
@@ -565,8 +549,6 @@ I18N["fr"] = {
 "ghMove": "Bougez pour écarter le champ",
 "ghHold": "Maintenez pour l'attirer",
 "ghRelease": "Relâchez pour le disperser",
-"soundOn": "Lo-fi activé",
-"soundOff": "Lo-fi désactivé",
 "lPhone": "Obtenir l'application",
 "apkTitle": "Télécharger pour Android",
 "apkSigned": "Signé par CyberScan",

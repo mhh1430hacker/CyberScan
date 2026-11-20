@@ -12,7 +12,8 @@ from core.archive_inspector import inspect_zip
 from core.feature_extractor import extract_file_features
 from core.mitre_mapper import map_findings_to_mitre
 from core.pe_decompiler import analyze_pe_file
-from core.yara_engine import scan_file_for_yara
+from core import archive_scan, hash_intel
+from core.yara_engine import scan_bytes_with_yara, scan_file_for_yara
 from core.heuristic_engine import PIECE_SEPARATOR, evaluate_heuristics, strings_beyond
 from core.magic_bytes import naturally_compressed
 from core.authenticode import verify as verify_signature
@@ -140,6 +141,43 @@ def surprise_findings(result: dict, signed: bool) -> list[Finding]:
 EICAR_TEST_SIGNATURE = b"X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*"
 
 
+def _yara_weight(match: dict) -> tuple[str, int]:
+    """A rule's own confidence decides its weight: YARA-Forge rules carry a score (70-100);
+    CyberScan's bundled rules count as a strong indicator."""
+    score = int(((match.get("meta") or {}).get("score")) or 0)
+    if score >= 90:
+        return "critical", 85
+    if score >= 80:
+        return "high", 70
+    if score:
+        return "high", 55
+    return "high", 50
+
+
+def _archive_member_status(members: dict | None, settings: dict) -> str:
+    """Engine-status words for the files inside an archive (``core.status_text`` reads them)."""
+    if members is None:
+        return ("member scan disabled in settings" if not settings.get("archive_member_scan", True)
+                else "member contents not malware-scanned (time limit)")
+    text = f"{members.get('scanned', 0)} scanned in memory"
+    if members.get("skipped"):
+        reasons = ", ".join(f"{count} {why}" for why, count in (members.get("skip_reasons") or {}).items())
+        text += f"; {members['skipped']} not scanned ({reasons})" if reasons else f"; {members['skipped']} not scanned"
+    return text
+
+
+def _archive_scan_sentence(listed: int, members: dict | None, enabled: bool) -> str:
+    if members is None:
+        return ("Scanning the files inside is turned off in Settings, so their contents were not checked."
+                if not enabled else "The files inside were not scanned: the time limit was reached.")
+    scanned, skipped = int(members.get("scanned", 0)), int(members.get("skipped", 0))
+    sentence = (f"{scanned} of {listed} member(s) were opened in memory (never written to disk or run) and "
+                "scanned with the same rules and known-malware list as the archive.")
+    if skipped:
+        sentence += f" {skipped} member(s) were not scanned (encrypted, too large or over a limit)."
+    return sentence
+
+
 def analyze_file(
     path: str,
     settings: dict | None = None,
@@ -235,18 +273,20 @@ def analyze_file(
         findings.append(Finding("signature", "info", "Signed program", "The program's digital signature is intact and trusted on this computer.", 0))
     elif signature == "unsigned or invalid":
         findings.append(Finding("signature", "info", "Unsigned program", "The program has no valid digital signature, so its publisher can't be confirmed.", 0))
+    archive_note: Finding | None = None
     if archive_inspection.status != "not_zip":
-        findings.append(Finding(
+        # The last sentence is set once we know whether the files inside were scanned (below).
+        archive_note = Finding(
             "archive",
             "info",
             f"ZIP structure: {archive_inspection.status}",
             (
                 f"Bounded inspection recorded {len(archive_inspection.entries)} member(s) "
-                f"and {archive_inspection.decompressed_bytes} decompressed byte(s). "
-                "Archive members were not independently scanned for malware."
+                f"and {archive_inspection.decompressed_bytes} decompressed byte(s)."
             ),
             0,
-        ))
+        )
+        findings.append(archive_note)
         if archive_inspection.unsafe_member_paths:
             findings.append(Finding(
                 "archive",
@@ -323,9 +363,49 @@ def analyze_file(
             f"Static executable-section decoding identified {patterns}; this is a review indicator, not proof of obfuscation.",
             15,
         ))
-    if yara_result.get("matches"):
-        for match in yara_result["matches"]:
-            findings.append(Finding("yara", "high", match.get("rule_name", "YARA match"), match.get("description", "A YARA rule matched suspicious indicators."), 50))
+
+    # Known-file intelligence: is this exact file already listed as malware? (offline table, no network)
+    md5 = hashlib.md5(file_data).hexdigest()  # noqa: S324 - lookup key only
+    known = hash_intel.assess(sha256, md5, online=False)
+    features["hash_intelligence"] = {"sources": known["sources"], "md5": md5}
+    for item in known["findings"]:
+        findings.append(Finding("intel", item["severity"], item["label"], item["explanation"], item["contribution"]))
+
+    # The files inside an archive are scanned too (in memory, within limits).
+    member_rules: set[str] = set()
+    members_scanned: dict | None = None
+    if archive_inspection.status != "not_zip" and settings.get("archive_member_scan", True):
+        remaining = max(1, math.ceil(timeout - (time.monotonic() - started_at)))
+        members = archive_scan.scan_members(
+            file_data,
+            yara_bytes=lambda body: scan_bytes_with_yara(body, timeout_seconds=min(5, remaining)).get("matches", []),
+            hash_lookup=lambda h, m: hash_intel.offline_lookup(h, m),
+        )
+        features["archive_members"] = {key: value for key, value in members.items() if key != "members"} | {
+            "members": [{k: v for k, v in item.items() if k != "yara"} | {"yara": [y.get("rule_name") for y in item["yara"]]}
+                        for item in members["members"][:40]]}
+        members_scanned = members
+        for item in members["members"]:
+            member_rules.update(str(match.get("rule_name", "")) for match in item["yara"])
+            if item["hash"].get("status") == "match":
+                findings.append(Finding("intel", "critical", f"Known malware inside the archive: {item['name'][:80]}",
+                                        f"The archived file {item['name'][:120]!r} (SHA-256 {item['sha256'][:16]}…) is listed as known malware.", 95))
+            for match in item["yara"][:3]:
+                severity, weight = _yara_weight(match)
+                findings.append(Finding("yara", severity, f"{match.get('rule_name', 'YARA match')} (inside {item['name'][:60]})",
+                                        f"In the archived file {item['name'][:120]!r}: " + str(match.get("description", "a YARA rule matched.")), weight))
+        check_deadline()
+    if archive_note is not None:
+        archive_note.explanation += " " + _archive_scan_sentence(len(archive_inspection.entries), members_scanned,
+                                                                 settings.get("archive_member_scan", True))
+    # Rule matches on the file itself. In a stored (uncompressed) archive the members' bytes are
+    # visible at the top level too: a rule that already matched inside a member is counted there
+    # only, not a second time for the archive.
+    for match in yara_result.get("matches") or []:
+        if archive_note is not None and str(match.get("rule_name", "")) in member_rules:
+            continue
+        severity, weight = _yara_weight(match)
+        findings.append(Finding("yara", severity, match.get("rule_name", "YARA match"), match.get("description", "A YARA rule matched suspicious indicators."), weight))
     for item in heuristic["findings"]:
         findings.append(Finding("heuristic", item["severity"], item["label"], item["label"], item["contribution"]))
 
@@ -426,6 +506,13 @@ def analyze_file(
     )
     if yara_result.get("error"):
         yara_status += f" ({yara_result['error']})"
+    # "not_pe" means "no program header at all"; a file that starts like a Windows program (MZ) but
+    # whose header can't be parsed is a damaged program, and every engine says so the same way.
+    pe_status = str(pe_result.get("status", "unknown"))
+    if pe_status != "ok" and file_data[:2] == b"MZ":
+        pe_status = "malformed"
+        pe_result = {**pe_result, "status": "malformed",
+                     "detail": "Starts like a Windows program (MZ), but the header can't be parsed."}
     result = ScanResult(
         target=path,
         heuristic_score=score,
@@ -440,21 +527,24 @@ def analyze_file(
         yara_matches=yara_result.get("matches", []),
         engine_status={
             "YARA": yara_status,
-            "PE": str(pe_result.get("status", "unknown")),
+            "PE": pe_status,
             "ML": model_status,
             "Dissonance": (
                 f"{features['dissonance']['level']} ({features['dissonance']['dissonance_bits']:.1f} bits; profile: "
-                f"{features['dissonance']['profile']})" if "dissonance" in features else "not a program"
+                f"{features['dissonance']['profile']})" if "dissonance" in features
+                else "skipped: the program header is damaged" if pe_status == "malformed"
+                else "not a program"
             ),
             "Surprise map": (
                 f"{len(features['surprise_map']['regions'])} foreign region(s); profile: {features['surprise_map']['profile']}"
                 if "surprise_map" in features
+                else "skipped: the program header is damaged" if pe_status == "malformed"
                 else "profile unavailable" if surprise_profile is None and settings.get("surprise_analysis", True)
                 else "not a program"
             ),
             "Archive": (
                 f"bounded structure inspection; {archive_inspection.status}; "
-                f"{len(archive_inspection.entries)} member(s); member contents not malware-scanned"
+                f"{len(archive_inspection.entries)} member(s); {_archive_member_status(members_scanned, settings)}"
                 if archive_inspection.status != "not_zip"
                 else "not a ZIP container"
             ),

@@ -7,10 +7,13 @@ I18N["tr"] = {
 "lPrivacy": "Gizlilik",
 "lOpen": "Uygulamayı aç",
 "lEyebrow": "Statik analiz · kontrol ettiğiniz hiçbir şey çalıştırılmaz",
-"lTitle1": "Her dosyanın içini görün,",
-"lTitle2": "o, bilgisayarınızın",
-"lTitle3": "içini görmeden önce.",
-"lSub": "CyberScan bir dosyayı, bağlantıyı ya da metin parçasını hiç çalıştırmadan bayt bayt inceler, bulduklarını sade bir dille açıklar ve dosyanın biçimine ait olmayan kısımları çıkararak bir kopyasını yeniden oluşturabilir.",
+"lTitle1": "Her dosya, bağlantı",
+"lTitle2": "ve mesaj, incelenir",
+"lTitle3": "siz açmadan önce.",
+"lTypeLead": "Her",
+"lTypeWords": ["dosya", "bağlantı", "e-posta", "ek", "indirme"],
+"lTypeTail": "açılmadan önce incelenir.",
+"lSub": "CyberScan dosyaları, bağlantıları ve metinleri asla çalıştırmadan inceler. Her birini binlerce açık tehdit kuralı ve 1,5 milyondan fazla bilinen kötü amaçlı yazılım parmak iziyle karşılaştırır, her bulguyu açık bir dille anlatır ve yerinde olmayan bir şey bulduğunda doğrulanmış bir kopyayı onarır.",
 "lStart": "Taramaya başla",
 "lWatch": "Nasıl çalıştığını görün",
 "lCardFile": "invoice_2026.pdf.exe",
@@ -103,25 +106,6 @@ I18N["tr"] = {
 "Aynı dosya türü",
 "Yapı sağlam",
 "Çıkarılan parçalar karantinada mühürlü"
-],
-"lStatsTitle": "Dürüst olmak için tasarlandı",
-"stats": [
-[
-"bu bilgisayarda kayıtlı tarama",
-"scans"
-],
-[
-"analiz motoru",
-"engines"
-],
-[
-"masaüstü uygulamanın varsayılan olarak internete gönderdiği bayt",
-"zero"
-],
-[
-"dil, sağdan sola yazılanlar dahil",
-"langs"
-]
 ],
 "lPrivTitle": "Dosyalarınız size ait kalır",
 "privs": [
@@ -565,8 +549,6 @@ I18N["tr"] = {
 "ghMove": "Alanı aralamak için hareket ettirin",
 "ghHold": "İçeri çekmek için basılı tutun",
 "ghRelease": "Dağıtmak için bırakın",
-"soundOn": "Lo-fi açık",
-"soundOff": "Lo-fi kapalı",
 "lPhone": "Uygulamayı edinin",
 "apkTitle": "Android için indirin",
 "apkSigned": "CyberScan tarafından imzalandı",

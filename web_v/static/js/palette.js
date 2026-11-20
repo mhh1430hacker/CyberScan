@@ -59,14 +59,19 @@
     } catch (err) { toast(err.message); }
   }
 
+  /* How well a label answers what was typed: the label starting with it first, then a word starting
+   * with it, then anywhere inside it; a scattered-letters match ranks below all of those. */
   function score(text, q) {
     if (!q) return 1;
-    const s = text.toLowerCase(), qq = q.toLowerCase();
+    const s = String(text || "").toLowerCase(), qq = q.toLowerCase();
+    if (s.startsWith(qq)) return 300 - Math.min(s.length, 99);
+    const words = s.split(/[\s/\\._-]+/);
+    if (words.some((w) => w.startsWith(qq))) return 200 - Math.min(s.length, 99);
     const at = s.indexOf(qq);
-    if (at >= 0) return 100 - at;
-    let i = 0, hits = 0;
-    for (const ch of s) { if (ch === qq[i]) { i++; hits++; if (i === qq.length) return 20 + hits; } }
-    return 0;
+    if (at >= 0) return 100 - Math.min(at, 60);
+    let i = 0, gaps = 0, last = -1;
+    [...s].forEach((ch, k) => { if (i < qq.length && ch === qq[i]) { if (last >= 0) gaps += k - last - 1; last = k; i++; } });
+    return i === qq.length ? Math.max(1, 30 - gaps) : 0;
   }
 
   async function loadRecent() {
@@ -81,18 +86,23 @@
     if (s.length) groups.push([t("pSuggested"), s]);
     const acts = actions().map((a) => ({ ...a, s: score(a.label, q) })).filter((a) => a.s > 0).sort((a, b) => b.s - a.s);
     if (acts.length) groups.push([t("pActions"), acts]);
+    const scansGroupAt = groups.length;
     if (recent) {
-      const RISK = { NO_INDICATORS_OBSERVED: "--ok", REVIEW: "--warn", SUSPICIOUS: "--bad" };
+      const RISK = { NO_INDICATORS_OBSERVED: "--ok", REVIEW: "--warn", SUSPICIOUS: "--bad", KNOWN_MALWARE: "--bad" };
       const latest = new Map();
       recent.forEach((r) => { if (!latest.has(r.target)) latest.set(r.target, r); });
       const scans = [...latest.values()]
         .map((r) => {
           const name = r.target.split(/[\\/]/).filter(Boolean).pop() || r.target;
-          return { icon: String(r.score), color: RISK[r.classification], label: name, sub: r.target === name ? "" : r.target, s: score(r.target, q), run: () => CS.openRecord(r.id) };
+          const label = /^https?:\/\//i.test(r.target) ? r.target : name;
+          return { icon: String(r.score), color: RISK[r.classification], label, sub: r.target === label ? "" : r.target, s: Math.max(score(label, q), score(r.target, q) - 50), run: () => CS.openRecord(r.id) };
         })
         .filter((r) => r.s > 0)
+        .sort((a, b) => (q ? b.s - a.s : 0))
         .slice(0, q ? 12 : 6);
       if (scans.length) groups.push([t("pRecent"), scans]);
+      // a recent scan that answers the query better than every command is listed first
+      if (q && scans.length && acts.length && scans[0].s > acts[0].s) groups.splice(scansGroupAt - 1, 0, groups.splice(scansGroupAt, 1)[0]);
     }
     items = groups.flatMap(([, g]) => g);
     index = Math.min(index, Math.max(0, items.length - 1));
@@ -133,9 +143,12 @@
     if (item) setTimeout(item.run, 60);
   }
 
+  const narrow = () => matchMedia("(max-width: 760px), (hover: none)").matches;
   function open() {
     if (!root.hidden) return;
     lastFocus = document.activeElement;
+    input.placeholder = narrow() ? CS.ax("palShort") : t("pPlaceholder");
+    root.classList.toggle("touch", narrow());
     root.hidden = false;
     root.classList.remove("out"); void root.offsetWidth; root.classList.add("in");
     input.value = "";
@@ -149,8 +162,18 @@
     root.classList.remove("in");
     root.classList.add("out");
     setTimeout(() => { root.hidden = true; root.classList.remove("out"); }, 180);
-    if (lastFocus && lastFocus.focus) lastFocus.focus();
+    if (lastFocus && lastFocus.focus && document.contains(lastFocus)) lastFocus.focus();
+    lastFocus = null;
   }
+  // while it is open, the palette keeps the keyboard: Tab stays in the search field (arrows move in the
+  // list), Escape closes it from anywhere, and a click outside the box closes it
+  document.addEventListener("keydown", (e) => {
+    if (root.hidden || root.classList.contains("out")) return;
+    if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); close(); return; }
+    if (e.key === "Tab") { e.preventDefault(); input.focus(); }
+  }, true);
+  document.addEventListener("focusin", (e) => { if (!root.hidden && !root.classList.contains("out") && !root.contains(e.target)) input.focus(); });
+  document.addEventListener("pointerdown", (e) => { if (!root.hidden && !root.classList.contains("out") && !root.querySelector(".pal-box").contains(e.target)) { e.preventDefault(); close(); } }, true);
 
   input.addEventListener("input", () => { index = 0; render(); });
   input.addEventListener("keydown", (e) => {
@@ -159,7 +182,7 @@
     else if (e.key === "Enter") { e.preventDefault(); choose(index); }
     else if (e.key === "Escape") { e.preventDefault(); close(); }
   });
-  root.addEventListener("mousedown", (e) => { if (e.target === root) close(); });
+
   document.querySelectorAll(".pal-open").forEach((b) => b.addEventListener("click", open));
 
   /* ---------------- shortcuts ---------------- */

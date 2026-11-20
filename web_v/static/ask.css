@@ -85,3 +85,7 @@ body:not(.on-landing) .ask-fab, body:not(.on-landing) .ask-panel { display: none
 html.reduce-motion .ask-panel, html.reduce-motion .ask-fab { transition: none; }
 html.reduce-motion .ask-msg.typing i { animation: none; opacity: .7; }
 html.perf-low .ask-panel { background: rgba(14, 7, 30, .97); }
+/* answers: real paragraphs and lists (ask.js), not the source text's hard line breaks */
+.ask-text.ask-rich { white-space: normal; display: grid; gap: 8px; }
+.ask-rich p { margin: 0; }
+.ask-rich ul, .ask-rich ol { margin: 0; padding-inline-start: 20px; display: grid; gap: 4px; }

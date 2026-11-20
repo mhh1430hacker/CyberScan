@@ -11,6 +11,25 @@
   const T = {
     en: {
       navScan: "Scan", navHistory: "History", navSettings: "Settings",
+      navTools: "Tools", hsChecks: "checks", hsWarnings: "warnings", hsLast: "last check", recentTitle: "Recent checks", recentAll: "All",
+      toolsLede: "Quick checks that run on this phone. Nothing is uploaded.",
+      tQr: "Scan a QR code", tQrSub: "Read it, then check the link inside", tLinkTool: "Check a link", tLinkSub: "Before you open it",
+      tMsg: "Check a message", tMsgSub: "SMS, email or chat text", tRepair: "Repair a file", tRepairSub: "Remove what doesn't belong, in a copy",
+      tHash: "Verify a download", tHashSub: "Compare its fingerprint", tPw: "Password strength", tPwSub: "Never leaves this phone",
+      toolPreparing: "Getting the engine ready…", qrAim: "Point the camera at a QR code.", qrFound: "QR code read: check it below",
+      qrNone: "No QR code found in this photo.", qrNoCamera: "The camera isn't available. Choose a photo of the code instead.",
+      qrUnsupported: "This phone's browser can't read QR codes. Update it, or use the Android app.", qrPhoto: "Choose a photo instead",
+      hashLede: "Paste the fingerprint the publisher lists, then choose the file. The file is read on this phone only.", hashPick: "Choose the file",
+      hashMatch: (a) => `✓ Matches (${a}): this is the exact file the publisher released.`, hashNoMatch: "✗ Doesn't match any fingerprint: the file is different from the one published. Don't open it.",
+      pwLede: "Type a password to see how hard it is to guess. It isn't saved or sent anywhere.",
+      pwLevels: ["Very weak", "Weak", "Fair", "Strong", "Very strong"], pwTime: (x) => `A fast offline attack would need about ${x} to guess it.`,
+      pwInstant: "less than a second", pwAges: "longer than a million years", pwFast: "A fast offline attack could guess it in under a second.", pwSlow: "A fast offline attack would need more than a million years to guess it.",
+      pwCommon: "It contains a very common password.", pwRepeat: "Avoid repeated characters (aaa, 111).", pwSequence: "Avoid sequences (1234, abcd, qwer).",
+      pwYear: "Years and dates are easy to guess.", pwLength: "Use at least 12 characters; a few random words work well.", pwMix: "Mix letters, numbers and symbols.",
+      introSkip: "Skip", introNext: "Next", introStart: "Start",
+      intro: [["Check before you open", "Files, links and messages are taken apart without ever being run, and every finding is explained in plain words."],
+        ["It stays on your phone", "The analysis runs on this device. Nothing is uploaded unless you turn on online lookups, and then only a fingerprint or the link."],
+        ["Repair, don't just warn", "When a file carries something that doesn't belong in its format, CyberScan removes it from a copy and keeps your original."]],
       tFile: "File", tLink: "Link", tText: "Text", pick: "Choose files", pickHint: (mb) => `One or several · up to ${mb} MB each · stays on this phone`,
       picked: (n, size) => `${n} files · ${size}`,
       sample: "Try a sample", scan: "Check it", scanMany: (n) => `Check ${n} files`, found: "What we found", details: "Details", checks: "Checks",
@@ -23,7 +42,7 @@
       cloudSoon: "Cloud scanning for older phones: coming soon.",
       noHistory: "Your checks will appear here. They're stored only on this phone.", noMatch: "Nothing matches.", clearHistory: "Clear history", cleared: "History cleared",
       historyOff: "History is turned off in Settings.", exportHistory: "Export history", removed: "Removed",
-      verdicts: { NO_INDICATORS_OBSERVED: "CLEAR", REVIEW: "REVIEW", SUSPICIOUS: "SUSPICIOUS" },
+      verdicts: { NO_INDICATORS_OBSERVED: "NO WARNING SIGNS", REVIEW: "REVIEW", SUSPICIOUS: "SUSPICIOUS", KNOWN_MALWARE: "KNOWN MALWARE" },
       share: "Share", copy: "Copy report", copied: "Copied", repair: "Repair a copy", again: "Check something else", exportBtn: "Export",
       repairTitle: "Repair a copy", repairLede: "Removes parts that don't belong in the file's format from a copy. Your original stays as it is.",
       repairRun: "Repair", cancel: "Cancel", close: "Close", repairNone: "Nothing in this file needs removing.", repairDone: "Repaired copy ready",
@@ -41,7 +60,7 @@
       xJson: "Data (.json)", xJsonSub: "Everything, for tools and analysts", xShare: "Share instead of save", saved: (w) => `Saved to ${w}`,
       batchTitle: (n) => `${n} files`, batchCount: (d, n) => `${d} of ${n}`, batchStop: "Stop", batchNew: "Check something else", backBatch: "‹ All files",
       bWait: "Waiting", bRun: "Checking…", bSkip: "Too large for this phone", bErr: "Couldn't check", batchDone: (b, w) => `Done · ${b} suspicious · ${w} to review`,
-      insTotal: "checks", insBad: "suspicious", insWarn: "to review", insOk: "clear", fAll: "All", fBad: "Suspicious", fWarn: "Review", fOk: "Clear", search: "Search your checks…",
+      insTotal: "checks", insBad: "suspicious", insWarn: "to review", insOk: "no signs", fAll: "All", fBad: "Suspicious", fWarn: "Review", fOk: "No signs", search: "Search your checks…",
       setGeneral: "General", setLang: "Language", setHaptics: "Vibration", setHapticsSub: "A short buzz on taps and results",
       setWarm: "Get the engine ready at start", setWarmSub: "The first check starts faster; uses a little battery when the app opens",
       setHistory: "Keep a history", setHistorySub: "Saved only on this phone",
@@ -78,6 +97,25 @@
     },
     ar: {
       navScan: "فحص", navHistory: "السجل", navSettings: "الإعدادات",
+      navTools: "الأدوات", hsChecks: "فحص", hsWarnings: "تحذير", hsLast: "آخر فحص", recentTitle: "آخر الفحوصات", recentAll: "الكل",
+      toolsLede: "فحوصات سريعة تعمل على هذا الهاتف. لا يُرفع أي شيء.",
+      tQr: "قراءة رمز QR", tQrSub: "اقرأه ثم افحص الرابط بداخله", tLinkTool: "فحص رابط", tLinkSub: "قبل أن تفتحه",
+      tMsg: "فحص رسالة", tMsgSub: "رسالة نصية أو بريد أو محادثة", tRepair: "إصلاح ملف", tRepairSub: "إزالة ما لا ينتمي إليه، في نسخة",
+      tHash: "التحقق من ملف منزَّل", tHashSub: "قارن بصمته", tPw: "قوة كلمة المرور", tPwSub: "لا تغادر هذا الهاتف أبدًا",
+      toolPreparing: "جارٍ تجهيز المحرك…", qrAim: "وجّه الكاميرا نحو رمز QR.", qrFound: "قُرئ الرمز: افحصه بالأسفل",
+      qrNone: "لم يُعثر على رمز QR في هذه الصورة.", qrNoCamera: "الكاميرا غير متاحة. اختر صورة للرمز بدلًا من ذلك.",
+      qrUnsupported: "متصفح هذا الهاتف لا يقرأ رموز QR. حدّثه أو استخدم تطبيق أندرويد.", qrPhoto: "اختر صورة بدلًا من ذلك",
+      hashLede: "الصق البصمة التي ينشرها الناشر، ثم اختر الملف. يُقرأ الملف على هذا الهاتف فقط.", hashPick: "اختر الملف",
+      hashMatch: (a) => `✓ متطابقة (${a}): هذا هو الملف نفسه الذي نشره الناشر.`, hashNoMatch: "✗ لا تطابق أي بصمة: الملف يختلف عن المنشور. لا تفتحه.",
+      pwLede: "اكتب كلمة مرور لترى مدى صعوبة تخمينها. لا تُحفظ ولا تُرسل إلى أي مكان.",
+      pwLevels: ["ضعيفة جدًا", "ضعيفة", "مقبولة", "قوية", "قوية جدًا"], pwTime: (x) => `هجوم سريع دون اتصال يحتاج نحو ${x} لتخمينها.`,
+      pwInstant: "أقل من ثانية", pwAges: "أكثر من مليون سنة", pwFast: "هجوم سريع دون اتصال يخمّنها في أقل من ثانية.", pwSlow: "هجوم سريع دون اتصال يحتاج أكثر من مليون سنة لتخمينها.",
+      pwCommon: "تحتوي على كلمة مرور شائعة جدًا.", pwRepeat: "تجنّب تكرار الأحرف (aaa، 111).", pwSequence: "تجنّب التسلسلات (1234، abcd، qwer).",
+      pwYear: "السنوات والتواريخ سهلة التخمين.", pwLength: "استخدم 12 حرفًا على الأقل؛ بضع كلمات عشوائية خيار جيد.", pwMix: "امزج الحروف والأرقام والرموز.",
+      introSkip: "تخطَّ", introNext: "التالي", introStart: "ابدأ",
+      intro: [["افحص قبل أن تفتح", "تُفكَّك الملفات والروابط والرسائل دون أن تُشغَّل أبدًا، وتُشرح كل نتيجة بكلمات واضحة."],
+        ["يبقى على هاتفك", "يعمل التحليل على هذا الجهاز. لا يُرفع شيء إلا إن فعّلت البحث عبر الإنترنت، وحينها تُرسل البصمة أو الرابط فقط."],
+        ["يُصلح، لا يحذّر فقط", "حين يحمل الملف شيئًا لا ينتمي إلى صيغته، يزيله CyberScan من نسخة ويُبقي ملفك الأصلي كما هو."]],
       tFile: "ملف", tLink: "رابط", tText: "نص", pick: "اختر ملفات", pickHint: (mb) => `ملف أو أكثر · حتى ${mb} ميغابايت لكل ملف · تبقى على هذا الهاتف`,
       picked: (n, size) => `${n} ملفات · ${size}`,
       sample: "جرّب مثالًا", scan: "افحصه", scanMany: (n) => `افحص ${n} ملفات`, found: "ما وجدناه", details: "التفاصيل", checks: "الفحوصات",
@@ -90,7 +128,7 @@
       cloudSoon: "الفحص السحابي للهواتف القديمة: قريبًا.",
       noHistory: "ستظهر فحوصاتك هنا. تُحفظ على هذا الهاتف فقط.", noMatch: "لا توجد نتائج مطابقة.", clearHistory: "مسح السجل", cleared: "تم مسح السجل",
       historyOff: "السجل مُطفأ من الإعدادات.", exportHistory: "تصدير السجل", removed: "تم الحذف",
-      verdicts: { NO_INDICATORS_OBSERVED: "سليم", REVIEW: "للمراجعة", SUSPICIOUS: "مشبوه" },
+      verdicts: { NO_INDICATORS_OBSERVED: "لا علامات تحذير", REVIEW: "للمراجعة", SUSPICIOUS: "مشبوه", KNOWN_MALWARE: "ضار معروف" },
       share: "مشاركة", copy: "نسخ التقرير", copied: "تم النسخ", repair: "أصلح نسخة", again: "افحص شيئًا آخر", exportBtn: "تصدير",
       repairTitle: "إصلاح نسخة", repairLede: "يزيل من نسخة الأجزاءَ التي لا تنتمي إلى صيغة الملف. ملفك الأصلي يبقى كما هو.",
       repairRun: "أصلح", cancel: "إلغاء", close: "إغلاق", repairNone: "لا يوجد في هذا الملف ما يحتاج إزالة.", repairDone: "النسخة المُصلحة جاهزة",
@@ -108,7 +146,7 @@
       xJson: "بيانات (.json)", xJsonSub: "كل شيء، للأدوات والمحللين", xShare: "شارك بدل الحفظ", saved: (w) => `حُفظ في ${w}`,
       batchTitle: (n) => `${n} ملفات`, batchCount: (d, n) => `${d} من ${n}`, batchStop: "إيقاف", batchNew: "افحص شيئًا آخر", backBatch: "› كل الملفات",
       bWait: "بالانتظار", bRun: "جارٍ الفحص…", bSkip: "أكبر من حد هذا الهاتف", bErr: "تعذّر الفحص", batchDone: (b, w) => `انتهى · ${b} مشبوه · ${w} للمراجعة`,
-      insTotal: "فحص", insBad: "مشبوه", insWarn: "للمراجعة", insOk: "سليم", fAll: "الكل", fBad: "مشبوه", fWarn: "للمراجعة", fOk: "سليم", search: "ابحث في فحوصاتك…",
+      insTotal: "فحص", insBad: "مشبوه", insWarn: "للمراجعة", insOk: "بلا علامات", fAll: "الكل", fBad: "مشبوه", fWarn: "للمراجعة", fOk: "بلا علامات", search: "ابحث في فحوصاتك…",
       setGeneral: "عام", setLang: "اللغة", setHaptics: "الاهتزاز", setHapticsSub: "اهتزاز قصير عند اللمس وظهور النتائج",
       setWarm: "جهّز المحرك عند الفتح", setWarmSub: "يبدأ أول فحص أسرع؛ يستهلك قليلًا من البطارية عند فتح التطبيق",
       setHistory: "احتفظ بسجل", setHistorySub: "يُحفظ على هذا الهاتف فقط",
@@ -169,6 +207,7 @@
     $("lang-toggle").textContent = lang === "ar" ? "EN" : "ع";
     $("text").placeholder = t("textPlaceholder");
     $("h-search").placeholder = t("search");
+    $("pw-show").setAttribute("aria-label", lang === "ar" ? "إظهار كلمة المرور" : "Show the password");
     $("cloud-note").textContent = S.caps && S.caps.tier === "viewer" ? t("cloudSoon") : "";
     document.querySelectorAll("#set-lang .seg-btn").forEach((b) => b.classList.toggle("on", b.dataset.l === lang));
     setTitle();
@@ -180,6 +219,7 @@
     if (S.last && !$("result").hidden) renderResult(S.last, false);
     if (S.batch && !$("batch").hidden) renderBatch();
     if (S.view === "history") renderHistory();
+    renderHome();
   }
   function setLang(l) { lang = l; try { localStorage.setItem("cyberscan-lang", l); localStorage.setItem("cs-lang-chosen", "1"); } catch { /* storage off */ } applyLang(); }
   $("lang-toggle").addEventListener("click", () => setLang(lang === "ar" ? "en" : "ar"));
@@ -187,10 +227,10 @@
   function firstRun() {
     let chosen = false;
     try { chosen = localStorage.getItem("cs-lang-chosen") === "1"; } catch { /* storage off */ }
-    if (chosen) return;
+    if (chosen) { showIntro(); return; }
     const sheet = $("lang-sheet");
     sheet.hidden = false;
-    sheet.querySelectorAll(".choice").forEach((b) => b.addEventListener("click", () => { setLang(b.dataset.lang); sheet.hidden = true; }));
+    sheet.querySelectorAll(".choice").forEach((b) => b.addEventListener("click", () => { setLang(b.dataset.lang); sheet.hidden = true; showIntro(); }));
   }
 
   /* ---------------- feedback ---------------- */
@@ -227,9 +267,9 @@
   }
 
   /* ---------------- navigation ---------------- */
-  const VIEWS = ["scan", "history", "settings"];
+  const VIEWS = ["scan", "history", "tools", "settings"];
   function setTitle() {
-    const titles = { scan: t("navScan"), history: t("navHistory"), settings: t("navSettings") };
+    const titles = { scan: t("navScan"), history: t("navHistory"), tools: t("navTools"), settings: t("navSettings") };
     $("large-title").textContent = titles[S.view];
     $("bar-title").textContent = S.view === "scan" ? "CyberScan" : titles[S.view];
   }
@@ -239,6 +279,7 @@
     VIEWS.forEach((v) => { $(`v-${v}`).hidden = v !== view; });
     setTitle();
     if (view === "history") renderHistory();
+    if (view === "scan") renderHome();
     if (view === "settings") { renderSettings(); renderCaps(); renderInstall(); }
     window.scrollTo({ top: 0 });
   }
@@ -421,7 +462,7 @@
     toast(t("batchDone")(bad, warn));
     buzz(bad ? [40, 60, 40, 60, 80] : warn ? [30, 50, 30] : [15]);
   }
-  const RISK = { NO_INDICATORS_OBSERVED: "--ok", REVIEW: "--warn", SUSPICIOUS: "--bad" };
+  const RISK = { NO_INDICATORS_OBSERVED: "--ok", REVIEW: "--warn", SUSPICIOUS: "--bad", KNOWN_MALWARE: "--bad" };
   function renderBatch() {
     const b = S.batch; if (!b) return;
     const n = b.items.length, d = b.items.filter((i) => !["wait", "run"].includes(i.status)).length;
@@ -637,11 +678,17 @@
   /* ---------------- sheets ---------------- */
   function openSheet(id) { $(id).hidden = false; buzz(6); }
   function closeSheets() {
+    if (typeof stopQr === "function") stopQr();
     let closed = false;
-    ["repair-sheet", "export-sheet", "doc-sheet"].forEach((id) => { if (!$(id).hidden) { $(id).hidden = true; closed = true; } });
+    ["repair-sheet", "export-sheet", "doc-sheet", "qr-sheet", "hash-sheet", "pw-sheet"].forEach((id) => { if (!$(id).hidden) { $(id).hidden = true; closed = true; } });
     return closed;
   }
-  document.querySelectorAll(".sheet-veil").forEach((v) => v.addEventListener("click", (e) => { if (e.target === v && v.id !== "lang-sheet") v.hidden = true; }));
+  document.querySelectorAll(".sheet-veil").forEach((v) => v.addEventListener("click", (e) => {
+    if (e.target !== v || v.id === "lang-sheet" || v.id === "intro-sheet") return;
+    v.hidden = true;
+    if (v.id === "qr-sheet" && typeof stopQr === "function") stopQr();
+    if (v.id === "pw-sheet") { $("pw-input").value = ""; scorePassword(""); }
+  }));
 
   /* ---------------- repair ---------------- */
   async function openRepair() {
@@ -701,13 +748,14 @@
   function saveHistory(r) {
     if (!prefs.history) return;
     storeHistory([slim(r), ...loadHistory()].slice(0, 60));
+    renderHome();
   }
   function updateHistory(r) {
     if (!prefs.history) return;
     const list = loadHistory(), i = list.findIndex((x) => x.when === r.when && x.target === r.target);
     if (i >= 0) { list[i] = slim(r); storeHistory(list); }
   }
-  const COLORS = { SUSPICIOUS: "#ff4f6d", REVIEW: "#ffc84a", NO_INDICATORS_OBSERVED: "#3dffb0" };
+  const COLORS = { SUSPICIOUS: "#ff4f6d", KNOWN_MALWARE: "#ff4f6d", REVIEW: "#ffc84a", NO_INDICATORS_OBSERVED: "#3dffb0" };
   function renderHistory() {
     const all = loadHistory();
     const q = $("h-search").value.trim().toLowerCase();
@@ -744,6 +792,201 @@
     const stamp = new Date().toISOString().slice(0, 10);
     deliver(new File([JSON.stringify({ exported_by: "CyberScan", exported_at: new Date().toISOString(), checks: list }, null, 2)], `cyberscan-history-${stamp}.json`, { type: "application/json" }), false);
   });
+
+  /* ---------------- home: numbers and recent checks ---------------- */
+  function agoText(when) {
+    const s = Math.max(0, (Date.now() - new Date(when).getTime()) / 1000);
+    try {
+      const f = new Intl.RelativeTimeFormat(lang, { numeric: "auto", style: "short" });
+      if (s < 3600) return f.format(-Math.max(1, Math.round(s / 60)), "minute");
+      if (s < 86400) return f.format(-Math.round(s / 3600), "hour");
+      return f.format(-Math.round(s / 86400), "day");
+    } catch { return new Date(when).toLocaleDateString(lang); }
+  }
+  function renderHome() {
+    const all = loadHistory();
+    $("home-stats").hidden = !all.length;
+    $("home-recent").hidden = !all.length;
+    if (!all.length) return;
+    $("hs-total").textContent = all.length;
+    $("hs-bad").textContent = all.filter((r) => r.classification === "SUSPICIOUS" || r.classification === "KNOWN_MALWARE").length;
+    $("hs-last").textContent = agoText(all[0].when);
+    $("recent-list").replaceChildren(...all.slice(0, 3).map((r) => {
+      const li = el("li", "h-item"); li.style.setProperty("--sev", `var(${RISK[r.classification] || "--muted"})`);
+      const b = el("button", "h-open"); b.type = "button";
+      const name = el("b", "", r.target); name.dir = "auto";
+      b.append(name, el("span", "", `${t("verdicts")[r.classification] || r.classification} · ${r.combined_score}/100 · ${agoText(r.when)}`));
+      b.addEventListener("click", () => { S.last = r; S.lastFile = null; S.batch = null; $("compose").hidden = true; renderResult(r, true); window.scrollTo({ top: 0 }); });
+      li.append(b); return li;
+    }));
+  }
+  $("recent-all").addEventListener("click", () => { buzz(6); go("history"); });
+
+  /* ---------------- tools (all on this phone) ---------------- */
+  document.querySelectorAll(".tool").forEach((b) => b.addEventListener("click", () => { buzz(8); openTool(b.dataset.tool); }));
+  function openTool(name) {
+    if (name === "link" || name === "text") {
+      go("scan"); showCompose(); setMode(name === "link" ? "url" : "text");
+      setTimeout(() => $(name === "link" ? "url" : "text").focus(), 250);
+      return;
+    }
+    if (name === "repair") { $("tool-repair-file").click(); return; }
+    if (name === "qr") return openQr();
+    if (name === "hash") { $("hash-out").replaceChildren(); $("hash-pick").textContent = t("hashPick"); openSheet("hash-sheet"); return; }
+    if (name === "pw") { $("pw-input").value = ""; scorePassword(""); openSheet("pw-sheet"); setTimeout(() => $("pw-input").focus(), 300); }
+  }
+
+  // Repair a file directly: read it, start the engine if needed, then the usual repair sheet.
+  $("tool-repair-file").addEventListener("change", async (e) => {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = "";
+    if (!file) return;
+    if (file.size > limitBytes()) { toast(t("tooBig")(Math.round(limitBytes() / 1048576))); return; }
+    S.lastFile = { name: file.name, buffer: await file.arrayBuffer() };
+    toast(t("toolPreparing"));
+    try { await loadEngine(); openRepair(); } catch { /* loadEngine already explained */ }
+  });
+
+  // QR codes: the camera (BarcodeDetector) or a photo. The decoded text is checked like any link or text.
+  let qrStream = null, qrTimer = 0;
+  function stopQr() {
+    clearTimeout(qrTimer); qrTimer = 0;
+    if (qrStream) { qrStream.getTracks().forEach((tr) => tr.stop()); qrStream = null; }
+    $("qr-video").srcObject = null;
+  }
+  function useQr(raw) {
+    stopQr(); closeSheets(); buzz([15, 30, 15]);
+    const value = String(raw || "").trim();
+    go("scan"); showCompose();
+    if (/^(https?:\/\/|www\.)\S+$/i.test(value)) { setMode("url"); $("url").value = value; }
+    else { setMode("text"); $("text").value = value; }
+    ready(); toast(t("qrFound"));
+  }
+  async function openQr() {
+    openSheet("qr-sheet");
+    const status = $("qr-status");
+    if (!("BarcodeDetector" in window)) { status.textContent = t("qrUnsupported"); $("qr-video").parentElement.hidden = true; return; }
+    $("qr-video").parentElement.hidden = false;
+    let detector;
+    try { detector = new window.BarcodeDetector({ formats: ["qr_code"] }); } catch { status.textContent = t("qrUnsupported"); return; }
+    status.textContent = t("qrAim");
+    try {
+      qrStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
+      const video = $("qr-video"); video.srcObject = qrStream; await video.play();
+      const tick = async () => {
+        if (!qrStream) return;
+        try { const codes = await detector.detect(video); if (codes.length) { useQr(codes[0].rawValue); return; } } catch { /* next frame */ }
+        qrTimer = setTimeout(tick, 280);
+      };
+      tick();
+    } catch { status.textContent = t("qrNoCamera"); $("qr-video").parentElement.hidden = true; }
+  }
+  $("qr-file").addEventListener("change", async (e) => {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = "";
+    if (!file) return;
+    if (!("BarcodeDetector" in window)) { $("qr-status").textContent = t("qrUnsupported"); return; }
+    try {
+      const codes = await new window.BarcodeDetector({ formats: ["qr_code"] }).detect(await createImageBitmap(file));
+      if (codes.length) useQr(codes[0].rawValue); else $("qr-status").textContent = t("qrNone");
+    } catch { $("qr-status").textContent = t("qrNone"); }
+  });
+  $("qr-close").addEventListener("click", () => { stopQr(); closeSheets(); });
+
+  // Verify a download: SHA-256 / SHA-1 / SHA-512 on this phone, compared with what the publisher lists.
+  const hexOf = (buf) => [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
+  async function runHash(file) {
+    const out = $("hash-out");
+    out.replaceChildren(el("p", "muted", "…"));
+    $("hash-pick").textContent = `${file.name} · ${fmtBytes(file.size)}`;
+    const buf = await file.arrayBuffer();
+    const algos = [["SHA-256", "SHA-256"], ["SHA-1", "SHA-1"], ["SHA-512", "SHA-512"]];
+    const sums = {};
+    for (const [label, algo] of algos) sums[label] = hexOf(await crypto.subtle.digest(algo, buf));
+    const want = $("hash-expected").value.replace(/[^0-9a-f]/gi, "").toLowerCase();
+    out.replaceChildren();
+    if (want) {
+      const hit = Object.entries(sums).find(([, v]) => v === want);
+      const verdict = el("p", `hash-verdict ${hit ? "ok" : "bad"}`, hit ? t("hashMatch")(hit[0]) : t("hashNoMatch"));
+      out.append(verdict); buzz(hit ? [15, 30, 15] : [60]);
+    }
+    Object.entries(sums).forEach(([label, v]) => {
+      const row = el("button", "fp"); row.type = "button";
+      const code = el("code", "", v); code.dir = "ltr";
+      row.append(el("small", "", label), code);
+      row.addEventListener("click", () => copyText(v));
+      out.append(row);
+    });
+  }
+  $("hash-file").addEventListener("change", (e) => { const f = e.target.files && e.target.files[0]; e.target.value = ""; if (f) runHash(f).catch((err) => toast(t("failed") + err.message)); });
+  $("hash-close").addEventListener("click", closeSheets);
+
+  // Password strength: estimated on the phone from length, variety and common patterns. Never stored or sent.
+  const COMMON = ["password", "123456", "12345678", "qwerty", "abc123", "111111", "123123", "admin", "letmein", "welcome", "iloveyou", "monkey", "dragon", "football", "princess", "sunshine", "passw0rd", "master", "login", "000000", "1q2w3e", "qwertyuiop", "asdfgh", "zxcvbn", "baseball", "superman", "starwars", "trustno1", "hello", "freedom"];
+  function scorePassword(pw) {
+    const tips = [];
+    let pool = 0;
+    if (/[a-z]/.test(pw)) pool += 26;
+    if (/[A-Z]/.test(pw)) pool += 26;
+    if (/[0-9]/.test(pw)) pool += 10;
+    if (/[^A-Za-z0-9]/.test(pw)) pool += 33;
+    if (/[^\x00-\x7f]/.test(pw)) pool += 100;
+    let bits = pw.length ? pw.length * Math.log2(Math.max(pool, 1)) : 0;
+    const lower = pw.toLowerCase();
+    if (COMMON.some((c) => lower.includes(c))) { bits = Math.min(bits, 12); tips.push(t("pwCommon")); }
+    if (/(.)\1{2,}/.test(pw)) { bits -= 10; tips.push(t("pwRepeat")); }
+    if (/(?:0123|1234|2345|3456|4567|5678|6789|abcd|bcde|cdef|qwer|asdf|zxcv)/i.test(pw)) { bits -= 12; tips.push(t("pwSequence")); }
+    if (/(19|20)\d{2}/.test(pw)) { bits -= 6; tips.push(t("pwYear")); }
+    if (pw.length && pw.length < 12) tips.push(t("pwLength"));
+    if (pw.length && pool < 60) tips.push(t("pwMix"));
+    bits = Math.max(0, bits);
+    const level = !pw ? -1 : bits < 28 ? 0 : bits < 40 ? 1 : bits < 60 ? 2 : bits < 80 ? 3 : 4;
+    const bar = $("pw-bar");
+    bar.style.width = `${level < 0 ? 0 : (level + 1) * 20}%`;
+    bar.className = `l${Math.max(level, 0)}`;
+    $("pw-verdict").textContent = level < 0 ? "" : t("pwLevels")[level];
+    // an offline attacker with a fast GPU rig: about 10 billion guesses a second
+    const seconds = pw ? Math.pow(2, bits) / 1e10 / 2 : 0;
+    $("pw-time").textContent = !pw ? "" : seconds < 1 ? t("pwFast") : seconds >= 31536000 * 1e6 ? t("pwSlow") : t("pwTime")(humanTime(seconds));
+    $("pw-tips").replaceChildren(...(level >= 3 ? [] : [...new Set(tips)].slice(0, 3)).map((x) => el("li", "", x)));
+  }
+  function humanTime(s) {
+    const units = [[31536000, "year"], [86400, "day"], [3600, "hour"], [60, "minute"], [1, "second"]];
+    if (s < 1) return t("pwInstant");
+    if (s >= 31536000 * 1e6) return t("pwAges");
+    for (const [size, unit] of units) {
+      if (s >= size) {
+        const n = Math.round(s / size);
+        try { return new Intl.NumberFormat(lang, { style: "unit", unit, unitDisplay: "long" }).format(n); } catch { return `${n} ${unit}`; }
+      }
+    }
+    return t("pwInstant");
+  }
+  $("pw-input").addEventListener("input", (e) => scorePassword(e.target.value));
+  $("pw-show").addEventListener("click", () => { const i = $("pw-input"); i.type = i.type === "password" ? "text" : "password"; });
+  $("pw-close").addEventListener("click", () => { $("pw-input").value = ""; scorePassword(""); closeSheets(); });
+
+  /* ---------------- first run: three short cards after the language ---------------- */
+  const IKEY = "csm-intro-done";
+  function showIntro() {
+    let done = false;
+    try { done = localStorage.getItem(IKEY) === "1"; } catch { /* storage off */ }
+    if (done) return;
+    let i = 0;
+    const paint = () => {
+      const [title, text] = t("intro")[i];
+      $("intro-title").textContent = title; $("intro-text").textContent = text;
+      $("intro-art").className = `intro-art a${i}`;
+      [...$("intro-dots").children].forEach((d, n) => d.classList.toggle("on", n === i));
+      $("intro-next").textContent = i < 2 ? t("introNext") : t("introStart");
+      $("intro-skip").hidden = i === 2;
+    };
+    const finishIntro = () => { try { localStorage.setItem(IKEY, "1"); } catch { /* storage off */ } $("intro-sheet").hidden = true; };
+    $("intro-next").onclick = () => { buzz(6); if (i < 2) { i++; paint(); } else finishIntro(); };
+    $("intro-skip").onclick = finishIntro;
+    paint();
+    $("intro-sheet").hidden = false;
+  }
 
   /* ---------------- settings ---------------- */
   function renderSettings() {

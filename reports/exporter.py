@@ -23,6 +23,7 @@ def export_report(result: ScanResult, output_path: str | Path, format_name: str 
             "feature_summary": result.feature_summary,
             "pe_analysis": result.pe_analysis,
             "mitre_techniques": result.mitre_techniques,
+            "yara_matches": result.yara_matches,   # reopened results list the same rule matches
             "osint_summary": result.osint_summary,
             "summary": result.summary,
             "model_status": result.model_status,

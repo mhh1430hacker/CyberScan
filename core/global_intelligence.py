@@ -25,8 +25,8 @@ class GlobalIntelligenceEngine:
     the requested indicator and the feed responses received during the lookup.
     """
 
-    MAX_FAST_FEED_TIMEOUT_SECONDS = 0.45
-    DEFAULT_OTX_TIMEOUT_SECONDS = 0.45
+    MAX_FAST_FEED_TIMEOUT_SECONDS = 2.5   # opt-in lookups: long enough for a real network round trip
+    DEFAULT_OTX_TIMEOUT_SECONDS = 2.5
     MAX_OTX_TIMEOUT_SECONDS = 5.0
     CACHE_TTL_SECONDS = 300.0
     MAX_CACHE_ENTRIES = 2048
@@ -274,7 +274,7 @@ class GlobalIntelligenceEngine:
             return self._feed_result("error", error=f"{type(exc).__name__}: {exc}")
 
     async def query_indicator(self, indicator: str) -> dict[str, Any]:
-        """Query feeds concurrently; defaults are bounded below 500 ms."""
+        """Query feeds concurrently, each bounded by its timeout."""
         started = time.perf_counter()
         value = indicator.strip() if isinstance(indicator, str) else ""
         indicator_type = self._infer_indicator_type(value)

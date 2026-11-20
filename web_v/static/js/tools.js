@@ -14,11 +14,11 @@
     const list = $("src-list");
     list.replaceChildren();
     const rows = [
-      ["YARA-Forge", t("srcForge").replace("{n}", fmt(info?.forge_rules)), info?.forge, "https://github.com/YARAHQ/yara-forge"],
+      ["YARA-Forge", CS.tf("srcForge", { n: fmt(info?.forge_rules) }), info?.forge, "https://github.com/YARAHQ/yara-forge"],
       ["YARA-X", t("srcYarax"), info?.forge, "https://github.com/VirusTotal/yara-x"],
-      ["URLhaus · abuse.ch", t("srcUrlhaus").replace("{n}", fmt(info?.urlhaus)), info?.lists, "https://urlhaus.abuse.ch/"],
-      ["Phishing.Database", t("srcPhish").replace("{n}", fmt(info?.phishing)), info?.lists, "https://github.com/Phishing-Database/Phishing.Database"],
-      ["gitleaks", t("srcGitleaks").replace("{n}", fmt(info?.secret_rules)), info?.secrets, "https://github.com/gitleaks/gitleaks"],
+      ["URLhaus · abuse.ch", CS.tf("srcUrlhaus", { n: fmt(info?.urlhaus) }), info?.lists, "https://urlhaus.abuse.ch/"],
+      ["Phishing.Database", CS.tf("srcPhish", { n: fmt(info?.phishing) }), info?.lists, "https://github.com/Phishing-Database/Phishing.Database"],
+      ["gitleaks", CS.tf("srcGitleaks", { n: fmt(info?.secret_rules) }), info?.secrets, "https://github.com/gitleaks/gitleaks"],
       ["Have I Been Pwned", t("srcHibp"), true, "https://haveibeenpwned.com/Passwords"],
       [t("srcOwnName"), t("srcOwn"), true, null],
     ];
@@ -30,7 +30,7 @@
       li.append(el("i", "", on ? "●" : "○"), head, el("span", "", what), el("small", "", on ? t("srcOn") : t("srcOff")));
       list.append(li);
     }
-    $("src-updated").textContent = info?.updated ? t("srcUpdated").replace("{d}", info.updated) : "";
+    $("src-updated").textContent = info?.updated ? CS.tf("srcUpdated", { d: info.updated }) : "";
     const tag = { forge: info?.forge ? `YARA-Forge · ${fmt(info.forge_rules)}` : "",
                   lists: info?.lists ? `URLhaus + Phishing.Database` : "", secrets: info?.secrets ? "gitleaks" : "" };
     document.querySelectorAll(".tool-src[data-src]").forEach((n) => { n.textContent = tag[n.dataset.src] || ""; });
@@ -89,7 +89,14 @@
   panel.addEventListener("submit", async (e) => {
     e.preventDefault();
     const pw = input.value;
-    if (!pw) { input.focus(); return; }
+    if (!pw) {
+      out.className = "pw-out warn";
+      out.textContent = CS.ax("pwEmpty");
+      input.setAttribute("aria-invalid", "true");
+      input.focus();
+      return;
+    }
+    input.removeAttribute("aria-invalid");
     $("pw-go").disabled = true;
     out.className = "pw-out";
     out.textContent = t("pwChecking");
@@ -107,7 +114,7 @@
       }
       if (count > 0) {
         out.className = "pw-out bad";
-        out.textContent = t("pwFound").replace("{n}", fmt(count));
+        out.textContent = CS.tf("pwFound", { n: fmt(count) });
       } else {
         out.className = "pw-out good";
         out.textContent = t("pwClean");

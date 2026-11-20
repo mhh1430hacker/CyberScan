@@ -12,6 +12,7 @@
 (function () {
   "use strict";
   const canvas = document.getElementById("gl-hero");
+  if (canvas && window.CSAdapt) CSAdapt.register("hero", canvas, "particles");
   if (!canvas) return;
   const gl = canvas.getContext("webgl2", { antialias: false, alpha: true, premultipliedAlpha: true, powerPreference: "high-performance" });
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -271,7 +272,7 @@
   let lastScroll = scrollY, running = true, raf = 0;
 
   function resize() {
-    // 1.5x is plenty for soft dots; performance mode (js/perf.js) draws at 1x
+    // 1.5x is plenty for soft dots; the Adaptive Performance Engine (js/performance/) lowers it with the level
     dpr = window.CSPerf ? window.CSPerf.dpr(1.5) : Math.min(window.devicePixelRatio || 1, 1.5);
     W = canvas.clientWidth; H = canvas.clientHeight;
     canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
@@ -349,14 +350,25 @@
 
   // Full rate only while something moves (a morph, scrolling, the cursor); a calm field is
   // drawn at 30 fps, and a faint one (behind text-heavy sections) at 20 fps.
-  let lastDraw = 0;
+  // Between calm frames the loop sleeps on a timer instead of asking for every display frame, so an
+  // idle page doesn't keep the frame pipeline awake; a pointer move or a scroll wakes it at once.
+  let lastDraw = 0, sleepT = 0;
+  function next(ms) {
+    if (!running) return;
+    if (ms <= 4) raf = requestAnimationFrame(frame);
+    else sleepT = setTimeout(() => { sleepT = 0; if (running) raf = requestAnimationFrame(frame); }, ms);
+  }
+  function wake() { if (sleepT) { clearTimeout(sleepT); sleepT = 0; if (running) raf = requestAnimationFrame(frame); } }
+  window.addEventListener("pointermove", wake, { passive: true });
+  window.addEventListener("scroll", wake, { passive: true });
   function frame(now) {
-    raf = requestAnimationFrame(frame);
-    if (!onLanding()) return;
+    raf = 0;
+    if (!onLanding()) { next(500); return; }
     const busy = (now - mixStart) < mixMs + 200 || turb > 0.03 || Math.abs(mouse.tx - mouse.x) + Math.abs(mouse.ty - mouse.y) > 0.004 || Math.abs(targetFade - fade) > 0.01;
     const gap = busy ? 0 : fade < 0.15 ? 48 : 31;
-    if (now - lastDraw < gap) return;
+    if (now - lastDraw < gap) { next(gap - (now - lastDraw)); return; }
     lastDraw = now;
+    next(busy ? 0 : gap - 6);
     const dt = 1 / 60;
     mix = Math.min(1, (now - mixStart) / mixMs);
     mouse.x += (mouse.tx - mouse.x) * 0.14;
@@ -402,8 +414,8 @@
   window.addEventListener("resize", resize);
   window.addEventListener("cs:perf", resize);
   document.addEventListener("visibilitychange", () => {
-    if (document.hidden) { running = false; cancelAnimationFrame(raf); }
-    else if (!running) { running = true; raf = requestAnimationFrame(frame); }
+    if (document.hidden) { running = false; cancelAnimationFrame(raf); clearTimeout(sleepT); sleepT = 0; }
+    else if (!running && !reduced) { running = true; raf = requestAnimationFrame(frame); }
   });
   canvas.addEventListener("webglcontextlost", (e) => { e.preventDefault(); cancelAnimationFrame(raf); canvas.remove(); document.body.classList.remove("has-gl"); });
 
@@ -411,9 +423,10 @@
   const idle = window.requestIdleCallback || ((fn) => setTimeout(fn, 200));
   const pending = Object.keys(SHAPES).filter((k) => k !== "shield");
   (function prebuild() { const k = pending.shift(); if (!k) return; shape(k); idle(prebuild, { timeout: 2000 }); })();
-  if (reduced) { mix = 1; mixStart = -1e9; requestAnimationFrame((n) => { frame(n); cancelAnimationFrame(raf); }); }
+  // reduced motion: one still frame, then the loop stays off (also after the tab comes back)
+  if (reduced) { mix = 1; mixStart = -1e9; requestAnimationFrame((n) => { frame(n); running = false; cancelAnimationFrame(raf); clearTimeout(sleepT); sleepT = 0; }); }
   else raf = requestAnimationFrame(frame);
-  window.addEventListener("cs:landing", () => { mixStart = performance.now(); mixMs = 2600; pickShape(); });
+  window.addEventListener("cs:landing", () => { mixStart = performance.now(); mixMs = 2600; pickShape(); wake(); });
 
   window.CSGL = { morph, get shape() { return current; }, get hold() { return hold; } };
 })();

@@ -7,10 +7,13 @@ I18N["sw"] = {
 "lPrivacy": "Faragha",
 "lOpen": "Fungua programu",
 "lEyebrow": "Uchanganuzi tuli · chochote unachokagua hakiendeshwi kamwe",
-"lTitle1": "Tazama ndani ya faili yoyote",
-"lTitle2": "kabla haijatazama ndani",
-"lTitle3": "ya kompyuta yako.",
-"lSub": "CyberScan huchambua faili, kiungo au kipande cha maandishi baiti kwa baiti bila kamwe kukiendesha, hueleza inachokipata kwa maneno rahisi, na inaweza kuunda upya nakala isiyo na sehemu zisizostahili kuwa katika muundo wake.",
+"lTitle1": "Kila faili, kiungo",
+"lTitle2": "na ujumbe hukaguliwa",
+"lTitle3": "kabla hujaufungua.",
+"lTypeLead": "Kagua kila",
+"lTypeWords": ["faili", "kiungo", "ujumbe", "barua pepe", "kiambatisho"],
+"lTypeTail": "kabla ya kufungua.",
+"lSub": "CyberScan hukagua faili, viungo na maandishi bila kuviendesha kamwe. Hulinganisha kila kimoja na maelfu ya sheria huria za vitisho na zaidi ya alama milioni 1.5 za programu hasidi zinazojulikana, hueleza kila kilichopatikana kwa lugha rahisi, na hurekebisha nakala iliyothibitishwa pale kitu kisichostahili kinapopatikana.",
 "lStart": "Anza kuchanganua",
 "lWatch": "Tazama jinsi inavyofanya kazi",
 "lCardFile": "invoice_2026.pdf.exe",
@@ -103,25 +106,6 @@ I18N["sw"] = {
 "Aina ileile ya faili",
 "Muundo uko salama",
 "Sehemu zilizoondolewa zimefungiwa karantini"
-],
-"lStatsTitle": "Imejengwa kuwa ya kweli",
-"stats": [
-[
-"uchanganuzi uliohifadhiwa kwenye kompyuta hii",
-"scans"
-],
-[
-"injini za uchanganuzi",
-"engines"
-],
-[
-"baiti ambazo programu ya kompyuta hutuma mtandaoni kwa chaguomsingi",
-"zero"
-],
-[
-"lugha, zikiwemo za kulia kwenda kushoto",
-"langs"
-]
 ],
 "lPrivTitle": "Faili zako zinabaki kuwa zako",
 "privs": [
@@ -565,8 +549,6 @@ I18N["sw"] = {
 "ghMove": "Sogeza ili kugawa uwanja",
 "ghHold": "Shikilia ili kuvuta ndani",
 "ghRelease": "Achilia ili kutawanya",
-"soundOn": "Lo-fi imewashwa",
-"soundOff": "Lo-fi imezimwa",
 "lPhone": "Pata programu",
 "apkTitle": "Pakua kwa ajili ya Android",
 "apkSigned": "Imesainiwa na CyberScan",

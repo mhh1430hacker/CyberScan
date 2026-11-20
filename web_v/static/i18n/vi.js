@@ -7,10 +7,13 @@ I18N["vi"] = {
 "lPrivacy": "Quyền riêng tư",
 "lOpen": "Mở ứng dụng",
 "lEyebrow": "Phân tích tĩnh · mọi thứ bạn kiểm tra đều không bao giờ được chạy",
-"lTitle1": "Hãy nhìn vào bên trong mọi tệp",
-"lTitle2": "trước khi chúng nhìn vào bên trong",
-"lTitle3": "máy tính của bạn.",
-"lSub": "CyberScan phân tích tệp, liên kết hoặc đoạn mã đến từng byte mà không bao giờ chạy chúng, giải thích những gì tìm thấy bằng lời lẽ dễ hiểu và có thể dựng lại một bản sao không còn những phần không thuộc về định dạng của tệp.",
+"lTitle1": "Mọi tệp, liên kết",
+"lTitle2": "và tin nhắn đều được kiểm tra",
+"lTitle3": "trước khi bạn mở.",
+"lTypeLead": "Kiểm tra mọi",
+"lTypeWords": ["tệp", "liên kết", "tin nhắn", "email", "tệp đính kèm"],
+"lTypeTail": "trước khi bạn mở.",
+"lSub": "CyberScan kiểm tra tệp, liên kết và văn bản mà không bao giờ chạy chúng. Mỗi mục được đối chiếu với hàng nghìn quy tắc mối đe dọa mở và hơn 1,5 triệu dấu vân tay của phần mềm độc hại đã biết, mọi phát hiện được giải thích bằng ngôn ngữ dễ hiểu, và một bản sao đã xác minh được sửa khi có phần không thuộc về tệp.",
 "lStart": "Bắt đầu quét",
 "lWatch": "Xem cách hoạt động",
 "lCardFile": "invoice_2026.pdf.exe",
@@ -103,25 +106,6 @@ I18N["vi"] = {
 "Cùng loại tệp",
 "Cấu trúc nguyên vẹn",
 "Phần bị cắt được niêm phong trong khu cách ly"
-],
-"lStatsTitle": "Được xây dựng để trung thực",
-"stats": [
-[
-"lần quét lưu trên máy tính này",
-"scans"
-],
-[
-"công cụ phân tích",
-"engines"
-],
-[
-"byte ứng dụng máy tính gửi lên internet theo mặc định",
-"zero"
-],
-[
-"ngôn ngữ, kể cả viết từ phải sang trái",
-"langs"
-]
 ],
 "lPrivTitle": "Tệp của bạn vẫn là của bạn",
 "privs": [
@@ -565,8 +549,6 @@ I18N["vi"] = {
 "ghMove": "Di chuyển để rẽ trường hạt",
 "ghHold": "Giữ để hút vào",
 "ghRelease": "Thả để phân tán",
-"soundOn": "Lo-fi: bật",
-"soundOff": "Lo-fi: tắt",
 "lPhone": "Tải ứng dụng",
 "apkTitle": "Tải xuống cho Android",
 "apkSigned": "Được CyberScan ký",

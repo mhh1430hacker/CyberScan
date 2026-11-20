@@ -7,10 +7,13 @@ I18N["de"] = {
 "lPrivacy": "Datenschutz",
 "lOpen": "App öffnen",
 "lEyebrow": "Statische Analyse · nichts, was Sie prüfen, wird je ausgeführt",
-"lTitle1": "Blicken Sie in jede Datei,",
-"lTitle2": "bevor sie in Ihren",
-"lTitle3": "Computer blickt.",
-"lSub": "CyberScan zerlegt eine Datei, einen Link oder einen Textausschnitt Byte für Byte, ohne je etwas davon auszuführen, erklärt seine Funde in einfachen Worten und kann eine Kopie neu aufbauen, ohne die Teile, die nicht in ihr Format gehören.",
+"lTitle1": "Jede Datei, jeder Link,",
+"lTitle2": "jede Nachricht geprüft,",
+"lTitle3": "bevor Sie sie öffnen.",
+"lTypeLead": "Prüfen Sie jede",
+"lTypeWords": ["Datei", "E-Mail", "Nachricht", "Anlage", "Webseite"],
+"lTypeTail": "bevor Sie sie öffnen.",
+"lSub": "CyberScan prüft Dateien, Links und Texte, ohne sie je auszuführen. Jede Eingabe wird mit Tausenden offenen Bedrohungsregeln und mehr als 1,5 Millionen Fingerabdrücken bekannter Schadsoftware abgeglichen; jeder Fund wird verständlich erklärt, und wo etwas nicht hingehört, entsteht eine geprüfte, reparierte Kopie.",
 "lStart": "Jetzt prüfen",
 "lWatch": "So funktioniert's",
 "lCardFile": "invoice_2026.pdf.exe",
@@ -103,25 +106,6 @@ I18N["de"] = {
 "Gleicher Dateityp",
 "Struktur intakt",
 "Entfernte Teile in Quarantäne versiegelt"
-],
-"lStatsTitle": "Auf Ehrlichkeit gebaut",
-"stats": [
-[
-"auf diesem Computer gespeicherte Scans",
-"scans"
-],
-[
-"Analyse-Engines",
-"engines"
-],
-[
-"Bytes, die die Desktop-App standardmäßig ins Internet sendet",
-"zero"
-],
-[
-"Sprachen, inklusive Rechts-nach-links",
-"langs"
-]
 ],
 "lPrivTitle": "Ihre Dateien bleiben Ihre",
 "privs": [
@@ -565,8 +549,6 @@ I18N["de"] = {
 "ghMove": "Bewegen, um das Feld zu teilen",
 "ghHold": "Halten, um es anzuziehen",
 "ghRelease": "Loslassen, um es zu zerstreuen",
-"soundOn": "Lo-fi an",
-"soundOff": "Lo-fi aus",
 "lPhone": "App holen",
 "apkTitle": "Für Android herunterladen",
 "apkSigned": "Signiert von CyberScan",

@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#04030c">
+  <meta name="description" content="The File Journey: dive into a file and follow CyberScan from the first byte to the verdict.">
+  <title>The File Journey · CyberScan</title>
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="journey.css">
+  <link rel="stylesheet" href="site-shell.css">
+  <script src="js/nav-early.js"></script>
+  <script src="js/journey-i18n.js"></script>
+  <script src="js/journey-early.js"></script>
+  <script src="js/performance/capabilityDetector.js"></script>
+  <script src="js/performance/performanceMonitor.js"></script>
+  <script src="js/performance/performanceScorer.js"></script>
+  <script src="js/performance/animationProfiles.js"></script>
+  <script src="js/performance/performanceSettings.js"></script>
+  <script src="js/performance/adaptiveController.js"></script>
+</head>
+<body class="fj">
+  <a class="fj-skip" id="fj-skip" href="#fj-static" data-t="skip">Skip to the text version</a>
+
+  <!-- the 3D world (js/journey.js) and what sits over it -->
+  <canvas id="fj-gl" aria-hidden="true"></canvas>
+  <canvas id="fj-xfade" aria-hidden="true"></canvas>
+  <div class="fj-veil" aria-hidden="true"></div>
+  <div class="fj-fade" aria-hidden="true"></div>
+
+  <header class="fj-top">
+    <a class="fj-brand" href="/" aria-label="CyberScan home" data-t-aria="brandHome">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5 4 6v6c0 4.6 3.4 8.4 8 9.5 4.6-1.1 8-4.9 8-9.5V6z"/><path d="m8.5 12 2.4 2.4 4.6-4.8"/></svg>
+      <span>CyberScan</span>
+    </a>
+    <p class="fj-title"><b data-t="kicker">THE FILE JOURNEY</b><span data-t="pageName">The file journey</span></p>
+    <div class="fj-tools">
+      <button class="fj-btn sfx-btn off" id="fj-sound" type="button" aria-pressed="false" aria-label="Sound off (click to turn on)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path class="w1" d="M15.5 9a4.2 4.2 0 0 1 0 6"/><path class="w2" d="M18.2 6.5a8 8 0 0 1 0 11"/><path class="x" d="m16 9.5 5 5m0-5-5 5"/></svg></button>
+      <button class="fj-btn fj-lang" type="button" id="fj-lang" lang="ar">العربية</button>
+      <a class="fj-btn fj-back" id="fj-back" href="/" aria-label="Back to the site" data-t-aria="back"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11.5 12 4l8.5 7.5"/><path d="M6 10v9.5h12V10"/></svg><span data-t="back">Back to the site</span></a>
+    </div>
+  </header>
+
+  <nav class="fj-rail" id="fj-rail" aria-label="Journey stages" data-t-aria="railAria"></nav>
+  <div class="fj-text" id="fj-text" aria-hidden="true"></div>
+  <div class="fj-labels" id="fj-labels" aria-hidden="true"></div>
+  <section class="fj-final" id="fj-final" aria-labelledby="fj-final-h"></section>
+
+  <div class="fj-hud" aria-hidden="true">
+    <div class="fj-hud-row">
+      <div class="fj-chap" id="fj-chap">
+        <span class="fj-code" id="fj-code">01</span>
+        <span class="fj-chap-t"><b class="fj-stage" id="fj-stage" dir="auto">THE ENTRY</b><small id="fj-sub" dir="auto">From outside to inside</small></span>
+      </div>
+      <div class="fj-tele">
+        <span class="fj-sig"><i class="fj-pulse"></i><em data-t="signal">Signal</em> <b id="fj-state" dir="auto">Unknown</b></span>
+        <span class="fj-depth"><i data-t="depth">Depth</i> <b id="fj-depth">0x000000</b></span>
+      </div>
+    </div>
+    <div class="fj-line" id="fj-line"><i id="fj-play"></i></div>
+  </div>
+  <div class="fj-hint" id="fj-hint" aria-hidden="true">
+    <span class="fj-mouse"><i></i></span>
+    <b id="fj-hint-t">Scroll to control the journey</b>
+  </div>
+
+  <!-- the scroll track: its height is the length of the journey -->
+  <main class="fj-track" id="fj-track">
+    <!-- the text version: shown without WebGL or JavaScript, to screen readers, and as "text version" mode -->
+    <div class="fj-static" id="fj-static" role="region" aria-labelledby="fj-static-h">
+      <div id="fj-static-body">
+        <h1 id="fj-static-h" tabindex="-1">The File Journey</h1>
+        <p>Everything starts with a file. It may look ordinary from the outside... but what is it hiding inside?</p>
+        <p>Inside every file is a digital structure that tells a story. CyberScan analyses that structure, looking for signs that deserve attention, weighs every signal, and verifies its results before it reaches a verdict.</p>
+        <p>From the first byte... to the verdict. CyberScan: see beyond the file.</p>
+        <p><a href="/">Back to CyberScan</a></p>
+      </div>
+      <button class="fj-btn fj-static-close" id="fj-static-close" type="button" data-t="textClose">Back to the journey</button>
+    </div>
+  </main>
+
+  <script src="js/cs-audio.js"></script>
+  <script src="js/ui-sound.js"></script>
+  <script src="js/journey-audio.js"></script>
+  <script src="js/cursor.js"></script>
+  <script src="js/site-nav.js"></script>
+  <script type="module" src="js/journey.js"></script>
+</body>
+</html>

@@ -1,0 +1,221 @@
+/* ================= landing polish (QA pass, Nov 2026) =================
+ * Loaded after the other landing sheets, so these rules win without !important where possible.
+ * Sections: header + menu sheet · side dots · how it works · scenes · film · privacy · ask FAB ·
+ * back to top · scripts (CJK / Arabic) · touch targets · performance. */
+
+/* ---------------- header ---------------- */
+.l-top > * { flex: none; }
+.l-top .l-links { align-items: center; gap: 24px; }
+.l-top .l-actions { gap: 8px; }
+.l-menu-btn { display: none; width: 44px; height: 44px; padding: 0; justify-content: center; }
+.l-menu-btn svg { width: 22px; height: 22px; }
+.l-menu-btn path { transition: transform .3s var(--ease, ease), opacity .2s; transform-origin: 12px 12px; }
+.l-menu-btn[aria-expanded="true"] .m1 { transform: translateY(5px) rotate(45deg); }
+.l-menu-btn[aria-expanded="true"] .m2 { opacity: 0; }
+.l-menu-btn[aria-expanded="true"] .m3 { transform: translateY(-5px) rotate(-45deg); }
+.l-top .sound-btn { min-height: 38px; }
+
+/* level 1 (tight): shorter gaps, icon-only "Get the app"; Calm keeps its word (the bars alone read as "....") */
+.l-top.is-tight .l-links { gap: 16px; }
+.l-top.is-tight { gap: 14px; }
+.l-top.is-tight .l-actions { gap: 6px; }
+.l-top.is-tight .get-app-btn span { display: none; }
+/* Calm's equaliser: bars of different heights, so it reads as music even when still */
+.sound-btn .eq { height: 14px; }
+.sound-btn .eq i:nth-child(1) { height: 6px; } .sound-btn .eq i:nth-child(2) { height: 12px; }
+.sound-btn .eq i:nth-child(3) { height: 9px; } .sound-btn .eq i:nth-child(4) { height: 14px; }
+.l-top.is-tight .get-app-btn { padding: 8px; }
+
+/* level 2 (compact): brand · Open the app · menu; everything else lives in the sheet */
+.l-top.is-compact { gap: 10px; }
+.l-top.is-compact .l-links,
+.l-top.is-compact .l-actions > .tour-btn,
+.l-top.is-compact .l-actions > .sfx-btn,
+.l-top.is-compact .l-actions > .sound-btn,
+.l-top.is-compact .l-actions > .lang-btn { display: none !important; }
+.l-top.is-compact .l-menu-btn { display: inline-flex; }
+.l-top.is-compact .l-actions .enter { display: inline-flex; min-height: 44px; align-items: center; }
+/* level 3 (tiny): the logo without the word, for very long labels on 360 px phones */
+.l-top.is-tiny .brand > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.l-top.is-tiny .l-actions .enter { padding-inline: 12px; font-size: 13.5px; }
+
+/* the sheet */
+.l-sheet {
+  position: absolute; top: 100%; inset-inline: 8px; z-index: 40; margin-top: 6px;
+  display: grid; gap: 14px; padding: 16px; border-radius: 20px; max-height: calc(100vh - 90px); max-height: calc(100dvh - 90px); overflow-y: auto;
+  background: #0c061c; border: 1px solid rgba(196, 160, 255, .28);
+  box-shadow: 0 30px 70px -20px rgba(0, 0, 0, .9), 0 0 40px -16px rgba(180, 108, 255, .6);
+  animation: l-sheet-in .28s cubic-bezier(.22, 1, .36, 1);
+}
+.l-sheet[hidden] { display: none; }
+@keyframes l-sheet-in { from { opacity: 0; transform: translateY(-8px); } }
+.l-sheet-links { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+.l-sheet-links a {
+  display: flex; align-items: center; min-height: 48px; padding: 10px 14px; border-radius: 12px; text-decoration: none;
+  color: var(--text); font-weight: 600; font-size: 16px; background: rgba(255, 255, 255, .04); border: 1px solid rgba(196, 160, 255, .14);
+  overflow-wrap: anywhere;
+}
+.l-sheet-links a:hover, .l-sheet-links a:focus-visible { border-color: var(--accent); background: rgba(180, 108, 255, .12); }
+.l-sheet-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.l-sheet-row > * { flex: 1 1 140px; min-height: 48px; justify-content: center; text-decoration: none; color: var(--text); font-size: 14.5px; text-align: center; }
+.l-sheet .l-sheet-row > .sfx-btn.sfx-wide { width: auto; height: auto; flex: 1 1 140px; display: inline-flex; gap: 8px; padding: 8px 14px; }
+.l-sheet .sfx-btn.off .w1, .l-sheet .sfx-btn.off .w2 { display: none; }
+.l-sheet .sfx-btn .x { display: none; }
+.l-sheet .sfx-btn.off .x { display: inline; }
+.l-sheet .sfx-btn svg { width: 19px; height: 19px; }
+.l-sheet .sound-btn .sound-label { display: inline !important; }
+.l-sheet-apk { border-color: rgba(61, 220, 132, .45) !important; }
+.l-sheet-tour, .l-sheet-apk { display: inline-flex; align-items: center; gap: 8px; }
+@media (min-width: 700px) { .l-sheet { inset-inline: auto 16px; width: 440px; } }
+@media (prefers-reduced-motion: reduce) { .l-sheet { animation: none; } }
+html.reduce-motion .l-sheet { animation: none; }
+
+/* phones: the old rule hid "Open the app"; it stays now (compact header) */
+@media (max-width: 600px) {
+  .l-top .enter { display: inline-flex; }
+  .l-top { padding: 10px 12px; }
+}
+
+/* ---------------- side dots: 24 px targets, pointer-only (the header nav is the real one) ---------------- */
+nav.side-dots { gap: 2px; inset-inline-end: 12px; }
+nav.side-dots a { width: 28px; height: 28px; border: 0; border-radius: 50%; display: grid; place-items: center; background: none; box-shadow: none; transform: none; }
+nav.side-dots a::before { content: ""; width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid rgba(196, 160, 255, .5); box-sizing: border-box; transition: all .4s var(--ease, ease); }
+nav.side-dots a.on { background: none; box-shadow: none; transform: none; }
+nav.side-dots a.on::before { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 12px rgba(180, 108, 255, .9); transform: scale(1.25); }
+nav.side-dots a span { inset-inline-end: 30px; }
+
+/* ---------------- back to top (bottom start corner; the Ask FAB owns the end corner) ---------------- */
+.to-top {
+  position: fixed; z-index: 34; inset-inline-start: 18px; bottom: 18px; width: 48px; height: 48px; padding: 0; border-radius: 50%;
+  display: grid; place-items: center; cursor: pointer; color: #fff;
+  background: rgba(16, 8, 34, .86); border: 1px solid rgba(196, 160, 255, .4); box-shadow: 0 12px 30px -12px rgba(0, 0, 0, .9);
+  opacity: 0; visibility: hidden; transform: translateY(10px); transition: opacity .3s, transform .3s, visibility 0s .3s;
+}
+.to-top.on { opacity: 1; visibility: visible; transform: none; transition: opacity .3s, transform .3s, visibility 0s; }
+.to-top:hover { border-color: var(--accent); }
+.to-top:focus-visible { outline: 2px solid #f0abfc; outline-offset: 3px; }
+.to-top svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+body:not(.on-landing) .to-top, body.ask-open .to-top { display: none; }
+@media (max-width: 600px) { .to-top { inset-inline-start: 14px; bottom: 14px; } }
+
+/* ---------------- how it works: one compact grid (the sideways pin and "Inside one scan" were merged here) ---------------- */
+.how.l-section { padding-bottom: 70px; }
+.how-head { max-width: none; padding: 0; margin: 0 0 34px; }
+.how-head .l-h2, .how-head .l-sub { max-width: 820px; }
+.how-head .l-sub { margin-bottom: 0; }
+.how-grid { counter-reset: none; align-items: stretch; }
+.how-grid li { display: flex; flex-direction: column; gap: 6px; min-height: 0; padding: 26px 24px 28px; }
+.how-grid li .num { font-size: 56px; margin-bottom: 10px; }
+.how-grid li.in .num { background: linear-gradient(180deg, var(--accent), rgba(255, 79, 216, .1)); -webkit-background-clip: text; background-clip: text; }
+.how-grid li b { font-size: 21px; margin: 0; }
+.how-grid li p { font-size: 15.5px; line-height: 1.65; }
+/* a thin line joins the four cards, so they read as one path */
+@media (min-width: 1001px) {
+  .how-grid li:not(:last-child)::before { content: ""; position: absolute; top: 54px; inset-inline-end: -21px; width: 22px; height: 2px; background: linear-gradient(90deg, var(--accent), transparent); }
+  [dir="rtl"] .how-grid li:not(:last-child)::before { background: linear-gradient(270deg, var(--accent), transparent); }
+  .how-grid li { overflow: visible; }
+}
+@media (max-width: 600px) { .how-grid li { padding: 22px 20px 24px; } .how-grid li .num { font-size: 44px; } }
+
+/* ---------------- features: which cards need the desktop app ---------------- */
+.feat-tag { display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; margin-top: 12px; padding: 4px 10px; border-radius: 999px; font-size: 12.5px; font-weight: 650; color: #ffe2a8; background: rgba(251, 191, 36, .1); border: 1px solid rgba(251, 191, 36, .4); }
+.feat-tag::before { content: ""; width: 12px; height: 9px; border: 1.6px solid currentColor; border-radius: 2px; box-shadow: 0 4px 0 -2.4px currentColor; }
+
+/* ---------------- features: which cards need the desktop app ---------------- */
+.feat-tag { display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; margin-top: 12px; padding: 4px 10px; border-radius: 999px; font-size: 12.5px; font-weight: 650; color: #ffe2a8; background: rgba(251, 191, 36, .1); border: 1px solid rgba(251, 191, 36, .4); }
+.feat-tag::before { content: ""; width: 12px; height: 9px; border: 1.6px solid currentColor; border-radius: 2px; box-shadow: 0 4px 0 -2.4px currentColor; }
+
+/* ---------------- corner buttons vs content ----------------
+ * The footer keeps a clear band at the bottom for the Ask FAB (end corner) and back-to-top (start
+ * corner), so "Reduce motion" and the other footer controls are never under them. On phones both
+ * step aside while reading downwards (landing.js: body.float-away). */
+.l-foot { padding-bottom: 104px; }
+@media (max-width: 700px) {
+  .l-foot { padding-bottom: 92px; }
+  .ask-fab, .to-top.on { transition: transform .3s cubic-bezier(.22, 1, .36, 1), opacity .3s; }
+  body.float-away .ask-fab:not(:focus-visible), body.float-away .to-top.on:not(:focus-visible) { transform: translateY(90px); opacity: 0; pointer-events: none; }
+}
+
+/* ---------------- privacy: stacking cards are opaque and stack in order ----------------
+ * They were translucent glass, so the text of the card underneath showed through the one on top. */
+#priv-grid.stack .priv {
+  z-index: calc(var(--i, 0) + 1);
+  background-color: #150c2c;   /* opaque under the HUD brackets (cyber.css background-image) */
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+#priv-grid.stack .priv::before { opacity: .5; }
+
+/* ---------------- film: chapter names wrap instead of being cut; phones get a grid, not a cut-off strip ---------------- */
+.cine-timeline .cine-seg-name { white-space: normal; overflow: visible; text-overflow: clip; line-height: 1.25; overflow-wrap: anywhere; }
+@media (max-width: 720px) {
+  .cine-timeline { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px 6px; overflow: visible; -webkit-mask-image: none; mask-image: none; scroll-snap-type: none; padding-bottom: 0; }
+  .cine-timeline li { flex: none; min-width: 0; }
+  .cine-timeline button { min-height: 48px; align-content: start; padding: 8px 2px; }
+  .cine-timeline .cine-seg-name { font-size: 12px; }
+  .cine-timeline .cine-seg-len { font-size: 10.5px; }
+  /* the poster line repeated the section's subtitle and sat on the control bar: phones skip it */
+  .film-meta { display: none; }
+  /* finger-sized controls */
+  .cine .film-btn { min-width: 44px; height: 44px; }
+  .cine .film-btn.icon { width: 44px; }
+  .film-row { margin-top: 12px; }
+  .film-seek::before { inset: -20px 0 -12px; }
+}
+
+/* ---------------- pipeline on phones: names under the icons, finger-sized (pipeline.js lays out a 3 × 3 grid) ---------------- */
+.pipe.vertical .pipe-node { min-width: 44px; min-height: 44px; }
+.pipe.vertical .pipe-node.engine { flex-direction: column; justify-content: center; gap: 5px; width: 92px; padding: 8px 4px 9px; border-radius: 14px; }
+.pipe.vertical .pipe-node.engine .pn-label { display: block; font-size: 11.5px; line-height: 1.2; text-align: center; white-space: normal; overflow-wrap: anywhere; }
+.pipe.vertical .pipe-node.io .pn-label { display: inline; font-size: 13px; }
+.pipe.vertical .pn-glyph { width: 32px; height: 32px; }
+
+/* ---------------- scripts: CJK lines break between words (phrases), and no letter-spacing in CJK or Arabic ---------------- */
+html:lang(ja) .landing, html:lang(zh) .landing { line-break: strict; word-break: normal; overflow-wrap: anywhere; }
+@supports (word-break: auto-phrase) { html:lang(ja) .landing { word-break: auto-phrase; } }
+html:lang(ko) .landing { word-break: keep-all; overflow-wrap: anywhere; }
+html:lang(ja) .landing *, html:lang(zh) .landing *, html:lang(ko) .landing *,
+html:lang(ar) .landing *, html:lang(fa) .landing *, html:lang(ur) .landing * { letter-spacing: 0 !important; }
+html:lang(ja) .landing :is(p, li, .l-sub, .sy-beat, .mf-text), html:lang(zh) .landing :is(p, li, .l-sub, .sy-beat, .mf-text) { text-align: start; text-justify: none; }
+
+/* ---------------- performance: decorative loops play a few times, then rest ----------------
+ * Everything here is decoration that used to loop for ever, even at idle (the page's main thread was
+ * ~25% busy doing nothing). Each now plays a few cycles and stops on its resting frame; the ones that
+ * repaint large areas (grid glide, grain, the journey button's spinning ring) stop soonest.
+ * Interactive and state indicators (typing caret, loading spinner, Calm equaliser, tour dot) keep going.
+ * Sections off screen and hidden tabs pause everything (lite.js .cs-off / .cs-hidden, theme.css). */
+html .grain { animation-iteration-count: 4; }
+html body .hero::after { animation-iteration-count: 2; }
+html .fj-cta-ring { animation-iteration-count: 3; }
+html .sfx-btn:not(.off) .w2 { animation-iteration-count: 3; }
+html .cursor-ring:not(.hover):not(.press) .cb { animation-iteration-count: 3; }
+html .scan-card.tilt, html .scan-card { animation-iteration-count: 3; }
+html .sc-beam, html .scan-card .sc-beam { animation-iteration-count: 4; animation-fill-mode: forwards; }   /* rests below the card */
+html .eyebrow .dot, html .eyebrow .dot::after { animation-iteration-count: 4; }
+html .scroll-cue span { animation-iteration-count: 5; }
+html #film-big::before { animation-iteration-count: 4; }
+html .aurora i { animation-iteration-count: 2; }
+html .o1, html .o2 { animation-iteration-count: 2; }
+html .grad .w, html .hero-title .grad { animation-iteration-count: 3; }
+html .l-h2:hover { animation: none; }
+/* the bento demos and the repair strip loop only while their section is on screen (lite.js); a few rounds each */
+html .bstrip i.bad, html .bscissors, html .bfile, html .bshackle, html .bdl .arrow, html .globe .m, html .globe .ping, html .blist, html .airow .ai-orb { animation-iteration-count: 4; }
+html .btype::after, html .aitype::after { animation-iteration-count: 12; }
+html .bytes i.bad { animation-iteration-count: 6; }
+html .wire.lit { animation-iteration-count: 8; }
+
+/* ---------------- layout stability (CLS) ----------------
+ * The bar is in the page flow (sticky): changing its padding when the page scrolls moved everything
+ * below it. It keeps one height now; only its background changes. The typed word's line keeps its
+ * height while the word is erased (the subtitle under it jumped 3 px with every word). */
+.l-top.scrolled { padding-block: 18px; }
+@media (max-width: 600px) { .l-top, .l-top.scrolled { padding-block: 10px; } }
+.hero .type-title .t-typed { min-height: 1.2em; }
+[dir="rtl"] .hero .type-title .t-typed { min-height: 1.42em; }
+
+/* ---------------- first paint (LCP) and the hero's backdrop ----------------
+ * The hero's paragraph is in the HTML and visible from the first paint, underneath the opening
+ * sequence's opaque overlay: the iris then opens onto it while the title lines rise. Before, the
+ * whole landing stayed at opacity 0 until the intro ended, so the largest paint came 2–5 s late.
+ * The aurora is sized to the screen, not to the hero, so the hero growing doesn't move it. */
+html.booting body .landing, html body.intro .landing { opacity: 1; }   /* beats intro.css (loaded later) and fx.css */
+.hero .aurora { inset: -10vh -20% auto; height: 110vh; }

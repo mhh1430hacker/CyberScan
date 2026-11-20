@@ -1,0 +1,108 @@
+/* ===== The workspace (scan.ainex-ai.xyz): the site's identity, in motion =====
+ * Loaded after scan.css on the scan page (web_v/server.py), so it builds on its calm layout:
+ * an aurora that drifts behind everything, glass surfaces with light on their edges, a sidebar
+ * whose active item glows, views whose parts arrive in sequence, a drop zone ringed by moving
+ * light, a primary button with a sweep of light. All motion is time- or action-driven (never
+ * scroll-driven), lighter at the low performance levels, and off with reduced motion. */
+.page-scan { --ws-c1: #4fe0ff; --ws-c2: #b46cff; --ws-c3: #f0abfc; --ws-glass: linear-gradient(160deg, rgba(255, 255, 255, .045), rgba(255, 255, 255, .01)), rgba(13, 12, 32, .78); }
+.page-scan { background: #06050f; }
+
+/* ---------- the living background ---------- */
+.page-scan .app { position: relative; isolation: isolate; overflow-x: clip; }   /* the drifting layers must never widen the page (RTL shifted)*/
+.page-scan .app::before { content: ""; position: fixed; inset: 0; z-index: -2; pointer-events: none; opacity: .55;
+  background: radial-gradient(38% 34% at 20% 22%, rgba(180, 108, 255, .22), transparent 70%),
+              radial-gradient(34% 30% at 80% 70%, rgba(79, 224, 255, .14), transparent 70%),
+              radial-gradient(30% 26% at 60% 15%, rgba(240, 171, 252, .10), transparent 70%);
+  animation: ws-aurora 36s ease-in-out infinite alternate; }
+@keyframes ws-aurora { 0% { transform: translate3d(0, 0, 0) rotate(0deg) scale(1); } 50% { transform: translate3d(4%, -3%, 0) rotate(8deg) scale(1.08); } 100% { transform: translate3d(-3%, 4%, 0) rotate(-6deg) scale(1.02); } }
+.page-scan .app::after { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .5;
+  background-image: linear-gradient(rgba(255, 255, 255, .025) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, .025) 1px, transparent 1px); background-size: 56px 56px;
+  -webkit-mask-image: radial-gradient(70% 60% at 60% 30%, #000, transparent); mask-image: radial-gradient(70% 60% at 60% 30%, #000, transparent); }
+
+/* ---------- the sidebar ---------- */
+.page-scan .top { background: linear-gradient(180deg, rgba(20, 15, 46, .9), rgba(8, 7, 20, .92)); border-inline-end: 1px solid rgba(160, 140, 255, .14);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+.page-scan .brand .logo { filter: drop-shadow(0 0 10px rgba(79, 224, 255, .55)); }
+.page-scan .brand span { background: linear-gradient(100deg, #fff, #cfe9ff 40%, var(--ws-c1)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.page-scan .nav-btn { position: relative; overflow: hidden; transition: color .3s, background .3s, transform .35s cubic-bezier(.22, 1, .36, 1); }
+.page-scan .nav-btn:hover { background: rgba(255, 255, 255, .05); transform: translateX(2px); }
+[dir="rtl"] .page-scan .nav-btn:hover { transform: translateX(-2px); }
+.page-scan .nav-btn.active { color: #fff; background: linear-gradient(100deg, rgba(79, 224, 255, .2), rgba(180, 108, 255, .16)); box-shadow: inset 0 0 0 1px rgba(79, 224, 255, .28), 0 10px 26px -14px rgba(79, 224, 255, .8); }
+[dir="rtl"] .page-scan .nav-btn.active { box-shadow: inset 0 0 0 1px rgba(79, 224, 255, .28), 0 10px 26px -14px rgba(79, 224, 255, .8); }
+.page-scan .nav-btn.active::after { display: none; content: ""; position: absolute; top: 0; bottom: 0; width: 40%; left: -40%; pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .16), transparent); animation: ws-sweep 3.6s ease-in-out infinite; }
+@keyframes ws-sweep { 0%, 55% { left: -40%; } 100% { left: 110%; } }
+.page-scan .nav-btn.active svg { filter: drop-shadow(0 0 6px var(--ws-c1)); color: var(--ws-c1); }
+
+/* ---------- surfaces ---------- */
+.page-scan .card { position: relative; background: linear-gradient(180deg, rgba(255, 255, 255, .03), rgba(255, 255, 255, .01)), #0e1020; border: 1px solid rgba(148, 163, 200, .13); border-radius: 16px;
+  box-shadow: 0 20px 50px -36px rgba(0, 0, 0, .9); }
+.page-scan .card::before { display: none !important; content: ""; position: absolute; inset: -1px; border-radius: inherit; padding: 1px; pointer-events: none;
+  background: linear-gradient(140deg, rgba(79, 224, 255, .45), transparent 28%, transparent 72%, rgba(180, 108, 255, .4)); opacity: .6;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+.page-scan .card.tb { border-radius: 22px; }
+.page-scan h1 { background: linear-gradient(100deg, #fff, #d9ecff 45%, var(--ws-c1) 75%, #d6b4ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+/* views arrive part by part */
+.page-scan .view { animation: none; }
+.page-scan .view.entering > * { animation: ws-in .7s cubic-bezier(.22, 1, .36, 1) both; }
+.page-scan .view.entering > *:nth-child(2) { animation-delay: .08s; } .page-scan .view.entering > *:nth-child(3) { animation-delay: .16s; } .page-scan .view.entering > *:nth-child(4) { animation-delay: .24s; }
+.page-scan .view.entering .card > * { animation: ws-in .7s cubic-bezier(.22, 1, .36, 1) both; }
+.page-scan .view.entering .card > *:nth-child(2) { animation-delay: .1s; } .page-scan .view.entering .card > *:nth-child(3) { animation-delay: .18s; } .page-scan .view.entering .card > *:nth-child(4) { animation-delay: .26s; } .page-scan .view.entering .card > *:nth-child(n + 5) { animation-delay: .32s; }
+@keyframes ws-in { from { opacity: 0; transform: translateY(18px) scale(.985); filter: blur(5px); } }
+
+/* ---------- controls ---------- */
+.page-scan .primary { position: relative; overflow: hidden; color: #04121b; border-radius: 12px;
+  background: linear-gradient(100deg, var(--ws-c1), #8af0ff 45%, #c9a2ff); box-shadow: 0 12px 30px -12px rgba(79, 224, 255, .75); transition: transform .3s cubic-bezier(.22, 1, .36, 1), box-shadow .3s, filter .3s; }
+.page-scan .primary::before { display: none; content: ""; position: absolute; top: 0; bottom: 0; width: 45%; left: -50%; pointer-events: none;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .55), transparent); animation: ws-sweep 4.2s ease-in-out infinite; }
+.page-scan .primary:hover:not(:disabled) { background: linear-gradient(100deg, #7cebff, #b2f6ff 45%, #dcc1ff); transform: translateY(-2px); box-shadow: 0 18px 40px -14px rgba(79, 224, 255, .95); }
+.page-scan .primary:active:not(:disabled) { transform: translateY(0) scale(.98); }
+.page-scan .primary:disabled { background: rgba(255, 255, 255, .06); color: #8b94ad; box-shadow: none; }
+.page-scan .primary:disabled::before { display: none; }
+.page-scan .ghost { border-radius: 11px; background: rgba(255, 255, 255, .04); border-color: rgba(255, 255, 255, .1); transition: background .25s, border-color .25s, transform .25s; }
+.page-scan .ghost:hover:not(:disabled) { border-color: rgba(79, 224, 255, .4); transform: translateY(-1px); }
+.page-scan .tabs { background: rgba(4, 3, 12, .6); border-color: rgba(255, 255, 255, .08); border-radius: 12px; }
+.page-scan .tab { transition: color .3s, background .3s, box-shadow .3s; }
+.page-scan .tab.active { color: #fff; background: linear-gradient(100deg, rgba(79, 224, 255, .22), rgba(180, 108, 255, .18)); box-shadow: inset 0 0 0 1px rgba(79, 224, 255, .3), 0 6px 18px -10px rgba(79, 224, 255, .8); }
+.page-scan .field { background: rgba(4, 3, 12, .7); border-color: rgba(255, 255, 255, .1); border-radius: 11px; }
+
+/* ---------- the drop zone: a ring of moving light ---------- */
+.page-scan .drop { position: relative; overflow: hidden; isolation: isolate; border-radius: 18px; border: 1px solid rgba(160, 150, 255, .16);
+  background: radial-gradient(60% 80% at 50% 0%, rgba(79, 224, 255, .07), transparent 70%), rgba(4, 3, 12, .6); transition: transform .35s cubic-bezier(.22, 1, .36, 1), border-color .3s, background .3s; }
+.page-scan .drop::before { content: ""; position: absolute; inset: -1px; z-index: -1; border-radius: inherit; padding: 1.5px; pointer-events: none;
+  background: conic-gradient(from var(--ws-a, 0deg), transparent 0 70%, rgba(79, 224, 255, .55) 85%, transparent 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; animation: ws-ring 9s linear infinite; }
+@property --ws-a { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+@keyframes ws-ring { to { --ws-a: 360deg; } }
+.page-scan .drop::after { display: block !important; content: ""; position: absolute; left: 50%; top: 42%; width: 180px; height: 180px; margin: -90px 0 0 -90px; z-index: -1; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle, rgba(79, 224, 255, .18), transparent 65%); animation: ws-breathe 3.6s ease-in-out infinite; opacity: 1; inset: auto; }
+@keyframes ws-breathe { 50% { transform: scale(1.25); opacity: .55; } }
+.page-scan .drop svg { filter: drop-shadow(0 0 6px rgba(79, 224, 255, .35)); }
+@keyframes ws-bob { 50% { transform: translateY(-6px); } }
+.page-scan .drop:hover, .page-scan .drop.over { transform: scale(1.01); border-color: rgba(79, 224, 255, .45); background: radial-gradient(60% 80% at 50% 0%, rgba(79, 224, 255, .14), transparent 70%), rgba(4, 3, 12, .6); }
+.page-scan .drop.over::before { animation-duration: 1.4s; }
+.page-scan .drop.chosen { border-color: rgba(61, 255, 168, .45); }
+.page-scan .drop.chosen::before { background: conic-gradient(from var(--ws-a, 0deg), transparent 0 60%, #3dffa8 78%, var(--ws-c1) 90%, transparent 100%); }
+.page-scan .drop.chosen svg { animation: ws-pop .6s cubic-bezier(.22, 1.6, .36, 1); filter: drop-shadow(0 0 12px rgba(61, 255, 168, .7)); }
+@keyframes ws-pop { 0% { transform: scale(.6); } 100% { transform: scale(1); } }
+
+/* ---------- progress and result keep their light ---------- */
+.page-scan .radar { filter: drop-shadow(0 0 18px rgba(79, 224, 255, .35)); }
+.page-scan .term { background: rgba(3, 2, 10, .8); border-color: rgba(79, 224, 255, .2); box-shadow: inset 0 0 40px -20px rgba(79, 224, 255, .5); }
+.page-scan .gauge svg { filter: drop-shadow(0 0 12px rgba(79, 224, 255, .35)); }
+.page-scan .verdict { animation: ws-in .8s cubic-bezier(.22, 1, .36, 1) both; }
+.page-scan .badge { box-shadow: 0 0 22px -6px currentColor; }
+.page-scan .evidence li, .page-scan .checks li, .page-scan .tech-list li, .page-scan .raw-list li { background: rgba(255, 255, 255, .03); border-color: rgba(255, 255, 255, .07); transition: border-color .25s, transform .25s; }
+.page-scan .evidence li:hover, .page-scan .checks li:hover { border-color: rgba(79, 224, 255, .3); transform: translateX(2px); }
+.page-scan .row:hover { background: rgba(79, 224, 255, .06); }
+.page-scan .tool { transition: transform .35s cubic-bezier(.22, 1, .36, 1), border-color .3s, box-shadow .35s; }
+.page-scan .tool:hover { transform: translateY(-3px); border-color: rgba(79, 224, 255, .4); box-shadow: 0 18px 40px -22px rgba(79, 224, 255, .8); }
+
+/* ---------- performance levels and reduced motion ---------- */
+html.fx-bg-static .page-scan .app::before, html.fx-bg-once .page-scan .app::before { animation: none; }
+html.fx-blur-off .page-scan .card, html.fx-blur-off .page-scan .top { background: linear-gradient(160deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .01)), rgba(13, 12, 30, .96); }
+html.fx-glow-flat .page-scan .drop::after, html.fx-glow-flat .page-scan .app::after { display: none !important; }
+html.fx-bg-static .page-scan .drop::before, html.fx-bg-static .page-scan .drop svg, html.fx-bg-static .page-scan .primary::before, html.fx-bg-static .page-scan .nav-btn.active::after { animation: none; }
+@media (prefers-reduced-motion: reduce) { .page-scan *, .page-scan .app::before, .page-scan *::before, .page-scan *::after { animation: none !important; } }
+html.reduce-motion .page-scan *, html.reduce-motion .page-scan .app::before, html.reduce-motion .page-scan *::before, html.reduce-motion .page-scan *::after { animation: none !important; }

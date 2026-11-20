@@ -49,6 +49,10 @@ def finalize_result(result, heuristic_weight: float = 1.0, ml_weight: float = 0.
     )
     result.combined_score = int(round(max(evidence_floor, weighted_score)))
     result.classification = classify_risk(result.combined_score)
+    # Only an exact listing (same SHA-256) by a threat-intelligence source makes a file "known malware";
+    # rules and heuristics, however strong, stay "suspicious".
+    if any(item.category == "intel" and str(item.evidence).startswith("Known malware") for item in result.evidence):
+        result.classification = "KNOWN_MALWARE"
     result.summary = (
         f"Static score: {int(base_score)}/100; combined score: "
         f"{result.combined_score}/100; classification: {result.classification}."

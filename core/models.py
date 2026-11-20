@@ -4,6 +4,12 @@ from dataclasses import dataclass, field
 from typing import Any
 
 
+def _scores_text(scores: Any) -> str:
+    if not isinstance(scores, dict) or not scores:
+        return "not available"
+    return ", ".join(f"{name} {float(value):.2f}" for name, value in scores.items() if isinstance(value, (int, float)))
+
+
 @dataclass
 class Finding:
     category: str
@@ -11,6 +17,11 @@ class Finding:
     evidence: str
     explanation: str
     contribution: int
+    # Other engines that reported the same thing (near-duplicates merged into this finding), so a
+    # merged list hides no evidence: ``engines`` names every engine that saw it (this one first),
+    # ``also`` the other engines' own wording ("<engine>: <label>").
+    engines: list[str] = field(default_factory=list)
+    also: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -40,8 +51,8 @@ class ScanResult:
             f"Target: {self.target}",
             f"Heuristic Risk: {self.heuristic_score}/100",
             f"ML Structural Risk Score (uncalibrated): {self.ml_risk_score if self.ml_risk_score is not None else 'not available'}",
-            f"Structural model class: {'not sure (abstained)' if self.structural_prediction.get('abstained') else self.structural_prediction.get('label', 'not available')}",
-            f"Structural class scores (uncalibrated): {self.structural_prediction.get('class_scores', 'not available')}",
+            f"Structural model class: {'not sure (abstained)' if self.structural_prediction.get('abstained') else (self.structural_prediction.get('label') or 'not available (no learning model is installed)')}",
+            f"Structural class scores (uncalibrated): {_scores_text(self.structural_prediction.get('class_scores'))}",
             f"Combined Risk: {self.combined_score}/100",
             f"Classification: {self.classification}",
             f"Summary: {self.summary}",
@@ -50,6 +61,8 @@ class ScanResult:
         ]
         for item in self.evidence:
             lines.append(f"- [{item.severity.upper()}] {item.evidence}: {item.explanation}")
+            if item.also:
+                lines.append(f"    also reported as: {'; '.join(item.also)}")
         if self.mitre_techniques:
             lines.append("")
             lines.append("MITRE ATT&CK:")

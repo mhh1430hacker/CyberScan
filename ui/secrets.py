@@ -16,7 +16,7 @@ import sys
 from ctypes import wintypes
 from pathlib import Path
 
-KEY_ENV = {"abusech": "ABUSECH_AUTH_KEY", "otx": "OTX_API_KEY"}
+KEY_ENV = {"abusech": "ABUSECH_AUTH_KEY", "otx": "OTX_API_KEY", "virustotal": "VT_API_KEY"}
 _ENTROPY = b"CyberScan online lookup keys v1"
 
 

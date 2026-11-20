@@ -4,6 +4,9 @@
     <!-- only for the optional online lookups (off by default); scanning works offline -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- QR codes (Tools): the camera is used on the phone only, nothing is recorded or sent -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
     <!-- App lock: fingerprint, face or screen lock (checked by Android) -->
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
     <!-- saving a repaired copy or a report to Documents on Android 9 and older -->

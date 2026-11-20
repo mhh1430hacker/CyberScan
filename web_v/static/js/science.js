@@ -15,7 +15,7 @@
   const NS = "http://www.w3.org/2000/svg";
   const html = document.documentElement;
   const still = () => matchMedia("(prefers-reduced-motion: reduce)").matches
-    || html.classList.contains("reduce-motion") || html.classList.contains("perf-low");
+    || html.classList.contains("reduce-motion") || html.classList.contains("fx-scenes-static");
   const svgEl = (tag, attrs, parent) => {
     const n = document.createElementNS(NS, tag);
     for (const k in attrs) n.setAttribute(k, attrs[k]);

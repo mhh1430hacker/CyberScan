@@ -271,6 +271,15 @@ def plain(title: str, explanation: str, language: str) -> PlainText:
     if key.startswith("zip structure"):
         members = _MEMBERS.search(explanation)
         count = members.group(1) if members else "?"
+        scanned = re.search(r"(\d+) of \d+ member\(s\) were opened in memory", explanation)
+        if scanned:   # the files inside were scanned one by one (core.file_analyzer says so)
+            return PlainText(tr("What's inside the archive", language),
+                             tr("We opened the archive in memory and scanned {scanned} of the {count} files inside with the same rules.",
+                                language).format(scanned=isolate(scanned.group(1), language), count=isolate(count, language)), True)
+        if "were not scanned" in explanation or "turned off in Settings" in explanation:
+            return PlainText(tr("What's inside the archive", language),
+                             tr("We looked at the list of files inside ({count}); scanning each one is turned off or ran out of time.",
+                                language).format(count=isolate(count, language)), True)
         if ar:
             return PlainText("محتويات الأرشيف", f"اطّلعنا على قائمة الملفات بداخله ({isolate(count, language)}) لكننا لم نفحص كل ملف منها.", True)
         return PlainText(tr("What's inside the archive", language),

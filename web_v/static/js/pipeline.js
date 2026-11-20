@@ -66,9 +66,11 @@
     const padX = vertical ? 30 : 95, padY = vertical ? 30 : 28;
     const pos = positions();
     const rtl = document.documentElement.dir === "rtl";
+    // phones: the engines sit in a 3 × 3 grid, so each one has room for its name under the icon
+    if (vertical) for (let i = 0; i < 9; i++) pos[`e${i}`] = [0.5 + (((i % 3) - 1) * 0.36) * (rtl ? -1 : 1), 0.22 + Math.floor(i / 3) * 0.2];
     nodes.forEach((n) => {
       let [fx, fy] = pos[n.id];
-      if (vertical) [fx, fy] = [fy, fx];
+      if (vertical && n.kind !== "engine") [fx, fy] = [fy, fx];
       if (rtl && !vertical) fx = 1 - fx;
       n.x = padX + fx * (w - padX * 2);
       n.y = padY + fy * (h - padY * 2);
@@ -142,9 +144,11 @@
     packets.push({ el: c, legs, leg: 0, s: 0, speed: 0.45 + Math.random() * 0.25, engine: prefer });
   }
 
+  // the loop exists only while the diagram is on screen and the tab is visible
   function frame(now) {
+    raf = 0;
+    if (!visible || document.hidden) return;
     raf = requestAnimationFrame(frame);
-    if (!visible || document.hidden) { last = now; return; }
     const dt = Math.min(0.05, (now - last) / 1000 || 0); last = now;
     spawnT += dt; cycleT += dt;
     if (spawnT > 0.16 && packets.length < 26) { spawnT = 0; spawn(); }
@@ -169,9 +173,11 @@
     });
   }
 
-  new IntersectionObserver((entries) => { visible = entries[0].isIntersecting; }, { threshold: 0.05 }).observe(box);
+  const run = () => { if (!reduced && visible && !document.hidden && !raf) { last = performance.now(); raf = requestAnimationFrame(frame); } };
+  new IntersectionObserver((entries) => { visible = entries[0].isIntersecting; run(); }, { threshold: 0.05 }).observe(box);
+  document.addEventListener("visibilitychange", run);
   new ResizeObserver(() => layout()).observe($("pipe-diagram"));
   window.CS.onLang(() => build());
   build();
-  if (!reduced) raf = requestAnimationFrame(frame);
+  run();
 })();

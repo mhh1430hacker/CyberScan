@@ -81,7 +81,7 @@ def generate_report(result: ScanResult, target_name: str | None = None) -> str:
         f"SHA-256: {sha256}",
         f"Heuristic score: {result.heuristic_score}/100",
         f"ML structural risk score: {result.ml_risk_score if result.ml_risk_score is not None else 'not available'} (uncalibrated)",
-        f"ML structural class: {structural_prediction.get('label', 'not available')}",
+        f"ML structural class: {structural_prediction.get('label') or 'not available'}",
         f"ML class scores (uncalibrated): {class_score_text}",
         f"Combined score: {result.combined_score}/100",
         f"Classification: {result.classification}",
@@ -107,6 +107,8 @@ def generate_report(result: ScanResult, target_name: str | None = None) -> str:
     if result.evidence:
         for item in result.evidence:
             lines.append(f"- [{item.severity.upper()}] {item.evidence}: {item.explanation}")
+            if getattr(item, "also", None):
+                lines.append(f"  also reported as: {'; '.join(item.also)}")
     else:
         lines.append("- No direct evidence recorded.")
 

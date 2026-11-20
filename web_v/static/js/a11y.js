@@ -33,18 +33,7 @@
     if (y) { sessionStorage.removeItem("cs-scroll"); requestAnimationFrame(() => window.scrollTo(0, Number(y))); }
   } catch { /* ignore */ }
 
-  /* ---------------- light mode (js/perf.js) ---------------- */
-  const perfBtn = $("perf-btn");
-  function perfLabel() {
-    if (!perfBtn || !window.CSPerf) return;
-    const on = window.CSPerf.low;
-    perfBtn.setAttribute("aria-pressed", String(on));
-    perfBtn.classList.toggle("on", on);
-    perfBtn.title = t("perfHint");
-    perfBtn.querySelector("span").textContent = t(on ? "perfLightOn" : "perfLight");
-  }
-  if (perfBtn && window.CSPerf) perfBtn.addEventListener("click", () => window.CSPerf.set(!window.CSPerf.low, true));
-  window.addEventListener("cs:perf", perfLabel);
+  /* the quality button (#perf-btn) belongs to the Adaptive Performance Engine: js/performance/performanceUI.js */
 
   /* ---------------- film transcript ---------------- */
   const list = $("film-transcript");
@@ -66,12 +55,20 @@
     const lang = CS && CS.lang === "ar" ? "ar" : "en";
     try {
       if (!cache[lang]) cache[lang] = parse(await fetch(`captions/${lang}.vtt`).then((r) => r.text()));
-      list.replaceChildren(...cache[lang].map(([at, text]) => {
+      list.replaceChildren(...cache[lang].flatMap(([at, text]) => {
         const li = document.createElement("li");
         const time = document.createElement("time");
         time.textContent = stamp(at);
         li.append(time, " ", text);
-        return li;
+        // 1:11.9, "it all happens on your device": the recorded voice can't change, so the
+        // transcript says plainly what this line means for the website
+        if (at > 71 && at < 72.5 && t("filmPrivNote") !== "filmPrivNote") {
+          const note = document.createElement("li");
+          note.className = "film-note";
+          note.textContent = t("filmPrivNote");
+          return [li, note];
+        }
+        return [li];
       }));
     } catch { /* captions unavailable */ }
   }
@@ -85,7 +82,7 @@
   }
   if (player) new MutationObserver(playNames).observe(player, { attributes: true, attributeFilter: ["class"] });
 
-  function onLang() { label(); perfLabel(); transcript(); playNames(); }
+  function onLang() { label(); transcript(); playNames(); }
   if (CS && CS.onLang) CS.onLang(onLang);
   onLang();
 })();

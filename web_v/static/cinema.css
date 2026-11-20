@@ -1,0 +1,229 @@
+/* the File Journey button in the hero (journey.html) */
+.hero-ctas .fj-cta { position: relative; display: inline-flex; align-items: center; gap: 9px; isolation: isolate; overflow: hidden; color: #eaf6ff;
+  border-color: rgba(79, 224, 255, .45); background: linear-gradient(120deg, rgba(79, 224, 255, .12), rgba(180, 108, 255, .14)); }
+.hero-ctas .fj-cta svg { width: 20px; height: 20px; flex: none; fill: none; stroke: #4fe0ff; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 6px rgba(79, 224, 255, .6)); }
+.fj-cta-ring { position: absolute; inset: -1px; z-index: -1; border-radius: inherit; padding: 1px; pointer-events: none;
+  background: conic-gradient(from var(--fj-a, 0deg), transparent 0 60%, #4fe0ff 75%, #b46cff 88%, transparent 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; animation: fj-spin 4s linear infinite; }
+@property --fj-a { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+@keyframes fj-spin { to { --fj-a: 360deg; } }
+html.reduce-motion .fj-cta-ring { animation: none; }
+@media (prefers-reduced-motion: reduce) { .fj-cta-ring { animation: none; } }
+
+/* the sound-effects button in the header (js/ui-sound.js) */
+.l-top .sfx-btn { display: grid; place-items: center; width: 38px; height: 38px; padding: 0; flex: none; }
+.sfx-btn svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.sfx-btn svg path:first-child { fill: currentColor; fill-opacity: .18; }
+.sfx-btn .x { display: none; }
+.sfx-btn.off { opacity: .7; }
+.sfx-btn.off .w1, .sfx-btn.off .w2 { display: none; }
+.sfx-btn.off .x { display: inline; }
+.sfx-btn:not(.off) .w2 { animation: sfx-wave 2.4s ease-in-out infinite; }
+@keyframes sfx-wave { 50% { opacity: .35; } }
+html.reduce-motion .sfx-btn .w2 { animation: none; }
+
+/* ===== The film as a cinematic presentation (#film, js/film.js) and the guided journey (js/tour.js) =====
+ * The site's identity: deep dark surfaces, cyan and violet light, thin geometric borders.
+ * The film's frame arrives with the scroll (tilts upright, corners draw); its surroundings follow
+ * the current chapter (accent colour, chapter card, timeline). Controls appear when needed.
+ * Selectors are scoped under .cine so they win over the older .film rules in cyber.css. */
+.cine { --cine-accent: #22e8ff; --cine-glow: 1; position: relative; }
+.cine .cine-stage { max-width: 1120px; margin: 0 auto; }
+.cine .cine-head { text-align: center; }
+.cine .film { position: relative; max-width: 1040px; margin: 34px auto 0; padding: 0; border: 0; background: none; box-shadow: none; }
+.cine .film::before { /* light behind the frame, in the chapter's colour */
+  content: ""; position: absolute; inset: 8% 4% -6%; z-index: -1; border-radius: 40px; pointer-events: none;
+  background: radial-gradient(60% 60% at 50% 50%, color-mix(in srgb, var(--cine-accent) 34%, transparent), transparent 72%);
+  opacity: calc(.55 * var(--cine-glow)); filter: blur(30px); transition: background .8s ease;
+}
+.cine .film-frame { position: relative; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 18px; background: #05030f; transform-origin: 50% 100%;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--cine-accent) 40%, transparent), 0 40px 120px -40px rgba(180, 108, 255, .7), 0 0 60px -20px color-mix(in srgb, var(--cine-accent) 50%, transparent);
+  transition: box-shadow .8s ease; }
+.cine .film-frame canvas { width: 100%; height: 100%; display: block; cursor: pointer; }
+.cine-corners { position: absolute; inset: 10px; width: calc(100% - 20px); height: calc(100% - 20px); pointer-events: none; z-index: 2; overflow: visible; }
+.cine-corners path { fill: none; stroke: var(--cine-accent); stroke-width: 2; vector-effect: non-scaling-stroke; filter: drop-shadow(0 0 6px var(--cine-accent)); transition: stroke .8s ease; }
+.cine.cine-js .cine-corners path { stroke-dasharray: 1; stroke-dashoffset: 1; }
+
+/* a soft "cut" when the film enters a new chapter */
+.cine .film.cut .film-frame::after { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--cine-accent) 22%, transparent), transparent); animation: cine-cut .9s ease both; }
+@keyframes cine-cut { from { transform: translateX(-100%); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
+
+/* big play button, loading ring, "tap for sound" */
+.cine .film-big { position: absolute; left: 50%; top: 50%; right: auto; bottom: auto; z-index: 3; width: 92px; height: 92px; margin: -46px 0 0 -46px; border-radius: 50%; display: grid; place-items: center; cursor: pointer;
+  background: rgba(8, 6, 26, .55); border: 1px solid color-mix(in srgb, var(--cine-accent) 70%, transparent); box-shadow: 0 0 40px -6px var(--cine-accent), inset 0 0 30px -10px var(--cine-accent);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); transition: transform .3s cubic-bezier(.22, 1, .36, 1), opacity .3s; }
+.cine .film-big svg { width: 34px; height: 34px; fill: #eaffff; margin-inline-start: 5px; }
+.cine .film-big:hover { transform: scale(1.08); }
+.cine .film.playing .film-big { opacity: 0; pointer-events: none; transform: scale(.85); }
+.film-loading { position: absolute; left: 50%; top: 50%; z-index: 3; width: 54px; height: 54px; margin: -27px 0 0 -27px; opacity: 0; pointer-events: none; transition: opacity .2s; }
+.film-loading i { position: absolute; inset: 0; border-radius: 50%; border: 3px solid rgba(255, 255, 255, .15); border-top-color: var(--cine-accent); animation: cine-spin .8s linear infinite paused; }
+.film.loading .film-loading { opacity: 1; } .film.loading .film-loading i { animation-play-state: running; }
+@keyframes cine-spin { to { transform: rotate(360deg); } }
+.film-tap { position: absolute; left: 50%; bottom: 22%; z-index: 4; transform: translateX(-50%); margin: 0; padding: 8px 16px; border-radius: 999px; cursor: pointer;
+  background: rgba(8, 6, 26, .85); border: 1px solid var(--cine-accent); color: #eaffff; font-size: 14px; font-weight: 600; white-space: nowrap; }
+
+/* ---------------- controls: an overlay that appears when needed ---------------- */
+.film-ui { position: absolute; inset: auto 0 0; z-index: 3; padding: 34px 14px 10px; direction: ltr;
+  background: linear-gradient(transparent, rgba(4, 2, 14, .82) 55%); opacity: 0; transform: translateY(8px); transition: opacity .35s, transform .35s cubic-bezier(.22, 1, .36, 1); }
+.film:not(.playing) .film-ui, .film.ui .film-ui, .film:focus-within .film-ui { opacity: 1; transform: none; }
+/* touch: the controls come with a tap and leave on their own while the film plays (js/film.js) */
+.film-row { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
+.film-spacer { flex: 1; }
+.cine .film-btn { display: inline-grid; place-items: center; min-width: 36px; height: 36px; padding: 0 10px; border-radius: 10px; cursor: pointer;
+  background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 255, 255, .12); color: #eaf6ff; font: 600 13px Consolas, ui-monospace, monospace; letter-spacing: 0;
+  transition: background-color .2s, border-color .2s, box-shadow .2s; }
+.cine .film-btn.icon { padding: 0; width: 36px; }
+.cine .film-btn:hover { background: rgba(255, 255, 255, .12); border-color: var(--cine-accent); box-shadow: 0 0 14px -4px var(--cine-accent); }
+.cine .film-btn:focus-visible, .cine-timeline button:focus-visible, .film-seek:focus-visible { outline: 2px solid var(--cine-accent); outline-offset: 2px; }
+.cine .film-btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.cine #film-play svg { fill: currentColor; stroke: none; }
+.cine .film-btn.on { color: var(--cine-accent); border-color: color-mix(in srgb, var(--cine-accent) 60%, transparent); }
+.cine .film-btn .i-pause { display: none; }
+.cine .film.playing #film-play .i-play { display: none; } .cine .film.playing #film-play .i-pause { display: block; }
+.film.muted #film-mute { color: #ff7a93; }
+.film-time { display: inline-flex; align-items: baseline; gap: 4px; margin-inline-start: 4px; font: 600 13px Consolas, ui-monospace, monospace; color: #eaf6ff; }
+.film-sep { color: rgba(234, 246, 255, .4); }
+.film-time #film-dur { color: rgba(234, 246, 255, .55); }
+.film-left { margin-inline-start: 8px; color: var(--cine-accent); font-size: 12px; }
+.film-vol { display: inline-flex; align-items: center; gap: 4px; }
+.film-vol input { width: 84px; accent-color: var(--cine-accent); }
+.film.no-volume .film-vol input { display: none; }
+.film-pop-wrap { position: relative; }
+.film-pop { position: absolute; bottom: 44px; right: 0; min-width: 190px; padding: 6px; border-radius: 12px; background: rgba(8, 6, 26, .96); border: 1px solid rgba(180, 108, 255, .45); box-shadow: 0 16px 40px -10px rgba(0, 0, 0, .9); display: grid; gap: 2px; }
+.film-pop button { text-align: left; padding: 8px 10px; border-radius: 8px; border: 0; background: none; color: #eaf6ff; font: inherit; font-size: 13.5px; cursor: pointer; }
+.film-pop button:hover, .film-pop button:focus-visible { background: rgba(255, 255, 255, .08); outline: none; }
+.film-pop button[aria-checked="true"] { color: var(--cine-accent); }
+.film-pop button[aria-checked="true"]::before { content: "● "; }
+
+/* progress: chapter ticks, a glowing fill and a knob; a time preview on hover */
+.cine .film-seek { position: relative; height: 6px; border-radius: 6px; background: rgba(255, 255, 255, .14); cursor: pointer; touch-action: none; transition: height .2s; }
+.cine .film-seek:hover { height: 9px; }
+.film-seek::before { content: ""; position: absolute; inset: -10px 0; }      /* a larger touch target */
+.cine .film-fill { position: absolute; inset: 0; border-radius: inherit; transform-origin: left; transform: scaleX(0); background: linear-gradient(90deg, #b46cff, var(--cine-accent)); box-shadow: 0 0 12px var(--cine-accent); }
+.film-knob { position: absolute; top: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 3px color-mix(in srgb, var(--cine-accent) 50%, transparent), 0 0 14px var(--cine-accent); }
+.film-ticks i { position: absolute; top: -2px; bottom: -2px; width: 2px; margin-left: -1px; background: rgba(4, 2, 14, .9); z-index: 1; }
+.film-peek { position: absolute; bottom: 18px; transform: translateX(-50%); padding: 4px 8px; border-radius: 6px; white-space: nowrap; background: rgba(8, 6, 26, .95); border: 1px solid var(--cine-accent); color: #eaf6ff; font: 600 12px Consolas, monospace; pointer-events: none; }
+
+/* ---------------- the chapter card and the timeline ---------------- */
+.cine-info { display: flex; align-items: center; gap: 16px; max-width: 1040px; margin: 18px auto 0; padding: 0 4px; min-height: 58px; }
+.cine-idx { flex: 0 0 auto; font: 700 13px Consolas, ui-monospace, monospace; color: var(--cine-accent); padding: 6px 10px; border-radius: 8px; border: 1px solid color-mix(in srgb, var(--cine-accent) 45%, transparent); transition: color .8s, border-color .8s; }
+.cine-name { display: block; font-size: 18px; color: #fff; }
+.cine-desc { margin: 2px 0 0; font-size: 14.5px; color: #b9c6e4; line-height: 1.5; }
+.cine-info.swap > div { animation: cine-swap .6s cubic-bezier(.22, 1, .36, 1) both; }
+@keyframes cine-swap { from { opacity: 0; transform: translateY(10px); filter: blur(4px); } }
+.cine-timeline { direction: ltr; list-style: none; display: flex; gap: 4px; max-width: 1040px; margin: 14px auto 0; padding: 0; }
+.cine-timeline li { flex-basis: 0; min-width: 0; }
+.cine-timeline button { width: 100%; display: grid; gap: 4px; padding: 6px 2px 4px; text-align: left; background: none; border: 0; cursor: pointer; color: #9aa8c7; font: inherit; }
+.cine-seg-bar { position: relative; display: block; height: 4px; border-radius: 3px; overflow: hidden; background: rgba(255, 255, 255, .12); transition: height .25s; }
+.cine-seg-fill { position: absolute; inset: 0; transform-origin: left; transform: scaleX(0); background: var(--cine-accent); box-shadow: 0 0 10px var(--cine-accent); }
+.cine-seg-name { unicode-bidi: plaintext; font-size: 12.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cine-seg-len { font: 11px Consolas, ui-monospace, monospace; color: rgba(154, 168, 199, .7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cine-timeline li.done .cine-seg-bar { background: color-mix(in srgb, var(--cine-accent) 40%, transparent); }
+.cine-timeline li.on button { color: #fff; }
+.cine-timeline li.on .cine-seg-bar { height: 6px; }
+.cine-timeline button:hover { color: #fff; }
+.cine-timeline button:hover .cine-seg-bar { background: rgba(255, 255, 255, .22); }
+.cine .film-transcript { max-width: 1040px; margin: 16px auto 0; }
+
+@media (max-width: 720px) {
+  .cine .film { margin-top: 22px; }
+  .cine .film-frame { border-radius: 12px; }
+  .cine .film-big { width: 68px; height: 68px; margin: -34px 0 0 -34px; }
+  .film-ui { padding: 22px 8px 6px; }
+  .film-row { gap: 4px; flex-wrap: wrap; }
+  .cine .film-btn { min-width: 34px; height: 34px; padding: 0 8px; }
+  .cine .film-btn.icon { width: 34px; }
+  .film-vol input, .film-left, #film-export { display: none; }
+  .cine-info { gap: 10px; }
+  .cine-name { font-size: 16px; } .cine-desc { font-size: 13.5px; }
+  /* the chapter strip scrolls sideways, with names, and follows the film */
+  .cine-timeline { overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: none; padding-bottom: 4px; -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); }
+  .cine-timeline::-webkit-scrollbar { display: none; }
+  .cine-timeline li { flex: 0 0 38%; scroll-snap-align: center; }
+  .cine-timeline button { padding: 10px 2px; }             /* finger-sized */
+  .film-meta { font-size: 11.5px; bottom: 9%; }
+}
+/* fullscreen: the frame fills the screen, the controls stay on it */
+.cine .film:fullscreen { display: grid; place-items: center; background: #000; max-width: none; }
+.cine .film:fullscreen .film-frame { width: min(100vw, 177.78vh); border-radius: 0; transform: none !important; opacity: 1 !important; }
+.cine .film:-webkit-full-screen .film-frame { width: min(100vw, 177.78vh); border-radius: 0; transform: none !important; opacity: 1 !important; }
+
+@media (prefers-reduced-motion: reduce) { .cine *, .tour-panel * { animation: none !important; transition: none !important; } }
+html.reduce-motion .cine *, html.reduce-motion .tour-panel * { animation: none !important; transition: none !important; }
+
+/* ---------------- guided journey ---------------- */
+.tour-btn { display: inline-flex; align-items: center; gap: 7px; font-weight: 600; border-color: rgba(34, 232, 255, .45) !important;
+  background: linear-gradient(100deg, rgba(180, 108, 255, .18), rgba(34, 232, 255, .14)) !important; }
+.tour-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linejoin: round; }
+.tour-btn[aria-pressed="true"] { border-color: #22e8ff !important; box-shadow: 0 0 18px -4px #22e8ff; }
+/* the header is full: the journey button shows its label only on wide screens */
+@media (max-width: 1600px) { .tour-btn span { display: none; } .tour-btn { padding: 8px 10px; } }
+.l-top .l-links a, .l-top .l-actions button, .l-top .get-app-btn { white-space: nowrap; }
+.tour-panel { position: fixed; z-index: 70; left: 50%; top: 76px; transform: translateX(-50%); width: min(520px, calc(100vw - 24px));
+  display: flex; align-items: center; gap: 10px; padding: 10px 10px 14px 14px; border-radius: 16px; overflow: hidden;
+  background: rgba(8, 6, 26, .94); border: 1px solid rgba(34, 232, 255, .35); box-shadow: 0 18px 50px -14px rgba(0, 0, 0, .9), 0 0 30px -12px rgba(180, 108, 255, .7);
+  animation: tour-in .5s cubic-bezier(.22, 1, .36, 1) both; }
+[dir="rtl"] .tour-panel { padding: 10px 14px 14px 10px; }
+@keyframes tour-in { from { opacity: 0; transform: translate(-50%, -14px); } }
+.tour-panel[hidden] { display: none; }
+.tour-dot { flex: 0 0 10px; height: 10px; border-radius: 50%; background: #22e8ff; box-shadow: 0 0 12px #22e8ff; animation: tour-pulse 1.6s ease-in-out infinite; }
+.tour-panel.paused .tour-dot { background: #fbbf24; box-shadow: 0 0 12px #fbbf24; animation: none; }
+.tour-panel.done .tour-dot { background: #4ade80; box-shadow: 0 0 12px #4ade80; animation: none; }
+@keyframes tour-pulse { 50% { opacity: .35; } }
+.tour-text { flex: 1; min-width: 0; display: grid; }
+.tour-title { font: 600 10.5px Consolas, ui-monospace, monospace; letter-spacing: .14em; text-transform: uppercase; color: #22e8ff; }
+[dir="rtl"] .tour-title { font-family: inherit; font-size: 12px; letter-spacing: 0; }
+.tour-now { font-size: 14.5px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tour-pct { font: 600 12px Consolas, ui-monospace, monospace; color: #9aa8c7; }
+.tour-panel button { flex: 0 0 auto; width: 38px; height: 38px; display: grid; place-items: center; border-radius: 10px; cursor: pointer; color: #eaf6ff;
+  background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 255, 255, .14); }
+.tour-panel button:hover { border-color: #22e8ff; }
+.tour-panel button:focus-visible { outline: 2px solid #22e8ff; outline-offset: 2px; }
+.tour-panel svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.tour-pp .i-pause { fill: currentColor; stroke: none; } .tour-pp .i-play { display: none; fill: currentColor; stroke: none; }
+.tour-panel.paused .tour-pp .i-pause { display: none; } .tour-panel.paused .tour-pp .i-play { display: block; }
+.tour-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: rgba(255, 255, 255, .08); }
+.tour-bar i { position: absolute; inset: 0; transform-origin: left; transform: scaleX(0); background: linear-gradient(90deg, #b46cff, #22e8ff); }
+[dir="rtl"] .tour-bar i { transform-origin: right; }
+body.touring .ask-fab { opacity: 0; pointer-events: none; }
+body.touring .tilt-opt { display: none; }
+@media (max-width: 720px) { .tour-panel { top: 62px; } }
+
+/* ---------------- the poster line, resume, skip flash ---------------- */
+.film-meta { position: absolute; left: 50%; bottom: 13%; z-index: 3; transform: translateX(-50%); margin: 0; padding: 6px 14px; border-radius: 999px; white-space: nowrap; pointer-events: none;
+  font: 600 13px "Segoe UI", system-ui, sans-serif; color: #dff6ff; background: rgba(8, 6, 26, .62); border: 1px solid color-mix(in srgb, var(--cine-accent) 35%, transparent);
+  opacity: 0; transition: opacity .4s; unicode-bidi: plaintext; }
+.film.fresh .film-meta { opacity: 1; }
+.cine .film.ended .film-big { opacity: 0; pointer-events: none; }
+.film-resume { position: absolute; left: 50%; top: calc(50% + 62px); z-index: 4; transform: translateX(-50%); padding: 8px 16px; border-radius: 999px; cursor: pointer; white-space: nowrap;
+  font: 600 14px "Segoe UI", system-ui, sans-serif; color: #001018; background: var(--cine-accent); border: 0; box-shadow: 0 10px 30px -8px var(--cine-accent); }
+.film-resume:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.film.playing .film-resume { display: none; }
+.film-skip { position: absolute; top: 50%; left: 14%; z-index: 4; transform: translate(-50%, -50%); padding: 14px 18px; border-radius: 999px; pointer-events: none; opacity: 0;
+  font: 800 20px Consolas, ui-monospace, monospace; color: #fff; background: rgba(8, 6, 26, .6); }
+.film-skip.fwd { left: 86%; }
+.film-skip.go { animation: film-skip .7s ease-out; }
+@keyframes film-skip { 0% { opacity: 0; transform: translate(-50%, -50%) scale(.8); } 25% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 100% { opacity: 0; } }
+@media (max-width: 720px) { .film-resume { top: calc(50% + 46px); font-size: 13px; } }
+
+/* ---------------- the ambient glow: the picture's own colours, blurred behind the frame ---------------- */
+.cine .film { position: relative; isolation: isolate; }
+.film-ambi { position: absolute; z-index: -1; left: 2%; top: 4%; width: 96%; height: 92%; pointer-events: none; filter: blur(46px) saturate(1.7); opacity: .55; transform: scale(1.08); transition: opacity .8s; }
+.film.no-ambi .film-ambi, .film.mini .film-ambi { opacity: 0; }
+
+/* ---------------- the mini player ---------------- */
+.film-mini-bar { display: none; }
+.cine .film.mini .film-frame { position: fixed; z-index: 70; bottom: 18px; inset-inline-start: 18px; width: min(340px, 58vw); border-radius: 12px; transform: none !important; opacity: 1 !important;
+  box-shadow: 0 24px 60px -16px rgba(0, 0, 0, .95), 0 0 0 1px color-mix(in srgb, var(--cine-accent) 55%, transparent); animation: film-mini-in .45s cubic-bezier(.22, 1, .36, 1); }
+@keyframes film-mini-in { from { opacity: 0; transform: translateY(24px) scale(.9); } }
+.film.mini .film-ui, .film.mini .cine-corners, .film.mini .film-big, .film.mini .film-meta, .film.mini .film-resume, .film.mini .film-tap { display: none !important; }
+.film.mini .film-mini-bar { position: absolute; top: 6px; inset-inline-end: 6px; z-index: 5; display: flex; gap: 4px; opacity: 0; transition: opacity .25s; }
+.film.mini .film-frame:hover .film-mini-bar, .film.mini .film-frame:focus-within .film-mini-bar, .film.mini:not(.playing) .film-mini-bar { opacity: 1; }
+@media (hover: none) { .film.mini .film-mini-bar { opacity: 1; } }
+.film-mini-bar .film-btn { width: 30px !important; min-width: 30px !important; height: 30px !important; background: rgba(8, 6, 26, .75) !important; }
+.film-mini-bar svg { width: 16px !important; height: 16px !important; }
+.film-mini-pp svg { fill: currentColor; stroke: none !important; }
+.film-mini-pp .i-pause { display: none; } .film.playing .film-mini-pp .i-play { display: none; } .film.playing .film-mini-pp .i-pause { display: block; }
+@media (max-width: 720px) { .cine .film.mini .film-frame { bottom: 86px; } }      /* above the chapter strip of the page and the Ask button */
+@media (prefers-reduced-motion: reduce) { .cine .film.mini .film-frame { animation: none; } }

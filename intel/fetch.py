@@ -11,6 +11,8 @@ it the rules are skipped and the rest is still prepared. Sources and licences:
     Phishing.Database   github.com/Phishing-Database/Phishing.Database (active domains)  MIT
     gitleaks rules      github.com/gitleaks/gitleaks config/gitleaks.toml                MIT
     Tranco top sites    tranco-list.eu, only to drop popular sites wrongly listed as phishing
+    VirusShare          virusshare.com/hashes  MD5 lists of malware samples (latest VIRUSSHARE_FILES lists)
+    MalwareBazaar       bazaar.abuse.ch full SHA-256 export, when ABUSECH_AUTH_KEY is set (CC0)
 """
 from __future__ import annotations
 
@@ -20,9 +22,12 @@ import datetime as dt
 import gzip
 import io
 import json
+import os
 import re
 import sys
+import time
 import tomllib
+import urllib.error
 import urllib.request
 import warnings
 import zipfile
@@ -37,6 +42,9 @@ PHISHING = "https://raw.githubusercontent.com/Phishing-Database/Phishing.Databas
 GITLEAKS = "https://raw.githubusercontent.com/gitleaks/gitleaks/master/config/gitleaks.toml"
 TRANCO = "https://tranco-list.eu/top-1m.csv.zip"
 TOP_SITES = 50_000
+VIRUSSHARE = "https://virusshare.com/hashes"
+VIRUSSHARE_FILES = 24          # each list holds ~65,000 malware MD5s; 24 lists = ~1.5 million samples
+BAZAAR_FULL = "https://bazaar.abuse.ch/export/txt/sha256/full/"
 
 # Official service host names on the most popular sites (sites.google.com, docs.google.com ...):
 # phishing pages are hosted there, but the host itself must never be marked as phishing.
@@ -48,9 +56,25 @@ SERVICE_LABELS = {
 }
 
 
-def get(url: str, timeout: int = 120) -> bytes:
-    with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=timeout) as res:
-        return res.read()
+def get(url: str, timeout: int = 120, headers: dict | None = None, tries: int = 3) -> bytes:
+    for attempt in range(tries):
+        try:
+            with urllib.request.urlopen(urllib.request.Request(url, headers={**UA, **(headers or {})}), timeout=timeout) as res:
+                return res.read()
+        except urllib.error.HTTPError:
+            raise
+        except OSError:
+            if attempt == tries - 1:
+                raise
+            time.sleep(2 * (attempt + 1))
+    raise OSError("unreachable")
+
+
+def replace_file(path: Path, data: bytes) -> None:
+    """Write next to the target, then swap it in: a scan never reads a half-written file."""
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_bytes(data)
+    os.replace(tmp, path)
 
 
 def write_lines(path: Path, lines: list[str]) -> None:
@@ -71,8 +95,9 @@ def forge(out: Path, info: dict) -> None:
     compiler = yara_x.Compiler(relaxed_re_syntax=True)
     compiler.add_source(source)
     rules = compiler.build()
-    with (out / "forge.yarx").open("wb") as fh:
-        rules.serialize_into(fh)
+    buffer = io.BytesIO()
+    rules.serialize_into(buffer)
+    replace_file(out / "forge.yarx", buffer.getvalue())
     version = re.search(r"Creation Date: (\S+)", source)
     info["forge_rules"] = len(re.findall(r"^(?:private )?rule \w+", source, re.M))
     info["forge_version"] = version.group(1) if version else ""
@@ -205,15 +230,49 @@ def secrets(out: Path, info: dict) -> None:
         except re.error:
             pass
     data = {"rules": rules, "allow_regexes": glob_regexes, "stopwords": allow.get("stopwords", [])}
-    (out / "secrets.json").write_text(json.dumps(data), encoding="utf-8")
+    replace_file(out / "secrets.json", json.dumps(data).encode("utf-8"))
     info["secret_rules"] = len(rules)
     print(f"gitleaks: {len(rules)} rules ({skipped} skipped)")
+
+
+# ---------------------------------------------------------------- known-malware hashes
+def hashes(out: Path, info: dict) -> None:
+    sys.path.insert(0, str(HERE.parent))
+    from core.hash_intel import build_prefix_table  # noqa: PLC0415
+
+    digests: list[str] = []
+    sources = []
+    page = get(VIRUSSHARE).decode("utf-8", "replace")
+    names = sorted(set(re.findall(r"hashfiles/(VirusShare_\d+\.md5)", page)))[-VIRUSSHARE_FILES:]
+    for name in names:
+        body = get(f"https://virusshare.com/hashfiles/{name}", timeout=90).decode("ascii", "replace")
+        digests += [line.strip().lower() for line in body.splitlines() if re.fullmatch(r"[0-9a-fA-F]{32}", line.strip())]
+    if names:
+        sources.append(f"VirusShare {names[0][11:16]}-{names[-1][11:16]}")
+    key = os.getenv("ABUSECH_AUTH_KEY", "")
+    if key:
+        try:
+            archive = zipfile.ZipFile(io.BytesIO(get(BAZAAR_FULL, timeout=300, headers={"Auth-Key": key})))
+            text = archive.read(archive.namelist()[0]).decode("ascii", "replace")
+            found = [line.strip().lower() for line in text.splitlines() if re.fullmatch(r"[0-9a-fA-F]{64}", line.strip())]
+            digests += found
+            sources.append(f"MalwareBazaar {len(found)}")
+        except Exception as exc:  # noqa: BLE001 - optional source
+            print(f"MalwareBazaar export unavailable ({exc})")
+    if not digests:
+        raise RuntimeError("no hash source answered")
+    table = build_prefix_table(digests)
+    replace_file(out / "malware-hashes.bin", table)
+    info["malware_hashes"] = len(table) // 8
+    info["hash_sources"] = sources
+    info["hashes_updated"] = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
+    print(f"known-malware hashes: {info['malware_hashes']} ({', '.join(sources)})")
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--out", type=Path, default=HERE / "data")
-    parser.add_argument("--skip", nargs="*", default=[], choices=["forge", "lists", "secrets"])
+    parser.add_argument("--skip", nargs="*", default=[], choices=["forge", "lists", "secrets", "hashes"])
     args = parser.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
     info = {}
@@ -222,9 +281,10 @@ def main() -> None:
             info = json.loads((args.out / "manifest.json").read_text(encoding="utf-8"))
         except (OSError, ValueError):
             pass
-    info["updated"] = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d")
+    if {"forge", "lists", "secrets"} - set(args.skip):   # "updated" dates the rules and lists, not the hashes
+        info["updated"] = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d")
     failed = []
-    for name, step in (("forge", forge), ("lists", link_lists), ("secrets", secrets)):
+    for name, step in STEPS:
         if name in args.skip:
             continue
         try:
@@ -233,9 +293,11 @@ def main() -> None:
             failed.append(name)
             print(f"{name} failed: {type(exc).__name__}: {exc}", file=sys.stderr)
     info["failed"] = failed
-    (args.out / "manifest.json").write_text(json.dumps(info, indent=1), encoding="utf-8")
+    replace_file(args.out / "manifest.json", json.dumps(info, indent=1).encode("utf-8"))
     print(json.dumps(info))
 
+
+STEPS = (("forge", forge), ("lists", link_lists), ("secrets", secrets), ("hashes", hashes))
 
 if __name__ == "__main__":
     main()

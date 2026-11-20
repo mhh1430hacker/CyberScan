@@ -43,3 +43,11 @@ qa/artifacts/
 
 CyberScan_Storage.exe
 *.egg-info/
+
+# the Windows installer (163 MB) is served from S3, not kept in git
+web_v/static/downloads/*.exe
+# app binaries live on S3 (assets/downloads/), not in git
+web_v/static/downloads/*.apk
+# PyInstaller / Inno Setup output
+/build/
+/dist/

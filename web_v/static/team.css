@@ -1,0 +1,156 @@
+/* ===== ONYX | The minds behind CyberScan (#team, js/team.js) =====
+ * Glass cards over a deep onyx field, lit in the site's cyan and violet. Photos keep one 4:5 frame
+ * and are anchored near the top, so faces are not cut. Motion is transform/opacity only. */
+.onyx { --tm-cyan: #4fe0ff; --tm-violet: #b46cff; --tm-ink: #eaf6ff; --tm-glass: rgba(18, 16, 38, .55); --tm-edge: rgba(160, 170, 255, .14);
+  position: relative; overflow: hidden; padding: 140px 0 120px; isolation: isolate; }
+.tm-aura { position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(42% 34% at 22% 18%, rgba(180, 108, 255, .16), transparent 70%),
+              radial-gradient(40% 30% at 82% 62%, rgba(79, 224, 255, .10), transparent 70%),
+              linear-gradient(180deg, transparent, rgba(5, 4, 12, .6) 30%, rgba(5, 4, 12, .6) 70%, transparent); }
+.tm-aura::after { content: ""; position: absolute; inset: 0; opacity: .5;
+  background-image: linear-gradient(rgba(255, 255, 255, .035) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, .035) 1px, transparent 1px);
+  background-size: 64px 64px; -webkit-mask-image: radial-gradient(60% 50% at 50% 30%, #000, transparent); mask-image: radial-gradient(60% 50% at 50% 30%, #000, transparent); }
+.tm-wrap { max-width: 1240px; margin: 0 auto; padding: 0 24px; }
+
+/* ---------- intro: the emblem and the title ---------- */
+.tm-intro { display: grid; grid-template-columns: minmax(220px, 300px) 1fr; gap: clamp(28px, 5vw, 72px); align-items: center; margin-bottom: clamp(48px, 7vw, 84px); }
+.tm-emblem { position: relative; aspect-ratio: 1; border-radius: 34px; display: grid; place-items: center; will-change: transform;
+  background: linear-gradient(150deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, .015)), var(--tm-glass);
+  border: 1px solid var(--tm-edge); backdrop-filter: blur(14px) saturate(140%); -webkit-backdrop-filter: blur(14px) saturate(140%);
+  box-shadow: 0 30px 80px -30px rgba(120, 80, 255, .45), inset 0 1px 0 rgba(255, 255, 255, .08); }
+.tm-emblem-ring { position: absolute; inset: -1px; border-radius: inherit; padding: 1px; pointer-events: none;
+  background: conic-gradient(from var(--tm-a, 0deg), transparent 0 55%, var(--tm-cyan) 70%, var(--tm-violet) 85%, transparent 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude;
+  animation: tm-spin 7s linear infinite; }
+@property --tm-a { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+@keyframes tm-spin { to { --tm-a: 360deg; } }
+.tm-emblem-art { width: 74%; height: 74%; display: grid; place-items: center; }
+.tm-logo { width: 100%; height: 100%; object-fit: contain; border-radius: 18px; mix-blend-mode: screen;   /* a logo on black melts into the glass */
+  filter: drop-shadow(0 10px 30px rgba(180, 108, 255, .3)); }
+.tm-logo-ph { display: grid; place-items: center; gap: 10px; width: 100%; height: 100%; }
+.tm-logo-ph svg { width: 62%; fill: none; stroke-linejoin: round; }
+.tm-logo-ph .h1 { stroke: var(--tm-violet); stroke-width: 2; opacity: .8; }
+.tm-logo-ph .h2 { stroke: var(--tm-cyan); stroke-width: 2.4; fill: rgba(79, 224, 255, .06); }
+.tm-logo-ph b { font: 800 clamp(20px, 2.2vw, 28px)/1 "Segoe UI", system-ui, sans-serif; letter-spacing: .32em; margin-inline-start: .32em; color: var(--tm-ink); }
+
+.tm-kicker { display: flex; align-items: center; gap: 12px; margin: 0 0 16px; font: 600 12px/1 Consolas, ui-monospace, monospace; letter-spacing: .28em; color: var(--tm-cyan); }
+.tm-kicker-line { width: 42px; height: 1px; background: linear-gradient(90deg, var(--tm-cyan), transparent); }
+[dir="rtl"] .tm-kicker-line { background: linear-gradient(270deg, var(--tm-cyan), transparent); }
+.tm-title { margin: 0 0 18px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 18px; line-height: 1.05; font-weight: 800; }
+.tm-onyx { font-size: clamp(56px, 8vw, 112px); letter-spacing: .06em; direction: ltr; unicode-bidi: isolate;
+  background: linear-gradient(100deg, #fff 0%, #cfe9ff 30%, var(--tm-cyan) 55%, #d6b4ff 80%, #f0abfc 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.tm-bar { font-size: clamp(36px, 5vw, 68px); font-weight: 200; color: rgba(255, 255, 255, .25); }
+.tm-sub { font-size: clamp(22px, 2.6vw, 34px); color: var(--tm-ink); letter-spacing: -.01em; }
+[dir="rtl"] .tm-sub { letter-spacing: 0; }
+.tm-lead { margin: 0; max-width: 560px; font-size: clamp(16px, 1.3vw, 18px); line-height: 1.75; color: var(--muted, #9aa6c4); }
+
+/* ---------- the members ---------- */
+.tm-grid { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(16px, 2vw, 26px); perspective: 1400px; }
+.tm-card { --mx: 50%; --my: 0%; --rx: 0deg; --ry: 0deg; position: relative; display: flex; flex-direction: column; border-radius: 26px; overflow: hidden;
+  background: linear-gradient(160deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, .012)), var(--tm-glass);
+  border: 1px solid var(--tm-edge); backdrop-filter: blur(12px) saturate(140%); -webkit-backdrop-filter: blur(12px) saturate(140%);
+  box-shadow: 0 24px 60px -34px rgba(0, 0, 0, .9), inset 0 1px 0 rgba(255, 255, 255, .06);
+  /* --s*: the scroll entrance (js/team.js); --rx/--ry: the pointer tilt; --lift: hover */
+  transform: translate3d(var(--sx, 0px), calc(var(--sy, 0px) + var(--lift, 0px)), 0) rotateX(calc(var(--srx, 0deg) + var(--rx))) rotateY(calc(var(--sry, 0deg) + var(--ry))) rotateZ(var(--srz, 0deg)) scale(var(--ss, 1));
+  opacity: var(--so, 1); transform-style: preserve-3d; transform-origin: 50% 100%;
+  transition: transform .5s cubic-bezier(.22, 1, .36, 1), border-color .4s, box-shadow .5s; }
+.tm-card::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity .4s;
+  background: radial-gradient(380px circle at var(--mx) var(--my), rgba(79, 224, 255, .14), transparent 60%); }
+.tm-card:hover { border-color: rgba(79, 224, 255, .34); box-shadow: 0 34px 80px -30px rgba(79, 140, 255, .45), inset 0 1px 0 rgba(255, 255, 255, .1); }
+.tm-card:hover::after { opacity: 1; }
+
+.tm-photo { position: relative; aspect-ratio: 4 / 5; overflow: hidden; background: #0b0a1c; }
+.tm-img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; display: block; transform: translateY(var(--py, 0%)) scale(var(--pz, 1.1));
+  filter: saturate(.92) contrast(1.02); transition: transform .9s cubic-bezier(.22, 1, .36, 1), filter .6s; }
+.tm-card:hover .tm-img { --pz: 1.15; filter: saturate(1.05) contrast(1.04); }
+.tm-photo::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(180deg, rgba(8, 7, 20, 0) 55%, rgba(8, 7, 20, .55) 82%, rgba(14, 12, 32, .95) 100%); }
+.tm-no { position: absolute; z-index: 1; top: 14px; left: 16px; font: 800 44px/1 "Segoe UI", system-ui, sans-serif; letter-spacing: .02em;
+  color: transparent; -webkit-text-stroke: 1px rgba(255, 255, 255, .55); text-shadow: 0 2px 18px rgba(0, 0, 0, .4); direction: ltr; }
+.tm-card:hover .tm-no { -webkit-text-stroke-color: var(--tm-cyan); }
+
+.tm-body { position: relative; z-index: 1; padding: 4px 22px 24px; margin-top: -30px; }
+.tm-name { margin: 0 0 8px; font-size: clamp(19px, 1.6vw, 22px); font-weight: 750; color: var(--tm-ink); line-height: 1.3; }
+.tm-role { margin: 0 0 12px; display: inline-block; font: 600 11.5px/1.5 Consolas, ui-monospace, monospace; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--tm-cyan); padding: 4px 10px; border-radius: 999px; background: rgba(79, 224, 255, .08); border: 1px solid rgba(79, 224, 255, .18); }
+[dir="rtl"] .tm-role { text-align: left; }
+.tm-desc { margin: 0; font-size: 14.5px; line-height: 1.75; color: var(--muted, #9aa6c4); }
+
+/* the technical developer: a quiet accent, not a spotlight */
+.tm-card.core { border-color: rgba(79, 224, 255, .22); }
+.tm-card.core::before { content: ""; position: absolute; z-index: 2; inset: 0 0 auto; height: 2px; pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--tm-cyan), var(--tm-violet), transparent); opacity: .85; }
+[dir="rtl"] 
+/* placeholder for a member without a photo */
+.tm-ph { position: absolute; inset: 0; display: grid; place-items: center;
+  background: radial-gradient(70% 55% at 50% 38%, rgba(180, 108, 255, .22), transparent 70%), radial-gradient(60% 50% at 50% 100%, rgba(79, 224, 255, .14), transparent 70%), linear-gradient(170deg, #15122d, #0a0918);
+  background-size: 100% 100%; }
+.tm-ph::before { content: ""; position: absolute; inset: 0; opacity: .5;
+  background-image: linear-gradient(rgba(255, 255, 255, .04) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, .04) 1px, transparent 1px); background-size: 28px 28px; }
+.tm-ph-fig { position: absolute; bottom: 0; width: 78%; fill: rgba(255, 255, 255, .04); stroke: rgba(160, 200, 255, .32); stroke-width: 1.2; }
+.tm-ph-ini { position: relative; margin-top: -22%; width: 46%; aspect-ratio: 1; display: grid; place-items: center; border-radius: 50%;
+  border: 1px solid rgba(160, 200, 255, .32); box-shadow: 0 0 40px rgba(180, 108, 255, .18), inset 0 0 30px rgba(79, 224, 255, .08);
+  font: 800 clamp(34px, 3.6vw, 50px)/1 "Segoe UI", system-ui, sans-serif; letter-spacing: .04em;
+  background: linear-gradient(160deg, #fff, var(--tm-cyan) 60%, var(--tm-violet)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.tm-ph-no { display: none; }
+
+/* ---------- closing ---------- */
+.tm-close { margin-top: clamp(64px, 9vw, 110px); text-align: center; }
+.tm-motto { margin: 0 0 14px; font: 800 clamp(22px, 3.4vw, 46px)/1.15 "Segoe UI", system-ui, sans-serif; letter-spacing: .14em;
+  background: linear-gradient(90deg, #fff 0%, #cfe9ff 35%, var(--tm-cyan) 55%, #d6b4ff 75%, #fff 100%); background-size: 200% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent; }
+.tm-sign { margin: 0; font: 600 clamp(13px, 1.2vw, 16px)/1.6 Consolas, ui-monospace, monospace; letter-spacing: .18em; color: var(--muted, #9aa6c4); }
+
+/* before the first scroll frame, a scrubbed card waits in its starting pose (js/team.js then sets these inline) */
+.tm-grid.scrub .tm-card { --so: 0; --sy: 150px; --ss: .8; --srx: 32deg; --wipe: 0; }
+/* the scan line that uncovers the photo during the scroll entrance */
+.tm-scan { display: none; }
+.tm-grid.scrub .tm-scan { display: block; position: absolute; z-index: 1; left: -10%; right: -10%; top: calc(var(--wipe, 1) * 100%); height: 2px; pointer-events: none;
+  opacity: var(--sg, 0); background: linear-gradient(90deg, transparent, var(--tm-cyan) 30%, #fff 50%, var(--tm-violet) 70%, transparent);
+  box-shadow: 0 0 24px 4px rgba(79, 224, 255, .55), 0 -40px 60px -20px rgba(79, 224, 255, .25); }
+
+/* ---------- entrance (only when motion is allowed) ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  html:not(.reduce-motion) .onyx [data-tm-reveal] { opacity: 0; transform: translateY(34px); filter: blur(6px);
+    transition: opacity 1s cubic-bezier(.22, 1, .36, 1), transform 1.1s cubic-bezier(.22, 1, .36, 1), filter 1s; }
+  html:not(.reduce-motion) .onyx .tm-head[data-tm-reveal] { transition-delay: .12s; }
+  html:not(.reduce-motion) .onyx [data-tm-reveal].in { opacity: 1; transform: none; filter: none; }
+  html:not(.reduce-motion) .onyx .tm-emblem-reveal[data-tm-reveal] { transform: translateY(34px) scale(.9) rotate(-4deg); }
+  html:not(.reduce-motion) .onyx .tm-emblem-reveal[data-tm-reveal].in { transform: none; }
+
+  /* scrubbed by the scroll: a short transform transition smooths the wheel steps and the tilt */
+  html:not(.reduce-motion) .tm-grid.scrub .tm-card { transition: transform .32s cubic-bezier(.22, 1, .36, 1), border-color .4s, box-shadow .5s; will-change: transform, opacity; }
+  html:not(.reduce-motion) .tm-grid.scrub .tm-photo > .tm-img, html:not(.reduce-motion) .tm-grid.scrub .tm-photo > .tm-ph {
+    clip-path: inset(0 0 calc(100% - var(--wipe, 1) * 100%) 0); }
+  html:not(.reduce-motion) .tm-grid.scrub .tm-body { opacity: calc(var(--wipe, 1) * 1.4 - .3); transform: translateY(calc((1 - var(--wipe, 1)) * 18px)); }
+  html:not(.reduce-motion) .tm-card:hover { --lift: -6px; }
+
+  html:not(.reduce-motion) .tm-close .tm-motto { opacity: var(--mp, 1); transform: scale(calc(1.3 - .3 * var(--mp, 1))); filter: blur(calc((1 - var(--mp, 1)) * 10px)); }
+  html:not(.reduce-motion) .tm-close .tm-sign { opacity: calc(var(--mp, 1) * 1.5 - .5); transform: translateY(calc((1 - var(--mp, 1)) * 20px)); }
+
+  html:not(.reduce-motion) .tm-close.in .tm-motto { animation: tm-sheen 6s 1s ease-in-out infinite; }
+  @keyframes tm-sheen { 0%, 100% { background-position: 0% 0; } 50% { background-position: 100% 0; } }
+}
+@media (prefers-reduced-motion: reduce) { .tm-emblem-ring { animation: none; } }
+html.reduce-motion .tm-emblem-ring { animation: none; }
+html.perf-low .tm-emblem, html.perf-low .tm-card { backdrop-filter: none; -webkit-backdrop-filter: none; }
+
+/* ---------- sizes ---------- */
+@media (max-width: 1000px) {
+  .tm-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 720px) {
+  .onyx { padding: 96px 0 84px; }
+  .tm-intro { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+  .tm-emblem-reveal { width: min(220px, 62vw); }
+  .tm-title { justify-content: center; }
+  .tm-bar { display: none; }
+  .tm-sub { flex-basis: 100%; }
+  .tm-kicker { justify-content: center; }
+  .tm-lead { margin-inline: auto; }
+}
+@media (max-width: 560px) {
+  .tm-wrap { padding: 0 16px; }
+  .tm-grid { grid-template-columns: 1fr; max-width: 420px; margin: 0 auto; }
+  .tm-motto { letter-spacing: .08em; }
+}

@@ -34,7 +34,7 @@ FILES = [
     "web_v/server.py", "web_v/services.py", "web_v/mobile_bridge.py",
     "web_v/assistant.py", "web_v/assistant_knowledge.md",
 ]
-TREES = ["core", "repair_engine/executor", "repair_engine/parsers", "repair_engine/blind", "rules"]
+TREES = ["core", "detection", "repair_engine/executor", "repair_engine/parsers", "repair_engine/blind", "rules"]
 TREE_FILES = ["repair_engine/__init__.py", "repair_engine/analyze.py", "repair_engine/regions.py",
               "repair_engine/validator.py", "repair_engine/pe_layout.py"]
 

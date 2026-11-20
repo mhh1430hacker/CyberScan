@@ -110,6 +110,10 @@ CATEGORY_LABELS = {
     "osint": "Threat intelligence",
     "dissonance": "Claim-capability dissonance",
     "model": "Learning model",
+    "intel": "Known-malware database",
+    "content": "Content inspection",
+    "tradecraft": "Attacker techniques",
+    "phishing": "Phishing signs",
 }
 
 ENGINE_LABELS = {
@@ -211,8 +215,10 @@ def classify_engine_status(status: Any) -> str:
         return "partial"
     if text.startswith(("disabled", "not requested")) or "disabled by settings" in text:
         return "disabled"
-    if text in {"not_pe", "not applicable", "not_applicable", "invalid_indicator"} or text.startswith("not a "):
+    if text in {"not_pe", "not applicable", "not_applicable", "invalid_indicator"} or text.startswith(("not a ", "skipped: the program header")):
         return "not_applicable"
+    if text.startswith("malformed"):
+        return "ran"  # the program-structure check ran and found the header damaged
     if any(
         word in text
         for word in ("unavailable", "missing", "no rules configured", "rejected", "not available", "not loaded", "unsupported", "not_run")
@@ -277,8 +283,10 @@ def _coverage(engine_status: Any) -> tuple[EngineCoverage, ...]:
 
 
 def _verdict(classification: str, coverage: tuple[EngineCoverage, ...]) -> Verdict:
-    if classification == "SUSPICIOUS":
+    if classification in {"SUSPICIOUS", "KNOWN_MALWARE"}:
         return VERDICTS["high"]
+    if classification == "UNKNOWN":
+        return VERDICTS["inconclusive"]  # part of the analysis didn't finish
     if classification == "REVIEW":
         return VERDICTS["review"]
     if classification == "NO_INDICATORS_OBSERVED":

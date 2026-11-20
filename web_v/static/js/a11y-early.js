@@ -14,3 +14,13 @@
     return { matches: true, media: String(query), onchange: null, addListener: noop, removeListener: noop, addEventListener: noop, removeEventListener: noop, dispatchEvent: () => false };
   };
 })();
+
+/* The scan page (/app.html) has its whole shell in the HTML. When no translation has to be applied
+ * first (English, on the scan view), scan.css shows it at the first paint instead of after every
+ * script has run; other languages keep waiting for app.js, so they never flash English. */
+(function () {
+  "use strict";
+  let saved = null;
+  try { saved = localStorage.getItem("cyberscan-lang"); } catch { /* storage off */ }
+  if ((!saved || saved === "en") && /^(#\/?(scan)?)?$/.test(location.hash)) document.documentElement.classList.add("paint-early");
+})();

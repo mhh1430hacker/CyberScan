@@ -104,6 +104,11 @@ CATEGORY_WORDS = {
     "osint": "Online reports",
     "dissonance": "What it claims versus what it can do",
     "model": "Learning model",
+    "intel": "Known-malware database",
+    "content": "Inside the content",
+    "tradecraft": "Warning signs",
+    "phishing": "Clues in the link",
+    "secrets": "Clues in the text",
 }
 ENGINE_WORDS = {
     "YARA": "Known-pattern rules",
@@ -150,10 +155,10 @@ def presentation_key(view: ResultView, mode: str = "File", target: str = "") -> 
     """The verdict key the screen uses: the engine's, unless the engine found
     nothing in something it could not really examine (see ``HONEST``)."""
     key = view.verdict.key
+    if mode == "File" and view.file_size == 0 and view.classification in {"EMPTY", "NO_INDICATORS_OBSERVED", "UNKNOWN"}:
+        return "empty"   # nothing to analyse: neither "clean" nor "try again"
     if key != "low":
         return key
-    if mode == "File" and view.file_size == 0:
-        return "empty"
     online = next((engine.state for engine in view.coverage if engine.name == "OSINT"), "unknown")
     if online == "ran":
         return key
@@ -251,7 +256,7 @@ def summary(
     else:
         headline, sentence, advice = (
             HEADLINES.get(verdict.key, UNRECOGNIZED)
-            if view.classification in {"SUSPICIOUS", "REVIEW", "NO_INDICATORS_OBSERVED"}
+            if view.classification in {"SUSPICIOUS", "REVIEW", "NO_INDICATORS_OBSERVED", "KNOWN_MALWARE", "UNKNOWN"}
             else UNRECOGNIZED
         )
     # Reasons: the distinct findings, most serious first, in plain words.

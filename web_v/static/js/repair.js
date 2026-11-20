@@ -127,6 +127,16 @@
     button.disabled = false;
   }
 
+  /* One line for a before/after inspection: the verdict and score on the scan's own scale, and its findings. */
+  function inspectionLine(report) {
+    const s = report.detection_summary || {};
+    const v = CS.verdictOf({ ...report, detection_summary: { ...s, classification: s.classification || report.classification } });
+    const known = s.final_score != null || report.final_score != null || report.combined_score != null || s.content_score != null;
+    const verdict = CS.verdictWords(v.cls)[1];
+    const count = Array.isArray(report.findings) ? report.findings.length : Number(report.findings_count) || 0;
+    return [verdict, known ? `${v.score}/100` : "", CS.tf("rFindingCount", { n: count })].filter(Boolean).join(" · ");
+  }
+
   function renderOutcome() {
     const o = lastOutcome;
     if (!o) return;
@@ -164,7 +174,7 @@
       verification.append(el(
         "p",
         "",
-        t("rDataLoss").replace("{n}", formatBytes(loss.bytes_removed || 0))
+        CS.tf("rDataLoss", { n: formatBytes(loss.bytes_removed || 0) })
           + (loss.original_preserved ? ` ${t("rOriginalPreserved")}` : ""),
       ));
 
@@ -179,17 +189,10 @@
         verification.append(list);
       }
 
-      [["rOriginalInspection", o.original_security_inspection], ["rCandidateInspection", o.candidate_security_inspection]]
+      [["rOriginalInspection", o.scan_before || o.original_security_inspection], ["rCandidateInspection", o.scan_after || o.candidate_security_inspection]]
         .forEach(([label, report]) => {
           if (!report) return;
-          const summary = report.detection_summary || {};
-          const classification = summary.classification || t("rUnavailable");
-          const count = (report.findings || []).length;
-          verification.append(el(
-            "p",
-            "muted",
-            `${t(label)}: ${classification} · ${report.status || report.scan_status || t("rUnavailable")} · ${t("rFindingCount").replace("{n}", count)}`,
-          ));
+          verification.append(el("p", "muted", `${t(label)}: ${inspectionLine(report)}`));
         });
     }
     $("r-out-hashes").textContent = o.ok ? `SHA-256 before  ${o.sha256_before}\nSHA-256 after   ${o.sha256_after || ""}` : "";
@@ -198,6 +201,9 @@
 
   /* wiring */
   const drop = $("r-drop");
+  drop.tabIndex = 0;
+  drop.setAttribute("role", "button");
+  drop.addEventListener("keydown", (e) => { if (e.target === drop && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); $("r-file").click(); } });
   ["dragenter", "dragover"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add("over"); }));
   ["dragleave", "drop"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove("over"); }));
   drop.addEventListener("drop", (e) => upload(e.dataTransfer.files[0]));
@@ -227,12 +233,12 @@
       const bytes = Uint8Array.from(atob(o.output_b64), (c) => c.charCodeAt(0));
       const a = document.createElement("a");
       a.href = URL.createObjectURL(new Blob([bytes], { type: "application/octet-stream" }));
-      a.download = o.output_name || "repaired-file";
+      a.download = CS.repairedName(o.output_name || session.name || "file");
       document.body.append(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(a.href), 4000);
       return;
     }
-    download(`/api/repair/${session.id}/download`).catch((e) => toast(e.message));
+    download(`/api/repair/${session.id}/download`, CS.repairedName).catch((e) => toast(CS.friendlyError(e)));
   });
 
   window.CS.onLang(() => {

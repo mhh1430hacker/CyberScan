@@ -10,7 +10,8 @@
   "use strict";
   const landing = document.getElementById("landing");
   if (!landing || !("IntersectionObserver" in window)) return;
-  const blocks = landing.querySelectorAll(":scope > section, :scope > .bands, :scope > footer");
+  // the sections sit in <main> (the page's main landmark); the header and footer around it
+  const blocks = landing.querySelectorAll(":scope > main > section, :scope > main > .bands, :scope > section, :scope > footer");
   const observer = new IntersectionObserver((entries) => {
     for (const e of entries) e.target.classList.toggle("cs-off", !e.isIntersecting);
   }, { rootMargin: "120px 0px 120px 0px" });

@@ -23,63 +23,66 @@
   const svg = (d) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d}"/></svg>`;
 
   /* ---------------- content ---------------- */
+  /* ---------------- the hero title: a word that types itself ----------------
+   * "Inspect every / › file▌ / before you open it." The middle word is typed letter by letter
+   * (graphemes, so joined scripts stay correct), held, erased, and the next one is typed in its own
+   * colours. Cost: one short timer per letter and a class change per word; no animation loop, and
+   * nothing runs while the hero is off screen or the tab is hidden. Reduced motion: the first
+   * word, still. */
+  const title = landing.querySelector(".hero-title");
+  const typed = title && title.querySelector(".t-word");
+  const PALETTES = 5;
+  let typeTimer = 0, typeRun = 0, heroVisible = true;
+  const still = () => reduced || document.documentElement.classList.contains("reduce-motion");
+  const graphemes = (s) => {
+    try { return [...new Intl.Segmenter(window.CS.lang, { granularity: "grapheme" }).segment(s)].map((x) => x.segment); } catch { return [...s]; }
+  };
+  function words() { const w = t("lTypeWords"); return Array.isArray(w) && w.length ? w : ["file"]; }
   function splitTitle() {
-    let i = 0;
-    landing.querySelectorAll(".word-wrap").forEach((wrap) => {
-      const words = t(wrap.dataset.i18n).split(/\s+/);
-      wrap.replaceChildren();
-      // only alphabets whose letters stand alone may be split; joined scripts (Arabic, Devanagari, Thai…) stay whole
-      const arabic = !["en", "es", "fr", "de", "it", "pt", "nl", "pl", "tr", "vi", "id", "ms", "fil", "sw", "ru", "uk"].includes(window.CS.lang);
-      let c = 0;
-      words.forEach((word, n) => {
-        const w = el("span", "w");
-        w.style.setProperty("--i", i++);
-        // Arabic letters join, so they react as whole words; Latin reacts letter by letter
-        (arabic ? [word] : [...word]).forEach((part) => {
-          const ch = el("span", "ch", part);
-          ch.style.setProperty("--c", c++);
-          w.append(ch);
-        });
-        wrap.append(w);
-        if (n < words.length - 1) wrap.append(" ");
-      });
-    });
-    measureChars();
+    if (!title) return;
+    const list = words();
+    title.setAttribute("aria-label", `${t("lTypeLead")} ${list.join(", ")} ${t("lTypeTail")}`.replace(/\s+([,.،。，])/g, "$1"));
+    typed.textContent = list[0];
+    title.dataset.p = "0";
   }
-
-  /* the title reacts to the cursor: letters near it rise, swell and glow */
-  let chars = [], titleRaf = 0;
-  const pointer = { x: -1e4, y: -1e4 };
-  function measureChars() {
-    chars = [...landing.querySelectorAll(".hero-title .ch")].map((node) => {
-      const r = node.getBoundingClientRect();
-      return { node, x: r.left + r.width / 2 + scrollX, y: r.top + r.height / 2 + scrollY, f: 0 };
-    });
+  function stopTyping() { typeRun++; clearTimeout(typeTimer); }
+  function startTyping() {
+    if (!title) return;
+    stopTyping();
+    const run = typeRun, list = words();
+    title.classList.add("art-in");
+    if (still()) { typed.textContent = list[0]; title.dataset.p = "0"; title.classList.add("t-still"); return; }
+    let index = 0;
+    const later = (fn, ms) => { typeTimer = setTimeout(() => { if (run === typeRun) fn(); }, ms); };
+    const type = (chars, n) => {
+      typed.textContent = chars.slice(0, n).join("");
+      title.classList.toggle("t-typing", n < chars.length);
+      if (n < chars.length) later(() => type(chars, n + 1), 62 + Math.random() * 46);
+      else later(() => erase(chars, chars.length), 2100);
+    };
+    // the old word is selected, as in an editor, then replaced by the next one (fabric.css .t-select)
+    const erase = () => {
+      title.classList.add("t-select", "t-typing");
+      later(() => {
+        typed.textContent = "";
+        title.classList.remove("t-select");
+        index = (index + 1) % list.length;
+        title.dataset.p = String(index % PALETTES);
+        later(() => type(graphemes(list[index]), 1), 140);
+      }, 420);
+    };
+    title.dataset.p = "0";
+    // the first word is already on screen: hold it, then continue the cycle
+    typed.textContent = list[0];
+    later(() => erase(graphemes(list[0]), graphemes(list[0]).length), 2400);
   }
-  function titleFrame() {
-    titleRaf = 0;
-    let moving = false;
-    for (const c of chars) {
-      const dx = pointer.x - (c.x - scrollX), dy = pointer.y - (c.y - scrollY);
-      const target = Math.exp(-(dx * dx + dy * dy) / (2 * 110 * 110));
-      c.f += (target - c.f) * 0.18;
-      if (Math.abs(target - c.f) > 0.002) moving = true;
-      const f = c.f;
-      const push = dx === 0 ? 0 : -Math.sign(dx) * f * 6;
-      c.node.style.transform = f > 0.004 ? `translate(${push.toFixed(1)}px, ${(-f * 16).toFixed(1)}px) scale(${(1 + f * 0.28).toFixed(3)})` : "";
-      c.node.style.setProperty("--f", f.toFixed(3));
-    }
-    if (moving) titleRaf = requestAnimationFrame(titleFrame);
-  }
-  if (!reduced) {
-    window.addEventListener("pointermove", (e) => {
-      if (landing.hidden) return;
-      pointer.x = e.clientX; pointer.y = e.clientY;
-      if (!titleRaf) titleRaf = requestAnimationFrame(titleFrame);
-    }, { passive: true });
-    window.addEventListener("resize", () => measureChars());
-    window.addEventListener("cs:landing", () => setTimeout(measureChars, 1600));
-    setTimeout(measureChars, 1800);
+  function replayTitle() { if (heroVisible && !document.hidden) startTyping(); }
+  if (title) {
+    new IntersectionObserver((entries) => {
+      heroVisible = entries[0].isIntersecting;
+      if (heroVisible && !document.hidden) startTyping(); else stopTyping();
+    }).observe(title);
+    document.addEventListener("visibilitychange", () => { if (document.hidden) stopTyping(); else if (heroVisible) startTyping(); });
   }
 
   function build() {
@@ -114,24 +117,31 @@
       return card;
     }));
 
-    $("stats-grid").replaceChildren(...t("stats").map(([label, key], i) => {
+    // the clean-files figure is said plainly (how many were wrongly flagged), not as a double negative
+    $("stats-grid").replaceChildren(...t("stats").map(([label, key, unit], i) => {
+      if (key === "clean") label = t("statClean");
       const card = el("div", "stat");
       card.setAttribute("data-reveal", "");
       card.style.setProperty("--i", i);
       const num = el("b", "", "0");
       num.dataset.stat = key;
+      if (unit) num.dataset.unit = unit;
       card.append(num, el("span", "", label));
       return card;
     }));
+    $("stats-note").textContent = t("lStatsNote");
     buildBytes();
     observeReveals();
     wireTilt();
-    if (stats) fillStats();
+    if (counted) countStats(true);
   }
 
   /* ---------------- bento ---------------- */
   // order in i18n "feats": verdicts, cube, repair, quarantine, ai, downloads, intel, history
   const AREAS = ["a", "b", "c", "d", "e", "f", "g", "h"];
+  // features that need the installed desktop app (Windows key vault, local model, Downloads folder,
+  // local history); the website keeps no history and runs none of these
+  const DESKTOP_ONLY = new Set([3, 4, 5, 7]);
   let bentoCube = null, bentoTimers = [];
   function viz(i) {
     const box = el("div", "bviz");
@@ -180,6 +190,11 @@
 
   function typeLoop(node, texts, speed = 38, hold = 1700) {
     let ti = 0, ci = 0, del = false;
+    // the card keeps the height of the longest text while it is typed and erased, so the cards
+    // around it don't move (they jumped ~28 px as the AI sentence grew a line)
+    const reserve = () => { if (!node.isConnected) return; node.style.minHeight = ""; const was = node.textContent; let h = 0; texts.forEach((x) => { node.textContent = x; h = Math.max(h, node.offsetHeight); }); node.textContent = was; node.style.minHeight = `${h}px`; };
+    reserve();
+    if (window.ResizeObserver) { let rw = node.offsetWidth; new ResizeObserver(() => { if (node.offsetWidth !== rw) { rw = node.offsetWidth; reserve(); } }).observe(node); }
     const step = () => {
       if (!onScreen(node)) { bentoTimers.push(setTimeout(step, 500)); return; }
       const text = texts[ti % texts.length];
@@ -204,6 +219,7 @@
       icon.innerHTML = svg(FEAT_ICONS[i]);
       const text = el("div", "btext");
       text.append(icon, el("b", "", title), el("p", "", body));
+      if (DESKTOP_ONLY.has(i)) { card.classList.add("desk-only"); text.append(el("span", "feat-tag", t("featDesktop"))); }
       card.append(viz(i), text);
       return card;
     }));
@@ -349,16 +365,11 @@
 
   /* ---------------- scroll effects ---------------- */
   const top = landing.querySelector(".l-top");
-  const how = $("how");
-  const fill = $("steps-fill");
+  let scrolled = null;
   function onScroll() {
     if (landing.hidden) return;
-    top.classList.toggle("scrolled", scrollY > 30);
-    const r = how.getBoundingClientRect();
-    // the steps section is pinned: its progress is how far through the pin we are
-    const p = Math.max(0, Math.min(1, -r.top / Math.max(1, r.height - innerHeight)));
-    fill.style.transform = `scaleX(${p})`;
-    $("l-steps").querySelectorAll("li").forEach((li, i, all) => li.classList.toggle("lit", p >= (i + 0.5) / all.length));
+    const s = scrollY > 30;
+    if (s !== scrolled) { scrolled = s; top.classList.toggle("scrolled", s); }
   }
   window.addEventListener("scroll", onScroll, { passive: true });
 
@@ -397,39 +408,133 @@
     } else { clearTimeout(repairTimer); repairTimer = null; }
   }, { threshold: 0.35 }).observe(repairSec);
 
-  /* ---------------- stats ---------------- */
-  let stats = null, counted = false;
-  api("/api/stats").then((s) => { stats = s; fillStats(); }).catch(() => { stats = { scans: 0 }; fillStats(); });
-  function values() { return { scans: stats ? stats.scans : 0, engines: 9, zero: 0, langs: window.CS_LANGS ? CS_LANGS.list.length : 2 }; }
-  function fillStats() { if (counted) countStats(true); }
+  /* ---------------- stats ----------------
+   * Measured figures, not promises. Sources (kept in the repo):
+   *   fuzz, clean, repair, speed: reports/evaluation/results.json (harness/evaluate.py, 2026-11-06):
+   *     parser_fuzz 3000 cases / 0 crashes; strong warning ("Suspicious") on 1 of 245 clean files,
+   *     any warning on 7 of 245 (detection.any_warning.fp / strong_warning.fp);
+   *     repair 84 of 86 tampered files repaired and validated, 0 of 124 clean files touched;
+   *     median scan 0.21 s over 338 files.
+   *   zero: the desktop app's default settings; langs: CS_LANGS. */
+  let counted = false;
+  function values() {
+    return { fuzz: { n: 3000 }, clean: { n: 1, of: 245 }, repair: { n: 84, of: 86 }, speed: { n: 0.21, dec: 2 },
+      zero: { n: 0 }, langs: { n: window.CS_LANGS ? CS_LANGS.list.length : 2 } };
+  }
+  const fmt = (x, dec) => x.toLocaleString(undefined, { minimumFractionDigits: dec || 0, maximumFractionDigits: dec || 0 });
+  function show(node, v, x) {                                  // the number is isolated LTR; the unit follows the page direction
+    let s = fmt(x, v.dec);
+    if (v.of) s = `${s}/${fmt(v.of)}`;
+    const n = el("bdi", "", s);
+    if (node.dataset.unit) node.replaceChildren(n, el("small", "", node.dataset.unit)); else node.replaceChildren(n);
+  }
   function countStats(instant) {
-    if (!stats) return;
     counted = true;
+    if (!instant && !reduced && window.CSSfx) {
+      const t0 = performance.now();
+      const tick = () => { const p = (performance.now() - t0) / 1800; if (p >= 1) { CSSfx.play("chime"); return; } CSSfx.play("tick", { k: Math.round(p * 20) }); setTimeout(tick, 70 + p * 120); };
+      tick();
+    }
     const v = values();
-    $("stats-grid").querySelectorAll("[data-stat]").forEach((node) => {
-      const target = v[node.dataset.stat] || 0;
-      if (instant || reduced) { node.textContent = target.toLocaleString(); return; }
-      const start = performance.now();
+    // each card counts in turn (120 ms apart) on an expo-out curve, then settles (fabric.css .fx-landed)
+    $("stats-grid").querySelectorAll("[data-stat]").forEach((node, i) => {
+      const val = v[node.dataset.stat] || { n: 0 };
+      if (instant || reduced) { show(node, val, val.n); return; }
+      const start = performance.now() + i * 120;
       const step = (now) => {
-        const p = Math.min((now - start) / 1800, 1);
-        node.textContent = Math.round(target * (1 - Math.pow(1 - p, 3))).toLocaleString();
+        const p = Math.max(0, Math.min((now - start) / 1600, 1)), e = p === 1 ? 1 : 1 - Math.pow(2, -10 * p);
+        show(node, val, val.dec ? val.n * e : Math.round(val.n * e));
         if (p < 1) requestAnimationFrame(step);
+        else { node.classList.remove("fx-landed"); void node.offsetWidth; node.classList.add("fx-landed"); }
       };
       requestAnimationFrame(step);
     });
   }
   new IntersectionObserver((entries) => { if (entries[0].isIntersecting && !counted) countStats(); }, { threshold: 0.4 }).observe($("stats-grid"));
 
+  /* ---------------- header: fits any language, collapses into a menu ----------------
+   * Levels, tried in order until the bar fits on one line: full · tight (shorter gaps, icon-only
+   * "Get the app" and Calm) · compact (brand, Open the app, menu) · tiny (logo without the word).
+   * Measured, not guessed, so a long German or Tamil label collapses it as early as it needs to. */
+  const menuBtn = $("l-menu-btn"), sheet = $("l-sheet");
+  const LEVELS = ["is-tight", "is-compact", "is-tiny"];
+  function fits() {
+    const cs = getComputedStyle(top);
+    const avail = Math.min(top.clientWidth, innerWidth) - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    const kids = [...top.children].filter((k) => k !== sheet && k.offsetParent !== null);
+    const gap = parseFloat(cs.columnGap) || 0;
+    const need = kids.reduce((s, k) => s + k.scrollWidth, 0) + gap * Math.max(0, kids.length - 1);
+    // the bar's width before it turns solid: 1240, or 1480 above 1600 px where the tour button shows its label (fabric.css)
+    const cap = innerWidth > 1600 ? 1480 : 1240;
+    return need <= Math.min(avail, cap - 48) + 0.5;
+  }
+  function fitHeader() {
+    top.classList.remove(...LEVELS);
+    const want = innerWidth <= 1000 ? 2 : 0;                 // tablets and phones: the menu (the nav links are hidden below 1000 px)
+    for (let i = 0; i < want; i++) top.classList.add(LEVELS[i]);
+    for (let i = want; !fits() && i < LEVELS.length; i++) top.classList.add(LEVELS[i]);
+    if (!top.classList.contains("is-compact")) setMenu(false);
+  }
+  function setMenu(open, focus) {
+    if (!sheet) return;
+    sheet.hidden = !open;
+    menuBtn.setAttribute("aria-expanded", String(open));
+    menuBtn.setAttribute("aria-label", t(open ? "menuClose" : "menuOpen"));
+    if (open && focus) (sheet.querySelector("a, button") || sheet).focus();
+  }
+  if (menuBtn && sheet) {
+    menuBtn.addEventListener("click", (e) => { e.stopPropagation(); setMenu(sheet.hidden, true); });
+    sheet.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (e.target.closest(".l-sheet-links a, .l-sheet-apk")) setMenu(false);
+      if (e.target.closest(".l-sheet-tour")) { setMenu(false); $("tour-start").click(); }
+    });
+    document.addEventListener("click", (e) => { if (!sheet.hidden && !e.target.closest(".lang-menu")) setMenu(false); });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !sheet.hidden && !document.querySelector(".lang-menu")) { setMenu(false); menuBtn.focus(); }
+    }, true);                                                // capture: before the language menu closes itself
+  }
+  let fitRaf = 0;
+  const refit = () => { cancelAnimationFrame(fitRaf); fitRaf = requestAnimationFrame(fitHeader); };
+  addEventListener("resize", refit, { passive: true });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(refit);
+  refit();
+
+  /* ---------------- back to top ---------------- */
+  const toTop = el("button", "to-top");
+  toTop.type = "button";
+  toTop.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5m-6 6 6-6 6 6"/></svg>';
+  const paintTop = () => { toTop.setAttribute("aria-label", t("toTop")); toTop.title = t("toTop"); };
+  paintTop();
+  toTop.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: still() ? "auto" : "smooth" });
+    const brand = top.querySelector(".brand"); if (brand) brand.focus({ preventScroll: true });
+  });
+  document.body.append(toTop);
+  let topShown = false, lastY = scrollY, hideFloat = false;
+  addEventListener("scroll", () => {
+    const y = scrollY;
+    const show = y > innerHeight * 1.5 && !landing.hidden;
+    if (show !== topShown) { topShown = show; toTop.classList.toggle("on", show); }
+    // phones: the corner buttons (Ask the AI, back to top) step aside while you read downwards
+    // and come back as soon as you scroll up or reach the end of the page
+    const atEnd = y + innerHeight >= document.documentElement.scrollHeight - 140;
+    const hide = !atEnd && y > lastY + 2 && y > innerHeight * 0.6 ? true : y < lastY - 2 || atEnd ? false : hideFloat;
+    lastY = y;
+    if (hide !== hideFloat) { hideFloat = hide; document.body.classList.toggle("float-away", hide); }
+  }, { passive: true });
+
   /* ---------------- lifecycle ---------------- */
   function arrive() {
     landing.classList.remove("ready");
     requestAnimationFrame(() => requestAnimationFrame(() => landing.classList.add("ready")));
     scramble(landing.querySelector("[data-scramble]"));
+    replayTitle();
     playCard();
     onScroll();
   }
   window.addEventListener("cs:landing", arrive);
-  window.CS.onLang(() => { build(); if (!landing.hidden) { landing.classList.add("ready"); scramble(landing.querySelector("[data-scramble]")); } });
+  window.CS.onLang(() => { build(); paintTop(); if (sheet) setMenu(!sheet.hidden); refit(); if (!landing.hidden) { landing.classList.add("ready"); scramble(landing.querySelector("[data-scramble]")); replayTitle(); } });
   setInterval(() => { if (!landing.hidden && !document.hidden && !landing.querySelector(".hero").classList.contains("cs-off")) playCard(); }, 9000);
   build();
 })();

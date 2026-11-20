@@ -240,6 +240,35 @@ def _validate_zip(stream: BinaryIO) -> dict[str, Any]:
         }
 
 
+def _parse_pdf(stream: BinaryIO) -> dict[str, Any] | None:
+    """Parse the document (cross-reference table, catalog, page tree) with pypdf, strictly.
+    None when pypdf is not installed, so the boundary-only result stands."""
+    try:
+        from pypdf import PdfReader  # noqa: PLC0415
+        from pypdf.errors import PdfReadError  # noqa: PLC0415
+    except ImportError:
+        return None
+    import logging  # noqa: PLC0415
+    import warnings  # noqa: PLC0415
+
+    stream.seek(0)
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            logging.getLogger("pypdf").setLevel(logging.ERROR)
+            reader = PdfReader(stream, strict=False)
+            if reader.is_encrypted:
+                return {"status": "incomplete", "detail": "The PDF is encrypted; its pages could not be read without the password."}
+            pages = len(reader.pages)
+            for page in reader.pages[:50]:
+                page.mediabox  # noqa: B018 - reading each page object proves the page tree resolves
+    except (PdfReadError, ValueError, KeyError, TypeError, AttributeError, IndexError, OSError, RecursionError) as exc:
+        return {"status": "failed", "detail": f"The PDF structure could not be parsed: {type(exc).__name__}."}
+    if pages < 1:
+        return {"status": "failed", "detail": "The PDF has no pages."}
+    return {"status": "passed", "detail": f"Cross-reference table, catalog and page tree parsed; {pages} page(s) resolve."}
+
+
 def _validate_boundary_format(stream: BinaryIO, size: int, file_format: str) -> dict[str, Any]:
     if file_format == "PDF":
         stream.seek(0)
@@ -252,6 +281,9 @@ def _validate_boundary_format(stream: BinaryIO, size: int, file_format: str) -> 
         if eof_offset < 0:
             return {"status": "failed", "detail": "PDF end-of-file marker is missing; the file may be truncated."}
         trailing_bytes = len(tail) - eof_offset - len(b"%%EOF")
+        parsed = _parse_pdf(stream)
+        if parsed is not None:
+            return {**parsed, "trailing_bytes": trailing_bytes}
         return {
             "status": "incomplete",
             "detail": "PDF boundary markers are present; cross-reference tables and object structure were not parsed."

@@ -1,11 +1,18 @@
 from __future__ import annotations
 
+import os
+import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
 ROOT_DIR = Path(__file__).resolve().parent
-DATA_DIR = ROOT_DIR / "data"
+# Run from source: data/ next to the code. Run as the packaged desktop app (PyInstaller): the
+# program folder may be read-only (Program Files), so history and settings live per user.
+if getattr(sys, "frozen", False):
+    DATA_DIR = Path(os.environ.get("LOCALAPPDATA") or Path.home() / "AppData" / "Local") / "CyberScan" / "data"
+else:
+    DATA_DIR = ROOT_DIR / "data"
 MODEL_DIR = DATA_DIR / "models"
 DATASET_DIR = DATA_DIR / "datasets"
 REPORT_DIR = DATA_DIR / "reports"

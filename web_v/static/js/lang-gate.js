@@ -1,50 +1,65 @@
 /* First visit: ask which language to use before anything else.
- * The answer is remembered; the top-bar language menu still changes it later. */
+ * The answer is remembered; the top-bar language menu still changes it later.
+ * The list is the shared picker (js/languages.js): search by native, English or Arabic name,
+ * arrows move through the grid (mirrored in RTL), Enter or a click chooses. Styles: lang-gate.css. */
 (function () {
   "use strict";
   const gate = document.getElementById("lang-gate");
   if (!gate) return;
   let chosen = false;
   try { chosen = localStorage.getItem("cs-lang-chosen") === "1"; } catch { /* storage off: ask every time */ }
-  if (chosen) { gate.remove(); return; }
+  if (chosen || !window.CS_LANGS || !window.CS_LANGS.picker) { gate.remove(); return; }
 
-  // every language, the browser's own first; the person decides
-  const suggest = window.CS_LANGS.suggest();
-  const box = gate.querySelector(".lg-options");
-  box.replaceChildren();
-  const ordered = [...window.CS_LANGS.list].sort((a, b) => (a[0] === suggest ? -1 : b[0] === suggest ? 1 : 0));
-  for (const [code, name] of ordered) {
-    const b = document.createElement("button");
-    b.type = "button";
-    b.className = "lg-opt" + (code === suggest ? " suggested" : "");
-    b.dataset.lang = code;
-    b.lang = code;
-    b.dir = window.CS_LANGS.dir(code);
-    const c = document.createElement("span"); c.className = "lg-code"; c.textContent = code.toUpperCase();
-    const n = document.createElement("b"); n.textContent = name;
-    b.append(c, n);
-    box.append(b);
-  }
-  const options = [...box.querySelectorAll(".lg-opt")];
-  gate.classList.add("many");
+  const L = window.CS_LANGS;
+  const suggest = L.suggest();
+  const box = gate.querySelector(".lg-box");
+  const make = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text) n.textContent = text; return n; };
+
+  // the same mark as the preloader, drawn in
+  const mark = box.querySelector(".lg-logo");
+  const head = make("div", "lgx-head");
+  const kicker = make("p", "lgx-kicker", "CyberScan");
+  const title = make("h2", "lgx-title");
+  title.id = "lg-title";
+  const en = make("span", "", "Choose your language");
+  const ar = make("span", "", "اختر لغتك");
+  ar.lang = "ar"; ar.dir = "rtl";
+  title.append(en, ar);
+  if (mark) head.append(mark);
+  head.append(kicker, title);
+
+  let done = false;
+  const p = L.picker({ current: suggest, suggested: suggest, variant: "grid", onChoose: (code, btn) => choose(code, btn) });
+  const note = make("p", "lgx-note");
+  const noteAr = make("span", "", "يمكنك تغييرها في أي وقت من الشريط العلوي.");
+  noteAr.lang = "ar"; noteAr.dir = "rtl";
+  note.append(make("span", "", "You can change this any time from the top bar."), noteAr);
+  box.replaceChildren(head, p.root, note);
+  box.tabIndex = -1;
+
   gate.hidden = false;
   document.body.classList.add("lang-asking");
-  requestAnimationFrame(() => gate.classList.add("in"));
-  setTimeout(() => options[0].focus(), 400);
+  requestAnimationFrame(() => requestAnimationFrame(() => gate.classList.add("in")));
+  // keyboard and mouse users land on the suggested language (typing searches); touch users get no keyboard popping up
+  setTimeout(() => { if (matchMedia("(pointer: fine)").matches) p.focusList(); else box.focus({ preventScroll: true }); }, 420);
 
-  async function choose(lang) {
+  async function choose(lang, btn) {
+    if (done) return;
+    done = true;
+    if (btn) btn.classList.add("picked");
     try { localStorage.setItem("cs-lang-chosen", "1"); } catch { /* storage off */ }
-    if (window.CS.lang !== lang) await window.CS.setLang(lang);
+    try { if (window.CS.lang !== lang) await window.CS.setLang(lang); } catch { /* the menu can still change it */ }
     gate.classList.remove("in");
     gate.classList.add("out");
     document.body.classList.remove("lang-asking");
-    setTimeout(() => { gate.remove(); window.dispatchEvent(new Event("cs:landing")); }, 700);
+    setTimeout(() => { gate.remove(); window.dispatchEvent(new Event("cs:landing")); }, 560);
   }
-  options.forEach((b) => b.addEventListener("click", () => choose(b.dataset.lang)));
+
+  // a modal: Tab stays inside, Escape keeps the suggested language
   gate.addEventListener("keydown", (e) => {
-    const i = options.indexOf(document.activeElement);
-    if (i < 0) return;
-    const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
-    if (step) { options[(i + step + options.length) % options.length].focus(); e.preventDefault(); }
+    if (e.key === "Escape") { e.preventDefault(); choose(suggest); return; }
+    if (e.key !== "Tab") return;
+    e.preventDefault();
+    if (document.activeElement === p.input) p.focusList(); else p.input.focus();
   });
 })();

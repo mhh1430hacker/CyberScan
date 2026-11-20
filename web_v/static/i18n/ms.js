@@ -7,10 +7,13 @@ I18N["ms"] = {
 "lPrivacy": "Privasi",
 "lOpen": "Buka aplikasi",
 "lEyebrow": "Analisis statik · apa sahaja yang anda semak tidak pernah dijalankan",
-"lTitle1": "Lihat isi mana-mana fail",
-"lTitle2": "sebelum fail itu melihat isi",
-"lTitle3": "komputer anda.",
-"lSub": "CyberScan membedah fail, pautan atau petikan teks bait demi bait tanpa sekali-kali menjalankannya, menerangkan dapatannya dalam bahasa mudah, dan boleh membina semula salinan tanpa bahagian yang tidak sepatutnya ada dalam formatnya.",
+"lTitle1": "Setiap fail, pautan",
+"lTitle2": "dan mesej diperiksa",
+"lTitle3": "sebelum anda membukanya.",
+"lTypeLead": "Periksa setiap",
+"lTypeWords": ["fail", "pautan", "mesej", "e-mel", "lampiran"],
+"lTypeTail": "sebelum anda membukanya.",
+"lSub": "CyberScan memeriksa fail, pautan dan teks tanpa pernah menjalankannya. Setiap satu dipadankan dengan ribuan peraturan ancaman terbuka dan lebih 1.5 juta cap jari perisian hasad yang diketahui, setiap penemuan diterangkan dalam bahasa yang jelas, dan salinan yang disahkan dibaiki apabila ada bahagian yang tidak sepatutnya.",
 "lStart": "Mula mengimbas",
 "lWatch": "Lihat cara ia berfungsi",
 "lCardFile": "invoice_2026.pdf.exe",
@@ -103,25 +106,6 @@ I18N["ms"] = {
 "Jenis fail sama",
 "Struktur utuh",
 "Bahagian yang dibuang dikunci dalam kuarantin"
-],
-"lStatsTitle": "Dibina untuk jujur",
-"stats": [
-[
-"imbasan disimpan pada komputer ini",
-"scans"
-],
-[
-"enjin analisis",
-"engines"
-],
-[
-"bait dihantar oleh aplikasi desktop ke internet secara lalai",
-"zero"
-],
-[
-"bahasa, termasuk kanan-ke-kiri",
-"langs"
-]
 ],
 "lPrivTitle": "Fail anda kekal milik anda",
 "privs": [
@@ -565,8 +549,6 @@ I18N["ms"] = {
 "ghMove": "Gerakkan untuk membelah medan",
 "ghHold": "Tahan untuk menariknya masuk",
 "ghRelease": "Lepaskan untuk menyerakkan",
-"soundOn": "Lo-fi hidup",
-"soundOff": "Lo-fi mati",
 "lPhone": "Dapatkan aplikasi",
 "apkTitle": "Muat turun untuk Android",
 "apkSigned": "Ditandatangani oleh CyberScan",

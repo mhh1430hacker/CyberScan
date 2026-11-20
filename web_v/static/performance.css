@@ -1,0 +1,57 @@
+/* ===== Adaptive Performance Engine: what the levels change in CSS =====
+ * Classes are set on <html> by js/performance/adaptiveController.js:
+ *   perf-l1..perf-l5 (Ultra..Essential), perf-low (Optimized and below; older rules in a11y.css use it),
+ *   fx-blur-light / fx-blur-off, fx-glow-reduced / fx-glow-flat, fx-parallax-off,
+ *   fx-bg-reduced / fx-bg-once / fx-bg-static, fx-scenes-simple / fx-scenes-static.
+ * Only decorative layers are touched; text, layout, colour and content never change. */
+
+/* the switch between levels is softened: decorative layers fade instead of popping */
+html.perf-shift .ks-beams, html.perf-shift .ks-rays, html.perf-shift .ks-veil, html.perf-shift .tm-aura, html.perf-shift .aurora,
+html.perf-shift .grain, html.perf-shift .scanlines, html.perf-shift .ks-dust { transition: opacity 1.2s ease; }
+
+/* ---------- blur ---------- */
+html.fx-blur-light .tm-card, html.fx-blur-light .tm-emblem, html.fx-blur-light .l-top.scrolled, html.fx-blur-light .nav,
+html.fx-blur-light .marquee, html.fx-blur-light .toast, html.fx-blur-light .story-hud > span, html.fx-blur-light .ask-panel,
+html.fx-blur-light .get-app-panel, html.fx-blur-light .cine-info { -webkit-backdrop-filter: blur(5px) !important; backdrop-filter: blur(5px) !important; }
+html.fx-blur-off *, html.fx-blur-off *::before, html.fx-blur-off *::after { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+/* without blur, glass needs a denser fill to stay readable */
+html.fx-blur-off .tm-card, html.fx-blur-off .tm-emblem { background: linear-gradient(160deg, rgba(255, 255, 255, .05), rgba(255, 255, 255, .01)), rgba(14, 12, 30, .92); }
+
+/* ---------- lighting ---------- */
+html.fx-glow-reduced .ks-beams { opacity: .45 !important; }
+html.fx-glow-reduced .ks-veil { background: radial-gradient(ellipse at center, transparent 52%, rgba(0, 0, 0, .55) 100%); }   /* vignette kept, grain dropped */
+html.fx-glow-reduced .tm-aura::after, html.fx-glow-reduced .grain, html.fx-glow-reduced .scanlines { display: none; }
+html.fx-glow-flat .ks-beams, html.fx-glow-flat .ks-rays, html.fx-glow-flat .ks-veil, html.fx-glow-flat .tm-aura::after,
+html.fx-glow-flat .grain, html.fx-glow-flat .scanlines { display: none !important; }
+html.fx-glow-flat .ks-fill, html.fx-glow-flat .tm-logo, html.fx-glow-flat .ks-seal svg { filter: none !important; }
+
+/* ---------- ambient background animation ---------- */
+/* reduced: the slow decorative loops stop; the ones that carry meaning (progress, players) keep going */
+html.fx-bg-reduced .ks.on .ks-rays, html.fx-bg-reduced .tm-emblem-ring, html.fx-bg-reduced .fj-cta-ring,
+html.fx-bg-reduced .ks.on .ks-seal-text, html.fx-bg-reduced .tm-close.in .tm-motto { animation: none !important; }
+/* once: every decorative loop plays a single time (a11y.css already does this for perf-low) */
+/* static: decorations sit at their final state from the start */
+html.fx-bg-static .aurora, html.fx-bg-static .orbit, html.fx-bg-static .marquee-track, html.fx-bg-static .ks-rays,
+html.fx-bg-static .tm-emblem-ring, html.fx-bg-static .fj-cta-ring, html.fx-bg-static .ks-seal-text,
+html.fx-bg-static .eq i, html.fx-bg-static .scroll-cue span { animation: none !important; }
+
+/* ---------- parallax ---------- */
+html.fx-parallax-off [data-depth] { translate: none !important; }
+
+/* ---------- the quality panel (js/performance/performanceUI.js) ---------- */
+.pq { display: grid; gap: 8px; text-align: start; }
+.pq-head { display: grid; gap: 4px; }
+.pq-title { font-weight: 700; }
+.pq-hint { color: var(--muted, #9aa6c4); font-size: 13px; }
+.pq-select { margin-top: 6px; padding: 9px 12px; border-radius: 10px; font: inherit; color: inherit; background: rgba(10, 16, 34, .85); border: 1px solid rgba(110, 200, 255, .28); }
+.pq-select:focus-visible { outline: 2px solid #4fe0ff; outline-offset: 2px; }
+.pq-now { margin: 0; font-size: 13.5px; color: #bfe9ff; }
+.pq-rm { margin: 0; font-size: 13px; color: #ffd98a; }
+.pq-details summary { cursor: pointer; font-size: 13px; color: var(--muted, #9aa6c4); }
+.pq-details dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 14px; margin: 10px 0 0; font-size: 13px; }
+.pq-details dt { color: var(--muted, #9aa6c4); }
+.pq-details dd { margin: 0; overflow-wrap: anywhere; }
+.pq-setting { display: block; }
+.foot-switches { position: relative; }
+.pq-pop { position: absolute; z-index: 40; bottom: calc(100% + 10px); inset-inline-start: 0; width: min(380px, 88vw); padding: 16px; border-radius: 16px;
+  background: rgba(10, 9, 26, .97); border: 1px solid rgba(110, 200, 255, .25); box-shadow: 0 24px 60px -20px rgba(0, 0, 0, .9); }

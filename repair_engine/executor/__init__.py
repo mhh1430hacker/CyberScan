@@ -13,8 +13,11 @@ Actions (the planner's fixed set, plus ``remove_zip_member`` for OOXML):
 ``blind_reconstruct`` is the one action that infers: it rebuilds the original
 from the file's own integrity witnesses (``repair_engine.blind``) and refuses
 unless they confirm a single reconstruction by a wide margin.
-``remove_ole_stream`` is part of the set but not implemented yet; it
-refuses, so the outcome falls back to a report.
+Content disarm (``repair_engine.executor.cdr``): neutralize_pdf_names,
+rebuild_pdf_without_active, zero_ole_vba, neutralize_ooxml_external,
+disarm_markup, remove_rtf_objects. ``remove_ole_stream`` is kept as an
+alias of ``zero_ole_vba`` (the streams are emptied in place, not cut out,
+so the compound file's sector tables stay valid).
 """
 from __future__ import annotations
 
@@ -24,7 +27,7 @@ import zlib
 from dataclasses import dataclass, field
 from typing import Any
 
-from repair_engine.executor import ooxml, pdf, pe, zip as zip_actions
+from repair_engine.executor import cdr, ooxml, pdf, pe, zip as zip_actions
 from repair_engine.executor.common import Refused, Removed, truncate_at
 from repair_engine.parsers import parse
 
@@ -33,7 +36,8 @@ _DAMAGED = (zipfile.BadZipFile, ValueError, struct.error, EOFError, OSError, Ind
 ACTIONS = (
     "strip_overlay", "truncate_after_eof", "remove_section_and_fix_headers", "restore_entry_point",
     "remove_zip_member", "remove_ooxml_parts", "remove_ole_stream", "remove_pdf_object_and_refs", "quarantine_whole_file", "report_only",
-    "blind_reconstruct",
+    "blind_reconstruct", "neutralize_pdf_names", "rebuild_pdf_without_active", "zero_ole_vba",
+    "neutralize_ooxml_external", "disarm_markup", "remove_rtf_objects",
 )
 
 
@@ -86,8 +90,18 @@ def _single(data: bytes, plan: Plan) -> tuple[bytes, list[Removed]]:
         if result.decision != "repair" or result.best is None:
             raise Refused(f"blind reconstruction: {result.reason}")
         return result.best.data, result.best.removed
-    if plan.action == "remove_ole_stream":
-        raise Refused("remove_ole_stream is not implemented yet")
+    if plan.action in {"remove_ole_stream", "zero_ole_vba"}:
+        return cdr.zero_ole_vba(data)
+    if plan.action == "neutralize_pdf_names":
+        return cdr.neutralize_pdf_names(data, plan.params.get("before"))
+    if plan.action == "rebuild_pdf_without_active":
+        return cdr.rebuild_pdf_without_active(data)
+    if plan.action == "neutralize_ooxml_external":
+        return cdr.neutralize_ooxml_external(data)
+    if plan.action == "disarm_markup":
+        return cdr.disarm_markup(data)
+    if plan.action == "remove_rtf_objects":
+        return cdr.remove_rtf_objects(data)
     raise Refused(f"unknown action {plan.action!r}")
 
 

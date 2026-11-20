@@ -60,22 +60,20 @@ html.perf-low .grain, html.perf-low .scanlines { display: none !important; }
 .foot-switches { display: flex; gap: 8px; flex-wrap: wrap; }
 /* online: the "choose from disk" row has nothing left to offer */
 .public-mode .disk-row { display: none !important; }
-/* ---------- language menu ---------- */
-.lang-menu { position: fixed; z-index: 1000; display: grid; gap: 8px; padding: 10px; border-radius: 14px; background: #0e1120;
-  border: 1px solid rgba(148, 163, 200, .22); box-shadow: 0 24px 60px -20px rgba(0, 0, 0, .9); max-height: min(420px, 80vh); }
-.lang-menu .field { padding: 9px 12px; }
-.lang-menu ul { list-style: none; margin: 0; padding: 0; overflow-y: auto; display: grid; gap: 1px; max-height: 340px; }
-.lang-menu button { width: 100%; display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 0; border-radius: 8px; background: none; color: #e7eaf3; font: inherit; cursor: pointer; text-align: start; }
-.lang-menu button:hover, .lang-menu button:focus-visible { background: rgba(34, 211, 238, .1); outline: none; }
-.lang-menu button[aria-selected="true"] { background: rgba(34, 211, 238, .16); }
-.lang-menu .lm-code { font: 600 11px ui-monospace, Consolas, monospace; color: #8b94ad; min-width: 30px; }
+/* language menu and first-visit grid: lang-gate.css */
 
-/* first visit: many languages in a grid */
-.lang-gate.many .lg-box { max-width: min(860px, 94vw); }
-.lang-gate.many .lg-options { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); grid-auto-rows: minmax(48px, auto);
-  gap: 8px; max-height: min(52vh, 460px); overflow-y: auto; padding: 4px; }
-.lang-gate.many .lg-opt { display: flex; align-items: center; gap: 10px; padding: 10px 14px; min-height: 48px; }
-.lang-gate.many .lg-code { min-width: 30px; }
-.lang-gate.many .lg-opt b { font-size: 15px; }
-.lang-gate.many .lg-opt small { display: none; }
+/* the transcript's note under the narration line about where files are checked (a11y.js) */
+.film-transcript .film-note { margin: -2px 0 4px; padding: 10px 12px; border-radius: 10px; border-inline-start: 3px solid #4fe0ff; background: rgba(79, 224, 255, .08); color: #dff6ff; font-size: .95em; }
 
+.dev-support { display: inline-flex; align-items: center; gap: 7px; margin-inline-start: 10px; padding: 7px 14px; border-radius: 999px; text-decoration: none; font-weight: 700; color: #fff;
+  background: linear-gradient(110deg, #7c3aed, #a21caf 55%, #c026d3); box-shadow: 0 8px 22px -10px rgba(192, 38, 211, .9); vertical-align: middle; }
+.dev-support svg { width: 16px; height: 16px; fill: rgba(255, 255, 255, .3); stroke: #fff; stroke-width: 1.8; }
+.dev-support:hover { filter: brightness(1.12); }
+.dev-support:focus-visible { outline: 3px solid #22e8ff; outline-offset: 3px; }
+
+/* Touch targets: every control is at least 24 px, phones 28 px (WCAG 2.5.8) */
+.dev-site, .dev-mail { display: inline-block; padding-block: 5px; }
+#film-volume { min-height: 24px; }
+@media (max-width: 760px) {
+  .sy-nav a { min-width: 28px; min-height: 28px; justify-content: center; }
+}

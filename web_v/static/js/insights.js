@@ -53,12 +53,13 @@
     const now = new Date(); now.setHours(0, 0, 0, 0);
     const days = Array.from({ length: 14 }, () => ({ SUSPICIOUS: 0, REVIEW: 0, NO_INDICATORS_OBSERVED: 0 }));
     history.forEach((r) => {
-      if (counts[r.classification] !== undefined) counts[r.classification]++;
+      const cls = r.classification === "KNOWN_MALWARE" ? "SUSPICIOUS" : r.classification;   // known malware counts with the suspicious ones
+      if (counts[cls] !== undefined) counts[cls]++;
       scoreSum += r.score;
       if (r.quarantined) quarantined++;
       const d = new Date(r.timestamp); d.setHours(0, 0, 0, 0);
       const ago = Math.round((now - d) / 86400000);
-      if (ago >= 0 && ago < 14 && days[13 - ago][r.classification] !== undefined) days[13 - ago][r.classification]++;
+      if (ago >= 0 && ago < 14 && days[13 - ago][cls] !== undefined) days[13 - ago][cls]++;
       if (ago >= 0 && ago < 7) week++;
     });
     donut(counts, total);
@@ -100,9 +101,31 @@
       col.append(stack, el("small", "", String(date.getDate())));
       return col;
     }));
-    $("ins-week").textContent = t("insWeekLine")(week);
+    $("ins-week").textContent = window.CS.tf("insWeekLine", { n: week });
+    paintToggle();
   }
 
-  window.CS.onLang(() => render(last));
+  /* On a phone the overview starts folded, so the scans themselves are on the first screen. */
+  const TXT = { en: { show: "Show the overview", hide: "Hide the overview" }, ar: { show: "اعرض النظرة العامة", hide: "أخفِ النظرة العامة" } };
+  const card = $("insights");
+  const grid = card && card.querySelector(".ins-grid");
+  const mq = matchMedia("(max-width: 760px)");
+  let open = !mq.matches;
+  const toggle = el("button", "ghost small ins-toggle");
+  toggle.type = "button";
+  if (grid) { grid.id = "ins-grid"; toggle.setAttribute("aria-controls", "ins-grid"); card.prepend(toggle); }
+  function paintToggle() {
+    if (!grid) return;
+    const tx = TXT[window.CS.lang === "ar" ? "ar" : "en"];
+    card.classList.toggle("collapsed", !open);
+    toggle.hidden = !mq.matches;
+    toggle.setAttribute("aria-expanded", String(open));
+    toggle.textContent = `${open ? tx.hide : tx.show}${last ? ` · ${last.length}` : ""}`;
+  }
+  toggle.addEventListener("click", () => { open = !open; paintToggle(); });
+  mq.addEventListener("change", () => { open = !mq.matches; paintToggle(); });
+  paintToggle();
+
+  window.CS.onLang(() => { render(last); paintToggle(); });
   window.CSInsights = { render };
 })();

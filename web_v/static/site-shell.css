@@ -1,0 +1,146 @@
+/* ===== Shared by every page (landing, scan, journey, support) =====
+ * the "< >" cursor (js/cursor.js) · page transitions and the persistent player (js/site-nav.js,
+ * js/nav-early.js) · the floating music player (js/sound.js) */
+
+/* ---------------- the "< >" cursor ---------------- */
+html.csr-on, html.csr-on body, html.csr-on body * { cursor: none !important; }
+html.csr-on :is(input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=button]):not([type=submit]):not([type=file]):not([type=color]), textarea, [contenteditable=""], [contenteditable=true]) { cursor: text !important; }
+html.csr-on.csr-native body * { cursor: auto !important; }
+html.csr-native .csr { opacity: 0 !important; }
+.csr { position: fixed; inset: 0; z-index: 2147483600; pointer-events: none; opacity: 0; transition: opacity .25s; contain: strict; }
+.csr.in { opacity: 1; }
+.csr-trail { position: absolute; inset: 0; width: 100%; height: 100%; }
+.csr-ring, .csr-dot { position: absolute; left: 0; top: 0; will-change: transform; }
+.csr-dot { width: 4px; height: 4px; margin: -2px 0 0 -2px; background: #eaffff; box-shadow: 0 0 8px #22e8ff, 0 0 2px #fff; transition: opacity .15s, width .2s, height .2s, margin .2s; }
+.csr-dot.is-hidden, .csr-ring.is-text, .csr-ring.is-native { opacity: 0; }
+.csr .cb, .csr .cb-mid, .csr-hint {
+  position: absolute; left: 0; top: 0; line-height: 1; white-space: nowrap;
+  font: 800 22px Consolas, ui-monospace, "SFMono-Regular", monospace; color: #22e8ff;
+  text-shadow: -1.5px 0 rgba(255, 79, 216, .9), 1.5px 0 rgba(34, 232, 255, .9), 0 0 12px rgba(34, 232, 255, .85);
+  transition: transform .28s cubic-bezier(.34, 1.56, .64, 1), color .2s, opacity .2s, text-shadow .2s;
+}
+.csr-ring { transition: opacity .15s; }
+.csr-ring::before { /* the soft halo over cards */
+  content: ""; position: absolute; left: -30px; top: -30px; width: 60px; height: 60px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(201, 162, 255, .22), transparent 70%); opacity: 0; transform: scale(.4);
+  transition: opacity .3s, transform .4s cubic-bezier(.2, .8, .2, 1);
+}
+.csr .cb-l { transform: translate(calc(-50% - 12px), -54%); }
+.csr .cb-r { transform: translate(calc(-50% + 12px), -54%); }
+.csr .cb-mid { transform: translate(-50%, -54%) scale(.6); opacity: 0; font-size: 17px; color: #fff; text-shadow: 0 0 10px #ff4fd8, -1px 0 #ff4fd8, 1px 0 #22e8ff; }
+.csr-hint {
+  transform: translate(-50%, 26px) scale(.9); opacity: 0; font: 600 10.5px/1 Consolas, ui-monospace, monospace; letter-spacing: .14em; text-transform: uppercase;
+  color: #eaf4ff; text-shadow: none; padding: 5px 8px; background: rgba(12, 8, 30, .78); border: 1px solid rgba(201, 162, 255, .35);
+  box-shadow: 0 6px 22px -8px rgba(201, 162, 255, .6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+}
+[dir="rtl"] .csr-hint { letter-spacing: 0; }
+.csr-ring.has-hint .csr-hint { opacity: 1; transform: translate(-50%, 26px) scale(1); }
+/* link and button: "</>" in magenta */
+.csr-ring:is(.is-link, .is-btn, .is-ext) .cb { color: #ff4fd8; text-shadow: -1.5px 0 rgba(34, 232, 255, .9), 1.5px 0 rgba(255, 79, 216, .9), 0 0 14px rgba(255, 79, 216, .9); }
+.csr-ring:is(.is-link, .is-btn, .is-ext) .cb-l { transform: translate(calc(-50% - 17px), -54%); }
+.csr-ring:is(.is-link, .is-btn, .is-ext) .cb-r { transform: translate(calc(-50% + 17px), -54%); }
+.csr-ring:is(.is-link, .is-btn, .is-ext, .is-off) .cb-mid { opacity: 1; transform: translate(-50%, -54%) scale(1); }
+.csr-ring.is-btn .cb-mid { color: #fff; }
+.csr-ring.is-ext .cb-mid { font-size: 15px; color: #c9a2ff; text-shadow: 0 0 10px #c9a2ff; }
+.csr-ring.is-link .cb-mid { color: #22e8ff; text-shadow: 0 0 10px #22e8ff; }
+/* card: wide, violet, a halo */
+.csr-ring.is-card .cb { color: #c9a2ff; text-shadow: -1px 0 rgba(255, 79, 216, .7), 1px 0 rgba(34, 232, 255, .7), 0 0 14px rgba(201, 162, 255, .9); }
+.csr-ring.is-card .cb-l { transform: translate(calc(-50% - 24px), -54%) scale(.9); }
+.csr-ring.is-card .cb-r { transform: translate(calc(-50% + 24px), -54%) scale(.9); }
+.csr-ring.is-card::before { opacity: 1; transform: scale(1); }
+/* press: snap shut */
+.csr-ring.is-press .cb-l { transform: translate(calc(-50% - 6px), -54%) scale(.85); }
+.csr-ring.is-press .cb-r { transform: translate(calc(-50% + 6px), -54%) scale(.85); }
+.csr-ring.is-press .cb-mid { transform: translate(-50%, -54%) scale(.7); }
+/* drag */
+.csr-ring.is-drag .cb-l { transform: translate(calc(-50% - 34px), -54%); }
+.csr-ring.is-drag .cb-r { transform: translate(calc(-50% + 34px), -54%); }
+.csr-ring.is-drag .cb-mid { opacity: 1; transform: translate(-50%, -54%); font: 700 11px Consolas, monospace; letter-spacing: .12em; text-transform: uppercase; }
+/* disabled */
+.csr-ring.is-off .cb { color: #6f6a88; text-shadow: none; }
+.csr-ring.is-off .cb-mid { color: #8d88a8; text-shadow: none; font-size: 15px; }
+/* busy: three dots */
+.csr-ring.is-busy .cb-l { transform: translate(calc(-50% - 16px), -54%); }
+.csr-ring.is-busy .cb-r { transform: translate(calc(-50% + 16px), -54%); }
+.csr-ring.is-busy .cb-mid { opacity: 1; transform: translate(-50%, -50%); }
+.csr-ring.is-busy .cb-mid::before { content: "···"; display: inline-block; letter-spacing: 1px; animation: csr-busy 1s steps(3) infinite; color: #22e8ff; }
+@keyframes csr-busy { 0% { clip-path: inset(0 66% 0 0); } 100% { clip-path: inset(0 0 0 0); } }
+/* a one-shot glitch when the state changes (no idle animation) */
+.csr-ring:is(.is-link, .is-btn, .is-card, .is-ext) .cb { animation: csr-glitch .32s steps(2) 1; }
+@keyframes csr-glitch { 0% { filter: hue-rotate(80deg); margin-left: 2px; } 50% { margin-left: -2px; } 100% { filter: none; margin-left: 0; } }
+@media (prefers-reduced-motion: reduce) { .csr .cb, .csr .cb-mid, .csr-hint, .csr-ring::before { transition: none; } .csr-ring .cb, .csr-ring.is-busy .cb-mid::before { animation: none !important; } }
+html.reduce-motion .csr .cb, html.reduce-motion .csr .cb-mid, html.reduce-motion .csr-hint { transition: none; }
+html.reduce-motion .csr-ring .cb, html.reduce-motion .csr-ring.is-busy .cb-mid::before { animation: none !important; }
+@media (forced-colors: active) { .csr { display: none !important; } html.csr-on, html.csr-on * { cursor: auto !important; } }
+@media print { .csr, .cs-veil, .csm-pill { display: none !important; } }
+
+/* ---------------- page transitions ---------------- */
+@property --cs-line { syntax: "<percentage>"; inherits: false; initial-value: 50%; }
+.cs-veil, html.cs-arriving::before {
+  position: fixed; inset: 0; z-index: 2147483500; pointer-events: none;
+  background:
+    linear-gradient(90deg, transparent, rgba(34, 232, 255, .9) 45%, rgba(255, 79, 216, .9) 55%, transparent) 0 var(--cs-line, 50%) / 100% 1px no-repeat,
+    radial-gradient(60vmax 50vmax at var(--cs-x, 50%) var(--cs-y, 50%), rgba(201, 162, 255, .26), transparent 62%),
+    radial-gradient(50vmax 40vmax at 85% 110%, rgba(255, 79, 216, .16), transparent 60%),
+    radial-gradient(50vmax 40vmax at 10% -10%, rgba(34, 232, 255, .14), transparent 60%),
+    #04030c;
+}
+.cs-veil { display: grid; place-items: center; clip-path: circle(0 at var(--cs-x, 50%) var(--cs-y, 50%)); visibility: hidden; }
+.cs-veil b { font: 800 34px Consolas, ui-monospace, monospace; letter-spacing: .3em; color: #c9a2ff; opacity: 0; transform: scale(.85);
+  text-shadow: -2px 0 rgba(255, 79, 216, .9), 2px 0 rgba(34, 232, 255, .9), 0 0 24px rgba(201, 162, 255, .9); }
+.cs-veil.in { visibility: visible; animation: cs-veil-in .3s cubic-bezier(.7, 0, .25, 1) forwards; }
+.cs-veil.in b { animation: cs-mark .3s .08s ease-out forwards; }
+.cs-veil.out { visibility: visible; clip-path: circle(150% at var(--cs-x, 50%) var(--cs-y, 50%)); animation: cs-veil-out .38s cubic-bezier(.3, 0, .2, 1) forwards; }
+.cs-veil.out b { opacity: 1; transform: none; animation: cs-mark-out .2s ease-in forwards; }
+@keyframes cs-veil-in { from { clip-path: circle(0 at var(--cs-x, 50%) var(--cs-y, 50%)); } to { clip-path: circle(150% at var(--cs-x, 50%) var(--cs-y, 50%)); } }
+@keyframes cs-veil-out { 0% { opacity: 1; --cs-line: 50%; } 100% { opacity: 0; --cs-line: -2%; } }
+@keyframes cs-mark { to { opacity: 1; transform: none; } }
+@keyframes cs-mark-out { to { opacity: 0; transform: scale(1.08); letter-spacing: .5em; } }
+/* arriving from another page of the site: the veil is already there at the first paint, and lifts */
+html.cs-arriving::before { content: ""; }
+html.cs-arriving.cs-lift::before { animation: cs-veil-out .42s cubic-bezier(.3, 0, .2, 1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .cs-veil.in, .cs-veil.out, html.cs-arriving::before { animation-duration: .01s !important; animation-delay: 0s !important; }
+}
+html.reduce-motion .cs-veil.in, html.reduce-motion .cs-veil.out, html.reduce-motion.cs-arriving::before { animation-duration: .01s !important; animation-delay: 0s !important; }
+
+/* ---------------- the persistent player: other pages shown in a full-viewport frame ---------------- */
+.cs-stage { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; margin: 0; padding: 0; z-index: 2147483000; background: #04030c; display: none; color-scheme: dark; }
+html.cs-framed .cs-stage { display: block; }
+html.cs-framed, html.cs-framed body { overflow: hidden !important; }
+html.cs-framed body > :not(.cs-stage):not(.cs-veil):not(.csr):not(.cs-live) { display: none !important; }
+.cs-live { position: fixed; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+html.cs-framed body::after, html.cs-framed body::before { display: none !important; }
+
+/* ---------------- the floating music player (pages without a header music button) ---------------- */
+.csm-pill {
+  position: fixed; inset-inline-end: 16px; bottom: max(16px, env(safe-area-inset-bottom)); z-index: 60;
+  display: flex; align-items: center; gap: 2px; padding: 4px; border-radius: 999px;
+  background: rgba(12, 8, 30, .66); border: 1px solid rgba(201, 162, 255, .28);
+  box-shadow: 0 10px 30px -14px rgba(201, 162, 255, .55), inset 0 0 0 1px rgba(255, 255, 255, .03);
+  backdrop-filter: blur(14px) saturate(140%); -webkit-backdrop-filter: blur(14px) saturate(140%);
+  font: 600 12px/1 system-ui, -apple-system, "Segoe UI", sans-serif; color: #eaf4ff;
+}
+.csm-toggle {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 32px; padding: 0 12px 0 10px; border: 0; border-radius: 999px;
+  background: transparent; color: inherit; font: inherit; letter-spacing: .02em; cursor: pointer;
+}
+.csm-toggle:hover { background: rgba(201, 162, 255, .12); }
+.csm-toggle:focus-visible, .csm-vol:focus-visible { outline: 2px solid #22e8ff; outline-offset: 2px; }
+.csm-toggle .eq { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; }
+.csm-toggle .eq i { width: 2px; height: 3px; border-radius: 1px; background: linear-gradient(#22e8ff, #c9a2ff); transition: height .3s; }
+.csm-pill.playing .eq i { animation: csm-eq 1.1s ease-in-out infinite alternate; }
+.csm-pill.playing .eq i:nth-child(2) { animation-delay: -.35s; }
+.csm-pill.playing .eq i:nth-child(3) { animation-delay: -.7s; }
+.csm-pill.playing .eq i:nth-child(4) { animation-delay: -.2s; }
+@keyframes csm-eq { 0% { height: 3px; } 100% { height: 12px; } }
+.csm-vol { width: 0; opacity: 0; margin: 0; accent-color: #c9a2ff; transition: width .3s, opacity .3s, margin .3s; }
+.csm-pill.on:hover .csm-vol, .csm-pill.on:focus-within .csm-vol { width: 84px; opacity: 1; margin-inline-end: 8px; }
+@media (prefers-reduced-motion: reduce) { .csm-pill.playing .eq i { animation: none; height: 8px; } }
+html.reduce-motion .csm-pill.playing .eq i { animation: none; height: 8px; }
+@media (forced-colors: active) { .csm-pill { border-color: CanvasText; } }
+
+/* while another page is shown in the persistent player's frame (js/site-nav.js sets .cs-framed on
+   the shell), the pointer lives in that frame: the shell's own cursor would stay frozen where the
+   visitor left it, floating over the page. The framed page draws its own. */
+html.cs-framed .csr { display: none !important; }

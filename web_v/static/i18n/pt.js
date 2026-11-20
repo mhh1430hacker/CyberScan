@@ -7,10 +7,13 @@ I18N["pt"] = {
 "lPrivacy": "Privacidade",
 "lOpen": "Abrir o app",
 "lEyebrow": "Análise estática · nada do que você verifica é executado",
-"lTitle1": "Veja por dentro de qualquer arquivo",
-"lTitle2": "antes que ele entre",
-"lTitle3": "no seu computador.",
-"lSub": "O CyberScan desmonta um arquivo, link ou trecho de texto byte a byte sem nunca executá-lo, explica o que encontra em palavras simples e pode reconstruir uma cópia sem as partes que não pertencem ao formato dele.",
+"lTitle1": "Cada arquivo, link",
+"lTitle2": "e mensagem, inspecionado",
+"lTitle3": "antes de você abrir.",
+"lTypeLead": "Inspecione cada",
+"lTypeWords": ["arquivo", "link", "e-mail", "anexo", "download"],
+"lTypeTail": "antes de abri-lo.",
+"lSub": "O CyberScan inspeciona arquivos, links e textos sem nunca executá-los. Compara cada um com milhares de regras abertas de ameaças e mais de 1,5 milhão de impressões digitais de malware conhecido, explica cada achado em linguagem clara e repara uma cópia verificada quando algo não pertence ao arquivo.",
 "lStart": "Começar a analisar",
 "lWatch": "Veja como funciona",
 "lCardFile": "invoice_2026.pdf.exe",
@@ -103,25 +106,6 @@ I18N["pt"] = {
 "Mesmo tipo de arquivo",
 "Estrutura intacta",
 "Partes removidas lacradas na quarentena"
-],
-"lStatsTitle": "Feito para ser honesto",
-"stats": [
-[
-"análises salvas neste computador",
-"scans"
-],
-[
-"mecanismos de análise",
-"engines"
-],
-[
-"bytes que o app para desktop envia à internet por padrão",
-"zero"
-],
-[
-"idiomas, incluindo os da direita para a esquerda",
-"langs"
-]
 ],
 "lPrivTitle": "Seus arquivos continuam seus",
 "privs": [
@@ -565,8 +549,6 @@ I18N["pt"] = {
 "ghMove": "Mova o cursor para abrir o campo",
 "ghHold": "Segure para atraí-lo",
 "ghRelease": "Solte para dispersar",
-"soundOn": "Lo-fi ligado",
-"soundOff": "Lo-fi desligado",
 "lPhone": "Baixe o app",
 "apkTitle": "Baixar para Android",
 "apkSigned": "Assinado pelo CyberScan",

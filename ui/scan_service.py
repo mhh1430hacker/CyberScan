@@ -4,6 +4,7 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import math
+import threading
 import time
 from collections.abc import Callable
 from pathlib import Path
@@ -11,6 +12,7 @@ from typing import Any
 
 from core.magic_bytes import naturally_compressed
 from config import DEFAULT_SETTINGS
+from core import status_text
 from core.deep_embedding import HighDimensionalEmbedding
 from core.global_intelligence import GlobalIntelligenceEngine
 from core.models import Finding, ScanResult
@@ -19,6 +21,8 @@ from core.risk_engine import finalize_result
 from core.scanner import scan_target
 
 ProgressCallback = Callable[[int, str, str], None]
+# The longest the optional online lookups may hold up a scan (each source has its own shorter timeout).
+OSINT_BUDGET_SECONDS = 5.0
 
 
 def looks_like_text(data: bytes) -> bool:
@@ -102,8 +106,60 @@ def _disabled_intelligence() -> dict[str, Any]:
     }
 
 
+class StageText(str):
+    """One progress line: the English words (what string-only callers such as the desktop app show)
+    plus ``i18n`` = ``{"code", "en", "ar", ...}`` from ``core.status_text`` for interfaces that
+    show it in the reader's language. Behaves exactly like ``str`` everywhere else."""
+
+    i18n: dict[str, Any]
+
+    def __new__(cls, words: dict[str, Any]) -> "StageText":
+        text = super().__new__(cls, str(words.get("en", "")))
+        text.i18n = dict(words)
+        return text
+
+    def __reduce__(self):  # pickles (the desktop app sends progress between processes)
+        return (StageText, (self.i18n,))
+
+
+def _empty_entropy() -> dict[str, Any]:
+    return {
+        "trajectory": [],
+        "window_offsets": [],
+        "gradients": [],
+        "mean_entropy": 0.0,
+        "peak_entropy": 0.0,
+        "gradient_variance": 0.0,
+        "anomalies": [],
+        "window_size": 0,
+        "step_size": 0,
+    }
+
+
+def _osint_indicator(candidate: str, is_url: bool, is_file: bool, raw_data: bytes) -> str | None:
+    """What the public feeds can look up: a file's SHA-256, a link, or a single hash / address /
+    domain typed as text. Free text names nothing to look up (no "invalid_indicator" query)."""
+    if is_file:
+        return hashlib.sha256(raw_data).hexdigest()
+    value = candidate.strip()
+    if is_url:
+        return value
+    return value if GlobalIntelligenceEngine._infer_indicator_type(value) else None  # noqa: SLF001
+
+
+def _not_applicable_intelligence() -> dict[str, Any]:
+    return {**_disabled_intelligence(), "status": "not_applicable",
+            "feeds": {name: {**feed, "status": "not_applicable"} for name, feed in _disabled_intelligence()["feeds"].items()}}
+
+
 class ScanService:
-    """Runs the existing static-analysis pipeline without coupling it to a UI."""
+    """Runs the existing static-analysis pipeline without coupling it to a UI.
+
+    Time limit: ``analysis_timeout`` bounds the whole pipeline, but running out of time is not an
+    error. Whatever finished is returned; stages that didn't start are reported ``skipped``; and
+    ``feature_summary["analysis_incomplete"]`` lists what is missing (stable codes plus English and
+    Arabic words). Only a static stage that didn't finish leaves the verdict UNKNOWN; evidence
+    that was found (50+) stands either way."""
 
     def __init__(self) -> None:
         self.embedding = HighDimensionalEmbedding()
@@ -120,12 +176,15 @@ class ScanService:
         timeout = float(settings.get("analysis_timeout", DEFAULT_SETTINGS["analysis_timeout"]))
         if not math.isfinite(timeout) or timeout <= 0:
             raise ValueError("analysis_timeout must be a finite positive number.")
+        incomplete: list[dict[str, Any]] = []
 
-        def check_deadline() -> None:
-            if time.monotonic() - started_at > timeout:
-                raise TimeoutError(
-                    f"Analysis exceeded the configured {timeout:g}-second deadline."
-                )
+        def expired() -> bool:
+            return time.monotonic() - started_at > timeout
+
+        def skip(index: int, code: str) -> None:
+            words = status_text.stage_skipped(index)
+            report(index, "skipped", StageText(words))
+            incomplete.append({**words, "code": code, "stage": index})
 
         # Say so instead of guessing: a missing file is not text, and empty input is nothing to check.
         if input_mode == "File" and not Path(candidate).is_file():
@@ -135,7 +194,8 @@ class ScanService:
         is_url = input_mode == "URL"
         path = Path(candidate) if not is_url else None
         is_file = input_mode == "File" and bool(path and path.is_file())
-        report(0, "running", "Reading the target and collecting static evidence")
+        report(0, "running", StageText(status_text.stage_running(0)))
+        static_complete = True
         if is_file:
             assert path is not None
             file_size = path.stat().st_size
@@ -150,9 +210,20 @@ class ScanService:
                 raise ValueError(
                     f"File grew beyond the configured limit of {maximum} bytes during reading"
                 )
-            scan_result = scan_target(
-                str(path), is_file=True, settings=settings, file_data=raw_data
-            )
+            try:
+                scan_result = scan_target(
+                    str(path), is_file=True, settings=settings, file_data=raw_data
+                )
+            except TimeoutError:
+                # The file analysis ran out of time: keep going with what can be said for sure.
+                static_complete = False
+                scan_result = ScanResult(
+                    target=str(path), heuristic_score=0, ml_risk_score=None, combined_score=0,
+                    classification="UNKNOWN", evidence=[],
+                    feature_summary={"sha256": hashlib.sha256(raw_data).hexdigest(), "file_size": len(raw_data)},
+                    summary="The static file analysis didn't finish within the time limit.",
+                    engine_status={"Static analysis": "timeout: didn't finish within the time limit"},
+                )
             filename = path.name
         elif is_url:
             raw_data = candidate.encode("utf-8")
@@ -162,38 +233,35 @@ class ScanService:
             raw_data = candidate.encode("utf-8", errors="replace")
             scan_result = scan_target(candidate, is_file=False, settings=settings)
             filename = "text-indicator.txt"
-        check_deadline()
-        report(0, "complete", f"Static findings collected · {len(raw_data):,} bytes")
-
-        report(1, "running", "Measuring byte entropy and structural transitions")
-        if is_file and settings.get("entropy_analysis", True):
-            entropy = scan_result.feature_summary.get("entropy_topography")
+        if static_complete:
+            report(0, "complete", StageText(status_text.stage_static_done(input_mode, len(raw_data) if is_file else len(candidate))))
         else:
-            entropy = None
-        if entropy is None:
-            entropy = (
-                NextGenCyberEngine.analyze_entropy_topography(raw_data)
-                if settings.get("entropy_analysis", True)
-                else {
-                    "trajectory": [],
-                    "window_offsets": [],
-                    "gradients": [],
-                    "mean_entropy": 0.0,
-                    "peak_entropy": 0.0,
-                    "gradient_variance": 0.0,
-                    "anomalies": [],
-                    "window_size": 0,
-                    "step_size": 0,
-                }
-            )
-        check_deadline()
+            words = status_text.text("stage.static.timeout", "The file analysis didn't finish within the time limit",
+                                     "لم يكتمل تحليل الملف ضمن الحد الزمني", "partial")
+            report(0, "partial", StageText(words))
+            incomplete.append({**words, "stage": 0, "critical": True})
+
+        entropy: dict[str, Any] | None = None
+        if expired():
+            skip(1, "entropy.skipped_time_limit")
+        else:
+            report(1, "running", StageText(status_text.stage_running(1)))
+            if is_file and settings.get("entropy_analysis", True):
+                entropy = scan_result.feature_summary.get("entropy_topography")
+            if entropy is None:
+                entropy = (
+                    NextGenCyberEngine.analyze_entropy_topography(raw_data)
+                    if settings.get("entropy_analysis", True)
+                    else None
+                )
+        entropy = entropy or _empty_entropy()
         text_input = looks_like_text(raw_data)
         # Instruction patterns mean something only in a program; read as x86, a picture or a
         # PDF yields nonsense "patterns" (false warnings) and can take tens of seconds.
         program = raw_data[:2] == b"MZ" or raw_data[:4] == b"\x7fELF"
         cfg = (
             NextGenCyberEngine.extract_cfg_topology(raw_data)
-            if program and not text_input
+            if program and not text_input and not expired()
             else text_cfg_summary("text" if text_input else "non-program")
         )
         score = score_artifacts(entropy, cfg)
@@ -211,15 +279,10 @@ class ScanService:
             "heuristic_weight": float(settings.get("heuristic_weight", 1.0)),
             "ml_weight": float(settings.get("ml_weight", 0.0)),
         }
-        report(1, "complete", f"Entropy and structure measured · {len(entropy['trajectory']):,} windows")
+        if not any(item.get("stage") == 1 for item in incomplete):
+            report(1, "complete", StageText(status_text.stage_entropy_done(
+                len(entropy["trajectory"]), bool(settings.get("entropy_analysis", True)))))
 
-        report(2, "running", "Projecting observed structure into the 4096-D feature space")
-        vector = scan_result.structural_embedding or self.embedding.embed_bytes(
-            raw_data,
-            entropy_topography=entropy,
-            cfg_topology=cfg,
-            pe_features=scan_result.pe_analysis,
-        )
         prediction = scan_result.structural_prediction or {
             "status": "untrained",
             "label": None,
@@ -228,31 +291,69 @@ class ScanService:
             "scores_are_calibrated": False,
             "repair_review_candidate": None,
         }
-        check_deadline()
-        report(
-            2,
-            "complete",
-            f"4096 coordinates ready · classifier {prediction.get('status', 'untrained')}",
-        )
-
-        report(3, "running", "Cross-checking optional public intelligence feeds")
-        if settings.get("osint_enabled", False):
-            indicator = (
-                candidate
-                if is_url or not is_file
-                else hashlib.sha256(raw_data).hexdigest()
-            )
-            intelligence = asyncio.run(
-                GlobalIntelligenceEngine().query_indicator(indicator)
-            )
+        if expired():
+            skip(2, "structure.skipped_time_limit")
+            vector = scan_result.structural_embedding or tuple()
         else:
+            report(2, "running", StageText(status_text.stage_running(2)))
+            vector = scan_result.structural_embedding or self.embedding.embed_bytes(
+                raw_data,
+                entropy_topography=entropy,
+                cfg_topology=cfg,
+                pe_features=scan_result.pe_analysis,
+            )
+            report(2, "complete", StageText(status_text.stage_structure_done(prediction)))
+
+        known: dict[str, Any] | None = None
+        if not settings.get("osint_enabled", False):
             intelligence = _disabled_intelligence()
-        check_deadline()
-        report(
-            3,
-            "complete",
-            f"Public lookups {intelligence['status']} · no file contents are submitted",
-        )
+            report(3, "complete", StageText(status_text.osint_text("disabled")))
+        elif expired():
+            intelligence = {**_disabled_intelligence(), "status": "skipped"}
+            skip(3, "osint.skipped_time_limit")
+        else:
+            report(3, "running", StageText(status_text.stage_running(3)))
+            indicator = _osint_indicator(candidate, is_url, is_file, raw_data)
+            hash_lookup: dict[str, Any] = {}
+            worker = None
+            if is_file and raw_data:
+                # Known-file sources by hash only (CIRCL needs no key; MalwareBazaar / VirusTotal use
+                # saved keys), asked at the same time as the public feeds rather than after them.
+                from core import hash_intel  # noqa: PLC0415
+
+                def lookup() -> None:
+                    try:
+                        hash_lookup["value"] = hash_intel.assess(
+                            hashlib.sha256(raw_data).hexdigest(), hashlib.md5(raw_data).hexdigest(), online=True)  # noqa: S324
+                    except Exception:  # noqa: BLE001 - an unreachable source is a status, not a failure
+                        hash_lookup["value"] = None
+
+                worker = threading.Thread(target=lookup, name="cyberscan-hash-lookup", daemon=True)
+                worker.start()
+            # Both lookups run at once under one budget; a source that hasn't answered by then is
+            # reported as "didn't answer in time" and the scan carries on without it.
+            budget_end = time.monotonic() + max(1.0, min(OSINT_BUDGET_SECONDS, timeout - (time.monotonic() - started_at)))
+            feeds: dict[str, Any] = {}
+
+            def query() -> None:
+                try:
+                    feeds["value"] = asyncio.run(GlobalIntelligenceEngine().query_indicator(indicator))
+                except Exception:  # noqa: BLE001 - unreachable feeds are a status
+                    feeds["value"] = {**_disabled_intelligence(), "status": "unavailable"}
+
+            if indicator:
+                feeder = threading.Thread(target=query, name="cyberscan-osint", daemon=True)
+                feeder.start()
+                feeder.join(timeout=max(0.0, budget_end - time.monotonic()))
+                intelligence = feeds.get("value") or {**_disabled_intelligence(), "status": "partial_timeout"}
+            else:
+                intelligence = _not_applicable_intelligence()
+            if worker is not None:
+                worker.join(timeout=max(0.0, budget_end - time.monotonic()))
+                known = hash_lookup.get("value")
+                if known is None and worker.is_alive() and intelligence.get("status") not in {"matched", "partial_timeout"}:
+                    intelligence = {**intelligence, "status": "partial_timeout"}
+            report(3, "complete", StageText(status_text.osint_text(intelligence.get("status"), file_mode=is_file)))
 
         scan_result.osint_summary = intelligence
         quiet = naturally_compressed(raw_data[:16]) or str(scan_result.feature_summary.get("authenticode", "")).startswith("valid")
@@ -283,6 +384,15 @@ class ScanService:
                     15,
                 )
             )
+        if known is not None:
+            intelligence = {**intelligence, "hash_sources": known["sources"]}
+            labels = {item.evidence for item in scan_result.evidence}
+            for item in known["findings"]:
+                if item["label"] not in labels:
+                    scan_result.evidence.append(Finding("intel", item["severity"], item["label"], item["explanation"], item["contribution"]))
+            if any(item["severity"] == "critical" for item in known["findings"]):
+                intelligence["status"] = "matched"
+            scan_result.osint_summary = intelligence
         if intelligence.get("status") == "matched":
             scan_result.evidence.append(
                 Finding(
@@ -299,5 +409,9 @@ class ScanService:
             ml_weight=nextgen["ml_weight"],
         )
         scan_result.engine_status["OSINT"] = str(intelligence.get("status", "unknown"))
+        if incomplete:
+            scan_result.feature_summary["analysis_incomplete"] = incomplete
+            if not static_complete and scan_result.classification not in {"SUSPICIOUS", "KNOWN_MALWARE"}:
+                scan_result.classification = "UNKNOWN"  # what wasn't read can't be called clean
         scan_result.nextgen_analysis = nextgen
         return scan_result, nextgen, vector, prediction, intelligence, raw_data

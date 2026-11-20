@@ -10,9 +10,18 @@
   <meta name="theme-color" content="#050912">
   <meta name="description" content="Static analysis of files, links and text, explained in plain words. Nothing you check is ever run.">
   <title>CyberScan</title>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="CyberScan">
+  <meta property="og:title" content="CyberScan">
+  <meta property="og:description" content="Static analysis of files, links and text, explained in plain words. Nothing you check is ever run.">
+  <meta property="og:image" content="og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="icon" href="favicon.ico" sizes="32x32">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="landing.css">
   <link rel="stylesheet" href="fx.css">
@@ -21,13 +30,32 @@
   <link rel="stylesheet" href="scroll.css">
   <link rel="stylesheet" href="science.css">
   <link rel="stylesheet" href="scrolly.css">
+  <link rel="stylesheet" href="saudi.css">
+  <link rel="stylesheet" href="cinema.css">
+  <link rel="stylesheet" href="team.css">
+  <link rel="stylesheet" href="performance.css">
+  <link rel="stylesheet" href="toolbox.css">
   <link rel="stylesheet" href="cyber.css">
   <link rel="stylesheet" href="theme.css">
   <link rel="stylesheet" href="ask.css">
   <link rel="stylesheet" href="get-app.css">
+  <link rel="stylesheet" href="hero-art.css">
+  <link rel="stylesheet" href="polish.css">
+  <link rel="stylesheet" href="fabric.css">
+  <link rel="stylesheet" href="lang-gate.css">
   <link rel="stylesheet" href="a11y.css">
+  <link rel="stylesheet" href="site-shell.css">
   <script src="js/a11y-early.js"></script>
-  <script src="js/perf.js"></script>
+  <script src="js/nav-early.js"></script>
+  <script src="js/intro-early.js"></script>
+  <link rel="stylesheet" href="intro.css">
+  <!-- Adaptive Performance Engine: before every module, so they all start at the right level -->
+  <script src="js/performance/capabilityDetector.js"></script>
+  <script src="js/performance/performanceMonitor.js"></script>
+  <script src="js/performance/performanceScorer.js"></script>
+  <script src="js/performance/animationProfiles.js"></script>
+  <script src="js/performance/performanceSettings.js"></script>
+  <script src="js/performance/adaptiveController.js"></script>
 </head>
 <body class="on-landing">
   <a class="skip-link" href="#top" data-i18n="skipLink">Skip to content</a>
@@ -37,8 +65,6 @@
   <div class="glow-cursor" aria-hidden="true"></div>
   <div class="grain" aria-hidden="true"></div>
   <div class="warp-veil" aria-hidden="true"></div>
-  <div class="cursor-ring" aria-hidden="true"><span></span></div>
-  <div class="cursor-dot" aria-hidden="true"></div>
 
   <div id="lang-gate" class="lang-gate" hidden role="dialog" aria-modal="true" aria-labelledby="lg-title">
     <div class="lg-box">
@@ -53,31 +79,36 @@
     </div>
   </div>
 
-  <div id="preloader" class="preloader" aria-hidden="true">
-    <div class="pl-panel top"></div><div class="pl-panel bottom"></div>
-    <div class="pl-core">
-      <svg class="pl-logo" viewBox="0 0 64 64">
-        <path class="pl-hex" d="M32 4 56 18v28L32 60 8 46V18z"/>
-        <path class="pl-shield" d="M32 14 20 19v8c0 7.5 5.1 13.4 12 15 6.9-1.6 12-7.5 12-15v-8z"/>
-        <path class="pl-tick" d="m26.5 28.5 3.8 3.8 7.4-8"/>
-      </svg>
-      <div class="pl-word">CyberScan</div>
-      <div class="pl-bar"><i></i></div>
-      <div class="pl-num">0</div>
+  <div id="preloader" class="boot" aria-hidden="true">
+    <div class="boot-grid"></div>
+    <div class="boot-scan"></div>
+    <div class="boot-core">
+      <div class="boot-mark">
+        <svg class="boot-orbit" viewBox="0 0 200 200"><circle class="o1" cx="100" cy="100" r="94"/><circle class="o2" cx="100" cy="100" r="80"/><g class="o3"><circle cx="100" cy="6" r="2.6"/><circle cx="194" cy="100" r="1.8"/><circle cx="18" cy="140" r="2.2"/></g></svg>
+        <svg class="boot-logo" viewBox="0 0 64 64">
+          <path class="b-hex" pathLength="1" d="M32 4 56 18v28L32 60 8 46V18z"/>
+          <path class="b-shield" pathLength="1" d="M32 14 20 19v8c0 7.5 5.1 13.4 12 15 6.9-1.6 12-7.5 12-15v-8z"/>
+          <path class="b-tick" pathLength="1" d="m26.5 28.5 3.8 3.8 7.4-8"/>
+        </svg>
+      </div>
+      <p class="boot-word"><span>C</span><span>y</span><span>b</span><span>e</span><span>r</span><span>S</span><span>c</span><span>a</span><span>n</span></p>
+      <p class="boot-tag" data-i18n="syT6">See beyond the surface.</p>
+      <div class="boot-meta"><span class="boot-bar"><i></i></span><span class="boot-pct">000</span></div>
     </div>
+    <div class="boot-flash"></div>
   </div>
 
   <div class="scroll-progress" aria-hidden="true"><i></i></div>
-  <nav class="side-dots" aria-label="Sections">
-    <a href="#top" data-sec="top"><span data-i18n="dTop">Start</span></a>
-    <a href="#film" data-sec="film"><span data-i18n="lVideo">Video</span></a>
-    <a href="#manifesto" data-sec="manifesto"><span data-i18n="mfKicker">Why</span></a>
-    <a href="#how" data-sec="how"><span data-i18n="lHow">How it works</span></a>
-    <a href="#story" data-sec="story"><span data-i18n="dStory">One scan</span></a>
-    <a href="#science" data-sec="science"><span data-i18n="dSci">Science</span></a>
-    <a href="#features" data-sec="features"><span data-i18n="lFeatures">Features</span></a>
-    <a href="#repair-sec" data-sec="repair-sec"><span data-i18n="lRepair">Repair</span></a>
-    <a href="#privacy" data-sec="privacy"><span data-i18n="lPrivacy">Privacy</span></a>
+  <nav class="side-dots" aria-hidden="true">
+    <a tabindex="-1" href="#top" data-sec="top"><span data-i18n="dTop">Start</span></a>
+    <a tabindex="-1" href="#film" data-sec="film"><span data-i18n="lVideo">Video</span></a>
+    <a tabindex="-1" href="#manifesto" data-sec="manifesto"><span data-i18n="mfKicker">Why</span></a>
+    <a tabindex="-1" href="#how" data-sec="how"><span data-i18n="lHow">How it works</span></a>
+    <a tabindex="-1" href="#science" data-sec="science"><span data-i18n="dSci">Science</span></a>
+    <a tabindex="-1" href="#features" data-sec="features"><span data-i18n="lFeatures">Features</span></a>
+    <a tabindex="-1" href="#repair-sec" data-sec="repair-sec"><span data-i18n="lRepair">Repair</span></a>
+    <a tabindex="-1" href="#privacy" data-sec="privacy"><span data-i18n="lPrivacy">Privacy</span></a>
+    <a tabindex="-1" href="#team" data-sec="team"><span data-i18n="tmNav">Team</span></a>
   </nav>
 
   <!-- ===================================================== LANDING -->
@@ -94,8 +125,9 @@
         <a href="#features" data-i18n="lFeatures">Features</a>
         <a href="#repair-sec" data-i18n="lRepair">Repair</a>
         <a href="#privacy" data-i18n="lPrivacy">Privacy</a>
+        <a href="#team" data-i18n="tmNav">Team</a>
         <div class="get-app">
-          <button class="get-app-btn" type="button" aria-expanded="false" aria-controls="get-app-panel">
+          <button class="get-app-btn" type="button" aria-expanded="false" aria-controls="get-app-panel" aria-label="Get the app" data-i18n-aria="lPhone">
             <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M12 7v7m-3-3 3 3 3-3M10 18.5h4"/></svg>
             <span data-i18n="lPhone">Get the app</span>
           </button>
@@ -123,31 +155,80 @@
                 <em data-i18n="soon">Coming soon</em>
               </div>
             </div>
+            <a class="apk-card win-card" id="win-link" href="downloads/CyberScan-Setup-2.0.0.exe" download>
+              <svg class="apk-ico win-ico" viewBox="0 0 48 48" aria-hidden="true"><path d="M7 11.5 21 9.6V23H7zM24 9.2 41 7v16H24zM7 26h14v13.4L7 37.5zM24 26h17v16l-17-2.3z"/></svg>
+              <span class="apk-text"><b data-i18n="winTitle">Download for Windows</b><small id="win-meta">Setup · Windows 10/11 · 64-bit</small></span>
+              <svg class="apk-dl" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m-5-5 5 5 5-5M5 20h14"/></svg>
+            </a>
+            <p class="apk-sign"><span data-i18n="winSetup">Desktop app with real-time protection</span> · <code id="win-sha" title="SHA-256 of the installer"></code></p>
+            <p class="apk-hint" data-i18n="winHint">If Windows SmartScreen appears, choose "More info", then "Run anyway".</p>
+            <div class="stores">
+              <div class="store soon" aria-disabled="true">
+                <span class="badge-store">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6.5V5a4 4 0 0 1 8 0v1.5h4.2l-.9 14.1a1.5 1.5 0 0 1-1.5 1.4H6.2a1.5 1.5 0 0 1-1.5-1.4L3.8 6.5zm1.6 0h4.8V5a2.4 2.4 0 0 0-4.8 0z"/><path fill="#1b1d24" d="M8 10h3.6v3.6H8zm4.4 0H16v3.6h-3.6zM8 14.4h3.6V18H8zm4.4 0H16V18h-3.6z"/></svg>
+                  <span><small data-i18n="storeGetFrom">Get it from</small><b>Microsoft Store</b></span>
+                </span>
+                <em data-i18n="soon">Coming soon</em>
+              </div>
+              <div class="store soon" aria-disabled="true">
+                <span class="badge-store">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5a10.5 10.5 0 1 1 0 21 10.5 10.5 0 0 1 0-21z"/><path fill="#1b1d24" d="M8.6 5.6 5.4 9h2.2v5h2v-5h2.2zM15.4 18.4l3.2-3.4h-2.2v-5h-2v5h-2.2z"/></svg>
+                  <span><small data-i18n="storeAvailOn">Available on</small><b>Uptodown</b></span>
+                </span>
+                <em data-i18n="soon">Coming soon</em>
+              </div>
+            </div>
           </div>
         </div>
       </nav>
       <div class="l-actions">
-        <button class="ghost sound-btn" type="button" aria-pressed="false" aria-label="Sound">
-          <span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="sound-label" data-i18n="soundOff">Lo-fi off</span>
+        <button class="ghost tour-btn" id="tour-start" type="button" aria-describedby="tour-hint" aria-label="Guided journey" data-i18n-aria="tourStart" title=""><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z"/><path d="m15.5 8.5-2.2 4.8-4.8 2.2 2.2-4.8z"/></svg><span data-i18n="tourStart">Take the guided journey</span></button>
+        <span class="tour-hint" id="tour-hint" hidden data-i18n="tourHint">An automatic tour of the whole page. Scroll or press any key to take back control.</span>
+        <button class="ghost sfx-btn" type="button" aria-pressed="true" aria-label="Sound effects on"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path class="w1" d="M15.5 9a4.2 4.2 0 0 1 0 6"/><path class="w2" d="M18.2 6.5a8 8 0 0 1 0 11"/><path class="x" d="m16 9.5 5 5m0-5-5 5"/></svg></button>
+        <button class="ghost sound-btn" type="button" aria-pressed="false">
+          <span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="sound-label" data-i18n="soundOff">Calm off</span>
         </button>
         <button class="ghost lang-btn" type="button" aria-haspopup="dialog">English</button>
         <button class="primary small enter magnetic" type="button" data-i18n="lOpen">Open the app</button>
+        <button class="ghost l-menu-btn" id="l-menu-btn" type="button" aria-expanded="false" aria-controls="l-sheet" aria-label="Menu" data-i18n-aria="menuOpen"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="m1" d="M4 7h16"/><path class="m2" d="M4 12h16"/><path class="m3" d="M4 17h16"/></svg></button>
+      </div>
+      <div class="l-sheet" id="l-sheet" hidden>
+        <nav class="l-sheet-links" aria-label="Sections" data-i18n-aria="menuNav">
+          <a href="#film" data-i18n="lVideo">Video</a>
+          <a href="#how" data-i18n="lHow">How it works</a>
+          <a href="#science" data-i18n="dSci">Science</a>
+          <a href="#features" data-i18n="lFeatures">Features</a>
+          <a href="#repair-sec" data-i18n="lRepair">Repair</a>
+          <a href="#privacy" data-i18n="lPrivacy">Privacy</a>
+          <a href="#team" data-i18n="tmNav">Team</a>
+        </nav>
+        <div class="l-sheet-row">
+          <button class="ghost lang-btn" type="button" aria-haspopup="dialog">English</button>
+          <button class="ghost sound-btn" type="button" aria-pressed="false"><span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="sound-label" data-i18n="soundOff">Calm off</span></button>
+          <button class="ghost sfx-btn sfx-wide" type="button" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path class="w1" d="M15.5 9a4.2 4.2 0 0 1 0 6"/><path class="w2" d="M18.2 6.5a8 8 0 0 1 0 11"/><path class="x" d="m16 9.5 5 5m0-5-5 5"/></svg><span data-i18n="menuSfx">Sound effects</span></button>
+        </div>
+        <div class="l-sheet-row">
+          <button class="ghost l-sheet-tour" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z"/><path d="m15.5 8.5-2.2 4.8-4.8 2.2 2.2-4.8z"/></svg><span data-i18n="tourStart">Take the guided journey</span></button>
+          <a class="ghost l-sheet-apk" href="downloads/CyberScan-1.0.0.apk" download><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M12 7v7m-3-3 3 3 3-3M10 18.5h4"/></svg><span data-i18n="apkTitle">Download for Android</span></a>
+        </div>
       </div>
     </header>
 
+    <main id="main" class="l-main">
     <section class="hero" id="top" data-shape="shield" data-shape-x="0.42" data-tint="#07040f">
-      <div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+      <div class="aurora" aria-hidden="true" data-depth="1"><i></i><i></i><i></i></div>
       <div class="hero-copy">
-        <span class="eyebrow" data-reveal><i class="dot"></i><span data-i18n="lEyebrow" data-scramble>Static analysis</span></span>
-        <h1 class="hero-title">
-          <span class="line"><span class="word-wrap" data-i18n="lTitle1">See inside any file</span></span>
-          <span class="line"><span class="word-wrap grad" data-i18n="lTitle2">before it sees inside</span></span>
-          <span class="line"><span class="word-wrap" data-i18n="lTitle3">your computer.</span></span>
+        <span class="eyebrow" data-reveal><i class="dot"></i><span data-i18n="lEyebrow" data-scramble>Static analysis · nothing you check is ever run</span></span>
+        <h1 class="hero-title type-title" aria-label="Inspect every file, link, email, attachment and download before you open it.">
+          <span class="line t-lead" data-i18n="lTypeLead">Inspect every</span>
+          <span class="line t-typed" aria-hidden="true"><span class="t-prompt">›</span><span class="t-word">file</span><span class="t-caret"></span></span>
+          <span class="line t-tail" data-i18n="lTypeTail">before you open it.</span>
         </h1>
-        <p class="hero-sub" data-reveal data-i18n="lSub"></p>
+        <p class="hero-sub" data-i18n="lSub">CyberScan inspects files, links and text without ever running them. It checks each one against thousands of open threat rules and more than 1.5 million known-malware fingerprints, explains every finding in plain language, and repairs a verified copy when something doesn't belong.</p>
         <div class="hero-ctas" data-reveal>
           <button class="primary big enter magnetic" type="button"><span data-i18n="lStart">Start scanning</span>
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></button>
+          <a class="ghost big fj-cta" href="/journey"><span class="fj-cta-ring" aria-hidden="true"></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.5h7l4 4v13H7z"/><path d="M14 3.5v4h4"/><circle cx="12.5" cy="14" r="2.6"/><path d="m14.4 15.9 2.1 2.1"/></svg><span data-i18n="lJourney">The file journey</span></a>
           <a class="ghost big" href="#how" data-i18n="lWatch">See how it works</a>
         </div>
       </div>
@@ -166,37 +247,93 @@
             <div class="sc-verdict"><span class="badge bad">!</span><b data-i18n="lCardVerdict">This looks suspicious</b></div>
           </div>
           <ul class="sc-list">
-            <li data-i18n="lCardF1"></li>
-            <li data-i18n="lCardF2"></li>
-            <li data-i18n="lCardF3"></li>
+            <li data-i18n="lCardF1">Named like a document, really a program</li>
+            <li data-i18n="lCardF2">Data hidden after the end of the file</li>
+            <li data-i18n="lCardF3">Encoded PowerShell command</li>
           </ul>
           <div class="sc-beam" aria-hidden="true"></div>
         </div>
-        <div class="orbit o1" aria-hidden="true"></div>
-        <div class="orbit o2" aria-hidden="true"></div>
+        <div class="orbit o1" aria-hidden="true" data-depth="0.7"></div>
+        <div class="orbit o2" aria-hidden="true" data-depth="0.45"></div>
       </div>
       <a href="#how" class="scroll-cue" aria-hidden="true" tabindex="-1"><span></span></a>
     </section>
 
-    <section id="film" class="l-section film-sec" data-shape="ring" data-shape-fade="0.18" data-tint="#090620">
-      <span class="sec-tag" data-i18n="filmTag">// 01 · Watch</span>
-      <h2 class="l-h2 center" data-i18n="filmTitle"></h2>
-      <p class="l-sub center" data-reveal data-i18n="filmSub"></p>
-      <div class="film" id="film-player" data-reveal>
-        <div class="film-frame">
-          <canvas id="film-canvas" width="1280" height="720" role="img" aria-label="CyberScan explainer video" data-i18n-aria="ariaFilm"></canvas>
-          <button class="film-big" id="film-big" type="button" aria-label="Play" data-i18n-aria="ariaPlay"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+    <!-- ============ MADE BY SAUDI HANDS (saudi.css, js/saudi.js) ============ -->
+    <section id="saudi" class="ks" data-shape="ring" data-shape-fade="0.1" data-tint="#03130d" aria-labelledby="ks-title">
+      <div class="ks-stage">
+        <canvas class="ks-dust" aria-hidden="true"></canvas>
+        <div class="ks-beams" aria-hidden="true"><i></i><i></i><i></i></div>
+        <div class="ks-bg" aria-hidden="true" data-depth="1">
+          <div class="ks-rays"></div>
+          <svg class="ks-pattern" viewBox="-500 -500 1000 1000"><path class="ks-p ks-c" pathLength="1" d="M106.1 -106.1 L106.1 106.1 L-106.1 106.1 L-106.1 -106.1 Z"/><path class="ks-p ks-c" pathLength="1" d="M150.0 0.0 L0.0 150.0 L-150.0 0.0 L-0.0 -150.0 Z"/><path class="ks-p ks-c2" pathLength="1" d="M0.0 -112.0 L32.6 -78.6 L79.2 -79.2 L78.6 -32.6 L112.0 0.0 L78.6 32.6 L79.2 79.2 L32.6 78.6 L0.0 112.0 L-32.6 78.6 L-79.2 79.2 L-78.6 32.6 L-112.0 0.0 L-78.6 -32.6 L-79.2 -79.2 L-32.6 -78.6 Z"/><circle class="ks-p ks-c3" pathLength="1" r="186"/><path class="ks-p ks-r1" pathLength="1" data-i="0" d="M0.0 -322.0 L15.1 -306.5 L36.8 -306.8 L36.5 -285.1 L52.0 -270.0 L36.5 -254.9 L36.8 -233.2 L15.1 -233.5 L0.0 -218.0 L-15.1 -233.5 L-36.8 -233.2 L-36.5 -254.9 L-52.0 -270.0 L-36.5 -285.1 L-36.8 -306.8 L-15.1 -306.5 Z"/><path class="ks-p ks-r1" pathLength="1" data-i="1" d="M190.9 -242.9 L206.0 -227.4 L227.7 -227.7 L227.4 -206.0 L242.9 -190.9 L227.4 -175.8 L227.7 -154.1 L206.0 -154.4 L190.9 -138.9 L175.8 -154.4 L154.1 -154.1 L154.4 -175.8 L138.9 -190.9 L154.4 -206.0 L154.1 -227.7 L175.8 -227.4 Z"/><path class="ks-p ks-r1" pathLength="1" data-i="2" d="M270.0 -52.0 L285.1 -36.5 L306.8 -36.8 L306.5 -15.1 L322.0 0.0 L306.5 15.1 L306.8 36.8 L285.1 36.5 L270.0 52.0 L254.9 36.5 L233.2 36.8 L233.5 15.1 L218.0 0.0 L233.5 -15.1 L233.2 -36.8 L254.9 -36.5 Z"/><path class="ks-p ks-r1" pathLength="1" data-i="3" d="M190.9 138.9 L206.0 154.4 L227.7 154.1 L227.4 175.8 L242.9 190.9 L227.4 206.0 L227.7 227.7 L206.0 227.4 L190.9 242.9 L175.8 227.4 L154.1 227.7 L154.4 206.0 L138.9 190.9 L154.4 175.8 L154.1 154.1 L175.8 154.4 Z"/><path class="ks-p ks-r1" pathLength="1" data-i="4" d="M0.0 218.0 L15.1 233.5 L36.8 233.2 L36.5 254.9 L52.0 270.0 L36.5 285.1 L36.8 306.8 L15.1 306.5 L0.0 322.0 L-15.1 306.5 L-36.8 306.8 L-36.5 285.1 L-52.0 270.0 L-36.5 254.9 L-36.8 233.2 L-15.1 233.5 Z"/><path class="ks-p ks-r1" pathLength="1" data-i="5" d="M-190.9 138.9 L-175.8 154.4 L-154.1 154.1 L-154.4 175.8 L-138.9 190.9 L-154.4 206.0 L-154.1 227.7 L-175.8 227.4 L-190.9 242.9 L-206.0 227.4 L-227.7 227.7 L-227.4 206.0 L-242.9 190.9 L-227.4 175.8 L-227.7 154.1 L-206.0 154.4 Z"/><path class="ks-p ks-r1" pathLength="1" data-i="6" d="M-270.0 -52.0 L-254.9 -36.5 L-233.2 -36.8 L-233.5 -15.1 L-218.0 0.0 L-233.5 15.1 L-233.2 36.8 L-254.9 36.5 L-270.0 52.0 L-285.1 36.5 L-306.8 36.8 L-306.5 15.1 L-322.0 0.0 L-306.5 -15.1 L-306.8 -36.8 L-285.1 -36.5 Z"/><path class="ks-p ks-r1" pathLength="1" data-i="7" d="M-190.9 -242.9 L-175.8 -227.4 L-154.1 -227.7 L-154.4 -206.0 L-138.9 -190.9 L-154.4 -175.8 L-154.1 -154.1 L-175.8 -154.4 L-190.9 -138.9 L-206.0 -154.4 L-227.7 -154.1 L-227.4 -175.8 L-242.9 -190.9 L-227.4 -206.0 L-227.7 -227.7 L-206.0 -227.4 Z"/><path class="ks-p ks-band" pathLength="1" d="M0.0 -340.0 L114.8 -277.2 L240.4 -240.4 L277.2 -114.8 L340.0 0.0 L277.2 114.8 L240.4 240.4 L114.8 277.2 L0.0 340.0 L-114.8 277.2 L-240.4 240.4 L-277.2 114.8 L-340.0 0.0 L-277.2 -114.8 L-240.4 -240.4 L-114.8 -277.2 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="0" d="M81.9 -441.9 L90.7 -433.0 L103.2 -433.1 L103.0 -420.7 L111.9 -411.9 L103.0 -403.2 L103.2 -390.7 L90.7 -390.9 L81.9 -381.9 L73.2 -390.9 L60.7 -390.7 L60.9 -403.2 L51.9 -411.9 L60.9 -420.7 L60.7 -433.1 L73.2 -433.0 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="1" d="M233.3 -379.2 L242.1 -370.3 L254.6 -370.4 L254.4 -357.9 L263.3 -349.2 L254.4 -340.5 L254.6 -328.0 L242.1 -328.2 L233.3 -319.2 L224.6 -328.2 L212.1 -328.0 L212.3 -340.5 L203.3 -349.2 L212.3 -357.9 L212.1 -370.4 L224.6 -370.3 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="2" d="M349.2 -263.3 L357.9 -254.4 L370.4 -254.6 L370.3 -242.1 L379.2 -233.3 L370.3 -224.6 L370.4 -212.1 L357.9 -212.3 L349.2 -203.3 L340.5 -212.3 L328.0 -212.1 L328.2 -224.6 L319.2 -233.3 L328.2 -242.1 L328.0 -254.6 L340.5 -254.4 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="3" d="M411.9 -111.9 L420.7 -103.0 L433.1 -103.2 L433.0 -90.7 L441.9 -81.9 L433.0 -73.2 L433.1 -60.7 L420.7 -60.9 L411.9 -51.9 L403.2 -60.9 L390.7 -60.7 L390.9 -73.2 L381.9 -81.9 L390.9 -90.7 L390.7 -103.2 L403.2 -103.0 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="4" d="M411.9 51.9 L420.7 60.9 L433.1 60.7 L433.0 73.2 L441.9 81.9 L433.0 90.7 L433.1 103.2 L420.7 103.0 L411.9 111.9 L403.2 103.0 L390.7 103.2 L390.9 90.7 L381.9 81.9 L390.9 73.2 L390.7 60.7 L403.2 60.9 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="5" d="M349.2 203.3 L357.9 212.3 L370.4 212.1 L370.3 224.6 L379.2 233.3 L370.3 242.1 L370.4 254.6 L357.9 254.4 L349.2 263.3 L340.5 254.4 L328.0 254.6 L328.2 242.1 L319.2 233.3 L328.2 224.6 L328.0 212.1 L340.5 212.3 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="6" d="M233.3 319.2 L242.1 328.2 L254.6 328.0 L254.4 340.5 L263.3 349.2 L254.4 357.9 L254.6 370.4 L242.1 370.3 L233.3 379.2 L224.6 370.3 L212.1 370.4 L212.3 357.9 L203.3 349.2 L212.3 340.5 L212.1 328.0 L224.6 328.2 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="7" d="M81.9 381.9 L90.7 390.9 L103.2 390.7 L103.0 403.2 L111.9 411.9 L103.0 420.7 L103.2 433.1 L90.7 433.0 L81.9 441.9 L73.2 433.0 L60.7 433.1 L60.9 420.7 L51.9 411.9 L60.9 403.2 L60.7 390.7 L73.2 390.9 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="8" d="M-81.9 381.9 L-73.2 390.9 L-60.7 390.7 L-60.9 403.2 L-51.9 411.9 L-60.9 420.7 L-60.7 433.1 L-73.2 433.0 L-81.9 441.9 L-90.7 433.0 L-103.2 433.1 L-103.0 420.7 L-111.9 411.9 L-103.0 403.2 L-103.2 390.7 L-90.7 390.9 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="9" d="M-233.3 319.2 L-224.6 328.2 L-212.1 328.0 L-212.3 340.5 L-203.3 349.2 L-212.3 357.9 L-212.1 370.4 L-224.6 370.3 L-233.3 379.2 L-242.1 370.3 L-254.6 370.4 L-254.4 357.9 L-263.3 349.2 L-254.4 340.5 L-254.6 328.0 L-242.1 328.2 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="10" d="M-349.2 203.3 L-340.5 212.3 L-328.0 212.1 L-328.2 224.6 L-319.2 233.3 L-328.2 242.1 L-328.0 254.6 L-340.5 254.4 L-349.2 263.3 L-357.9 254.4 L-370.4 254.6 L-370.3 242.1 L-379.2 233.3 L-370.3 224.6 L-370.4 212.1 L-357.9 212.3 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="11" d="M-411.9 51.9 L-403.2 60.9 L-390.7 60.7 L-390.9 73.2 L-381.9 81.9 L-390.9 90.7 L-390.7 103.2 L-403.2 103.0 L-411.9 111.9 L-420.7 103.0 L-433.1 103.2 L-433.0 90.7 L-441.9 81.9 L-433.0 73.2 L-433.1 60.7 L-420.7 60.9 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="12" d="M-411.9 -111.9 L-403.2 -103.0 L-390.7 -103.2 L-390.9 -90.7 L-381.9 -81.9 L-390.9 -73.2 L-390.7 -60.7 L-403.2 -60.9 L-411.9 -51.9 L-420.7 -60.9 L-433.1 -60.7 L-433.0 -73.2 L-441.9 -81.9 L-433.0 -90.7 L-433.1 -103.2 L-420.7 -103.0 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="13" d="M-349.2 -263.3 L-340.5 -254.4 L-328.0 -254.6 L-328.2 -242.1 L-319.2 -233.3 L-328.2 -224.6 L-328.0 -212.1 L-340.5 -212.3 L-349.2 -203.3 L-357.9 -212.3 L-370.4 -212.1 L-370.3 -224.6 L-379.2 -233.3 L-370.3 -242.1 L-370.4 -254.6 L-357.9 -254.4 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="14" d="M-233.3 -379.2 L-224.6 -370.3 L-212.1 -370.4 L-212.3 -357.9 L-203.3 -349.2 L-212.3 -340.5 L-212.1 -328.0 L-224.6 -328.2 L-233.3 -319.2 L-242.1 -328.2 L-254.6 -328.0 L-254.4 -340.5 L-263.3 -349.2 L-254.4 -357.9 L-254.6 -370.4 L-242.1 -370.3 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="15" d="M-81.9 -441.9 L-73.2 -433.0 L-60.7 -433.1 L-60.9 -420.7 L-51.9 -411.9 L-60.9 -403.2 L-60.7 -390.7 L-73.2 -390.9 L-81.9 -381.9 L-90.7 -390.9 L-103.2 -390.7 L-103.0 -403.2 L-111.9 -411.9 L-103.0 -420.7 L-103.2 -433.1 L-90.7 -433.0 Z"/><circle class="ks-p ks-c4" pathLength="1" r="480"/></svg>
         </div>
-        <div class="film-bar">
-          <button class="film-btn" id="film-play" type="button" aria-label="Play" data-i18n-aria="ariaPlay"><svg viewBox="0 0 24 24" class="i-play"><path d="M8 5v14l11-7z"/></svg><svg viewBox="0 0 24 24" class="i-pause"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg></button>
-          <span class="film-time" id="film-time">0:00 / 1:26</span>
-          <div class="film-seek" id="film-seek" role="slider" tabindex="0" aria-label="Seek" data-i18n-aria="ariaSeek" aria-valuemin="0" aria-valuemax="86" aria-valuenow="0"><div class="film-chapters" id="film-chapters"></div><i id="film-fill"></i></div>
-          <button class="film-btn film-tog on" id="film-voice" type="button" data-i18n="filmVoice">Voice</button>
-          <button class="film-btn film-tog on" id="film-subs" type="button" data-i18n="filmSubs">Subtitles</button>
-          <button class="film-btn" id="film-export" type="button" data-i18n="filmExport">Export video</button>
-          <button class="film-btn" id="film-full" type="button" aria-label="Fullscreen" data-i18n-aria="ariaFull"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+        <div class="ks-glow" aria-hidden="true" data-depth="0.6"></div>
+        <div class="ks-frame" aria-hidden="true"><svg class="ks-corner c1" viewBox="0 0 140 140"><path class="ks-cp" pathLength="1" d="M3 96V22Q3 3 22 3H96"/><path class="ks-cp ks-cp2" pathLength="1" d="M17 66V30Q17 17 30 17H66"/><path class="ks-cd" d="M3 112l5 6-5 6-5-6zM112 3l6 5-6 5-6-5z"/><circle class="ks-cd" cx="30" cy="30" r="2.6"/></svg><svg class="ks-corner c2" viewBox="0 0 140 140"><path class="ks-cp" pathLength="1" d="M3 96V22Q3 3 22 3H96"/><path class="ks-cp ks-cp2" pathLength="1" d="M17 66V30Q17 17 30 17H66"/><path class="ks-cd" d="M3 112l5 6-5 6-5-6zM112 3l6 5-6 5-6-5z"/><circle class="ks-cd" cx="30" cy="30" r="2.6"/></svg><svg class="ks-corner c3" viewBox="0 0 140 140"><path class="ks-cp" pathLength="1" d="M3 96V22Q3 3 22 3H96"/><path class="ks-cp ks-cp2" pathLength="1" d="M17 66V30Q17 17 30 17H66"/><path class="ks-cd" d="M3 112l5 6-5 6-5-6zM112 3l6 5-6 5-6-5z"/><circle class="ks-cd" cx="30" cy="30" r="2.6"/></svg><svg class="ks-corner c4" viewBox="0 0 140 140"><path class="ks-cp" pathLength="1" d="M3 96V22Q3 3 22 3H96"/><path class="ks-cp ks-cp2" pathLength="1" d="M17 66V30Q17 17 30 17H66"/><path class="ks-cd" d="M3 112l5 6-5 6-5-6zM112 3l6 5-6 5-6-5z"/><circle class="ks-cd" cx="30" cy="30" r="2.6"/></svg></div>
+        <div class="ks-veil" aria-hidden="true"></div>
+        <div class="ks-center">
+          <p class="ks-kicker" data-i18n="ksKicker">// Made in Saudi Arabia</p>
+          <h2 class="ks-title" id="ks-title" lang="ar" dir="rtl"><span class="ks-outline" aria-hidden="true">صُنع بأيدٍ سعودية</span><span class="ks-fill">صُنع بأيدٍ سعودية</span><span class="ks-shine" aria-hidden="true">صُنع بأيدٍ سعودية</span></h2>
+          <div class="ks-orn" aria-hidden="true"><i></i><b></b><i></i></div>
+          <p class="ks-sub" data-i18n="ksSub">Made by Saudi hands. Designed and engineered in Saudi Arabia.</p>
+          <ul class="ks-words"><li data-i18n="ksW1">Vision</li><li data-i18n="ksW2">Craft</li><li data-i18n="ksW3">Security</li></ul>
+          <div class="ks-seal" aria-hidden="true" data-depth="0.5">
+            <span class="ks-burst"></span>
+            <span class="ks-flash"></span>
+            <svg class="ks-seal-text" viewBox="-100 -100 200 200"><defs><path id="ks-ring-path" d="M0 -84a84 84 0 1 1 0 168a84 84 0 1 1 0-168"/></defs><text><textPath href="#ks-ring-path" textLength="520">صُنع في السعودية ◆ MADE IN SAUDI ARABIA ◆ صُنع في السعودية ◆ MADE IN SAUDI ARABIA ◆</textPath></text></svg>
+            <svg viewBox="-70 -70 140 140"><path class="ks-seal-star" pathLength="1" d="M0.0 -58.0 L16.9 -40.7 L41.0 -41.0 L40.7 -16.9 L58.0 0.0 L40.7 16.9 L41.0 41.0 L16.9 40.7 L0.0 58.0 L-16.9 40.7 L-41.0 41.0 L-40.7 16.9 L-58.0 0.0 L-40.7 -16.9 L-41.0 -41.0 L-16.9 -40.7 Z"/><circle class="ks-seal-ring" r="40"/><path class="ks-seal-shield" d="M0 -26 -20 -18v14c0 13 8.5 23.5 20 27 11.5-3.5 20-14 20-27v-14z"/><path class="ks-seal-check" d="M-8 0l6 6 11-12"/></svg>
+          </div>
+          <p class="ks-end" data-i18n="ksEnd">Technology we are proud of, built for everyone.</p>
         </div>
-        <ol class="film-chaps" id="film-chaps"></ol>
+      </div>
+    </section>
+    <!-- ============ /MADE BY SAUDI HANDS ============ -->
+
+
+    <section id="film" class="l-section film-sec cine" data-shape="ring" data-shape-fade="0.12" data-tint="#090620" aria-labelledby="film-h">
+      <div class="cine-stage">
+        <div class="cine-head">
+          <span class="sec-tag" data-i18n="filmTag">// 01 · Watch</span>
+          <h2 class="l-h2 center" id="film-h" data-i18n="filmTitle">CyberScan in 86 seconds</h2>
+          <p class="l-sub center" data-i18n="filmSub"></p>
+        </div>
+        <div class="film" id="film-player">
+          <div class="film-frame">
+            <canvas id="film-canvas" width="1280" height="720" role="img" aria-label="CyberScan explainer video" data-i18n-aria="ariaFilm"></canvas>
+            <svg class="cine-corners" viewBox="0 0 160 90" preserveAspectRatio="none" aria-hidden="true">
+              <path pathLength="1" d="M0 14V0h14"/><path pathLength="1" d="M146 0h14v14"/><path pathLength="1" d="M160 76v14h-14"/><path pathLength="1" d="M14 90H0V76"/>
+            </svg>
+            <div class="film-loading" aria-hidden="true"><i></i></div>
+            <button class="film-big" id="film-big" type="button" aria-label="Play" data-i18n-aria="ariaPlay"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+            <p class="film-tap" id="film-tap" hidden data-i18n="filmTap">Tap to play with sound</p>
+            <div class="film-ui" id="film-ui">
+              <div class="film-seek" id="film-seek" role="slider" tabindex="0" aria-label="Seek" data-i18n-aria="ariaSeek" aria-valuemin="0" aria-valuemax="86" aria-valuenow="0" aria-valuetext="0:00">
+                <div class="film-ticks" id="film-ticks"></div><i class="film-fill" id="film-fill"></i><span class="film-knob" id="film-knob"></span><span class="film-peek" id="film-peek" hidden></span>
+              </div>
+              <div class="film-row">
+                <button class="film-btn icon" id="film-play" type="button" aria-label="Play" data-i18n-aria="ariaPlay"><svg viewBox="0 0 24 24" class="i-play"><path d="M8 5v14l11-7z"/></svg><svg viewBox="0 0 24 24" class="i-pause"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg></button>
+                <span class="film-time"><b id="film-cur">0:00</b><span class="film-sep">/</span><span id="film-dur">1:26</span><span class="film-left" id="film-left">−1:26</span></span>
+                <div class="film-vol">
+                  <button class="film-btn icon" id="film-mute" type="button" aria-label="Mute" data-i18n-aria="filmMute" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9zM16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/></svg></button>
+                  <input type="range" id="film-volume" min="0" max="1" step="0.05" value="1" aria-label="Volume" data-i18n-aria="filmVolume">
+                </div>
+                <span class="film-spacer"></span>
+                <button class="film-btn" id="film-speed" type="button" aria-label="Playback speed" data-i18n-aria="filmSpeed">1×</button>
+                <div class="film-pop-wrap">
+                  <button class="film-btn" id="film-cc" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="film-cc-menu" aria-label="Subtitles" data-i18n-aria="filmSubs">CC</button>
+                  <div class="film-pop" id="film-cc-menu" role="menu" hidden></div>
+                </div>
+                <button class="film-btn icon" id="film-export" type="button" aria-label="Export video" data-i18n-aria="filmExport" title=""><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m-5-5 5 5 5-5M5 20h14"/></svg></button>
+                <button class="film-btn icon" id="film-full" type="button" aria-label="Fullscreen" data-i18n-aria="ariaFull"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cine-info" id="cine-info" aria-live="polite">
+          <span class="cine-idx" id="cine-idx">01 / 08</span>
+          <div><b class="cine-name" id="cine-name"></b><p class="cine-desc" id="cine-desc"></p></div>
+        </div>
+        <ol class="cine-timeline" id="film-chaps" aria-label="Chapters" data-i18n-aria="filmChaptersLabel"></ol>
         <details class="film-transcript">
           <summary data-i18n="filmTranscript">Read the narration</summary>
           <ol id="film-transcript"></ol>
@@ -212,33 +349,12 @@
       </div>
     </section>
 
-    <section id="how" class="how hpin" data-shape="ring" data-shape-fade="0.22" data-tint="#0b0619">
-      <div class="hpin-sticky">
-        <div class="how-head">
-          <h2 class="l-h2" data-i18n="lHowTitle"></h2>
-          <p class="l-sub" data-i18n="lHowSub"></p>
-          <div class="steps-rail"><div class="steps-fill" id="steps-fill"></div></div>
-        </div>
-        <ol class="l-steps htrack" id="l-steps"></ol>
-        <div class="hpin-count" aria-hidden="true"><b id="how-n">01</b><span>/ 04</span></div>
+    <section id="how" class="how l-section" data-shape="ring" data-shape-fade="0.22" data-tint="#0b0619" aria-labelledby="how-h">
+      <div class="how-head">
+        <h2 class="l-h2" id="how-h" data-i18n="lHowTitle"></h2>
+        <p class="l-sub" data-i18n="lHowSub"></p>
       </div>
-    </section>
-
-    <section id="story" class="story" data-shape="file" data-shape-fade="0.12" data-tint="#05030b">
-      <div class="story-pin">
-        <canvas id="story-canvas" aria-hidden="true"></canvas>
-        <div class="story-copy">
-          <span class="story-kicker" data-i18n="storyKicker">Inside one scan</span>
-          <div class="story-steps" id="story-steps"></div>
-          <div class="story-meter"><i id="story-meter"></i></div>
-        </div>
-        <div class="story-hud" aria-hidden="true">
-          <span class="hud-file" id="hud-file">invoice_2026.pdf.exe</span>
-          <span class="hud-stat"><b id="hud-cells">0</b> <small data-i18n="hudCells">cells</small></span>
-          <span class="hud-stat"><b id="hud-bad">0</b> <small data-i18n="hudBad">flagged</small></span>
-          <span class="hud-stat"><b id="hud-score">0</b> <small data-i18n="hudScore">risk</small></span>
-        </div>
-      </div>
+      <ol class="l-steps how-grid" id="l-steps"></ol>
     </section>
 
     <section id="pipeline" class="l-section pipe-sec" data-shape="helix" data-shape-fade="0.2" data-tint="#0c0720">
@@ -270,80 +386,59 @@
       <!-- ============ THE CYBERSCAN STORY (scrolly.css, js/scrolly.js, js/scrolly-i18n.js) ============ -->
       <div class="sy" id="sci-story">
         <nav class="sy-nav" aria-label="Story chapters" data-i18n-aria="syNav"><ol><li><a href="#sy-1" data-go="1"><i>01</i><span data-i18n="syK1">The digital world</span></a></li><li><a href="#sy-2" data-go="2"><i>02</i><span data-i18n="syK2">Inside a file</span></a></li><li><a href="#sy-3" data-go="3"><i>03</i><span data-i18n="syK3">How CyberScan analyzes</span></a></li><li><a href="#sy-4" data-go="4"><i>04</i><span data-i18n="syK4">Beyond files</span></a></li><li><a href="#sy-5" data-go="5"><i>05</i><span data-i18n="syK5">One ecosystem</span></a></li><li><a href="#sy-6" data-go="6"><i>06</i><span data-i18n="syK6">CyberScan</span></a></li></ol></nav>
-        <section class="sy-scene sy-s1" id="sy-1" data-scene="1" data-shape="sphere" data-shape-fade="0.14" aria-labelledby="sy1-h">
+        <!-- one shared stage behind all six scenes: a canvas drawn from the scroll position (js/scrolly.js) -->
+        <div class="sy-bg" aria-hidden="true"><canvas class="sy-cv"></canvas></div>
+        <section class="sy-scene sy-s1" id="sy-1" data-scene="1" data-shape="sphere" data-shape-fade="0.1" aria-labelledby="sy1-h">
           <div class="sy-stage"><div class="sy-inner">
             <div class="sy-copy">
-              <p class="sy-kicker"><span>01</span> <b data-i18n="syK1">The digital world</b></p>
+              <p class="sy-kicker"><span>01</span> <b data-i18n="syK1">The digital world</b><i class="sy-kbar" aria-hidden="true"></i></p>
               <h3 class="sy-title" data-i18n="syT1" id="sy1-h">Everything is connected.</h3>
               <div class="sy-beats"><p class="sy-beat" data-i18n="sy1b0" data-b="0">Files, apps, websites and devices talk to each other all day.</p><p class="sy-beat" data-i18n="sy1b1" data-b="1">Almost everything that moves between them is safe.</p><p class="sy-beat" data-i18n="sy1b2" data-b="2">But a threat can look exactly like everything else.</p></div>
             </div>
-            <div class="sy-visual sy-world" aria-hidden="true">
-              <svg class="sy-svg" viewBox="0 0 600 500"><path class="sy-ring" pathLength="1" d="M96 105 L504 105 L546 300 L408 440 L192 440 L54 300 Z"/><path class="sy-spoke" data-i="0" pathLength="1" d="M96 105L300 250"/><path class="sy-spoke" data-i="1" pathLength="1" d="M504 105L300 250"/><path class="sy-spoke" data-i="2" pathLength="1" d="M546 300L300 250"/><path class="sy-spoke" data-i="3" pathLength="1" d="M408 440L300 250"/><path class="sy-spoke" data-i="4" pathLength="1" d="M192 440L300 250"/><path class="sy-spoke" data-i="5" pathLength="1" d="M54 300L300 250"/><circle class="sy-pk" r="3.4" cx="96" cy="105"/><circle class="sy-pk" r="3.4" cx="504" cy="105"/><circle class="sy-pk" r="3.4" cx="546" cy="300"/><circle class="sy-pk" r="3.4" cx="408" cy="440"/><circle class="sy-pk" r="3.4" cx="192" cy="440"/><circle class="sy-pk" r="3.4" cx="54" cy="300"/></svg>
-              <div class="sy-node n-you" data-i="0"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v10H4zM2 19h20M9 16v3m6-3v3"/></svg><span data-i18n="syYou">You</span></div><div class="sy-node n-files" data-i="1"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7zM14 3v5h5"/></svg><span data-i18n="syFiles">Files</span></div><div class="sy-node n-apps" data-i="2"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h7v7H4zm9 0h7v7h-7zM4 13h7v7H4zm9 0h7v7h-7z"/></svg><span data-i18n="syApps">Apps</span></div><div class="sy-node n-web" data-i="3"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM3 12h18M12 3c2.8 3 2.8 15 0 18M12 3c-2.8 3-2.8 15 0 18"/></svg><span data-i18n="syWeb">Websites</span></div><div class="sy-node n-devices" data-i="4"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h8v18H8zM11 18h2"/></svg><span data-i18n="syDevices">Devices</span></div><div class="sy-node n-cloud" data-i="5"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18h10a4 4 0 0 0 .6-8A6 6 0 0 0 6.2 9.5 4.3 4.3 0 0 0 7 18z"/></svg><span data-i18n="syCloud">Cloud</span></div><div class="sy-node n-net" data-i="6"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 15h14v5H5zM12 15V9m-4-2a5.5 5.5 0 0 1 8 0M5.5 4.5a9 9 0 0 1 13 0"/></svg><span data-i18n="syNet">Networks</span></div>
-              <div class="sy-threat"><i></i><span data-i18n="syLooks">Looks normal</span></div>
-            </div>
           </div></div>
         </section>
-        <section class="sy-scene sy-s2" id="sy-2" data-scene="2" data-shape="file" data-shape-fade="0.12" aria-labelledby="sy2-h">
+        <section class="sy-scene sy-s2" id="sy-2" data-scene="2" data-shape="file" data-shape-fade="0.1" aria-labelledby="sy2-h">
           <div class="sy-stage"><div class="sy-inner">
             <div class="sy-copy">
-              <p class="sy-kicker"><span>02</span> <b data-i18n="syK2">Inside a file</b></p>
+              <p class="sy-kicker"><span>02</span> <b data-i18n="syK2">Inside a file</b><i class="sy-kbar" aria-hidden="true"></i></p>
               <h3 class="sy-title" data-i18n="syT2" id="sy2-h">A name is only a label.</h3>
               <div class="sy-beats"><p class="sy-beat" data-i18n="sy2b0" data-b="0">This file says it is an invoice.</p><p class="sy-beat" data-i18n="sy2b1" data-b="1">CyberScan looks inside it, layer by layer.</p><p class="sy-beat" data-i18n="sy2b2" data-b="2">The name says document. The inside says program.</p></div>
-            </div>
-            <div class="sy-visual sy-file" aria-hidden="true">
-              <div class="sy-persp"><div class="sy-stack"><div class="sy-layer" data-i="0"><span class="ly-name"><svg class="sy-ic lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7zM14 3v5h5"/></svg>invoice.pdf</span></div><div class="sy-layer" data-i="1"><span class="ly-hex"><b>4D 5A</b> 90 00 03 00 · · · <em>M Z</em></span></div><div class="sy-layer" data-i="2"><span class="ly-blocks"><i></i><i></i><i></i><i></i></span></div><div class="sy-layer" data-i="3"><span class="ly-noise"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></div><div class="sy-layer" data-i="4"><span class="ly-hash">SHA-256<b>d8957b11…167c97c</b></span></div></div></div>
-              <ol class="sy-lbls"><li class="sy-lbl" data-i="0"><b data-i18n="syL1">Name</b><span data-i18n="syL1d">What it claims to be</span></li><li class="sy-lbl" data-i="1"><b data-i18n="syL2">First bytes</b><span data-i18n="syL2d">What it really is: a program</span></li><li class="sy-lbl" data-i="2"><b data-i18n="syL3">Structure</b><span data-i18n="syL3d">How it is built</span></li><li class="sy-lbl" data-i="3"><b data-i18n="syL4">Contents</b><span data-i18n="syL4d">Ordered, or scrambled?</span></li><li class="sy-lbl" data-i="4"><b data-i18n="syL5">Fingerprint</b><span data-i18n="syL5d">A unique ID for these exact bytes</span></li></ol>
+              <ul class="sy-sr"><li><span data-i18n="syL1">Name</span>: <span data-i18n="syL1d">What it claims to be</span></li><li><span data-i18n="syL2">First bytes</span>: <span data-i18n="syL2d">What it really is: a program</span></li><li><span data-i18n="syL3">Structure</span>: <span data-i18n="syL3d">How it is built</span></li><li><span data-i18n="syL4">Contents</span>: <span data-i18n="syL4d">Ordered, or scrambled?</span></li><li><span data-i18n="syL5">Fingerprint</span>: <span data-i18n="syL5d">A unique ID for these exact bytes</span></li></ul>
             </div>
           </div></div>
         </section>
-        <section class="sy-scene sy-s3" id="sy-3" data-scene="3" data-shape="hex" data-shape-fade="0.1" aria-labelledby="sy3-h">
+        <section class="sy-scene sy-s3" id="sy-3" data-scene="3" data-shape="hex" data-shape-fade="0.08" aria-labelledby="sy3-h">
           <div class="sy-stage"><div class="sy-inner">
             <div class="sy-copy">
-              <p class="sy-kicker"><span>03</span> <b data-i18n="syK3">How CyberScan analyzes</b></p>
-              <h3 class="sy-title" data-i18n="syT3" id="sy3-h">Six steps. Nothing runs.</h3>
-              <div class="sy-beats"></div>
-            </div>
-            <div class="sy-visual sy-pipe">
-              <div class="sy-trackwrap" aria-hidden="true"><div class="sy-track"><span class="sy-rail"><i></i></span><div class="sy-st" data-i="0"><span class="sy-st-dot"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v12m-5-5 5 5 5-5M5 20h14"/></svg></span><b data-i18n="syS1">Receive</b></div><div class="sy-st" data-i="1"><span class="sy-st-dot"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v4H4zm0 6h7v10H4zm9 0h7v4h-7zm0 6h7v4h-7z"/></svg></span><b data-i18n="syS2">Structure</b></div><div class="sy-st" data-i="2"><span class="sy-st-dot"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4-4"/></svg></span><b data-i18n="syS3">Indicators</b></div><div class="sy-st" data-i="3"><span class="sy-st-dot"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M5 7h14M5 7l-3 7a3 3 0 0 0 6 0zm14 0-3 7a3 3 0 0 0 6 0z"/></svg></span><b data-i18n="syS4">Weigh</b></div><div class="sy-st" data-i="4"><span class="sy-st-dot"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4v6a6 6 0 0 0 12 0V4M12 16v5"/></svg></span><b data-i18n="syS5">Combine</b></div><div class="sy-st" data-i="5"><span class="sy-st-dot"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.4 8.4 8 9.5 4.6-1.1 8-4.5 8-9.5V6zM8.5 12l2.5 2.5 4.5-5"/></svg></span><b data-i18n="syS6">Assess</b></div><span class="sy-token"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7zM14 3v5h5"/></svg></span></div></div>
-              <div class="sy-capts"><div class="sy-capt" data-i="0"><span>01</span><p data-i18n="syS1d">The file arrives. It is never opened or run.</p></div><div class="sy-capt" data-i="1"><span>02</span><p data-i18n="syS2d">Its real format and parts are read.</p></div><div class="sy-capt" data-i="2"><span>03</span><p data-i18n="syS3d">Clues are collected: name, signature, scrambled data, known patterns.</p></div><div class="sy-capt" data-i="3"><span>04</span><p data-i18n="syS4d">Each clue is weighed: harmless alone, or a real warning sign?</p></div><div class="sy-capt" data-i="4"><span>05</span><p data-i18n="syS5d">Clues about the same thing count once. The strongest decides.</p></div><div class="sy-capt sy-result" data-i="5"><span>06</span><p data-i18n="syS6d">A score and a plain explanation.</p>
-                  <div class="sy-res"><code>invoice.pdf.exe</code><div class="sy-gauge"><i></i></div>
-                  <p class="sy-score"><b>55</b><small>/100</small> <strong data-i18n="syRes">Suspicious</strong></p><p class="sy-why" data-i18n="syResWhy">A program pretending to be a document. A warning sign, not proof.</p><small class="sy-note" data-i18n="syResNote">Real result from CyberScan's engine on a harmless test file.</small></div></div></div>
+              <p class="sy-kicker"><span>03</span> <b data-i18n="syK3">How CyberScan analyzes</b><i class="sy-kbar" aria-hidden="true"></i></p>
+              <h3 class="sy-title" data-i18n="syT3b" id="sy3-h">The same four steps, up close.</h3>
+              <div class="sy-beats sy-steps"><p class="sy-beat sy-st" data-b="0"><b class="sy-stn"><span>01</span> <em data-step="0">Read</em></b> <span data-i18n="syS1d">The file arrives. It is never opened or run.</span> <span data-i18n="syS2d">Its real format and parts are read.</span></p><p class="sy-beat sy-st" data-b="1"><b class="sy-stn"><span>02</span> <em data-step="1">Measure</em></b> <span data-i18n="syS3d">Clues are collected: name, signature, scrambled data, known patterns.</span></p><p class="sy-beat sy-st" data-b="2"><b class="sy-stn"><span>03</span> <em data-step="2">Compare</em></b> <span data-i18n="syS4d">Each clue is weighed: harmless alone, or a real warning sign?</span> <span data-i18n="syS5d">Clues about the same thing count once. The strongest decides.</span></p><p class="sy-beat sy-st" data-b="3"><b class="sy-stn"><span>04</span> <em data-step="3">Explain</em></b> <span data-i18n="syS6d">A score and a plain explanation.</span> <span class="sy-sr"><span dir="ltr">invoice.pdf.exe: 55/100</span>, <span data-i18n="syRes">Suspicious</span>. <span data-i18n="syResWhy">A program pretending to be a document. A warning sign, not proof.</span></span></p></div>
+              <small class="sy-note" data-i18n="syResNote">Real result from CyberScan's engine on a harmless test file.</small>
             </div>
           </div></div>
         </section>
-        <section class="sy-scene sy-s4" id="sy-4" data-scene="4" data-shape="sphere" data-shape-fade="0.12" aria-labelledby="sy4-h">
+        <section class="sy-scene sy-s4" id="sy-4" data-scene="4" data-shape="sphere" data-shape-fade="0.1" aria-labelledby="sy4-h">
           <div class="sy-stage"><div class="sy-inner">
             <div class="sy-copy">
-              <p class="sy-kicker"><span>04</span> <b data-i18n="syK4">Beyond files</b></p>
+              <p class="sy-kicker"><span>04</span> <b data-i18n="syK4">Beyond files</b><i class="sy-kbar" aria-hidden="true"></i></p>
               <h3 class="sy-title" data-i18n="syT4" id="sy4-h">Threats don't only hide in files.</h3>
               <div class="sy-beats"><p class="sy-beat" data-i18n="sy4b0" data-b="0">Danger also travels in links, emails and websites.</p><p class="sy-beat" data-i18n="sy4b1" data-b="1">It hides in networks, systems, code and the cloud.</p><p class="sy-beat" data-i18n="sy4b2" data-b="2">Solid: on the website today. Dashed: being built.</p></div>
-            </div>
-            <div class="sy-visual sy-eco" aria-hidden="true">
-              <svg class="sy-svg" viewBox="0 0 600 600"><circle class="sy-orbit" cx="300" cy="300" r="228"/><path class="sy-espoke live" data-i="0" pathLength="1" d="M300 300L300.0 72.0"/><path class="sy-espoke live" data-i="1" pathLength="1" d="M300 300L434.0 115.5"/><path class="sy-espoke live" data-i="2" pathLength="1" d="M300 300L516.8 229.5"/><path class="sy-espoke dev" data-i="3" pathLength="1" d="M300 300L516.8 370.5"/><path class="sy-espoke live" data-i="4" pathLength="1" d="M300 300L434.0 484.5"/><path class="sy-espoke dev" data-i="5" pathLength="1" d="M300 300L300.0 528.0"/><path class="sy-espoke dev" data-i="6" pathLength="1" d="M300 300L166.0 484.5"/><path class="sy-espoke part" data-i="7" pathLength="1" d="M300 300L83.2 370.5"/><path class="sy-espoke dev" data-i="8" pathLength="1" d="M300 300L83.2 229.5"/><path class="sy-espoke dev" data-i="9" pathLength="1" d="M300 300L166.0 115.5"/></svg>
-              <div class="sy-core"><span class="sy-core-ring"></span><b>CyberScan</b></div>
-              <div class="sy-dom live" data-i="0"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7zM14 3v5h5"/></svg><span data-i18n="syD1">File security</span></div><div class="sy-dom live" data-i="1"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4a5 5 0 0 0-5 5v3l-2 3h14l-2-3V9a5 5 0 0 0-5-5zM9 18a3 3 0 0 0 6 0"/></svg><span data-i18n="syD2">Malware analysis</span></div><div class="sy-dom live" data-i="2"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><span data-i18n="syD3">URL &amp; domain</span></div><div class="sy-dom dev" data-i="3"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18v14H3zM3 9h18M7 7h.01"/></svg><span data-i18n="syD4">Website security</span></div><div class="sy-dom live" data-i="4"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18v12H3zM3 7l9 6 9-6"/></svg><span data-i18n="syD5">Email security</span></div><div class="sy-dom dev" data-i="5"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 15h14v5H5zM12 15V9m-4-2a5.5 5.5 0 0 1 8 0"/></svg><span data-i18n="syD6">Network security</span></div><div class="sy-dom dev" data-i="6"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H4zM2 20h20"/></svg><span data-i18n="syD7">System security</span></div><div class="sy-dom part" data-i="7"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.5 3 8.2 7 9.5 4-1.3 7-5 7-9.5V6zM9.5 11h5v4h-5zm1-2a1.5 1.5 0 0 1 3 0v2h-3z"/></svg><span data-i18n="syD8">Privacy</span></div><div class="sy-dom dev" data-i="8"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8 4 12l4 4m8-8 4 4-4 4M14 5l-4 14"/></svg><span data-i18n="syD9">Code &amp; dependencies</span></div><div class="sy-dom dev" data-i="9"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18h10a4 4 0 0 0 .6-8A6 6 0 0 0 6.2 9.5 4.3 4.3 0 0 0 7 18z"/></svg><span data-i18n="syD10">Cloud &amp; infrastructure</span></div>
+              <ul class="sy-sr"><li data-i18n="syD1">File security</li><li data-i18n="syD2">Malware analysis</li><li data-i18n="syD3">URL &amp; domain</li><li data-i18n="syD4">Website security</li><li data-i18n="syD5">Email security</li><li data-i18n="syD6">Network security</li><li data-i18n="syD7">System security</li><li data-i18n="syD8">Privacy</li><li data-i18n="syD9">Code &amp; dependencies</li><li data-i18n="syD10">Cloud &amp; infrastructure</li></ul>
             </div>
           </div></div>
         </section>
-        <section class="sy-scene sy-s5" id="sy-5" data-scene="5" data-shape="ring" data-shape-fade="0.14" aria-labelledby="sy5-h">
+        <section class="sy-scene sy-s5" id="sy-5" data-scene="5" data-shape="ring" data-shape-fade="0.12" aria-labelledby="sy5-h">
           <div class="sy-stage"><div class="sy-inner">
             <div class="sy-copy">
-              <p class="sy-kicker"><span>05</span> <b data-i18n="syK5">One ecosystem</b></p>
+              <p class="sy-kicker"><span>05</span> <b data-i18n="syK5">One ecosystem</b><i class="sy-kbar" aria-hidden="true"></i></p>
               <h3 class="sy-title" data-i18n="syT5" id="sy5-h">Many checks. One clear answer.</h3>
               <div class="sy-beats"><p class="sy-beat" data-i18n="sy5b0" data-b="0">Each area needs its own checks.</p><p class="sy-beat" data-i18n="sy5b1" data-b="1">CyberScan connects them: a link inside an email, the download behind a link, a secret inside code.</p><p class="sy-beat" data-i18n="sy5b2" data-b="2">The aim: one clear answer you can understand, wherever the risk comes from.</p></div>
             </div>
-            <div class="sy-visual sy-eco sy-eco2" aria-hidden="true">
-              <svg class="sy-svg" viewBox="0 0 600 600"><circle class="sy-orbit" cx="300" cy="300" r="228"/><path class="sy-espoke live" data-i="0" pathLength="1" d="M300 300L300.0 72.0"/><path class="sy-espoke live" data-i="1" pathLength="1" d="M300 300L434.0 115.5"/><path class="sy-espoke live" data-i="2" pathLength="1" d="M300 300L516.8 229.5"/><path class="sy-espoke dev" data-i="3" pathLength="1" d="M300 300L516.8 370.5"/><path class="sy-espoke live" data-i="4" pathLength="1" d="M300 300L434.0 484.5"/><path class="sy-espoke dev" data-i="5" pathLength="1" d="M300 300L300.0 528.0"/><path class="sy-espoke dev" data-i="6" pathLength="1" d="M300 300L166.0 484.5"/><path class="sy-espoke part" data-i="7" pathLength="1" d="M300 300L83.2 370.5"/><path class="sy-espoke dev" data-i="8" pathLength="1" d="M300 300L83.2 229.5"/><path class="sy-espoke dev" data-i="9" pathLength="1" d="M300 300L166.0 115.5"/><path class="sy-rel" data-a="4" data-b="2" pathLength="1" d="M434.0 484.5Q378.9 325.6 516.8 229.5"/><path class="sy-rel" data-a="4" data-b="0" pathLength="1" d="M434.0 484.5Q330.1 290.2 300.0 72.0"/><path class="sy-rel" data-a="0" data-b="1" pathLength="1" d="M300.0 72.0Q330.1 207.2 434.0 115.5"/><path class="sy-rel" data-a="2" data-b="0" pathLength="1" d="M516.8 229.5Q348.8 232.8 300.0 72.0"/><path class="sy-rel" data-a="2" data-b="3" pathLength="1" d="M516.8 229.5Q397.6 300.0 516.8 370.5"/><path class="sy-rel" data-a="3" data-b="5" pathLength="1" d="M516.8 370.5Q348.8 367.2 300.0 528.0"/><path class="sy-rel" data-a="5" data-b="6" pathLength="1" d="M300.0 528.0Q269.9 392.8 166.0 484.5"/><path class="sy-rel" data-a="6" data-b="1" pathLength="1" d="M166.0 484.5Q300.0 300.0 434.0 115.5"/><path class="sy-rel" data-a="7" data-b="0" pathLength="1" d="M83.2 370.5Q251.2 264.6 300.0 72.0"/><path class="sy-rel" data-a="8" data-b="7" pathLength="1" d="M83.2 229.5Q202.4 300.0 83.2 370.5"/><path class="sy-rel" data-a="9" data-b="8" pathLength="1" d="M166.0 115.5Q221.1 242.6 83.2 229.5"/><path class="sy-rel" data-a="9" data-b="5" pathLength="1" d="M166.0 115.5Q269.9 309.8 300.0 528.0"/></svg>
-              <div class="sy-core"><span class="sy-core-ring"></span><b>CyberScan</b></div>
-              <div class="sy-dom live" data-i="0"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7zM14 3v5h5"/></svg><span data-i18n="syD1">File security</span></div><div class="sy-dom live" data-i="1"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4a5 5 0 0 0-5 5v3l-2 3h14l-2-3V9a5 5 0 0 0-5-5zM9 18a3 3 0 0 0 6 0"/></svg><span data-i18n="syD2">Malware analysis</span></div><div class="sy-dom live" data-i="2"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><span data-i18n="syD3">URL &amp; domain</span></div><div class="sy-dom dev" data-i="3"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18v14H3zM3 9h18M7 7h.01"/></svg><span data-i18n="syD4">Website security</span></div><div class="sy-dom live" data-i="4"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18v12H3zM3 7l9 6 9-6"/></svg><span data-i18n="syD5">Email security</span></div><div class="sy-dom dev" data-i="5"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 15h14v5H5zM12 15V9m-4-2a5.5 5.5 0 0 1 8 0"/></svg><span data-i18n="syD6">Network security</span></div><div class="sy-dom dev" data-i="6"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H4zM2 20h20"/></svg><span data-i18n="syD7">System security</span></div><div class="sy-dom part" data-i="7"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.5 3 8.2 7 9.5 4-1.3 7-5 7-9.5V6zM9.5 11h5v4h-5zm1-2a1.5 1.5 0 0 1 3 0v2h-3z"/></svg><span data-i18n="syD8">Privacy</span></div><div class="sy-dom dev" data-i="8"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8 4 12l4 4m8-8 4 4-4 4M14 5l-4 14"/></svg><span data-i18n="syD9">Code &amp; dependencies</span></div><div class="sy-dom dev" data-i="9"><svg class="sy-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18h10a4 4 0 0 0 .6-8A6 6 0 0 0 6.2 9.5 4.3 4.3 0 0 0 7 18z"/></svg><span data-i18n="syD10">Cloud &amp; infrastructure</span></div>
-            </div>
           </div></div>
         </section>
-        <section class="sy-scene sy-s6" id="sy-6" data-scene="6" data-shape="shield" data-shape-fade="0.45" aria-labelledby="sy6-h">
-          <div class="sy-stage"><div class="sy-inner"><div class="sy-end">
-              <div class="sy-mark" aria-hidden="true"><span class="r r1"></span><span class="r r2"></span><span class="r r3"></span>
-                <svg viewBox="0 0 24 24"><path d="M12 2 4 5v6c0 5.25 3.4 9.4 8 11 4.6-1.6 8-5.75 8-11V5z"/><path class="ck" d="M8.5 12l2.5 2.5 4.5-5"/></svg></div>
+        <section class="sy-scene sy-s6" id="sy-6" data-scene="6" data-shape="shield" data-shape-fade="0.2" aria-labelledby="sy6-h">
+          <div class="sy-stage"><div class="sy-inner"><div class="sy-end sy-copy">
+              <div class="sy-emblem" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2 4 5v6c0 5.25 3.4 9.4 8 11 4.6-1.6 8-5.75 8-11V5z"/><path class="ck" d="M8.5 12l2.5 2.5 4.5-5"/></svg></div>
               <p class="sy-word">CyberScan</p>
               <h3 class="sy-title sy-tagline" data-i18n="syT6" id="sy6-h">See beyond the surface.</h3>
               <p class="sy-state" data-i18n="sy6s">CyberScan reads what things really are, explains it in plain words, and is honest about what it cannot know.</p>
@@ -622,8 +717,8 @@
     </section>
 
     <section id="features" class="l-section skewable" data-shape="hex" data-shape-fade="0.18" data-tint="#0b0517">
-      <h2 class="l-h2 center" data-reveal data-i18n="lFeatTitle"></h2>
-      <p class="l-sub center" data-reveal data-i18n="lFeatSub"></p>
+      <h2 class="l-h2 center" data-reveal data-i18n="lFeatTitleN"></h2>
+      <p class="l-sub center" data-reveal data-i18n="lFeatSubN"></p>
       <div class="bento" id="feat-grid"></div>
     </section>
 
@@ -632,7 +727,7 @@
       <div class="band outline" data-speed="-1"><span id="band-b"></span></div>
     </div>
 
-    <section id="repair-sec" class="l-section repair-sec" data-shape="file" data-shape-fade="0.28" data-tint="#1a0b14">
+    <section id="repair-sec" class="l-section repair-sec" data-shape="file" data-shape-fade="0.28" data-tint="#150a1f">
       <div class="repair-copy">
         <h2 class="l-h2" data-reveal data-i18n="lRepairTitle"></h2>
         <p class="l-sub" data-reveal data-i18n="lRepairSub"></p>
@@ -652,6 +747,32 @@
     <section class="l-section stats-sec skewable" data-shape="ring" data-shape-fade="0.25" data-tint="#0e0619">
       <h2 class="l-h2 center" data-reveal data-i18n="lStatsTitle"></h2>
       <div class="stats-grid" id="stats-grid"></div>
+      <p class="stats-note" id="stats-note"></p>
+    </section>
+
+    <!-- ============ ONYX | THE MINDS BEHIND CYBERSCAN (team.css, js/team.js) ============ -->
+    <section id="team" class="onyx" data-shape="hex" data-shape-fade="0.12" data-tint="#07060f" aria-labelledby="tm-title">
+      <div class="tm-aura" aria-hidden="true"></div>
+      <div class="tm-wrap">
+        <header class="tm-intro">
+          <div class="tm-emblem-reveal" data-tm-reveal>
+            <div class="tm-emblem" id="tm-emblem">
+              <div class="tm-emblem-ring" aria-hidden="true"></div>
+              <div class="tm-emblem-art" id="tm-emblem-art"></div>
+            </div>
+          </div>
+          <div class="tm-head" data-tm-reveal>
+            <p class="tm-kicker" aria-hidden="true"><span class="tm-kicker-line"></span>THE TEAM</p>
+            <h2 class="tm-title" id="tm-title"><span class="tm-onyx">ONYX</span><span class="tm-bar" aria-hidden="true">|</span><span class="tm-sub" data-i18n="tmKicker">The minds behind CyberScan</span></h2>
+            <p class="tm-lead" data-i18n="tmLead">Six people, one product. The team that plans CyberScan, builds it, designs it and tells its story.</p>
+          </div>
+        </header>
+        <div class="tm-grid" id="tm-grid"></div>
+        <footer class="tm-close" data-tm-reveal>
+          <p class="tm-motto" dir="ltr" data-i18n="tmClose1">ONE TEAM. ONE VISION. ONE MISSION.</p>
+          <p class="tm-sign" dir="ltr" data-i18n="tmClose2">ONYX — Building the Future of Cybersecurity.</p>
+        </footer>
+      </div>
     </section>
 
     <section class="l-cta" data-shape="word" data-shape-fade="0.4" data-tint="#0d0a24">
@@ -659,13 +780,15 @@
       <button class="primary huge enter magnetic" type="button" data-reveal><span data-i18n="lCtaBtn">Enter CyberScan</span>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></button>
     </section>
+    </main>
     <footer class="l-foot">
       <div class="foot-word" aria-hidden="true">CyberScan</div>
       <div class="foot-row"><span>© 2026 CyberScan</span><span data-i18n="lFoot"></span></div>
       <div class="foot-row foot-meta">
         <address class="dev">
-          <span data-i18n="devBy">Built by</span> <b>Ainex</b> ·
+          <span data-i18n="devBy">Built by</span> <b>ONYX</b> · <a href="https://ainex-ai.xyz" class="dev-site" dir="ltr">ainex-ai.xyz</a> ·
           <a href="mailto:mahdi-alhajji@zohomail.sa" class="dev-mail" dir="ltr">mahdi-alhajji@zohomail.sa</a>
+          <a href="/support" class="dev-support"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.4-7.5-10.2A4.3 4.3 0 0 1 12 7.6a4.3 4.3 0 0 1 7.5 2.7c0 5.8-7.5 10.2-7.5 10.2z"/></svg><span data-i18n="devSupport">Support the developer</span></a>
         </address>
         <div class="foot-switches">
           <button class="perf-btn" type="button" id="perf-btn" aria-pressed="false">
@@ -695,6 +818,9 @@
         <a class="nav-btn" href="#/tools" data-view="tools">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4.5 6v5.5c0 4.6 3.2 8.4 7.5 9.5 4.3-1.1 7.5-4.9 7.5-9.5V6z"/><path d="m9 12 2.2 2.2L15.5 10"/></svg>
           <span data-i18n="navTools">Protection</span></a>
+        <a class="nav-btn" href="#/toolbox" data-view="toolbox">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8h18v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M8 8V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18M11 12h2v3h-2z"/></svg>
+          <span data-i18n="navToolbox">Toolbox</span></a>
         <a class="nav-btn" href="#/history" data-view="history">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 12a8.5 8.5 0 1 0 2.5-6M3.5 4v4h4"/><path d="M12 7.5V12l3 2"/></svg>
           <span data-i18n="navHistory">History</span></a>
@@ -736,7 +862,7 @@
 
           <form id="form">
             <div class="file-panel" data-panel="file">
-              <label class="drop" id="drop">
+              <label class="drop" id="drop" tabindex="0" role="button" aria-labelledby="drop-label">
                 <canvas class="drop-fx" id="drop-fx" aria-hidden="true"></canvas>
                 <input id="file" type="file" multiple hidden>
                 <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 32V10m-9 9 9-9 9 9M10 34v4h28v-4"/></svg>
@@ -763,9 +889,9 @@
 
         <section id="batch" class="card batch" hidden aria-live="polite">
           <div class="view-head">
-            <div><h1 id="batch-title"></h1><div class="bsummary" id="batch-summary"></div></div>
+            <div><h2 id="batch-title"></h2><div class="bsummary" id="batch-summary"></div></div>
             <div class="batch-actions">
-              <input id="batch-file" type="file" multiple hidden>
+              <input id="batch-file" type="file" multiple hidden aria-label="Add files">
               <button class="ghost" type="button" id="batch-add" data-i18n="bAdd">Add files</button>
               <button class="ghost" type="button" id="batch-new" data-i18n="bNew">New batch</button>
             </div>
@@ -989,6 +1115,9 @@
       </div>
 
       <!-- ================= HISTORY ================= -->
+      <!-- ================= TOOLBOX (js/toolbox.js, toolbox.css; the tools in Tools/) ================= -->
+      <div class="view" id="view-toolbox" hidden></div>
+
       <div class="view" id="view-history" hidden>
         <section class="card insights" id="insights" aria-label="Insights">
           <div class="ins-grid">
@@ -1011,6 +1140,18 @@
           <div class="dist" id="dist" aria-hidden="true"></div>
           <div class="history-tools">
             <input id="history-search" class="field search" type="search" aria-label="Search history" data-i18n-aria="ariaSearch" data-i18n-ph="searchPh">
+            <div class="history-tools">
+              <label><span data-i18n="hDate">Date</span>
+                <select id="history-date" class="field">
+                  <option value="all" data-i18n="hAll">Any time</option><option value="1" data-i18n="hDay">Last 24 hours</option>
+                  <option value="7" data-i18n="hWeek">Last 7 days</option><option value="30" data-i18n="hMonth">Last 30 days</option>
+                </select></label>
+              <label><span data-i18n="hSort">Sort</span>
+                <select id="history-sort" class="field">
+                  <option value="new" data-i18n="hNew">Newest first</option><option value="old" data-i18n="hOld">Oldest first</option>
+                  <option value="risk" data-i18n="hRisk">Highest score first</option>
+                </select></label>
+            </div>
             <div class="chips" role="group">
               <button type="button" class="chip active" data-filter="all" data-i18n="fAll">All</button>
               <button type="button" class="chip" data-filter="SUSPICIOUS" data-i18n="fBad">Suspicious</button>
@@ -1039,10 +1180,10 @@
           </ol>
 
           <div id="r-choose">
-            <label class="drop" id="r-drop">
+            <label class="drop" id="r-drop" tabindex="0" role="button" aria-labelledby="r-drop-label">
               <input id="r-file" type="file" hidden>
               <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 32V10m-9 9 9-9 9 9M10 34v4h28v-4"/></svg>
-              <strong data-i18n="rDrop">Drop a file to inspect</strong>
+              <strong id="r-drop-label" data-i18n="rDrop">Drop a file to inspect</strong>
             </label>
             <div class="disk-row">
               <span class="or" data-i18n="orDisk">or</span>
@@ -1112,6 +1253,7 @@
               <div class="key-fields">
                 <label>abuse.ch <em id="k-abusech"></em><input type="password" class="field" autocomplete="off" data-secret="abusech"></label>
                 <label>AlienVault OTX <em id="k-otx"></em><input type="password" class="field" autocomplete="off" data-secret="otx"></label>
+                <label>VirusTotal <em id="k-virustotal"></em><input type="password" class="field" autocomplete="off" data-secret="virustotal"></label>
                 <button class="ghost" type="button" id="keys-save" data-i18n="keySave">Save keys</button>
               </div>
             </div>
@@ -1209,8 +1351,10 @@
   <script src="js/pwa.js"></script>
   <script src="js/insights.js"></script>
   <script src="js/gl-hero.js"></script>
+  <script src="js/cs-audio.js"></script>
   <script src="js/sound.js"></script>
   <script src="js/ui-sound.js"></script>
+  <script src="js/sfx.js"></script>
   <script src="js/pipeline.js"></script>
   <script src="js/workspace.js"></script>
   <script src="js/film.js"></script>
@@ -1218,11 +1362,24 @@
   <script src="js/landing.js"></script>
   <script src="js/get-app.js"></script>
   <script src="js/a11y.js"></script>
+  <script src="js/performance/performanceUI.js"></script>
+  <script src="js/scan-center.js"></script>
+  <script src="js/scan-pro.js"></script>
+  <script src="js/toolbox-ar.js"></script>
+  <script src="js/toolbox.js"></script>
+  <script src="js/intro.js"></script>
   <script src="js/fx.js"></script>
   <script src="js/lite.js"></script>
   <script src="js/scroll.js"></script>
   <script src="js/science.js"></script>
   <script src="js/scrolly.js"></script>
+  <script src="js/saudi.js"></script>
+  <script src="js/tilt.js"></script>
+  <script src="js/tour.js"></script>
+  <script src="js/team.js"></script>
   <script src="js/ask.js"></script>
+  <script src="js/cursor.js"></script>
+  <script src="js/site-nav.js"></script>
+  <script src="js/fabric.js"></script>
 </body>
 </html>

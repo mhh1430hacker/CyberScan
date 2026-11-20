@@ -126,7 +126,9 @@ def inspect_content(data: bytes, file_name: str = "", *, total_size: int | None 
     indicators: list[Indicator] = []
 
     def add(severity: str, label: str, contribution: int, explanation: str, category: str = "content", **extra: Any) -> None:
-        if any(item.label == label for item in indicators):
+        # The same label once; and a whole-file match is not counted again when it was already found
+        # inside one of the container's members ("Shadow copy deletion (in run.bat)").
+        if any(item.label == label or item.label.startswith(label + " (in ") for item in indicators):
             return
         indicators.append(Indicator(category, severity, label, explanation, int(contribution), extra))
 
@@ -253,10 +255,21 @@ def analyze_upload(data: bytes, file_name: str, settings: dict | None = None) ->
         path = os.path.join(workdir, name)
         with open(path, "xb") as handle:
             handle.write(data)
-        result = analyze_file(path, settings=resolved)
+        try:
+            result = analyze_file(path, settings=resolved)
+        except TimeoutError:
+            # The host analyzer ran out of time. The content inspection below is fast and bounded,
+            # so the caller still gets what completed, marked as incomplete (never an exception).
+            result = None
     finally:
         shutil.rmtree(workdir, ignore_errors=True)
-    payload = _jsonable(result)
+    if result is None:
+        payload = {"target": name, "combined_score": 0, "heuristic_score": 0, "classification": "UNKNOWN",
+                   "evidence": [], "engine_status": {}, "feature_summary": {"file_size": len(data)},
+                   "analysis_incomplete": [{"code": "host_timeout", "stage": "static",
+                                            "message": "The file analysis didn't finish within its time limit."}]}
+    else:
+        payload = _jsonable(result)
     payload["target"] = name
     if not payload.get("content_analysis"):
         # Host analyzers that predate detection/ (e.g. the website's core.file_analyzer) do not run
@@ -316,25 +329,64 @@ def _text_content_analysis(text: str) -> dict[str, Any]:
     })
 
 
+def band(score: int) -> str:
+    """The one score-to-verdict rule: 0 = no indicators observed, 1-49 = review, 50+ = suspicious."""
+    return "SUSPICIOUS" if score >= 50 else "REVIEW" if score > 0 else "NO_INDICATORS_OBSERVED"
+
+
+def final_verdict(host_score: Any, host_classification: str, content_score: Any, *,
+                  incomplete: bool = False) -> tuple[int, str]:
+    """ONE final score and the verdict that matches it.
+
+    ``final_score = max(host combined score, content score)``: the strongest evidence from either
+    engine sets the score (as within each engine). The verdict is KNOWN_MALWARE when the exact file
+    is listed (an identity, not a score); else SUSPICIOUS at 50+, even if part of the analysis is
+    missing (what was found stands); else UNKNOWN when the analysis is incomplete (a low score
+    can't vouch for what wasn't checked); else the score's band."""
+    def number(value: Any) -> int:
+        try:
+            return max(0, min(100, int(round(float(value or 0)))))
+        except (TypeError, ValueError):
+            return 0
+
+    score = max(number(host_score), number(content_score))
+    if str(host_classification) == "KNOWN_MALWARE":
+        return score, "KNOWN_MALWARE"
+    if score >= 50:
+        return score, "SUSPICIOUS"
+    if incomplete or str(host_classification) == "UNKNOWN":
+        return score, "UNKNOWN"
+    return score, band(score)
+
+
 def detection_summary(payload: dict[str, Any]) -> dict[str, Any]:
     """One verdict for the UI, without hiding either source.
 
-    Host analyzers use their own vocabulary (desktop: SAFE/UNKNOWN/SUSPICIOUS; website:
-    NO_INDICATORS_OBSERVED/REVIEW/...). Content inspection only ever *raises* concern: when it
-    says SUSPICIOUS the summary is SUSPICIOUS; otherwise the host's verdict stands.
+    ``final_score`` and ``classification`` follow ``final_verdict``: the score shown is the stronger
+    of the host's combined score and the content inspection's score, and the verdict is that
+    score's band (so a 35 is always "review", never "suspicious"). Host analyzers that use another
+    vocabulary (desktop: SAFE/UNKNOWN/SUSPICIOUS) are read the same way: UNKNOWN means incomplete.
     """
     content = payload.get("content_analysis") or {}
     host_classification = str(payload.get("classification", "UNKNOWN"))
+    if host_classification in {"SAFE", "CLEAN"}:
+        host_classification = "NO_INDICATORS_OBSERVED"
     content_score = int(content.get("score", 0) or 0)
     content_classification = str(content.get("classification") or ("SUSPICIOUS" if content_score >= 50 else
                                                                    "UNKNOWN" if content_score > 0 else "SAFE"))
-    classification = "SUSPICIOUS" if content_classification == "SUSPICIOUS" else host_classification
+    host_score = payload.get("combined_score", 0)
+    incomplete = bool(payload.get("analysis_incomplete")) or bool(content.get("analyzer_errors"))
+    final_score, classification = final_verdict(host_score, host_classification, content_score, incomplete=incomplete)
     return {
         "classification": classification,
-        "needs_attention": content_classification == "SUSPICIOUS" or host_classification not in BENIGN_HOST_CLASSIFICATIONS,
+        "final_score": final_score,
+        "host_score": int(host_score or 0) if isinstance(host_score, (int, float)) else 0,
+        "needs_attention": classification not in BENIGN_HOST_CLASSIFICATIONS,
         "host_classification": host_classification,
         "content_classification": content_classification,
         "content_score": content_score,
+        "score_rule": "final_score = max(host_score, content_score); verdict = band(final_score) "
+                      "(0 none, 1-49 review, 50+ suspicious), KNOWN_MALWARE for an exact listing, UNKNOWN when incomplete",
         "evidence_agreement": content.get("evidence_agreement", "none"),
         "privacy_exposure": (content.get("privacy") or {}).get("exposure_level", "none"),
     }

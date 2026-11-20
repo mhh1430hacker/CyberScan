@@ -11,13 +11,20 @@ can prove (no trained model is involved, and the screen says so):
 * names that lie: hidden direction characters, a harmless-looking double
   extension, an extension that contradicts the content.
 
+Content disarm (executor/cdr.py) takes active parts out and keeps the
+document: PDF scripts and automatic actions (renamed in place, or the PDF
+rebuilt when they hide in compressed object streams), macros in older
+Office files (emptied in place), remote templates and linked objects in
+Office Open XML, scripts and event handlers in HTML/SVG/HTA, embedded
+objects in RTF, and programs or scripts packed in a ZIP archive.
+
 Every byte-changing plan is tried on the real bytes before it is offered.
 If the executor would refuse (the cut would not be exact, or would remove
 something legitimate), the finding is shown as "report only", with the
 executor's reason. Things that are often legitimate (a program's overlay)
 are offered but not pre-selected. Things that can't be removed safely yet
-(macros in old .doc files, active content in a PDF's base revision,
-external template links) are reported, never touched.
+(encrypted PDFs, damaged sector chains, unbalanced RTF) are reported,
+never touched.
 """
 from __future__ import annotations
 
@@ -26,7 +33,7 @@ import re
 from dataclasses import dataclass, field
 from pathlib import PurePosixPath, PureWindowsPath
 
-from repair_engine.executor import Plan, apply
+from repair_engine.executor import Plan, apply, cdr
 from repair_engine.parsers import parse
 from repair_engine.regions import RegionMap
 from repair_engine.validator import Validation, validate
@@ -230,20 +237,34 @@ def _pdf(data: bytes, regions: RegionMap) -> list[RepairFinding]:
             f"The last update to this PDF only adds {', '.join(flags).replace('_', ' ')}. Removing that update returns the document to its previous version.",
             min(r.start for r in in_update), len(data), [] if reason else plans, recommended=not reason, reason=reason,
         ))
-    for region in base[:6]:
-        flags = sorted(set(region.metadata.get("flags") or []) & ACTIVE_PDF)
+    try:
+        tokens = cdr.pdf_active_tokens(data, last_start if in_update else None)
+    except Exception:  # noqa: BLE001 - analysis never raises
+        tokens = []
+    if base or tokens:
+        flags = sorted({flag for r in base for flag in r.metadata.get("flags") or []} & ACTIVE_PDF)
+        names = sorted({name.decode("latin-1") for _s, _e, name in tokens})
+        plans = [Plan("neutralize_pdf_names", params={"before": last_start if in_update else None})]
+        reason = _try(data, plans) if tokens else "The active entries are written in a way that can't be renamed in place."
         found.append(RepairFinding(
-            f"pdf_object@{region.start}", "pdf_active", "high" if {"javascript", "launch"} & set(flags) else "medium",
+            "pdf_active_base", "pdf_active",
+            "high" if {"javascript", "launch"} & set(flags) or {"JavaScript", "JS", "Launch"} & set(names) else "medium",
             "Active content inside the document",
-            f"Object {region.metadata['number']} carries {', '.join(flags).replace('_', ' ')}.",
-            region.start, region.end, reason="It's part of the document itself; removing it would need rewriting the PDF, which isn't supported yet.",
+            f"{len(base) or len(tokens)} object(s) carry {', '.join(flags).replace('_', ' ') or 'active entries'}"
+            + (f" ({', '.join('/' + n for n in names[:6])})" if names else "")
+            + ". Disarming renames those entries, letter for letter, to names no PDF reader acts on: the text, pages and links stay.",
+            min([r.start for r in base] + [t[0] for t in tokens]), max([r.end for r in base] + [t[1] for t in tokens]),
+            [] if reason else plans, recommended=not reason, reason=reason,
         ))
     hidden = [s for s in regions.of_kind("pdf_stream") if ACTIVE_PDF & set(s.metadata.get("decoded_flags") or [])]
     if hidden:
+        plans = [Plan("rebuild_pdf_without_active")]
+        reason = _try(data, plans)
         found.append(RepairFinding(
             "pdf_objstm", "pdf_active", "high", "Active content hidden in compressed objects",
-            "A compressed object stream contains JavaScript or automatic actions.",
-            hidden[0].start, hidden[0].end, reason="Compressed object streams can't be edited safely yet.",
+            "A compressed object stream contains JavaScript or automatic actions. Disarming rebuilds the PDF without "
+            "scripts, automatic actions and attachments, and checks it still has every page.",
+            hidden[0].start, hidden[0].end, [] if reason else plans, recommended=not reason, reason=reason,
         ))
     return found
 
@@ -274,30 +295,123 @@ def _ooxml(data: bytes, name: str, regions: RegionMap) -> list[RepairFinding]:
             min(m.start for m in members), max(m.end for m in members), [] if reason else plans,
             recommended=not reason and (unexpected or role != "embedded_object"), reason=reason,
         ))
-    for link in regions.of_kind("ooxml_external_link"):
-        # Hyperlinks are ordinary; a remote template, linked object, frame or
-        # sub-document is fetched when the document opens.
-        risky = [target for target, kind in zip(link.metadata.get("targets", []), link.metadata.get("types") or [])
-                 if kind.lower() in {"attachedtemplate", "oleobject", "frame", "subdocument"}]
-        if not risky:
-            continue
+    # Hyperlinks are ordinary; a remote template, linked object, frame or
+    # sub-document is fetched when the document opens.
+    links = [(link, target) for link in regions.of_kind("ooxml_external_link")
+             for target, kind in zip(link.metadata.get("targets", []), link.metadata.get("types") or [])
+             if kind.rsplit("/", 1)[-1].lower() in cdr.RISKY_LINK_TYPES and target != "about:blank"]
+    if links:
+        plans = [Plan("neutralize_ooxml_external")]
+        reason = _try(data, plans)
         found.append(RepairFinding(
-            f"ooxml_link@{link.start}", "ooxml_link", "high", "Loads something from the internet when opened",
-            "The document points to: " + ", ".join(risky[:2]),
-            link.start, link.end, reason="Removing an external link safely needs editing the part that uses it; that isn't supported yet.",
+            "ooxml_link", "ooxml_link", "high", "Loads something from the internet when opened",
+            "The document points to: " + ", ".join(t for _l, t in links[:2])
+            + ". Disarming points those links at an empty page; hyperlinks in the text are kept.",
+            min(link.start for link, _t in links), max(link.end for link, _t in links),
+            [] if reason else plans, recommended=not reason, reason=reason,
         ))
     return found
 
 
-def _ole(regions: RegionMap) -> list[RepairFinding]:
+def _ole(data: bytes, regions: RegionMap) -> list[RepairFinding]:
     macros = [r for r in regions.of_kind("ole_stream") if r.metadata.get("role") == "vba"]
-    if not macros:
-        return []
+    if not macros or not cdr.ole_vba_has_code(data):
+        return []   # no project, or one already emptied
+    plans = [Plan("zero_ole_vba")]
+    reason = _try(data, plans)
     return [RepairFinding(
         "ole_vba", "ole_vba", "high", "Macros (VBA code)",
-        "This older Office file contains macro code.",
+        "This older Office file contains macro code. Disarming overwrites every part of the macro project with zeros, "
+        "in place: the document's text and layout are kept; Office may mention the removed macro project when it opens.",
         min(r.start for r in macros), max(r.end for r in macros),
-        reason="Removing macros from older Office files isn't supported yet. Opening it in Office and saving as .docx/.xlsx removes them.",
+        [] if reason else plans, recommended=not reason, reason=reason,
+    )]
+
+
+DANGEROUS_MEMBERS = {"exe", "scr", "com", "pif", "bat", "cmd", "vbs", "vbe", "js", "jse", "wsf", "wsh", "hta", "ps1",
+                     "msi", "lnk", "jar", "dll", "iso", "img", "cpl", "reg", "url", "msc", "vhd", "vhdx"}
+SCRIPT_MEMBERS = {"bat", "cmd", "vbs", "vbe", "js", "jse", "wsf", "wsh", "hta", "ps1", "lnk", "reg", "url", "msc"}
+CODE_PACKAGES = {".jar", ".apk", ".xpi", ".crx", ".whl", ".nupkg", ".vsix", ".aab", ".ipa"}
+
+
+def _archive(data: bytes, name: str, regions: RegionMap) -> list[RepairFinding]:
+    """Programs and scripts packed in an ordinary ZIP (apps and extensions are code by design)."""
+    members = regions.of_kind("zip_member")
+    names = {m.metadata.get("name", "") for m in members}
+    if PureWindowsPath(name).suffix.lower() in CODE_PACKAGES or names & {"AndroidManifest.xml", "manifest.json", "META-INF/MANIFEST.MF"}:
+        return []
+    found: list[RepairFinding] = []
+    for member in members[:200]:
+        member_name = member.metadata.get("name", "")
+        if member_name.endswith("/"):
+            continue
+        slashed = member_name.replace("\\", "/")
+        base = PurePosixPath(slashed).name
+        pieces = base.lower().split(".")
+        extension = pieces[-1] if len(pieces) > 1 else ""
+        double = len(pieces) > 2 and extension in RUNS and pieces[-2].strip() in LOOKS_HARMLESS
+        escapes = slashed.startswith("/") or ".." in slashed.split("/") or bool(re.match(r"^[A-Za-z]:", slashed))
+        hidden = any(c in HIDDEN for c in member_name)
+        if not (extension in DANGEROUS_MEMBERS or double or escapes or hidden):
+            continue
+        plans = [Plan("remove_zip_member", member.start, params={"member": member_name})]
+        reason = _try(data, plans)
+        if double or hidden:
+            title, severity = "A program disguised with a fake extension", "high"
+            why = f"'{base}' is named like a document but runs as .{extension}."
+        elif escapes:
+            title, severity = "A member that writes outside the folder", "high"
+            why = f"'{member_name[:80]}' would be extracted outside the destination folder (path traversal)."
+        elif extension in SCRIPT_MEMBERS:
+            title, severity = "A script inside the archive", "high"
+            why = f"'{base}' runs commands when opened."
+        else:
+            title, severity = "A program inside the archive", "medium"
+            why = f"'{base}' is a program. Installers legitimately ship programs, so it isn't removed unless you choose to."
+        found.append(RepairFinding(
+            f"zip_member@{member.start}", "zip_member", severity, title,
+            why + " Removing it leaves every other file in the archive byte-identical.",
+            member.start, member.end, [] if reason else plans,
+            recommended=not reason and (double or hidden or escapes or extension in SCRIPT_MEMBERS), reason=reason,
+        ))
+    return found
+
+
+def _markup(data: bytes) -> list[RepairFinding]:
+    if not cdr.looks_like_markup(data):
+        return []
+    active = cdr.markup_active(data)
+    if not active:
+        return []
+    plans = [Plan("disarm_markup")]
+    reason = _try(data, plans)
+    strong = {"<script>", "<iframe>", "<object>", "<embed>", "<applet>", "event handler", "script URL"}
+    return [RepairFinding(
+        "markup_active", "markup_active", "high" if strong & set(active) else "medium",
+        "Scripts or active parts in the page",
+        "Found: " + ", ".join(active[:6]) + ". Disarming removes them and keeps the page's text, layout and pictures.",
+        0, len(data), [] if reason else plans, recommended=not reason, reason=reason,
+    )]
+
+
+def _rtf(data: bytes) -> list[RepairFinding]:
+    if not cdr.looks_like_rtf(data):
+        return []
+    try:
+        spans = cdr.rtf_objects(data)
+    except Exception as exc:  # noqa: BLE001 - unbalanced braces: report only
+        if b"\\object" in data or b"\\objdata" in data:
+            return [RepairFinding("rtf_object", "rtf_object", "high", "Embedded objects in the document",
+                                  "The document embeds objects, the way most RTF exploits deliver their code.", reason=str(exc))]
+        return []
+    if not spans:
+        return []
+    plans = [Plan("remove_rtf_objects")]
+    reason = _try(data, plans)
+    return [RepairFinding(
+        "rtf_object", "rtf_object", "high", "Embedded objects in the document",
+        f"{len(spans)} embedded object(s), the way most RTF exploits deliver their code. Removing them keeps the text.",
+        spans[0][0], spans[-1][1], [] if reason else plans, recommended=not reason, reason=reason,
     )]
 
 
@@ -311,7 +425,11 @@ def analyze(data: bytes, name: str) -> RepairReport:
     elif regions.format == "ooxml":
         findings += _ooxml(data, name, regions)
     elif regions.format == "ole":
-        findings += _ole(regions)
+        findings += _ole(data, regions)
+    elif regions.format == "zip":
+        findings += _archive(data, name, regions)
+    elif regions.format == "unknown":
+        findings += _markup(data) + _rtf(data)
     order = {"high": 0, "medium": 1, "low": 2}
     findings.sort(key=lambda f: (order.get(f.severity, 3), not f.repairable, f.start or 0))
     return RepairReport(PureWindowsPath(name).name or name, len(data), hashlib.sha256(data).hexdigest(), regions.format, regions, findings)
@@ -356,7 +474,9 @@ def repair(data: bytes, name: str, selected: list[RepairFinding]) -> RepairResul
         return RepairResult(False, None, new_name, 0, [], steps, validation, len(before.findings), len(before.findings), sha_before, None,
                             "The repaired copy failed its checks, so nothing was written.")
     after = analyze(current, new_name)
+    # A cut shrinks the file; a disarm may keep its length (renamed or zeroed bytes) or rewrite it.
+    taken = sum(len(r.data) for r in removed if r.end > r.start)
     return RepairResult(
-        True, current, new_name, len(data) - len(current) if len(current) <= len(data) else sum(len(r.data) for r in removed),
+        True, current, new_name, max(len(data) - len(current), taken),
         removed, steps, validation, len(before.findings), len(after.findings), sha_before, hashlib.sha256(current).hexdigest(),
     )

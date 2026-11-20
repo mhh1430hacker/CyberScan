@@ -70,7 +70,9 @@
   }
 
   /* ================= horizontal pin ================= */
-  const how = $("how"), track = $("l-steps");
+  // "How it works" is an ordinary grid now (it used to be a sideways pin): only a .hpin section pins
+  const how = $("how") && $("how").classList.contains("hpin") ? $("how") : null;
+  const track = how ? $("l-steps") : null;
   let travel = 0;
   function layoutHow() {
     if (!how) return;
@@ -119,15 +121,20 @@
   };
   const near = (p, vh, margin) => p && p.top - scrollY < vh + margin && p.top + p.height - scrollY > -margin;
 
-  window.addEventListener("scroll", () => { dirty = true; }, { passive: true });
+  // the loop runs only while something moves: a scroll (or a re-measure) wakes it, and it
+  // stops by itself once the speed has settled; an idle page costs no frames at all
+  let looping = false;
+  const wake = () => { if (!looping) { looping = true; requestAnimationFrame(frame); } };
+  window.addEventListener("scroll", () => { dirty = true; wake(); }, { passive: true });
 
   function frame() {
-    requestAnimationFrame(frame);
+    looping = false;
     if (!visibleLanding()) return;
     const moving = dirty || gliding || Math.abs(velocity) > 0.05 || Math.abs(skew) > 0.01;
     if (!moving) return;
     dirty = false;
     tick();
+    wake();
   }
   function tick() {
     if (!visibleLanding()) return;
@@ -147,8 +154,8 @@
 
     // horizontal steps
     if (!stepOffsets.length && track && track.children.length) measureAll();   // measured before the steps existed
-    const hpos = pos.get(how);
-    if (near(hpos, vh, vh * 0.5)) {
+    const hpos = how && pos.get(how);
+    if (how && near(hpos, vh, vh * 0.5)) {
       const hp = clamp((y - hpos.top) / Math.max(1, hpos.height - vh));
       const x = (rtl() ? 1 : -1) * travel * clamp(hp * 1.15 - 0.075);
       put(track, "transform", `translate3d(${x.toFixed(1)}px,0,0)`);
@@ -213,7 +220,7 @@
 
   function measureAll() {
     pos.clear();
-    [mfSec, how, cube, bytes, bandsBox, privGrid, ...tinted].forEach(measure);
+    [mfSec, how, cube, bytes, bandsBox, privGrid, ...tinted].filter(Boolean).forEach(measure);
     // the steps' centres with the track at rest (x = 0)
     stepOffsets.length = 0;
     if (track) {
@@ -224,6 +231,7 @@
       track.style.transform = saved;
     }
     dirty = true;
+    wake();
   }
   function layout() { layoutHow(); measureAll(); }
   // fonts, images and translations change the page height: measure again
@@ -237,6 +245,6 @@
   if (reduced) {
     mfWords.forEach((w) => w.style.setProperty("--k", "1"));
   }
-  requestAnimationFrame(frame);
+  wake();
   window.CSScroll = { tick, layout, measure: measureAll };
 })();

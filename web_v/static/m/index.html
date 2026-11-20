@@ -50,6 +50,11 @@
   <main id="main">
     <!-- ============ SCAN ============ -->
     <section class="view" id="v-scan">
+      <div class="home-stats" id="home-stats" hidden>
+        <div><b id="hs-total">0</b><small data-t="hsChecks">checks</small></div>
+        <div><b id="hs-bad" class="bad">0</b><small data-t="hsWarnings">warnings</small></div>
+        <div><b id="hs-last">—</b><small data-t="hsLast">last check</small></div>
+      </div>
       <div class="engine-card" id="engine-card" role="status" aria-live="polite">
         <span class="dot" id="engine-dot"></span>
         <div><b id="engine-title"></b><small id="engine-sub"></small></div>
@@ -82,6 +87,10 @@
         </div>
         <button class="cta" id="go" type="button" disabled><span data-t="scan">Check it</span></button>
         <p class="cloud-note" id="cloud-note"></p>
+        <div class="home-recent" id="home-recent" hidden>
+          <div class="hr-head"><h3 data-t="recentTitle">Recent checks</h3><button class="link" id="recent-all" type="button" data-t="recentAll">All</button></div>
+          <ul class="list" id="recent-list"></ul>
+        </div>
       </div>
 
       <div id="progress" class="card" hidden>
@@ -175,6 +184,20 @@
       </div>
     </section>
 
+    <!-- ============ TOOLS ============ -->
+    <section class="view" id="v-tools" hidden>
+      <p class="muted tools-lede" data-t="toolsLede">Quick checks that run on this phone.</p>
+      <div class="tool-grid">
+        <button class="tool" data-tool="qr" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 14h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z"/></svg><b data-t="tQr">Scan a QR code</b><small data-t="tQrSub">Read it, then check the link inside</small></button>
+        <button class="tool" data-tool="link" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.66 0l3-3a4 4 0 0 0-5.66-5.66l-1 1"/><path d="M14 10a4 4 0 0 0-5.66 0l-3 3a4 4 0 0 0 5.66 5.66l1-1"/></svg><b data-t="tLinkTool">Check a link</b><small data-t="tLinkSub">Before you open it</small></button>
+        <button class="tool" data-tool="text" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H8l-4 4z"/><path d="M8 9h8M8 12h5"/></svg><b data-t="tMsg">Check a message</b><small data-t="tMsgSub">SMS, email or chat text</small></button>
+        <button class="tool" data-tool="repair" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L3.5 17.3a1.8 1.8 0 0 0 2.5 2.5l5.8-5.8a4 4 0 0 0 5.2-5.4l-2.6 2.6-2.3-.5-.5-2.3z"/></svg><b data-t="tRepair">Repair a file</b><small data-t="tRepairSub">Remove what doesn't belong, in a copy</small></button>
+        <button class="tool" data-tool="hash" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4 7 20M17 4l-2 16M4 9h16M3 15h16"/></svg><b data-t="tHash">Verify a download</b><small data-t="tHashSub">Compare its fingerprint</small></button>
+        <button class="tool" data-tool="pw" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 11V8a6 6 0 1 1 12 0v3"/><path d="M5 11h14v10H5z"/><path d="M12 15v2"/></svg><b data-t="tPw">Password strength</b><small data-t="tPwSub">Never leaves this phone</small></button>
+      </div>
+      <input type="file" id="tool-repair-file" hidden>
+    </section>
+
     <!-- ============ SETTINGS ============ -->
     <section class="view" id="v-settings" hidden>
       <h3 data-t="setGeneral">General</h3>
@@ -231,6 +254,54 @@
   </main>
 
   <!-- repair sheet -->
+  <div class="sheet-veil" id="qr-sheet" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="qr-title">
+      <span class="grab" aria-hidden="true"></span>
+      <h2 id="qr-title" data-t="tQr">Scan a QR code</h2>
+      <div class="qr-view"><video id="qr-video" playsinline muted></video><span class="qr-frame" aria-hidden="true"></span></div>
+      <p class="muted" id="qr-status" aria-live="polite"></p>
+      <label class="ghost qr-photo"><input type="file" id="qr-file" accept="image/*" hidden><span data-t="qrPhoto">Choose a photo instead</span></label>
+      <div class="sheet-actions"><button class="ghost" id="qr-close" type="button" data-t="close">Close</button></div>
+    </div>
+  </div>
+
+  <div class="sheet-veil" id="hash-sheet" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="hash-title">
+      <span class="grab" aria-hidden="true"></span>
+      <h2 id="hash-title" data-t="tHash">Verify a download</h2>
+      <p class="muted" data-t="hashLede">Paste the fingerprint the publisher lists, then choose the file. The file is read on this phone only.</p>
+      <input class="field" id="hash-expected" type="text" autocomplete="off" spellcheck="false" dir="ltr">
+      <label class="picker small-picker"><input type="file" id="hash-file" hidden><b id="hash-pick" data-t="hashPick">Choose the file</b></label>
+      <div id="hash-out" class="hash-out" aria-live="polite"></div>
+      <div class="sheet-actions"><button class="ghost" id="hash-close" type="button" data-t="close">Close</button></div>
+    </div>
+  </div>
+
+  <div class="sheet-veil" id="pw-sheet" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="pw-title">
+      <span class="grab" aria-hidden="true"></span>
+      <h2 id="pw-title" data-t="tPw">Password strength</h2>
+      <p class="muted" data-t="pwLede">Type a password to see how hard it is to guess. It isn't saved or sent anywhere.</p>
+      <div class="pw-row"><input class="field" id="pw-input" type="password" autocomplete="off" spellcheck="false" dir="ltr"><button class="icon-btn" id="pw-show" type="button" aria-label="Show">👁</button></div>
+      <div class="pw-meter" aria-hidden="true"><i id="pw-bar"></i></div>
+      <b id="pw-verdict" aria-live="polite"></b>
+      <p class="muted small" id="pw-time"></p>
+      <ul class="pw-tips" id="pw-tips"></ul>
+      <div class="sheet-actions"><button class="ghost" id="pw-close" type="button" data-t="close">Close</button></div>
+    </div>
+  </div>
+
+  <div class="sheet-veil" id="intro-sheet" hidden>
+    <div class="sheet intro" role="dialog" aria-modal="true" aria-labelledby="intro-title">
+      <span class="grab" aria-hidden="true"></span>
+      <div class="intro-art" id="intro-art" aria-hidden="true"></div>
+      <h2 id="intro-title"></h2>
+      <p class="muted" id="intro-text"></p>
+      <div class="intro-dots" id="intro-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+      <div class="sheet-actions"><button class="ghost" id="intro-skip" type="button" data-t="introSkip">Skip</button><button class="cta small" id="intro-next" type="button"></button></div>
+    </div>
+  </div>
+
   <div class="sheet-veil" id="repair-sheet" hidden>
     <div class="sheet" role="dialog" aria-modal="true">
       <span class="grab" aria-hidden="true"></span>
@@ -271,6 +342,7 @@
   <nav class="tabbar" aria-label="Main">
     <button class="tab on" data-view="scan" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg><span data-t="navScan">Scan</span></button>
     <button class="tab" data-view="history" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 12a8.5 8.5 0 1 0 2.5-6M3.5 4v4h4"/><path d="M12 7.5V12l3 2"/></svg><span data-t="navHistory">History</span></button>
+    <button class="tab" data-view="tools" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/></svg><span data-t="navTools">Tools</span></button>
     <button class="tab" data-view="settings" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.6M12 18.6v2.6M4.1 7.4l2.2 1.3M17.7 15.3l2.2 1.3M4.1 16.6l2.2-1.3M17.7 8.7l2.2-1.3"/><circle cx="12" cy="12" r="7.2"/></svg><span data-t="navSettings">Settings</span></button>
     <i class="tab-ink" aria-hidden="true"></i>
   </nav>

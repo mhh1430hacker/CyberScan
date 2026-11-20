@@ -7,10 +7,13 @@ I18N["id"] = {
 "lPrivacy": "Privasi",
 "lOpen": "Buka aplikasi",
 "lEyebrow": "Analisis statis · apa pun yang Anda periksa tidak pernah dijalankan",
-"lTitle1": "Lihat isi file apa pun",
-"lTitle2": "sebelum file itu melihat isi",
-"lTitle3": "komputer Anda.",
-"lSub": "CyberScan membedah file, tautan, atau potongan teks byte demi byte tanpa pernah menjalankannya, menjelaskan temuannya dengan bahasa sederhana, dan dapat membangun ulang salinan tanpa bagian yang tidak semestinya ada dalam formatnya.",
+"lTitle1": "Setiap file, tautan",
+"lTitle2": "dan pesan diperiksa",
+"lTitle3": "sebelum Anda membukanya.",
+"lTypeLead": "Periksa setiap",
+"lTypeWords": ["file", "tautan", "pesan", "email", "lampiran"],
+"lTypeTail": "sebelum Anda membukanya.",
+"lSub": "CyberScan memeriksa file, tautan, dan teks tanpa pernah menjalankannya. Setiap item dicocokkan dengan ribuan aturan ancaman terbuka dan lebih dari 1,5 juta sidik jari malware yang dikenal, setiap temuan dijelaskan dengan bahasa yang jelas, dan salinan terverifikasi diperbaiki saat ada bagian yang tidak semestinya.",
 "lStart": "Mulai memindai",
 "lWatch": "Lihat cara kerjanya",
 "lCardFile": "invoice_2026.pdf.exe",
@@ -103,25 +106,6 @@ I18N["id"] = {
 "Jenis file sama",
 "Struktur utuh",
 "Bagian yang dihapus disegel di karantina"
-],
-"lStatsTitle": "Dibuat untuk jujur",
-"stats": [
-[
-"pemindaian tersimpan di komputer ini",
-"scans"
-],
-[
-"mesin analisis",
-"engines"
-],
-[
-"byte yang dikirim aplikasi desktop ke internet secara default",
-"zero"
-],
-[
-"bahasa, termasuk kanan-ke-kiri",
-"langs"
-]
 ],
 "lPrivTitle": "File Anda tetap milik Anda",
 "privs": [
@@ -565,8 +549,6 @@ I18N["id"] = {
 "ghMove": "Gerakkan untuk membelah medan",
 "ghHold": "Tahan untuk menariknya",
 "ghRelease": "Lepaskan untuk menyebarkan",
-"soundOn": "Lo-fi aktif",
-"soundOff": "Lo-fi nonaktif",
 "lPhone": "Dapatkan aplikasi",
 "apkTitle": "Unduh untuk Android",
 "apkSigned": "Ditandatangani oleh CyberScan",

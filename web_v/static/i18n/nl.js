@@ -7,10 +7,13 @@ I18N["nl"] = {
 "lPrivacy": "Privacy",
 "lOpen": "Open de app",
 "lEyebrow": "Statische analyse · niets wat je controleert wordt ooit uitgevoerd",
-"lTitle1": "Kijk in elk bestand",
-"lTitle2": "voordat het in",
-"lTitle3": "je computer kijkt.",
-"lSub": "CyberScan haalt een bestand, link of tekstfragment byte voor byte uit elkaar zonder het ooit uit te voeren, legt in gewone taal uit wat het vindt en kan een kopie opnieuw opbouwen zonder de delen die niet in de bestandsindeling thuishoren.",
+"lTitle1": "Elk bestand, elke link",
+"lTitle2": "en elk bericht gecontroleerd",
+"lTitle3": "voordat u het opent.",
+"lTypeLead": "Controleer elk",
+"lTypeWords": ["bestand", "bericht", "document", "programma", "archief"],
+"lTypeTail": "voordat u het opent.",
+"lSub": "CyberScan inspecteert bestanden, links en tekst zonder ze ooit uit te voeren. Elk item wordt vergeleken met duizenden open dreigingsregels en meer dan 1,5 miljoen vingerafdrukken van bekende malware; elke bevinding wordt helder uitgelegd, en waar iets niet thuishoort, wordt een gecontroleerde kopie hersteld.",
 "lStart": "Begin met scannen",
 "lWatch": "Bekijk hoe het werkt",
 "lCardFile": "invoice_2026.pdf.exe",
@@ -103,25 +106,6 @@ I18N["nl"] = {
 "Zelfde bestandstype",
 "Structuur intact",
 "Verwijderde delen verzegeld in quarantaine"
-],
-"lStatsTitle": "Gebouwd om eerlijk te zijn",
-"stats": [
-[
-"scans opgeslagen op deze computer",
-"scans"
-],
-[
-"analyse-engines",
-"engines"
-],
-[
-"bytes die de desktop-app standaard naar internet verstuurt",
-"zero"
-],
-[
-"talen, inclusief rechts-naar-links",
-"langs"
-]
 ],
 "lPrivTitle": "Jouw bestanden blijven van jou",
 "privs": [
@@ -565,8 +549,6 @@ I18N["nl"] = {
 "ghMove": "Beweeg om het veld te splijten",
 "ghHold": "Houd vast om het aan te trekken",
 "ghRelease": "Laat los om het te verspreiden",
-"soundOn": "Lo-fi aan",
-"soundOff": "Lo-fi uit",
 "lPhone": "Download de app",
 "apkTitle": "Downloaden voor Android",
 "apkSigned": "Ondertekend door CyberScan",

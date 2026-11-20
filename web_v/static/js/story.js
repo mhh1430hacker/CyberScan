@@ -13,6 +13,7 @@
   const { $, el, t } = window.CS;
   const section = $("story");
   const canvas = $("story-canvas");
+  if (!section || !canvas) return;      // the section was merged into "How it works" (Nov 2026)
   const ctx = canvas.getContext("2d");
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 

@@ -1,0 +1,254 @@
+/* ===================== fabric: one motion language, polished edges, a seamless page =====================
+ * Loaded after the landing sheets (before a11y.css), on the landing and the scan page. Sections:
+ *   1. tokens          easing, durations, radii, edge light
+ *   2. polished edges  cards, panels, buttons, inputs share one glass edge (light above, shade below)
+ *   3. motion          reveals without blur (blur cost frames on phones), staggered entrances,
+ *                      hero choreography, hover and press states, counters
+ *   4. fabric          softened seams between sections, one spacing rhythm, hairline stitches
+ *   5. zoom            sizes that hold from 50% to 300% browser zoom
+ *   6. phones          a shorter home page with fewer animations (<= 760 px)
+ * js/fabric.js adds the heading choreography (.fx-rise / .fx-in). Everything stays still under
+ * prefers-reduced-motion and html.reduce-motion. */
+
+/* ---------------- 1. tokens ---------------- */
+:root {
+  --ease-out: cubic-bezier(.16, 1, .3, 1);       /* expo-out: everything that arrives */
+  --ease-io: cubic-bezier(.65, 0, .35, 1);       /* things that travel */
+  --ease-press: cubic-bezier(.2, 0, 0, 1);       /* short and firm */
+  --ease-back: cubic-bezier(.34, 1.36, .64, 1);  /* a small overshoot, for settling numbers */
+  --t-fast: .16s; --t-med: .34s; --t-slow: .7s; --t-enter: 1s;
+  --r-ctl: 12px; --r-card: 20px; --r-panel: 24px;
+  --edge-line: rgba(214, 184, 255, .17);
+  --edge-line-hi: rgba(228, 204, 255, .42);
+  --edge-light: inset 0 1px 0 rgba(255, 255, 255, .1), inset 0 -1px 0 rgba(0, 0, 0, .3), inset 0 0 0 1px rgba(255, 255, 255, .012);
+  --edge-drop: 0 1px 1px rgba(0, 0, 0, .25), 0 24px 56px -34px rgba(0, 0, 0, .9);
+  --edge-glow: 0 30px 70px -34px rgba(180, 108, 255, .55);
+  --sec-space: clamp(80px, 10vw, 140px);
+}
+
+/* ---------------- 2. polished edges ---------------- */
+/* cards and panels: one radius, a light top edge, a shaded bottom edge, a soft drop */
+.bento-card, .priv, .stat, .l-steps li, .bytes-demo, .pipe-panel, .sci .sci-card, .cine-info, .get-app-panel, .tm-card {
+  border-color: var(--edge-line);
+  box-shadow: var(--edge-light), var(--edge-drop);
+}
+.bento-card, .stat, .l-steps li, .bytes-demo, .sci .sci-card { border-radius: var(--r-card); }
+.scan-card { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .14), inset 0 -1px 0 rgba(0, 0, 0, .3), 0 40px 90px -40px rgba(0, 0, 0, .9), 0 0 60px -30px rgba(180, 108, 255, .55); }
+.bento-card, .priv, .stat, .l-steps li, .tm-card {
+  transition: transform var(--t-slow) var(--ease-out), box-shadow var(--t-slow) var(--ease-out), border-color var(--t-med), opacity var(--t-enter) var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  .bento-card:hover, .priv:hover, .stat:hover, .l-steps li:hover {
+    border-color: var(--edge-line-hi);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .16), inset 0 -1px 0 rgba(0, 0, 0, .3), var(--edge-glow);
+  }
+  .stat:hover, .l-steps.how-grid li:hover { transform: translateY(-4px); }
+}
+
+/* the scan page's panels */
+.page-scan .card, #app .card {
+  border-color: var(--edge-line);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), inset 0 -1px 0 rgba(0, 0, 0, .28), 0 30px 70px -44px rgba(0, 0, 0, .95);
+}
+
+/* buttons: a lit top edge on the gradient, a firm press */
+.primary {
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, .2), rgba(255, 255, 255, .04) 48%, rgba(0, 0, 0, .06)), linear-gradient(110deg, #7c3aed, #a21caf 55%, #c026d3);
+  background-size: 100% 100%, 200% 100%;
+  background-position: 0 0, 0 0;
+  transition: background-position .6s var(--ease-out), filter var(--t-med), transform var(--t-med) var(--ease-out);
+}
+.primary:hover:not(:disabled) { background-position: 0 0, 100% 0; }
+.primary:disabled { background-image: none; }
+.ghost {
+  border-radius: var(--r-ctl);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .07), inset 0 -1px 0 rgba(0, 0, 0, .25);
+  transition: border-color var(--t-med), background-color var(--t-med), box-shadow var(--t-med), transform var(--t-med) var(--ease-out), color var(--t-med);
+}
+.ghost:hover:not(:disabled) { border-color: rgba(216, 180, 254, .62); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .1), 0 0 0 1px rgba(180, 108, 255, .12), 0 10px 26px -14px rgba(180, 108, 255, .75); }
+.primary:active:not(:disabled), .ghost:active:not(:disabled), .film-btn:active, .lp-opt:active, .l-sheet-links a:active {
+  transform: translateY(1px) scale(.975); transition-duration: .08s; transition-timing-function: var(--ease-press);
+}
+.l-sheet-links a { transition: background-color var(--t-med), border-color var(--t-med), transform var(--t-med) var(--ease-out); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05); }
+:focus-visible { outline-offset: 3px; }
+
+/* inputs: sunk a little, with a light lower lip and a soft focus halo */
+.field, .sci-input, #app input[type="text"], #app input[type="url"], #app input[type="search"], #app textarea, #app select {
+  border-radius: var(--r-ctl);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, .35), inset 0 -1px 0 rgba(255, 255, 255, .04);
+  transition: border-color var(--t-med), box-shadow var(--t-med);
+}
+.field:focus, .sci-input:focus, #app textarea:focus, #app input[type="text"]:focus, #app input[type="url"]:focus {
+  border-color: rgba(216, 180, 254, .8);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, .3), 0 0 0 4px rgba(180, 108, 255, .2);
+}
+
+/* ---------------- 3. motion ---------------- */
+/* reveals: rise and settle, no blur; cards also tip up from a hinge at their foot */
+[data-reveal] {
+  opacity: 0; filter: none; transform: translate3d(0, 28px, 0);
+  transition: opacity .9s var(--ease-out), transform 1.1s var(--ease-out);
+  transition-delay: calc(var(--i, 0) * 75ms);
+}
+.bento-card[data-reveal], .priv[data-reveal], .stat[data-reveal], .l-steps li[data-reveal] {
+  transform: perspective(1200px) translate3d(0, 46px, 0) rotateX(9deg) scale(.97); transform-origin: 50% 100%;
+}
+[data-reveal].in, .bento-card[data-reveal].in, .priv[data-reveal].in, .stat[data-reveal].in, .l-steps li[data-reveal].in { opacity: 1; transform: none; }
+/* after the entrance, hover moves at hover speed (no stagger delay) */
+[data-reveal].in.fx-done { transition-delay: 0s; }
+.stack .priv[data-reveal] { opacity: 1; transform: none; }
+
+/* headings and lead lines (js/fabric.js): a short rise from behind a soft mask */
+/* (no clip-path on the waiting state: an element clipped to nothing never reports an intersection) */
+.fx-rise { opacity: 0; transform: translate3d(0, .7em, 0) scale(.985); transform-origin: 50% 100%;
+  transition: opacity .8s var(--ease-out), transform 1.05s var(--ease-out);
+  transition-delay: calc(var(--fx-i, 0) * 90ms); }
+.fx-rise.fx-in { opacity: 1; transform: none; }
+.fx-rise.fx-in.fx-done { transition-delay: 0s; }
+
+/* the hero arrives in one sequence when the page opens (landing.js toggles .ready) */
+@keyframes fx-up { from { opacity: 0; transform: translate3d(0, 22px, 0); } }
+@keyframes fx-down { from { opacity: 0; transform: translate3d(0, -14px, 0); } }
+@keyframes fx-card { from { opacity: 0; transform: perspective(1200px) translate3d(0, 40px, 0) rotateX(14deg) scale(.95); } }
+.landing.ready .l-top { animation: fx-down .8s var(--ease-out) backwards; }
+.landing.ready .hero-sub { animation: fx-up 1s var(--ease-out) .42s backwards; }
+.landing.ready .hero-ctas > * { animation: fx-up .9s var(--ease-out) backwards; }
+.landing.ready .hero-ctas > :nth-child(1) { animation-delay: .54s; }
+.landing.ready .hero-ctas > :nth-child(2) { animation-delay: .62s; }
+.landing.ready .hero-ctas > :nth-child(3) { animation-delay: .7s; }
+.landing.ready .hero-visual .scan-card { animation: fx-card 1.3s var(--ease-out) .3s backwards; }
+
+/* the typed word: before a new word, the old one is selected like text in an editor, then replaced */
+.hero .type-title .t-word { transition: box-shadow .22s var(--ease-out), -webkit-text-fill-color .22s; border-radius: .08em; }
+.hero .type-title.t-select .t-word { -webkit-text-fill-color: #fff; box-shadow: inset 0 0 0 100vmax rgba(150, 92, 255, .5); }
+.hero .type-title.t-select .t-caret { opacity: 0; animation: none; }
+.hero .type-title .t-caret { animation-timing-function: steps(1, end); }
+
+/* counters settle with a small overshoot once they land */
+@keyframes fx-settle { 40% { transform: scale(1.06); } }
+.stat b.fx-landed { animation: fx-settle .6s var(--ease-back); }
+.stat b { font-variant-numeric: tabular-nums; }
+
+/* the step numbers on "how it works" fill as they arrive */
+.how-grid li .num { transition: opacity .6s var(--ease-out), transform .9s var(--ease-out); }
+.how-grid li:not(.in) .num { opacity: 0; transform: translate3d(0, 12px, 0); }
+
+/* ---------------- 4. fabric ---------------- */
+/* a hairline of light where one section meets the next */
+.l-section, .sci, .onyx, .l-cta {
+  background-image: radial-gradient(50% 100% at 50% 0, rgba(214, 184, 255, .26), transparent 70%);
+  background-size: 100% 1px; background-repeat: no-repeat; background-position: 50% 0;
+}
+.l-section.film-sec, .hero { background-image: none; }
+/* the Saudi scene is its own green world: its edges melt into the violet page instead of cutting */
+.ks::before, .ks::after { content: ""; position: absolute; left: 0; right: 0; z-index: 3; height: 22vh; pointer-events: none; }
+.ks::before { top: 0; background: linear-gradient(180deg, var(--bg), rgba(7, 4, 15, 0)); }
+.ks::after { bottom: 0; background: linear-gradient(0deg, var(--bg), rgba(7, 4, 15, 0)); }
+.ks.still::before, .ks.still::after, .ks:not(.ks-js)::before, .ks:not(.ks-js)::after { height: 14vh; }
+/* the team and footer sit on the same night as the rest */
+.onyx .tm-aura { -webkit-mask-image: linear-gradient(180deg, transparent, #000 18%, #000 82%, transparent); mask-image: linear-gradient(180deg, transparent, #000 18%, #000 82%, transparent); }
+/* one rhythm: a section heading, its lead line, then the content */
+.l-section > .l-h2, .how-head .l-h2 { margin-bottom: 14px; }
+.l-section > .l-sub { margin-top: 0; margin-bottom: clamp(26px, 3vw, 40px); }
+.l-cta { padding-block: var(--sec-space) calc(var(--sec-space) * .9); }
+
+/* ---------------- 5. zoom: hold together from 50% to 300% ---------------- */
+html, body { max-width: 100%; }
+#landing { overflow-x: clip; }
+.l-h2, .hero-title, .tm-title, .ks-title, .lgx-title { overflow-wrap: break-word; }
+/* a very short viewport (300% zoom on a laptop): the header and the sheet never cover the page */
+@media (max-height: 420px) {
+  .l-top { position: absolute; }
+  .l-sheet { max-height: calc(100vh - 70px); }
+  .hero { min-height: 0; padding-top: 96px; }
+  nav.side-dots { display: none; }
+  .ks-js:not(.still) .ks-stage, .sy-js:not(.still) .sy-stage { height: auto; min-height: 100vh; }
+}
+/* very wide (50% zoom): content keeps a readable measure and stays centred */
+@media (min-width: 2200px) {
+  .l-section, .how-head, .l-foot { max-width: 1480px; margin-inline: auto; }
+  .hero { max-width: 1680px; margin-inline: auto; }
+}
+
+/* ---------------- 6. phones: the short home page ---------------- */
+@media (max-width: 760px) {
+  /* the detail lives on the desktop page and in the journey; the phone tells the story in brief */
+  #pipeline, .bands, #sci-deep, .sy-nav, .sy-s1, .sy-s3, .sy-s4, .sy-s5, .bento-card.desk-only,
+  .hero .orbit, .film-transcript, .tm-close, .foot-word { display: none !important; }
+  .sy.still .sy-scene { min-height: 0; }
+  .sy.still .sy-stage { min-height: 0; padding-block: 48px; }
+  /* the manifesto reads as a paragraph, already lit */
+  .manifesto { height: auto !important; }
+  .mf-pin { position: relative; height: auto; padding-block: 64px 24px; }
+  .mw { --k: 1 !important; }
+  .mf-text { font-size: clamp(22px, 6.4vw, 30px); }
+  .mf-progress { display: none; }
+  /* sections: a tighter rhythm */
+  .l-section { padding-top: 64px; padding-bottom: 32px; }
+  .l-cta { padding-block: 72px 64px; }
+  .ks-stage { min-height: 0; padding-block: 72px 56px; }
+  .ks.still .ks-seal { display: none; }
+  .ks::before, .ks::after { height: 70px; }
+  /* how it works: four short cards in a 2 x 2 grid */
+  .how-grid.l-steps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; width: auto; transform: none !important; padding-inline: 16px; }
+  .how-grid.l-steps li { min-height: 0; padding: 16px 14px; }
+  .how-grid.l-steps li p { font-size: 13.5px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+  /* science: the headline and the plain-words line, then the one scene that sums it up */
+  .sci { padding-bottom: 0; }
+  .sci-plain-intro { margin-inline: 16px; }
+  /* privacy: a plain list instead of the stacked cards */
+  .stack .priv { position: relative; top: 0; min-height: 0; padding: 20px 18px; scale: 1; filter: none; }
+  .stack .priv .pi { width: 40px; height: 40px; margin-bottom: 4px; }
+  .stack .priv b { font-size: 19px; margin-top: 8px; }
+  .stack .priv p { font-size: 14.5px; }
+  .priv-grid.stack { display: grid; gap: 10px; }
+  /* numbers: two across */
+  .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 24px; }
+  .stat { padding: 20px 10px; }
+  .stat b { font-size: clamp(28px, 9vw, 40px); }
+  .stat span { font-size: 12.5px; line-height: 1.4; display: block; }
+  .stats-note { font-size: 12px; }
+  /* features: the web cards only, a little shorter */
+  .bento-card { min-height: 0; }
+  /* the team: one swipeable row */
+  .onyx { padding: 64px 0 48px; }
+  .tm-intro { gap: 18px; }
+  .tm-emblem-reveal { width: min(150px, 42vw); }
+  .tm-grid { display: flex; grid-template-columns: none; max-width: none; gap: 12px; margin: 22px -16px 0; padding: 4px 16px 14px;
+    overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: 16px; overscroll-behavior-x: contain; scrollbar-width: none; }
+  .tm-grid::-webkit-scrollbar { display: none; }
+  .tm-card { flex: 0 0 min(76%, 300px); scroll-snap-align: start; }
+  .tm-desc { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+  .l-foot { padding-top: 24px; }
+
+  /* fewer animations: the loops that only decorate stop on phones */
+  .hero::after, .aurora i, .sc-beam, .eyebrow .dot::after, .ks-beams i, .ks-rays, .ks-dust, .tm-emblem-ring, .fj-cta-ring, .scroll-cue span { animation: none !important; }
+  .ks-dust { display: none; }
+  .bento-card:hover::after { animation: none; }
+  .fx-rise { transition-duration: .6s, .7s; }
+  [data-reveal] { transition-duration: .7s, .8s; }
+  .bento-card[data-reveal], .priv[data-reveal], .stat[data-reveal], .l-steps li[data-reveal] { transform: translate3d(0, 28px, 0); }
+}
+@media (max-width: 380px) {
+  .how-grid.l-steps { grid-template-columns: 1fr; }
+}
+
+/* ---------------- still ---------------- */
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal], .fx-rise, .bento-card[data-reveal], .priv[data-reveal], .stat[data-reveal], .l-steps li[data-reveal] { opacity: 1; transform: none; clip-path: none; transition: none; }
+  .landing.ready .l-top, .landing.ready .hero-sub, .landing.ready .hero-ctas > *, .landing.ready .hero-visual .scan-card, .stat b.fx-landed { animation: none; }
+  .how-grid li:not(.in) .num { opacity: 1; transform: none; }
+}
+html.reduce-motion [data-reveal], html.reduce-motion .fx-rise { opacity: 1; transform: none; clip-path: none; transition: none; }
+html.reduce-motion .landing.ready .l-top, html.reduce-motion .landing.ready .hero-sub, html.reduce-motion .landing.ready .hero-ctas > *,
+html.reduce-motion .landing.ready .hero-visual .scan-card, html.reduce-motion .stat b.fx-landed { animation: none; }
+html.reduce-motion .how-grid li:not(.in) .num { opacity: 1; transform: none; }
+
+/* wide screens (and 50-75% zoom): the tour button shows its label, so the bar gets the room for it
+   instead of folding into the phone menu (landing.js fits() uses the same 1480) */
+@media (min-width: 1601px) { .l-top { max-width: 1480px; } }
+
+/* full bleed: the generic `main { max-width: 1180px }` (styles.css) boxed the whole landing in,
+   so on wide screens every section stopped short of the edges. The landing's main spans the
+   window; each section keeps its own readable measure for its text. */
+main.l-main { max-width: none; padding-inline: 0; }

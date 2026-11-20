@@ -286,8 +286,101 @@ def _bm25(query: set[str], index: int, k1: float = 1.4, b: float = 0.75) -> floa
     return score
 
 
+# Direct answers to the questions people ask most, checked against the knowledge document (and
+# the code it cites). They are tried before the passage search: a question like "What is
+# CyberScan?" deserves a complete answer, not the paragraph that happens to share the most words.
+# (pattern, English answer, Arabic answer); patterns are matched on the lower-cased question.
+FAQ: tuple[tuple[re.Pattern[str], str, str], ...] = (
+    (re.compile(r"^(what('?s| is| does)|tell me about|explain)\b.{0,20}\b(cyber ?scan|this (app|tool|site|project))\b(?!.{0,40}\b(score|entropy|repair|languages?)\b)"
+                r"|ما (هو|هي|هذا)\s*(cyber ?scan|سايبر ?سكان|الأداة|التطبيق|الموقع)|ماذا (يفعل|تفعل)\s*(cyber ?scan|سايبر ?سكان)"),
+     "CyberScan checks files, links and pieces of text for warning signs without ever running them. It reads a file "
+     "as data: how its bytes are arranged, what it claims to be, what a program says it can do, and whether known "
+     "attack tricks or known malware appear. It then explains what it found in plain language, with the technical "
+     "evidence underneath, and gives a score from 0 to 100 (0 = no warning signs observed, 1–49 = worth a closer "
+     "look, 50+ = suspicious). It is a defensive research and education project by Ainex, not a replacement for "
+     "commercial antivirus. It runs as a website, a Windows desktop app and an Android app.",
+     "CyberScan يفحص الملفات والروابط والنصوص بحثًا عن علامات التحذير دون أن يشغّلها أبدًا. يقرأ الملف كبيانات: "
+     "كيف رُتّبت بايتاته، وماذا يدّعي أن يكون، وماذا يقول البرنامج إنه يستطيع فعله، وهل تظهر فيه حيل هجوم أو برامج ضارة "
+     "معروفة. ثم يشرح ما وجده بكلمات بسيطة مع الدليل التقني، ويعطي درجة من 0 إلى 100 (0 لا علامات تحذير، 1–49 تستحق "
+     "نظرة أدق، 50 فأكثر مريب). وهو مشروع بحثي تعليمي دفاعي من Ainex وليس بديلًا لبرامج مكافحة الفيروسات التجارية. "
+     "يعمل كموقع وتطبيق لسطح مكتب ويندوز وتطبيق أندرويد."),
+    (re.compile(r"\bhow (do|can|to|should) (i|you|we)?\s*(scan|check|use|test)\b|\bhow does (a |the )?scan(ning)? work\b|\bget started\b"
+                r"|كيف (أفحص|افحص|أستخدم|استخدم|يعمل الفحص)"),
+     "Open the scanner (the \"Open the app\" button), then choose what to check: a file (drop it on the page or pick "
+     "it), a link, or a piece of text such as a message. Press Scan. In a few seconds you get a verdict in plain words, "
+     "the score, and every finding with what was seen and why it matters. Nothing you check is run or opened: it is "
+     "only read as data. On the desktop app you can also scan a file by its path and keep a history of past scans.",
+     "افتح الماسح (زر \"افتح التطبيق\")، ثم اختر ما تريد فحصه: ملفًا (اسحبه إلى الصفحة أو اختره)، أو رابطًا، أو نصًا "
+     "مثل رسالة. اضغط فحص. خلال ثوانٍ تحصل على حكم بكلمات بسيطة والدرجة وكل نتيجة مع ما رُصد وسبب أهميته. لا يُشغَّل "
+     "ولا يُفتح أي شيء تفحصه: يُقرأ كبيانات فقط. وفي تطبيق سطح المكتب يمكنك أيضًا فحص ملف بمساره والاحتفاظ بسجل الفحوص."),
+    (re.compile(r"\bprivacy\b|\bprivate\b|\bmy (file|data)\b.{0,30}\b(sent|stored|kept|saved|safe|go|upload)|\b(upload|send|store|keep|save)s?\b.{0,30}\bmy (file|data)\b"
+                r"|\bwhere is my file\b|\bwhere (is|are) (it|files?) (checked|scanned)\b"
+                r"|خصوصي|بياناتي|أين يُفحص|اين يفحص|هل يُرسل|هل يرسل|يُحفظ ملفي"),
+     "On the website, the file is sent to CyberScan's server for the check, read in memory and deleted when the check "
+     "ends; no history is kept on the server and the result stays in your browser. The desktop and Android apps check "
+     "files on your own device instead. Online lookups are off by default; when you turn them on, only the file's "
+     "fingerprint (SHA-256) is sent to public threat-intelligence services, never the file itself.",
+     "في الموقع يُرسل الملف إلى خادم CyberScan للفحص، ويُقرأ في الذاكرة ثم يُحذف عند انتهاء الفحص، ولا يُحتفظ بأي سجل "
+     "على الخادم وتبقى النتيجة في متصفحك. أما تطبيقا سطح المكتب وأندرويد فيفحصان الملفات على جهازك نفسه. البحث عبر "
+     "الإنترنت متوقف افتراضيًا، وعند تفعيله تُرسل بصمة الملف (SHA-256) فقط إلى خدمات معلومات التهديدات العامة، لا الملف نفسه."),
+    (re.compile(r"\brepair|\bfix (a |my |the )?file|\bclean (a |my |the )?file|\bdisinfect|إصلاح|اصلاح|تصليح"),
+     "Repair finds parts that don't belong in a file's format, such as data hidden after the end of the file, active "
+     "content in a PDF, or a disguised double extension. It removes them from a copy and checks that the copy still "
+     "opens as the same type of file with its structure intact. Your original is never changed, and on the desktop the "
+     "removed parts are sealed in the encrypted vault. Repair can't make a malicious program safe: it doesn't "
+     "\"disinfect\" malware inside a program's code.",
+     "يعثر الإصلاح على الأجزاء التي لا تنتمي إلى صيغة الملف، مثل بيانات مخفية بعد نهايته أو محتوى نشط في ملف PDF أو "
+     "امتداد مزدوج مضلِّل. يزيلها من نسخة ويتحقق أن النسخة ما زالت تُفتح كالنوع نفسه وبنيتها سليمة. لا يُغيَّر الأصل أبدًا، "
+     "وفي سطح المكتب تُختم الأجزاء المزالة في الخزنة المشفّرة. الإصلاح لا يجعل برنامجًا ضارًا آمنًا ولا \"يطهّر\" شيفرته."),
+    (re.compile(r"\bscores?\b|\bverdict\b|\bresults? mean|الدرجة|درجة|النتيجة تعني"),
+     "The score is an explainable indicator from 0 to 100, not a probability of malware. 0 = no warning signs "
+     "observed (not a guarantee); 1–49 = Review: something is worth a closer look, so read the findings; 50 or more = "
+     "Suspicious: strong warning signs, so don't open it unless you trust the source. The score is set by the strongest "
+     "single piece of evidence, and an exact match with a known-malware list is shown as \"Known malware\". Every "
+     "finding says what was seen and why it matters.",
+     "الدرجة مؤشر قابل للشرح من 0 إلى 100 وليست احتمالًا لوجود برنامج ضار. 0 تعني لم تُرصد علامات تحذير (وليست ضمانًا)؛ "
+     "1–49 تعني مراجعة: شيء يستحق نظرة أدق فاقرأ النتائج؛ 50 فأكثر تعني مريب: علامات تحذير قوية فلا تفتحه إلا إذا كنت "
+     "تثق بمصدره. تحدد الدرجةَ أقوى دليل منفرد، والتطابق التام مع قائمة برامج ضارة معروفة يظهر بوصف \"برنامج ضار معروف\"."),
+    (re.compile(r"\blanguages?\b|\barabic\b|\btranslat|\brtl\b|right.to.left|اللغات|لغة|لغات|العربية"),
+     "The interface is available in 30 languages, including Arabic, Urdu and Persian with a right-to-left layout. "
+     "Results come in your language too. There are also reduced-motion and light (performance) modes.",
+     "الواجهة متاحة بثلاثين لغة، منها العربية والأردية والفارسية باتجاه من اليمين إلى اليسار، وتظهر النتائج بلغتك أيضًا. "
+     "وتتوفر كذلك أوضاع تقليل الحركة والوضع الخفيف للأداء."),
+)
+
+
+def _faq(question: str) -> str | None:
+    """The direct answer to a common question, in the question's language, or None."""
+    text = question.strip().lower()
+    arabic = bool(_ARABIC.search(text))
+    for pattern, english, arabic_answer in FAQ:
+        if pattern.search(text):
+            return arabic_answer if arabic else english
+    return None
+
+
+def _reflow(text: str) -> str:
+    """Join lines the document wraps mid-sentence; keep list items and paragraphs apart."""
+    paragraphs = []
+    for block in re.split(r"\n\s*\n", text.strip()):
+        lines: list[str] = []
+        for line in block.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            if lines and not re.match(r"(?:[-*•]|\d+\.)\s", line):
+                lines[-1] += " " + line          # a wrapped line: same sentence
+            else:
+                lines.append(line)
+        paragraphs.append("\n".join(lines))
+    return "\n\n".join(p for p in paragraphs if p)
+
+
 def _ask_guide(question: str) -> dict[str, Any]:
     arabic = bool(_ARABIC.search(question))
+    direct = _faq(question)
+    if direct:
+        return {"answer": direct, "source": "guide", "section": "faq", "refused": False}
     q = set(_terms(question))
     best, best_score = None, 0.0
     for index, (title, text) in enumerate(_CHUNKS):
@@ -306,7 +399,7 @@ def _ask_guide(question: str) -> dict[str, Any]:
         text = quick.group(1)
     text = re.sub(r"\s*\[[^\]]*(?:\.py|/)[^\]]*\]", "", text)   # drop source-file references
     text = re.sub(r"\*\*(.+?)\*\*", r"\1", text)
-    text = re.sub(r"[ \t]*\n[ \t]+", " ", text).strip()     # re-flow wrapped lines
+    text = _reflow(text)                                     # re-flow wrapped lines: no breaks mid-sentence
     if len(text) > 1100:
         cut = text[:1100]
         text = cut[: max(cut.rfind(". "), 600) + 1].strip() + " …"
