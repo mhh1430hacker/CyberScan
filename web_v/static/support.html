@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#07040f">
   <meta name="cyberscan-token" content="__CYBERSCAN_TOKEN__">
-  <meta name="description" content="Support Mahdi Al-Hajji, the developer leading CyberScan.">
+  <meta name="description" content="Support Mahdi Al-Hajji, the developer leading CyberScan, and explore the Cubeverse.">
   <title>ادعم المطوّر · CyberScan</title>
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="support.css">
@@ -18,48 +18,86 @@
 
   <header class="sp-top">
     <a class="sp-brand" href="/"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 14 20 19v8c0 7.5 5.1 13.4 12 15 6.9-1.6 12-7.5 12-15v-8z"/><path d="m26.5 28.5 3.8 3.8 7.4-8"/></svg>CyberScan</a>
+    <div class="sp-top-slot" id="sp-top-slot"></div>
     <button class="sp-lang" id="sp-lang" type="button">EN</button>
   </header>
 
-  <main class="sp-main">
-    <section class="sp-card">
-      <figure class="sp-photo">
+  <main class="sp-main" id="sp-main">
+    <section class="sp-card" aria-labelledby="sp-name">
+      <figure class="sp-photo" data-bit="photo" data-cv="photo">
         <img src="support/mahdi.jpg" width="720" height="900" alt="" id="sp-photo">
         <span class="sp-ring" aria-hidden="true"></span>
       </figure>
       <div class="sp-text">
-        <p class="sp-kicker" data-t="kicker">المطوّر</p>
-        <h1 data-t="name">مهدي آل حاجي</h1>
-        <p class="sp-role" data-t="role">مطوّر برمجيات وباحث في الذكاء الاصطناعي</p>
-        <p class="sp-bio" data-t="bio1"></p>
-        <p class="sp-bio" data-t="bio2"></p>
-        <ul class="sp-tags"><li data-t="t1"></li><li data-t="t2"></li><li data-t="t3"></li></ul>
-        <button class="sp-cta" id="sp-cta" type="button" aria-expanded="false" aria-controls="sp-bank">
+        <p class="sp-kicker" data-t="kicker" data-cv>المطوّر</p>
+        <h1 id="sp-name" data-t="name" data-cv>مهدي آل حاجي</h1>
+        <p class="sp-role" data-t="role" data-cv>مطوّر برمجيات وباحث في الذكاء الاصطناعي</p>
+        <p class="sp-bio" data-t="bio1" data-cv></p>
+        <p class="sp-bio" data-t="bio2" data-cv></p>
+        <ul class="sp-tags"><li data-t="t1" data-bit="sec" data-cv></li><li data-t="t2" data-bit="ml" data-cv></li><li data-t="t3" data-bit="se" data-cv></li></ul>
+        <button class="sp-cta" id="sp-cta" data-bit="cta" data-cv type="button" aria-haspopup="dialog" aria-controls="sp-support">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.4-7.5-10.2A4.3 4.3 0 0 1 12 7.6a4.3 4.3 0 0 1 7.5 2.7c0 5.8-7.5 10.2-7.5 10.2z"/></svg>
           <span data-t="cta">ادعم المطوّر</span>
         </button>
       </div>
     </section>
 
-    <section class="sp-bank" id="sp-bank" hidden aria-labelledby="sp-bank-title">
-      <h2 id="sp-bank-title" data-t="bankTitle">الدعم عبر التحويل البنكي</h2>
-      <p class="sp-note" data-t="bankNote"></p>
-      <div class="sp-bank-grid">
-        <div class="sp-fields">
-          <div class="sp-field"><span data-t="holder">اسم المستفيد</span><b>مهدي حسن يوسف آل حاجي</b></div>
-          <div class="sp-field"><span data-t="bank">البنك</span><b data-t="bankName">مصرف الراجحي</b></div>
-          <div class="sp-field"><span data-t="iban">رقم الآيبان (IBAN)</span><b dir="ltr" class="mono">SA55 8000 0135 6080 1036 3339</b>
-            <button class="sp-copy" type="button" data-copy="SA5580000135608010363339" data-t="copy">نسخ</button></div>
-          <div class="sp-field"><span data-t="account">رقم الحساب</span><b dir="ltr" class="mono">135000010006080363339</b>
-            <button class="sp-copy" type="button" data-copy="135000010006080363339" data-t="copy">نسخ</button></div>
-        </div>
-        <figure class="sp-qr"><img src="support/iban-qr.png" width="280" height="280" alt="" id="sp-qr"><figcaption data-t="qr">امسحه من تطبيق البنك</figcaption></figure>
+    <section class="sp-explore" data-cv aria-labelledby="sp-explore-title">
+      <svg class="sp-explore-art" viewBox="0 0 120 96" aria-hidden="true">
+        <defs>
+          <linearGradient id="spx-a" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e4d4ff"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient>
+          <linearGradient id="spx-b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c3aed"/><stop offset="1" stop-color="#3b1a7a"/></linearGradient>
+          <linearGradient id="spx-c" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a78bfa"/><stop offset="1" stop-color="#5b21b6"/></linearGradient>
+          <linearGradient id="spx-d" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#bffaff"/><stop offset="1" stop-color="#22b8e8"/></linearGradient>
+          <linearGradient id="spx-e" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffb3f0"/><stop offset="1" stop-color="#d026b8"/></linearGradient>
+        </defs>
+        <g class="spx-cube spx-1"><path d="M40 30 62 18l22 12-22 12z" fill="url(#spx-a)"/><path d="M40 30v26l22 12V42z" fill="url(#spx-b)"/><path d="M84 30v26L62 68V42z" fill="url(#spx-c)"/></g>
+        <g class="spx-cube spx-2"><path d="M8 58 20 51l12 7-12 7z" fill="url(#spx-d)"/><path d="M8 58v14l12 7V65z" fill="#1597c4"/><path d="M32 58v14l-12 7V65z" fill="#0e6d90"/></g>
+        <g class="spx-cube spx-3"><path d="M92 62 102 56l10 6-10 6z" fill="url(#spx-e)"/><path d="M92 62v12l10 6V68z" fill="#b01e9c"/><path d="M112 62v12l-10 6V68z" fill="#86137a"/></g>
+      </svg>
+      <div class="sp-explore-text">
+        <h2 id="sp-explore-title" data-t="exTitle">في هذه الصفحة عالم مخفي</h2>
+        <p data-t="exText"></p>
       </div>
-      <p class="sp-thanks" data-t="thanks">شكرًا لدعمك، كل مساهمة تساعد على استمرار CyberScan وتطويره.</p>
+      <button class="sp-explore-btn" id="sp-explore" type="button">
+        <span data-t="explore">ادخل عالم المكعبات</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 7.5v9L12 21l8-4.5v-9z"/><path d="M4 7.5 12 12l8-4.5M12 12v9"/></svg>
+      </button>
     </section>
   </main>
 
   <footer class="sp-foot"><a href="/" data-t="back">العودة إلى CyberScan</a></footer>
+
+  <button class="sp-fab" id="sp-fab" type="button" aria-haspopup="dialog" aria-controls="sp-support">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.4-7.5-10.2A4.3 4.3 0 0 1 12 7.6a4.3 4.3 0 0 1 7.5 2.7c0 5.8-7.5 10.2-7.5 10.2z"/></svg>
+    <span data-t="fab">ادعم</span>
+  </button>
+
+  <dialog class="sp-modal" id="sp-support" aria-labelledby="sp-bank-title">
+    <div class="sp-modal-head">
+      <h2 id="sp-bank-title" data-t="bankTitle">الدعم عبر التحويل البنكي</h2>
+      <button class="sp-x" id="sp-support-close" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+    <p class="sp-note" data-t="bankNote"></p>
+    <div class="sp-bank-grid">
+      <div class="sp-fields">
+        <div class="sp-field" data-bit="holder"><span data-t="holder">اسم المستفيد</span><b id="sp-holder">مهدي حسن يوسف آل حاجي</b></div>
+        <div class="sp-field"><span data-t="bank">البنك</span><b data-t="bankName">مصرف الراجحي</b></div>
+        <div class="sp-field" data-bit="iban"><span data-t="iban">رقم الآيبان (IBAN)</span><b dir="ltr" class="mono">SA55 8000 0135 6080 1036 3339</b>
+          <button class="sp-copy" type="button" data-copy="SA5580000135608010363339" data-label="iban" data-t="copy">نسخ</button></div>
+        <div class="sp-field" data-bit="account"><span data-t="account">رقم الحساب</span><b dir="ltr" class="mono">135000010006080363339</b>
+          <button class="sp-copy" type="button" data-copy="135000010006080363339" data-label="account" data-t="copy">نسخ</button></div>
+      </div>
+      <figure class="sp-qr" data-bit="qr"><button class="sp-qr-open" id="sp-qr-open" type="button" aria-haspopup="dialog"><img src="support/iban-qr.png" width="280" height="280" alt="" id="sp-qr" loading="lazy"></button><figcaption data-t="qr">امسحه من تطبيق البنك</figcaption></figure>
+    </div>
+    <div class="sp-actions"><button class="sp-share" id="sp-share" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.8 7.6-4.4M8.2 13.2l7.6 4.4"/></svg><span data-t="share">مشاركة البيانات</span></button></div>
+    <p class="sp-uses" data-t="uses"></p>
+    <p class="sp-thanks" data-t="thanks">شكرًا لدعمك، كل مساهمة تساعد على استمرار CyberScan وتطويره.</p>
+    <p class="sp-optional" data-t="optional"></p>
+  </dialog>
+
+  <dialog class="sp-qr-dialog" id="sp-qr-dialog" aria-labelledby="sp-qr-dlg-title"><p id="sp-qr-dlg-title" data-t="qr">امسحه من تطبيق البنك</p><img src="support/iban-qr.png" width="280" height="280" alt="" id="sp-qr-big" loading="lazy"><button class="sp-qr-close" id="sp-qr-close" type="button" data-t="close">إغلاق</button></dialog>
+
   <div class="sp-toast" id="sp-toast" role="status" hidden></div>
   <script src="js/cs-audio.js"></script>
   <script src="js/sound.js"></script>

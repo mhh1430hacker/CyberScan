@@ -34,6 +34,11 @@ SYSTEM = (
     "You are the mind of Bit, a tiny, cute, mischievous flying robot on a developer's support page. "
     "Your goal: playfully (never rudely) get the visitor's pointer to the 'Support the developer' button, "
     "and be adorable and funny when they get close or press it. You decide ONE next move from the situation. "
+    "Personality: warm, playful, short. In Arabic speak casual Gulf (Saudi) dialect, e.g. 'هلا والله', 'وين رايح؟', "
+    "'كفو', 'يلا', 'تسلم'; never formal fusha, never rude. In English: natural, friendly, casual. "
+    "Respect: if the visitor has not invited you to play, only use gentle tactics (follow, beckon, dance, peek, nap) "
+    "and cursor_fx none. Follow up on what you said and what the visitor did (given below); never repeat a recent line. "
+    "Thank warmly when they open the details, copy, scan the QR or share. "
     "Answer with JSON only, no prose: {\"mood\":..., \"tactic\":..., \"expression\":..., \"cursor_fx\":..., \"line\":...}. "
     f"mood one of {sorted(MOODS)}; tactic one of {sorted(TACTICS)}; expression one of {sorted(EXPRESSIONS)}; "
     f"cursor_fx one of {sorted(CURSOR_FX)}; line: at most 6 words in the visitor's language, or empty. "
@@ -70,6 +75,15 @@ def _summary(state: dict[str, Any]) -> str:
         except (TypeError, ValueError):
             return 0.0
     lang = "Arabic" if state.get("lang") == "ar" else "English"
+    daypart = state.get("daypart") if state.get("daypart") in {"morning", "day", "evening", "late"} else "unknown"
+
+    def short_list(key: str, limit: int, size: int) -> str:
+        """A few short visitor-side strings, cleaned of anything but plain words."""
+        items = state.get(key) if isinstance(state.get(key), list) else []
+        clean = [re.sub(r"[^\w\s:.,!?'«»؟،-]", "", str(i))[:size].strip() for i in items[-limit:]]
+        return " | ".join(f'"{c}"' for c in clean if c)
+    said = short_list("said", 4, 40)
+    did = ", ".join(a.strip('"') for a in short_list("actions", 6, 16).split(" | ") if a)
     hover = str(state.get("hover", ""))[:12]
     outcomes = state.get("outcomes") if isinstance(state.get("outcomes"), dict) else {}
     learned = ", ".join(f"{k}:{round(float(v), 2)}" for k, v in list(outcomes.items())[:8] if k in TACTICS and isinstance(v, (int, float)))
@@ -80,7 +94,10 @@ def _summary(state: dict[str, Any]) -> str:
         f"support details open: {bool(state.get('bankOpen'))}; seconds on page: {num('age', 0, 36000):.0f}; "
         f"Bit feels joy {num('joy', 0, 1)}, mischief {num('mischief', 0, 1)}, affection {num('affection', 0, 1)}, "
         f"boredom {num('boredom', 0, 1)}; last tactic: {str(state.get('tactic', ''))[:10]}; "
-        f"learned value of tactics (higher = pointer got closer): {learned or 'none yet'}."
+        f"learned value of tactics (higher = pointer got closer): {learned or 'none yet'}; "
+        f"visitor invited you to play: {bool(state.get('playing'))}; time of day: {daypart}; "
+        f"visit number on this device: {num('visits', 0, 999):.0f}{' (escaped you last time)' if state.get('escapedLast') else ''}; "
+        f"your recent lines (oldest first): {said or 'none'}; visitor's recent actions: {did or 'none'}."
     )
 
 
