@@ -1,0 +1,64 @@
+/* "Support the developer" side tab: the "Ask the AI" pill's look, docked on the inline-start edge
+   (the section dots sit on the other side). Compact (robot + Mynex) until hover/focus, then the label
+   slides out; it opens once by itself shortly after load. Landing only. */
+.mynex-tab {
+  position: fixed; inset-inline-start: 0; top: 54%; z-index: 59; transform: translateY(-50%);
+  display: inline-flex; align-items: center; gap: 0; padding: 6px 8px 6px 6px;
+  border: 1px solid rgba(214, 180, 255, .45); border-inline-start: 0;
+  border-start-end-radius: 999px; border-end-end-radius: 999px;
+  color: #fff; text-decoration: none; font-family: inherit; line-height: 1;
+  background: linear-gradient(120deg, rgba(124, 58, 237, .92), rgba(162, 28, 175, .9));
+  box-shadow: 0 14px 40px -12px rgba(124, 58, 237, .8), inset 0 1px 0 rgba(255, 255, 255, .25);
+  transition: box-shadow .25s, padding .35s cubic-bezier(.22, 1, .36, 1);
+}
+[dir="rtl"] .mynex-tab { padding: 6px 6px 6px 8px; }
+/* opened: room for the label and the heart */
+.mynex-tab:hover, .mynex-tab:focus-visible { gap: 10px; padding-inline-end: 14px; }
+.mynex-tab:hover { box-shadow: 0 18px 46px -12px rgba(192, 38, 211, .85), inset 0 1px 0 rgba(255, 255, 255, .25); }
+.mynex-tab:focus-visible { outline: 2px solid #f0abfc; outline-offset: 3px; }
+body:not(.on-landing) .mynex-tab { display: none; }
+
+/* the robot */
+.mynex-bot { display: grid; place-items: center; width: 40px; height: 40px; flex: none; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, .3), rgba(255, 255, 255, .06) 70%); }
+.mynex-bot svg { width: 34px; height: 34px; overflow: visible; animation: mx-bob 3.2s ease-in-out infinite; }
+.mx-head { fill: #f3eaff; }
+.mx-face { fill: #1a0b33; }
+.mx-eye { fill: #5ff0ff; transform-box: fill-box; transform-origin: center; animation: mx-blink 4.6s infinite; }
+.mx-smile { fill: none; stroke: #5ff0ff; stroke-width: 1.4; stroke-linecap: round; }
+.mx-ant, .mx-ear { fill: none; stroke: #f3eaff; stroke-width: 2; stroke-linecap: round; }
+.mx-tip { fill: #ff7ae6; animation: mx-glow 1.8s ease-in-out infinite; }
+.mx-body { fill: #d9c4ff; }
+@keyframes mx-bob { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-2px) rotate(-4deg); } }
+@keyframes mx-blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.1); } }
+@keyframes mx-glow { 0%, 100% { opacity: 1; } 50% { opacity: .45; } }
+
+/* the label: hidden width until opened */
+.mynex-text { display: grid; gap: 3px; max-width: 0; overflow: hidden; white-space: nowrap; opacity: 0;
+  transition: max-width .4s cubic-bezier(.22, 1, .36, 1), opacity .25s; }
+.mynex-text b { font-size: 14px; font-weight: 700; }
+.mynex-text small { font-size: 11px; font-weight: 700; letter-spacing: .14em; color: #f0d6ff; }
+.mynex-heart { width: 0; height: 17px; flex: none; transition: width .3s; fill: #fff; opacity: .95; animation: mx-beat 2.4s ease-in-out infinite; }
+@keyframes mx-beat { 0%, 70%, 100% { transform: scale(1); } 78% { transform: scale(1.22); } 86% { transform: scale(.96); } }
+.mynex-tab:hover .mynex-text, .mynex-tab:focus-visible .mynex-text { max-width: 220px; opacity: 1; }
+.mynex-tab:hover .mynex-heart, .mynex-tab:focus-visible .mynex-heart { width: 17px; }
+/* a one-time "hello" a moment after the page opens */
+.mynex-tab .mynex-text { animation: mx-peek 5.2s 2.2s cubic-bezier(.22, 1, .36, 1) 1 both; }
+.mynex-tab:hover .mynex-text, .mynex-tab:focus-visible .mynex-text { animation: none; }
+@keyframes mx-peek { 0% { max-width: 0; opacity: 0; } 12%, 82% { max-width: 220px; opacity: 1; } 100% { max-width: 0; opacity: 0; } }
+
+/* phones: smaller, lower, never over the hero text */
+@media (max-width: 760px) {
+  /* phone margins are too narrow for an edge tab: a round button in the bottom corner, opposite "Ask the AI" */
+  .mynex-tab, [dir="rtl"] .mynex-tab { top: auto; bottom: 72px; inset-inline-start: 14px; transform: none; padding: 4px; border-inline-start: 1px solid rgba(214, 180, 255, .45); border-radius: 999px; }
+  .mynex-bot { width: 32px; height: 32px; } .mynex-bot svg { width: 27px; height: 27px; }
+  .mynex-heart { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mynex-bot svg, .mx-eye, .mx-tip, .mynex-heart, .mynex-tab .mynex-text { animation: none; }
+  .mynex-text { transition: none; }
+}
+html.reduce-motion .mynex-bot svg, html.reduce-motion .mx-eye, html.reduce-motion .mx-tip,
+html.reduce-motion .mynex-heart, html.reduce-motion .mynex-tab .mynex-text { animation: none; }
+@media (forced-colors: active) { .mynex-tab { border: 1px solid CanvasText; } }
+@media print { .mynex-tab { display: none; } }

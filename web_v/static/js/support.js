@@ -5,7 +5,7 @@
 
 const T = {
   ar: {
-    kicker: "المطوّر", name: "مهدي آل حاجي", role: "مطوّر برمجيات وباحث في الذكاء الاصطناعي",
+    kicker: "المطوّر · Mynex", name: "مهدي آل حاجي", role: "مطوّر برمجيات وباحث في الذكاء الاصطناعي",
     bio1: "مطوّر برمجيات وباحث في الذكاء الاصطناعي، مهتم بتطوير الأنظمة الذكية والحلول التقنية المبتكرة، مع تركيز على الأمن السيبراني وتعلّم الآلة وهندسة البرمجيات.",
     bio2: "أعمل على تحويل الأفكار والنماذج النظرية إلى منتجات تقنية قابلة للتطبيق، وأقود حالياً التطوير التقني لمشروع CyberScan، وهو مشروع متعدد المنصات لتحليل الملفات واكتشاف التهديدات الأمنية المحتملة.",
     t1: "الأمن السيبراني", t2: "تعلّم الآلة", t3: "هندسة البرمجيات",
@@ -31,7 +31,7 @@ const T = {
     langLabel: "English",
   },
   en: {
-    kicker: "The developer", name: "Mahdi Al-Hajji", role: "Software developer and AI researcher",
+    kicker: "The developer · Mynex", name: "Mahdi Al-Hajji", role: "Software developer and AI researcher",
     bio1: "Software developer and AI researcher, focused on intelligent systems and innovative technical solutions, with an emphasis on cybersecurity, machine learning and software engineering.",
     bio2: "I turn ideas and theoretical models into working technical products, and I currently lead the technical development of CyberScan, a multi-platform project for analysing files and detecting potential security threats.",
     t1: "Cybersecurity", t2: "Machine learning", t3: "Software engineering",
