@@ -12,13 +12,13 @@
 
   Object.assign(I.en, {
     tmNav: "Team", tmKicker: "The minds behind CyberScan", tmTitle: "ONYX",
-    tmLead: "Six people, one product. The team that plans CyberScan, builds it, designs it and tells its story.",
+    tmLead: "Five people, one product. The team that plans CyberScan, builds it, designs it and tells its story.",
     tmClose1: "ONE TEAM. ONE VISION. ONE MISSION.", tmClose2: "ONYX — Building the Future of Cybersecurity.",
     tmLogoAlt: "The ONYX team logo",
   });
   Object.assign(I.ar, {
     tmNav: "الفريق", tmKicker: "العقول خلف CyberScan", tmTitle: "ONYX",
-    tmLead: "ستة أشخاص ومنتج واحد. الفريق الذي يخطط لـ CyberScan ويبنيه ويصممه ويروي قصته.",
+    tmLead: "خمسة أشخاص ومنتج واحد. الفريق الذي يخطط لـ CyberScan ويبنيه ويصممه ويروي قصته.",
     tmClose1: "ONE TEAM. ONE VISION. ONE MISSION.", tmClose2: "ONYX — Building the Future of Cybersecurity.",
     tmLogoAlt: "شعار فريق ONYX",
   });
@@ -26,7 +26,7 @@
   /* the members, in order; n is the number shown on the card, photo is the file name in team/
    * (each photo stays with its person, whatever position they hold) */
   const MEMBERS = [
-    { n: 1, photo: 1, ar: "عاصم حمد الجعيد", en: "Asim Hamad Al-Juaid", role: "Project Manager | Software Developer",
+    { n: 1, photo: 1, ar: "عاصم حمد الجعيدي", en: "Asim Hamad Al-Juaidi", role: "Project Manager | Software Developer",
       dar: "مدير المشروع، والمسؤول عن قيادته وتنسيق مسارات العمل. يمتلك اهتماماً بتطوير البرمجيات، والأمن السيبراني، وتطوير الويب، وبناء الأدوات والأنظمة الأمنية.",
       den: "Leads the project and coordinates its lines of work. His interests are software development, cybersecurity, web development and building security tools and systems." },
     { n: 2, photo: 6, ar: "مهدي حسن آل حاجي", en: "Mahdi Hassan Al-Hajji", role: "Technical Developer | Core Development", core: true,
@@ -41,9 +41,6 @@
     { n: 5, ar: "معاذ بدر القحطاني", en: "Muath Bader Al-Qahtani", role: "Operations & Task Coordinator",
       dar: "مسؤول سير العمليات وتوزيع المهام، يعمل على تنظيم مراحل التنفيذ، وتنسيق الجهود بين أعضاء الفريق، ومتابعة تقدم الأعمال.",
       den: "Runs operations and assigns tasks: he organises the stages of delivery, coordinates the team's work and tracks its progress." },
-    { n: 6, photo: 2, ar: "سعود صالح العسكر", en: "Saud Saleh Al-Askar", role: "General Assistant",
-      dar: "المساعدة في اختبار المكونات ومراجعة وظائفها. كما يشارك في متابعة المتطلبات التطويرية والتعاون مع الفريق لتحسين تكامل أجزاء المشروع وجودة تنفيذها.",
-      den: "Helps test the components and review how they work. He also follows the development requirements and works with the team to improve how the project's parts fit together and the quality of their delivery." },
   ];
 
   const html = document.documentElement;
