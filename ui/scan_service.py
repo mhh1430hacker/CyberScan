@@ -306,8 +306,10 @@ class ScanService:
 
         known: dict[str, Any] | None = None
         if not settings.get("osint_enabled", False):
-            intelligence = _disabled_intelligence()
-            report(3, "complete", StageText(status_text.osint_text("disabled")))
+            # why they're off: Settings (default), the per-scan switch, or the per-visitor limit (web)
+            reason = str(settings.get("osint_off_reason") or "disabled")
+            intelligence = {**_disabled_intelligence(), "status": reason}
+            report(3, "complete", StageText(status_text.osint_text(reason)))
         elif expired():
             intelligence = {**_disabled_intelligence(), "status": "skipped"}
             skip(3, "osint.skipped_time_limit")
@@ -337,7 +339,15 @@ class ScanService:
 
             def query() -> None:
                 try:
-                    feeds["value"] = asyncio.run(GlobalIntelligenceEngine().query_indicator(indicator))
+                    if is_url:
+                        # Links: VirusTotal (link + site), Google Safe Browsing, URLhaus, OTX and urlscan.io,
+                        # report lookups only, rate-limited and cached (core/external_intel.py).
+                        from core import external_intel  # noqa: PLC0415
+
+                        budget = max(1.0, budget_end - time.monotonic() - 0.2)
+                        feeds["value"] = external_intel.link_intelligence(external_intel.lookup_link(indicator, budget), indicator)
+                    else:
+                        feeds["value"] = asyncio.run(GlobalIntelligenceEngine().query_indicator(indicator))
                 except Exception:  # noqa: BLE001 - unreachable feeds are a status
                     feeds["value"] = {**_disabled_intelligence(), "status": "unavailable"}
 
@@ -389,11 +399,22 @@ class ScanService:
             labels = {item.evidence for item in scan_result.evidence}
             for item in known["findings"]:
                 if item["label"] not in labels:
-                    scan_result.evidence.append(Finding("intel", item["severity"], item["label"], item["explanation"], item["contribution"]))
+                    scan_result.evidence.append(Finding("intel", item["severity"], item["label"], item["explanation"], item["contribution"],
+                                                        engines=[str(item.get("source") or "Online lookups")]))
             if any(item["severity"] == "critical" for item in known["findings"]):
                 intelligence["status"] = "matched"
             scan_result.osint_summary = intelligence
-        if intelligence.get("status") == "matched":
+        external = []
+        if intelligence.get("link_sources"):
+            from core import external_intel  # noqa: PLC0415
+
+            external = external_intel.link_findings(intelligence["link_sources"])
+            labels = {item.evidence for item in scan_result.evidence}
+            for item in external:
+                if item["label"] not in labels:
+                    scan_result.evidence.append(Finding("osint", item["severity"], item["label"], item["explanation"], item["contribution"],
+                                                        engines=[item["source"]]))
+        if intelligence.get("status") == "matched" and not external:
             scan_result.evidence.append(
                 Finding(
                     "osint",

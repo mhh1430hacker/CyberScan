@@ -547,6 +547,10 @@ $("form").addEventListener("submit", (e) => {
   runScan();
 });
 
+/* Whether this scan also asks VirusTotal and the other outside services (only the fingerprint or the
+ * link is sent, never the file). The switch is js/external-intel.js; the choice stays in this browser. */
+const externalOn = () => { try { return localStorage.getItem("cs-external-intel") !== "0"; } catch { return true; } };
+
 /* One scan, from what the composer holds now (the "Try again" button calls this too). */
 async function runScan() {
   if (state.mode === "file" && !state.file && !state.diskPath) { showError({ friendly: ax("retryNone") }); return; }
@@ -559,11 +563,11 @@ async function runScan() {
   try {
     let job;
     if (state.mode === "file" && state.diskPath) {
-      job = await postJSON("/api/scan", { mode: "path", value: state.diskPath });
+      job = await postJSON("/api/scan", { mode: "path", value: state.diskPath, external: externalOn() });
     } else if (state.mode === "file") {
-      job = await uploadFile("/api/scan/file", state.file, { "X-Filename": encodeURIComponent(state.file.name), "Content-Type": "application/octet-stream" });
+      job = await uploadFile("/api/scan/file", state.file, { "X-Filename": encodeURIComponent(state.file.name), "Content-Type": "application/octet-stream", "X-CyberScan-External": externalOn() ? "1" : "0" });
     } else {
-      job = await postJSON("/api/scan", { mode: state.mode, value: $(state.mode).value });
+      job = await postJSON("/api/scan", { mode: state.mode, value: $(state.mode).value, external: externalOn() });
     }
     // the online version answers with the finished scan; the local server with a job to follow
     if (job.status) showJob(job, job.id); else poll(job.id);

@@ -3,7 +3,8 @@
 Keys are encrypted with DPAPI (CryptProtectData, user scope): only the same
 Windows account on the same machine can read them. They are handed to the
 intelligence engine through this process's environment
-(``ABUSECH_AUTH_KEY``, ``OTX_API_KEY``), which the engine already reads; they
+(``ABUSECH_AUTH_KEY``, ``OTX_API_KEY``, ``VT_API_KEY``, ``GOOGLE_SAFE_BROWSING_KEY``,
+``URLSCAN_API_KEY``; see core/external_intel.py), which the engine already reads; they
 are never written to settings, reports or logs. Where DPAPI is not available
 the keys are not stored at all.
 """
@@ -16,7 +17,8 @@ import sys
 from ctypes import wintypes
 from pathlib import Path
 
-KEY_ENV = {"abusech": "ABUSECH_AUTH_KEY", "otx": "OTX_API_KEY", "virustotal": "VT_API_KEY"}
+KEY_ENV = {"abusech": "ABUSECH_AUTH_KEY", "otx": "OTX_API_KEY", "virustotal": "VT_API_KEY",
+           "safebrowsing": "GOOGLE_SAFE_BROWSING_KEY", "urlscan": "URLSCAN_API_KEY"}
 _ENTROPY = b"CyberScan online lookup keys v1"
 
 

@@ -176,7 +176,7 @@ def _cut_element(html: str, start: str, tag: str = "div") -> str:
 
 
 # Scripts and styles only the scan app uses (the landing page has none of their markup or events).
-APP_ONLY_JS = ("js/file-tools.js", "js/repair.js", "js/scan-pro.js", "js/tools.js", "js/batch.js", "js/palette.js", "js/pwa.js", "js/insights.js", "js/workspace.js",
+APP_ONLY_JS = ("js/file-tools.js", "js/repair.js", "js/scan-pro.js", "js/external-intel.js", "js/tools.js", "js/batch.js", "js/palette.js", "js/pwa.js", "js/insights.js", "js/workspace.js",
                "js/scan-center.js", "js/toolbox.js", "js/toolbox-ar.js")
 APP_ONLY_CSS = ("toolbox.css",)
 CANONICAL_URL = os.environ.get("CYBERSCAN_CANONICAL_URL", "").strip().rstrip("/")
@@ -977,6 +977,7 @@ class App:
         lang: str | None = None,
         detection_data: bytes | None = None,
         accepted_at: float | None = None,
+        external: tuple[bool, str] | None = None,
     ) -> Job:
         if not self.active_scans.acquire(blocking=False):
             raise ApiError(HTTPStatus.SERVICE_UNAVAILABLE, "The scanner is at capacity. Try again shortly.")
@@ -1044,7 +1045,10 @@ class App:
                 raw: bytes = b""
                 host_failure: BaseException | None = None
                 try:
-                    payload = ScanService().analyze(candidate, mode, settings, progress)
+                    # external intelligence (VirusTotal and the others) for this scan: on/off and why
+                    host_settings = settings if external is None else {
+                        **settings, "osint_enabled": external[0], "osint_off_reason": external[1]}
+                    payload = ScanService().analyze(candidate, mode, host_settings, progress)
                     result, raw = payload[0], payload[5]
                 except Exception as exc:  # noqa: BLE001 - Sentinel's result may still answer
                     logging.exception("Host scan failed")
@@ -1633,6 +1637,30 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
             self._send(status, body, ctype, extra)
 
         # ---- scans ---------------------------------------------------
+        def _client(self) -> str:
+            # behind CloudFront the visitor is the first X-Forwarded-For address
+            forwarded = self.headers.get("X-Forwarded-For", "") if PUBLIC else ""
+            return forwarded.split(",")[0].strip() or self.client_address[0]
+
+        def _external_choice(self, requested: Any) -> tuple[bool, str]:
+            """Whether this scan asks VirusTotal and the other services (fingerprint or link only).
+            Website: on unless the visitor switched it off, within a per-visitor limit that protects
+            the free quotas. Local app: Settings decide; the per-scan switch can only turn it off."""
+            from core import external_intel  # noqa: PLC0415
+
+            wanted = str(requested).strip().lower() not in {"0", "false", "off", "no"} if requested is not None else True
+            if PUBLIC:
+                if os.environ.get("CYBERSCAN_EXTERNAL_INTEL", "1") == "0":
+                    return False, "disabled"
+                if not wanted:
+                    return False, "off_for_scan"
+                if not external_intel.CLIENTS.allow(self._client()):
+                    return False, "rate_limited"
+                return True, ""
+            if not load_settings().get("osint_enabled"):
+                return False, "disabled"
+            return (True, "") if wanted else (False, "off_for_scan")
+
         def scan_start(self, query: dict) -> None:
             accepted = time.monotonic()   # the job's end-to-end clock starts here
             data = self._json_body()
@@ -1655,7 +1683,8 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
                 label = value
             else:
                 label = value if mode == "URL" else "Pasted text"
-            job = app.start_job(value, mode, label[:1000], None, self._lang, accepted_at=accepted)
+            external = self._external_choice(data.get("external") if isinstance(data, dict) else None)
+            job = app.start_job(value, mode, label[:1000], None, self._lang, accepted_at=accepted, external=external)
             # public mode: the scan already finished, so the page gets the result at once
             self._json(HTTPStatus.OK if PUBLIC else HTTPStatus.ACCEPTED, job.snapshot() if PUBLIC else {"id": job.id})
 
@@ -1668,6 +1697,7 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
             )
             raw = self._raw_body(limit)
             original = unquote(self.headers.get("X-Filename", "upload.bin"))
+            external = self._external_choice(self.headers.get("X-CyberScan-External"))
             from detection.engine import safe_file_name
             safe = safe_file_name(original)[:120]
             folder = Path(tempfile.mkdtemp(dir=app.upload_root))
@@ -1676,7 +1706,7 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
                 file_path.write_bytes(raw)
                 job = app.start_job(
                     str(file_path), "File", Path(original).name[:300], folder, self._lang, detection_data=raw,
-                    accepted_at=accepted,
+                    accepted_at=accepted, external=external,
                 )
             except Exception:
                 shutil.rmtree(folder, ignore_errors=True)
@@ -1976,7 +2006,11 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
             from intel import updater  # noqa: PLC0415
 
             info = protection.manifest()
+            from core import external_intel  # noqa: PLC0415
+
             keys = services.keys_status() if not PUBLIC else {}
+            configured = external_intel.configured()   # keys in this process's environment (Lambda: its variables)
+            online = (os.environ.get("CYBERSCAN_EXTERNAL_INTEL", "1") != "0") if PUBLIC else bool(load_settings().get("osint_enabled"))
             self._json(HTTPStatus.OK, {
                 "forge": protection.forge_available(), "lists": protection.lists_available(),
                 "secrets": bool(info.get("secret_rules")), "updated": info.get("updated"),
@@ -1986,8 +2020,11 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
                 "phishing": info.get("phishing", 0), "secret_rules": info.get("secret_rules", 0),
                 "malware_hashes": hash_intel.offline_count(), "hash_sources": info.get("hash_sources", []),
                 "hashes_updated": info.get("hashes_updated"), "failed": info.get("failed", []),
-                "online": bool(load_settings().get("osint_enabled")) and not PUBLIC,
-                "keys": {"abusech": bool(keys.get("abusech")), "virustotal": bool(keys.get("virustotal")), "otx": bool(keys.get("otx"))},
+                "online": online, "public": PUBLIC,
+                "keys": {name: bool(keys.get(name)) or bool(configured.get(service)) for name, service in (
+                    ("abusech", "malwarebazaar"), ("virustotal", "virustotal"), ("otx", "otx"),
+                    ("safebrowsing", "safebrowsing"), ("urlscan", "urlscan"))},
+                "external": {"services": configured, "virustotal_quota": external_intel.BUCKETS["virustotal"].state()},
                 "auto_update": not PUBLIC, "updater": updater.state(),
                 "schedule": {"hashes_hours": updater.HASHES_EVERY, "rules_hours": updater.RULES_EVERY},
             })

@@ -116,7 +116,8 @@
     try {
       const job = await api("/api/scan/file", {
         method: "POST",
-        headers: { "X-Filename": encodeURIComponent(item.file.name), "Content-Type": "application/octet-stream" },
+        headers: { "X-Filename": encodeURIComponent(item.file.name), "Content-Type": "application/octet-stream",
+          "X-CyberScan-External": (() => { try { return localStorage.getItem("cs-external-intel") === "0" ? "0" : "1"; } catch { return "1"; } })() },
         body: item.file,
       });
       let first = job.status ? job : null;   // the online version answers with the finished scan

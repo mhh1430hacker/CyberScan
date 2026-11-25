@@ -205,3 +205,47 @@ html.reduce-motion .sp-shield .sh-tick { animation: none; stroke-dashoffset: 0; 
 .sp-stat.skel { background: linear-gradient(100deg, rgba(9, 5, 20, .5) 30%, rgba(201, 162, 255, .12) 50%, rgba(9, 5, 20, .5) 70%) 0 0 / 300% 100%; animation: sp-skel 1.4s linear infinite; }
 @keyframes sp-skel { to { background-position: -300% 0; } }
 @media (prefers-reduced-motion: reduce) { .sp-stat.skel { animation: none; } }
+
+/* ---------------------------------------------------------------- external intelligence (js/external-intel.js) */
+.ext-toggle { margin: 12px 0 4px; padding: 10px 12px; border: 1px solid var(--pro-line); border-radius: 12px; background: var(--pro-panel-2); }
+.ext-toggle-row { display: flex; align-items: center; gap: 12px; cursor: pointer; font-size: 13.5px; line-height: 1.45; color: var(--pro-text); }
+.ext-toggle-row .switch { flex: none; }
+.ext-toggle-note { display: block; margin-top: 6px; padding-inline-start: 58px; font-size: 12px; line-height: 1.5; color: var(--pro-sub); }
+.ext-toggle-note a { color: var(--pro-accent); }
+.ext-toggle.is-off .ext-toggle-row { opacity: .6; cursor: not-allowed; }
+.ext-card .ext-why { margin: 6px 0 10px; padding: 8px 12px; border-radius: 10px; background: var(--pro-panel-2); color: var(--pro-sub); font-size: 13px; }
+.ext-rows { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 8px; }
+.ext-row { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 10px 12px; border: 1px solid var(--pro-line); border-radius: 12px; background: var(--pro-panel-2); }
+.ext-dot { justify-self: center; width: 12px; height: 12px; border-radius: 50%; background: #64748b; }
+.ext-row.chip-bad .ext-dot { background: #f87171; } .ext-row.chip-warn .ext-dot { background: #fbbf24; } .ext-row.chip-ok .ext-dot { background: #34d399; }
+.ext-row.chip-neutral .ext-dot { background: #7dd3fc; } .ext-row.chip-quota .ext-dot, .ext-row.chip-error .ext-dot { background: #fb923c; }
+.ext-row.chip-bad { border-color: rgba(248, 113, 113, .45); }
+.ext-main { min-width: 0; }
+.ext-top { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.ext-name { font-size: 14px; color: var(--pro-text); }
+.ext-chip { font-size: 11.5px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--pro-line-2); color: var(--pro-sub); white-space: nowrap; }
+.ext-chip.chip-bad { color: #fecaca; background: rgba(248, 113, 113, .16); border-color: rgba(248, 113, 113, .5); }
+.ext-chip.chip-warn { color: #fde68a; background: rgba(251, 191, 36, .14); border-color: rgba(251, 191, 36, .45); }
+.ext-chip.chip-ok { color: #bbf7d0; background: rgba(52, 211, 153, .14); border-color: rgba(52, 211, 153, .45); }
+.ext-chip.chip-quota, .ext-chip.chip-error { color: #fed7aa; border-color: rgba(251, 146, 60, .45); }
+.ext-cached { font-size: 11px; color: var(--pro-sub); }
+.ext-line { margin: 3px 0 0; font-size: 13px; line-height: 1.45; color: var(--pro-text); overflow-wrap: anywhere; }
+.ext-dets { display: block; margin-top: 3px; font: 11.5px/1.45 Consolas, ui-monospace, monospace; color: var(--pro-sub); overflow-wrap: anywhere; text-align: start; }
+.ext-link { font-size: 12.5px; color: var(--pro-accent); white-space: nowrap; text-decoration: none; }
+.ext-link:hover, .ext-link:focus-visible { text-decoration: underline; }
+.ext-ring { width: 44px; height: 44px; }
+.ext-ring-bg { fill: none; stroke: var(--pro-line-2); stroke-width: 5; }
+.ext-ring-fg { fill: none; stroke-width: 5; stroke-linecap: round; stroke: #34d399; }
+.ext-ring-fg.warn { stroke: #fbbf24; } .ext-ring-fg.bad { stroke: #f87171; }
+.ext-ring-txt { font: 700 12px/1 system-ui, sans-serif; fill: var(--pro-text); }
+.sp-ext-list { list-style: none; margin: 6px 0 2px; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 6px; }
+.sp-ext-list li { display: inline-flex; align-items: baseline; gap: 5px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--pro-line); font-size: 11.5px; }
+.sp-ext-list li b { font-weight: 600; }
+.sp-ext-list li.on { border-color: rgba(52, 211, 153, .45); } .sp-ext-list li.on small { color: #6ee7b7; }
+.sp-ext-list li.off { opacity: .75; } .sp-ext-list li.off small { color: var(--pro-sub); }
+@media (max-width: 560px) {
+  .ext-row { grid-template-columns: 36px minmax(0, 1fr); }
+  .ext-ring { width: 36px; height: 36px; }
+  .ext-link { grid-column: 2; justify-self: start; }
+  .ext-toggle-note { padding-inline-start: 0; }
+}

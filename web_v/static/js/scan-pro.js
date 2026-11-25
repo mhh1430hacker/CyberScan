@@ -20,8 +20,10 @@
       srcTitle: "Detection sources", srcLede: "What every scan on this installation checks against, right now.",
       forge: "YARA-Forge rules", forgeOff: "not loaded", bundled: "CyberScan rules", rulesFiles: "{n} rule file(s)",
       hashes: "Known-malware hashes", hashesOff: "database not built", lists: "Malicious link lists",
-      listsVal: "{u} malware URLs · {p} phishing domains", online: "Online hash checks",
-      onlineOn: "on: only the SHA-256 is sent (CIRCL{keys})", onlineOff: "off: turn on in Settings to ask CIRCL, MalwareBazaar and VirusTotal",
+      listsVal: "{u} malware URLs · {p} phishing domains", online: "External intelligence",
+      onlineOn: "on: only the SHA-256 is sent (CIRCL{keys})", onlineOff: "off: turn on in Settings to ask VirusTotal and the other services",
+      onlineWeb: "on for every scan unless you switch it off: only the fingerprint or the link is sent", onlineLocal: "on: only the fingerprint or the link is sent",
+      extActive: "active", extNoKey: "not configured", extQuota: "VirusTotal today: {u} of {d} lookups ({m} a minute)",
       onlinePublic: "not used on the public site", keysNone: "", update: "Automatic updates",
       every: "hashes every {h} h · rules every {r} h", updatedAt: "rules {a} · hashes {b}", updateNow: "Update now",
       updating: "Updating… (downloads run in the background; scans keep working)", updFailed: "Last update failed: {m}",
@@ -29,7 +31,8 @@
       intelTitle: "Intelligence sources", intelLede: "Who was asked about this exact file, and what each one answered.",
       hashCol: "Source", ansCol: "Answer",
       st: { match: "Listed as malware", not_found: "Not listed", known_good: "Known software", unavailable: "Not available", no_key: "No key saved",
-        timeout: "No answer in time", error: "Error", few: "A few engines flag it", clean_report: "Engines report it clean" },
+        timeout: "No answer in time", error: "Error", few: "A few engines flag it", clean_report: "Engines report it clean",
+        several: "Several engines flag it", quota: "Quota reached", seen: "Seen, nothing flagged", not_applicable: "Doesn't apply" },
       rulesTitle: "Rules that matched", ruleBy: "by {a}", ruleScore: "rule score {s}", noRules: "No rule matched this file.",
       archTitle: "Files inside the archive", archLede: "{n} scanned in memory, {s} skipped ({why}).", archClean: "no match",
       archHit: "match", archNone: "No file inside could be scanned.",
@@ -60,8 +63,10 @@
       srcTitle: "مصادر الكشف", srcLede: "ما يفحص به كل فحص على هذا الجهاز، الآن.",
       forge: "قواعد YARA-Forge", forgeOff: "غير محمّلة", bundled: "قواعد CyberScan", rulesFiles: "{n} ملف قواعد",
       hashes: "بصمات البرامج الضارة المعروفة", hashesOff: "القاعدة غير مبنية", lists: "قوائم الروابط الضارة",
-      listsVal: "{u} رابط برامج ضارة · {p} نطاق تصيّد", online: "التحقق من البصمة عبر الإنترنت",
-      onlineOn: "مفعّل: تُرسل البصمة SHA-256 فقط (CIRCL{keys})", onlineOff: "متوقف: فعّله من الإعدادات لسؤال CIRCL وMalwareBazaar وVirusTotal",
+      listsVal: "{u} رابط برامج ضارة · {p} نطاق تصيّد", online: "الاستخبارات الخارجية",
+      onlineOn: "مفعّل: تُرسل البصمة SHA-256 فقط (CIRCL{keys})", onlineOff: "متوقف: فعّله من الإعدادات لسؤال VirusTotal والخدمات الأخرى",
+      onlineWeb: "مفعّل لكل فحص ما لم توقفه: تُرسل البصمة أو الرابط فقط", onlineLocal: "مفعّل: تُرسل البصمة أو الرابط فقط",
+      extActive: "فعّالة", extNoKey: "غير مُعدّة", extQuota: "VirusTotal اليوم: {u} من {d} استعلامًا ({m} في الدقيقة)",
       onlinePublic: "غير مستخدم في الموقع العام", keysNone: "", update: "التحديث التلقائي",
       every: "البصمات كل {h} ساعات · القواعد كل {r} ساعة", updatedAt: "القواعد {a} · البصمات {b}", updateNow: "حدّث الآن",
       updating: "جارٍ التحديث… (التنزيل في الخلفية، والفحص يعمل كالمعتاد)", updFailed: "فشل آخر تحديث: {m}",
@@ -69,7 +74,8 @@
       intelTitle: "مصادر الاستخبارات", intelLede: "من سُئل عن هذا الملف بعينه، وبماذا أجاب كل مصدر.",
       hashCol: "المصدر", ansCol: "الإجابة",
       st: { match: "مُدرج كبرنامج ضار", not_found: "غير مُدرج", known_good: "برنامج معروف", unavailable: "غير متاح", no_key: "لا يوجد مفتاح",
-        timeout: "لم يُجب في الوقت", error: "خطأ", few: "بعض المحركات تشتبه به", clean_report: "المحركات تراه سليمًا" },
+        timeout: "لم يُجب في الوقت", error: "خطأ", few: "بعض المحركات تشتبه به", clean_report: "المحركات تراه سليمًا",
+        several: "عدة محركات تشير إليه", quota: "نفدت الحصة", seen: "شوهد ولم يُشر إليه", not_applicable: "لا ينطبق" },
       rulesTitle: "القواعد التي طابقت", ruleBy: "بواسطة {a}", ruleScore: "درجة القاعدة {s}", noRules: "لم تطابق أي قاعدة هذا الملف.",
       archTitle: "الملفات داخل الأرشيف", archLede: "فُحص {n} في الذاكرة، وتُخطّي {s} ({why}).", archClean: "لا تطابق",
       archHit: "تطابق", archNone: "لم يمكن فحص أي ملف بالداخل.",
@@ -178,9 +184,19 @@
     row(dl, l.bundled, fill(l.rulesFiles, { n: num(p.bundled_rules) }), p.bundled_rules ? "ok" : "off");
     row(dl, l.hashes, p.malware_hashes ? `${num(p.malware_hashes)}${(p.hash_sources || []).length ? ` · ${p.hash_sources.join(", ")}` : ""}` : l.hashesOff, p.malware_hashes ? "ok" : "off");
     row(dl, l.lists, p.lists ? fill(l.listsVal, { u: num(p.urlhaus), p: num(p.phishing) }) : l.forgeOff, p.lists ? "ok" : "off");
-    const keys = p.keys || {};
-    const keyNames = [keys.abusech && "MalwareBazaar", keys.virustotal && "VirusTotal"].filter(Boolean);
-    row(dl, l.online, !p.auto_update ? l.onlinePublic : p.online ? fill(l.onlineOn, { keys: keyNames.length ? `, ${keyNames.join(", ")}` : "" }) : l.onlineOff, p.online ? "ok" : "off");
+    // external intelligence: each outside service, set up (has a key here) or not
+    const ext = (p.external && p.external.services) || {};
+    const extNames = { virustotal: "VirusTotal", safebrowsing: "Google Safe Browsing", malwarebazaar: "MalwareBazaar", urlhaus: "URLhaus", otx: "AlienVault OTX", circl: "CIRCL hashlookup", urlscan: "urlscan.io" };
+    const on = Object.keys(extNames).filter((k) => ext[k]), off = Object.keys(extNames).filter((k) => ext[k] === false);
+    const extCell = row(dl, l.online, p.online ? (p.public ? l.onlineWeb : l.onlineLocal) : l.onlineOff, p.online ? "ok" : "off");
+    if (Object.keys(ext).length) {
+      const ul = el("ul", "sp-ext-list");
+      on.forEach((k) => { const li = el("li", "on"); li.append(el("b", "", extNames[k]), el("small", "", l.extActive)); ul.append(li); });
+      off.forEach((k) => { const li = el("li", "off"); li.append(el("b", "", extNames[k]), el("small", "", l.extNoKey)); ul.append(li); });
+      extCell.append(ul);
+      const q = p.external.virustotal_quota;
+      if (ext.virustotal && q) extCell.append(el("small", "sp-muted", fill(l.extQuota, { u: num(q.used_today), d: num(q.per_day), m: q.per_minute })));
+    }
     const up = p.updater || {};
     const updText = !p.auto_update ? l.publicUpd
       : `${fill(l.every, { h: p.schedule.hashes_hours, r: p.schedule.rules_hours })} · ${fill(l.updatedAt, { a: p.updated || l.never, b: (p.hashes_updated || l.never).replace("T", " ") })}`;

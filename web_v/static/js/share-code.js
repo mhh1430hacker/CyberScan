@@ -3,13 +3,20 @@
  *
  * The summary holds only: the file name if the person ticked "include the name", the SHA-256, the
  * verdict and score, the top findings' short labels, severities and weights, matched rule names, the
- * engine version and the scan date. No file content, no path, no link the file contained.
+ * engine version, the scan date and which outside services flagged it (counts and labels only).
+ * No file content, no path, no link the file contained.
  * JSON → deflate-raw (CompressionStream, when the browser has it) → base64url; "z" marks compressed,
  * "j" plain. Used by the scan page (js/result-plus.js) and the report page (js/report.js). */
 (function () {
   "use strict";
   const VERDICTS = ["NO_INDICATORS_OBSERVED", "REVIEW", "SUSPICIOUS", "KNOWN_MALWARE", "UNKNOWN", "EMPTY"];
   const SEVS = ["critical", "high", "medium", "low", "info"];
+  const CHIPS = ["bad", "warn", "ok", "neutral", "quota", "error"];
+  /* the services that answered, compact (the shared link carries no report link and no address) */
+  function externalOf(r) {
+    return ((r && r.external && r.external.rows) || []).filter((x) => CHIPS.includes(x.chip))
+      .map((x) => [x.name, x.chip, x.malicious, x.engines_total, x.label || x.family || x.signature || ""]);
+  }
   const clip = (s, n) => { const t = String(s == null ? "" : s).replace(/\s+/g, " ").trim(); return t.length > n ? `${t.slice(0, n - 1)}…` : t; };
 
   const b64u = (bytes) => { let s = ""; bytes.forEach((b) => { s += String.fromCharCode(b); }); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
@@ -31,6 +38,12 @@
     if (o.d && !Number.isNaN(new Date(o.d).getTime())) out.d = new Date(o.d).toISOString().slice(0, 19) + "Z";
     if (Array.isArray(o.f)) out.f = o.f.slice(0, 6).map((f) => [clip(f[0], 60), SEVS.includes(f[1]) ? f[1] : "info", Math.max(0, Math.min(100, Math.round(Number(f[2]) || 0))), clip(f[3] || "", 32)]).filter((f) => f[0]);
     if (Array.isArray(o.y)) out.y = o.y.slice(0, 6).map((x) => clip(x, 60)).filter(Boolean);
+    // external intelligence: [service, chip, flagged engines, total engines, label]; no link, no address
+    if (Array.isArray(o.x)) {
+      out.x = o.x.slice(0, 8).filter((x) => Array.isArray(x) && x[0] && CHIPS.includes(x[1]))
+        .map((x) => [clip(x[0], 32), x[1], Math.max(0, Math.min(999, Math.round(Number(x[2]) || 0))), Math.max(0, Math.min(999, Math.round(Number(x[3]) || 0))), clip(x[4] || "", 48)]);
+      if (!out.x.length) delete out.x;
+    }
     return out;
   }
 
@@ -49,6 +62,7 @@
       d: CS.scanTime(r) || new Date().toISOString(),
       f: ev.map((x) => [CS.loc(x.evidence || x.title || x.category), String(x.severity || "info").toLowerCase(), x.contribution, String(x.category || "")]),
       y: [...new Set(rules)],
+      x: externalOf(r),
     });
   }
 
@@ -72,5 +86,5 @@
   async function url(obj) {
     return new URL(`report.html#r=${await encode(obj)}`, location.href).href;
   }
-  window.CSShare = { normalise, fromResult, encode, decode, url };
+  window.CSShare = { normalise, fromResult, encode, decode, url, externalOf };
 })();

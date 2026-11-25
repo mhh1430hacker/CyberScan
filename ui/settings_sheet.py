@@ -124,7 +124,7 @@ class SettingsSheet(QFrame):
         online.addWidget(self.online_note)
         self.key_fields: dict[str, QLineEdit] = {}
         self.key_captions: dict[str, QLabel] = {}
-        for key in ("abusech", "otx"):
+        for key in ("abusech", "otx", "virustotal", "safebrowsing", "urlscan"):
             caption = label("", "body")
             field = QLineEdit()
             field.setEchoMode(QLineEdit.EchoMode.Password)
@@ -256,9 +256,12 @@ class SettingsSheet(QFrame):
             self.checks[key].setToolTip(ENGINE_TECH[key])
         self.checks["osint_enabled"].setText(t("Check links and fingerprints against public lists (online)"))
         self.online_note.setText(t("Sends supported links, domains, IPs or a file's SHA-256 to public services. File contents are never uploaded. A miss is not proof of safety."))
-        self.keys_note.setText(t("Free keys: auth.abuse.ch (one key covers URLhaus and ThreatFox) and otx.alienvault.com. They are stored encrypted for your Windows account."))
+        self.keys_note.setText(t("Free keys: auth.abuse.ch (one key covers URLhaus, ThreatFox and MalwareBazaar), otx.alienvault.com, virustotal.com, Google Cloud (Safe Browsing API) and urlscan.io. They are stored encrypted for your Windows account."))
         self.key_captions["abusech"].setText(t("abuse.ch key (URLhaus and ThreatFox)"))
         self.key_captions["otx"].setText(t("AlienVault OTX key"))
+        self.key_captions["virustotal"].setText(t("VirusTotal key (files, links and sites, by fingerprint or address only)"))
+        self.key_captions["safebrowsing"].setText(t("Google Safe Browsing key (links)"))
+        self.key_captions["urlscan"].setText(t("urlscan.io key (searches existing public scans of a site)"))
         self.forget_keys.setText(t("Forget saved keys"))
         self.ai_title.setText(t("Summary in plain words"))
         self.checks["ai_summary_enabled"].setText(t("Explain each result with a local AI model"))

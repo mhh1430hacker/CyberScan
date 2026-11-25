@@ -71,6 +71,35 @@
     recos: { KNOWN_MALWARE: ["Delete it; do not open or run it.", "If it was opened, disconnect the computer from the network and run a full scan.", "Report where it came from to your security team."], NO_INDICATORS_OBSERVED: ["No suspicious indicators were found by these checks.", "That is not a guarantee; prefer trusted sources."], REVIEW: ["Review the evidence before opening it.", "Verify where it came from through another channel."], SUSPICIOUS: ["Do not open or run it.", "If it arrived by email or chat, report it and delete it.", "If it was opened, disconnect the computer from the network and run a full scan."], UNKNOWN: ["The analysis was incomplete: treat it as unverified.", "Scan again or use another tool before opening it."] },
   };
   const fill = (s, o) => String(s).replace(/\{(\w+)\}/g, (_, k) => (o[k] != null ? o[k] : ""));
+  /* External intelligence (VirusTotal and the other services): one row per service that answered */
+  const EXT = ar ? { h: "الاستخبارات الخارجية", svc: "الخدمة", ans: "الإجابة", rep: "التقرير", note: "استعلام بالبصمة أو الرابط فقط؛ لم يُرفع الملف إلى أي جهة.",
+    chip: { bad: "مُشار إليه", warn: "إشارة ضعيفة", ok: "سليم", neutral: "غير موجود", quota: "نفدت الحصة", error: "غير متاح" }, ratio: "{m} / {t} محركًا" }
+    : { h: "External intelligence", svc: "Service", ans: "Answer", rep: "Report", note: "Looked up by fingerprint or link only; the file was never uploaded anywhere.",
+      chip: { bad: "Flagged", warn: "Weak signal", ok: "Clean", neutral: "Not found", quota: "Quota reached", error: "Unavailable" }, ratio: "{m} / {t} engines" };
+  const extTable = (rows, links) => {
+    const answered = (rows || []).filter((x) => x && EXT.chip[x.chip]);
+    if (!answered.length) return null;
+    const wrap = el("div", "table-wrap");
+    const tb = el("table"); const thead = el("thead"); const trh = el("tr");
+    [EXT.svc, EXT.ans].concat(links ? [EXT.rep] : []).forEach((h) => { const th = el("th", "", h); th.scope = "col"; trh.append(th); });
+    thead.append(trh); tb.append(thead);
+    const tbody = el("tbody");
+    answered.forEach((x) => {
+      const tr = el("tr", x.chip === "bad" ? "s-high" : x.chip === "warn" ? "s-medium" : "");
+      const th = el("th", "", x.name); th.scope = "row"; th.dir = "ltr"; tr.append(th);
+      const total = Number(x.engines_total) || 0;
+      const words = [EXT.chip[x.chip], total ? fill(EXT.ratio, { m: Number(x.malicious) || 0, t: total }) : "", x.label || x.family || x.signature || ""].filter(Boolean).join(" · ");
+      const td = el("td", "", words); td.dir = "auto"; tr.append(td);
+      if (links) {
+        const tl = el("td");
+        if (x.link && /^https:\/\//.test(x.link)) { const a = el("a", "mono", new URL(x.link).host); a.href = x.link; a.rel = "noopener noreferrer"; a.target = "_blank"; tl.append(a); }
+        tr.append(tl);
+      }
+      tbody.append(tr);
+    });
+    tb.append(tbody); wrap.append(tb);
+    return wrap;
+  };
   document.title = shared ? T.shTitle : T.title;
   // the toolbar: Download PDF (the browser's print dialog, "Save as PDF") and the print design
   $("print").textContent = T.pdf;
@@ -150,6 +179,8 @@
         });
         tb.append(tbody); const wrap = el("div", "table-wrap"); wrap.append(tb); s3.append(wrap);
       }
+      const sx = extTable((o.x || []).map(([name, chip, m, t, label]) => ({ name, chip, malicious: m, engines_total: t, label })), false);
+      if (sx) s3.append(el("h3", "", EXT.h), sx, el("p", "note", EXT.note));
       if (o.y && o.y.length) { s3.append(el("h3", "", T.shRules)); const ul = el("ul"); o.y.forEach((y) => { const li = el("li"); const b = el("bdi", "mono", y); b.dir = "ltr"; li.append(b); ul.append(li); }); s3.append(ul); }
       const s4 = sec(T.qrTitle);
       s4.append(el("p", "lead", T.shVerify));
@@ -249,6 +280,8 @@
     });
     tb.append(tbody); wrap.append(tb); ev.append(wrap);
   }
+  const xt = extTable(r.external && r.external.rows, true);
+  if (xt) ev.append(el("h3", "", EXT.h), xt, el("p", "note", EXT.note));
   // 8. technical findings
   const te = section(T.s[6]);
   const en = r.entropy || {};
@@ -278,7 +311,7 @@
     window.CSShare.url({ c: cls, s: score, m: mode, h: mode === "file" ? r.sha256 : "", t: mode === "file" ? (view.type || "") : "",
       e: (r.detection_engine && r.detection_engine.version) || "", d: scannedAt || data.generated,
       f: finds.slice(0, 6).map((f) => [sv.titles && sv.titles[f.title] || f.title, f.sev, f.contrib, f.cat]),
-      y: (r.yara || []).map((y) => y.rule_name) }).then((link) => { const q = qrBlock(link); if (q) vs.append(q); }).catch(() => vs.remove());
+      y: (r.yara || []).map((y) => y.rule_name), x: window.CSShare.externalOf ? window.CSShare.externalOf(r) : undefined }).then((link) => { const q = qrBlock(link); if (q) vs.append(q); }).catch(() => vs.remove());
   }
   const foot = el("footer", "foot"); foot.append(document.createTextNode("CyberScan · "), ltr(reportId)); doc.append(foot);
 })();

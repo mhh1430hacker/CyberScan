@@ -78,6 +78,10 @@ def present(result: ScanResult, target: str, mode: str | None, raw: bytes | None
     out["sha256"] = view.sha256 or ""
     out["structure"] = structure_payload(result, raw)
     out["intel"] = intel_payload(result)
+    try:
+        out["external"] = external_payload(result, target, mode, out["sha256"])
+    except Exception:  # noqa: BLE001 - presentation must never break a result
+        logging.exception("External intelligence payload failed")
     # what was checked, in full (a link is the whole address, not its last path segment)
     out["target_full"] = target
     out["target_kind"] = {"URL": "url", "File": "file"}.get(mode, "text")
@@ -126,6 +130,85 @@ def intel_payload(result: ScanResult) -> dict[str, Any]:
                       "description": str(match.get("description", ""))[:300], "tags": list(match.get("tags") or [])[:6]})
     return {"hash_sources": sources, "rules": rules, "archive": features.get("archive_members"),
             "md5": (features.get("hash_intelligence") or {}).get("md5")}
+
+
+# ------------------------------------------------------------ external intelligence card
+_CHIP = {"match": "bad", "several": "bad", "matched": "bad", "few": "warn", "clean_report": "ok", "known_good": "ok", "seen": "ok",
+         "not_found": "neutral", "no_match": "neutral", "no_key": "not_configured", "authentication_required": "not_configured",
+         "quota": "quota", "timeout": "error", "error": "error", "dependency_missing": "error", "invalid_response": "error",
+         "not_applicable": "off", "off": "off"}
+_ROW_SERVICE = {"VirusTotal": "virustotal", "VirusTotal (link)": "virustotal", "VirusTotal (site)": "virustotal",
+                "CIRCL hashlookup": "circl", "MalwareBazaar": "malwarebazaar", "URLhaus": "urlhaus", "AlienVault OTX": "otx",
+                "Google Safe Browsing": "safebrowsing", "urlscan.io": "urlscan", "ThreatFox": "urlhaus"}
+_ROW_KEEP = ("status", "malicious", "suspicious", "harmless", "undetected", "engines_total", "label", "family", "first_seen",
+             "last_analysis", "reputation", "times_submitted", "detections", "detail", "error", "signature", "threats", "threat",
+             "url_status", "urls_count", "pulses", "scans", "flagged", "latest", "product", "cached")
+
+
+def _external_link(name: str, entry: dict[str, Any], target: str, sha256: str) -> str:
+    from urllib.parse import quote  # noqa: PLC0415
+
+    from core import external_intel  # noqa: PLC0415
+
+    host = external_intel.public_host(target) if target.startswith(("http://", "https://")) else None
+    if name == "VirusTotal" and sha256:
+        return f"https://www.virustotal.com/gui/file/{sha256}"
+    if name == "VirusTotal (link)" and host:
+        return f"https://www.virustotal.com/gui/url/{hashlib.sha256(target.strip().encode('utf-8')).hexdigest()}"
+    if name == "VirusTotal (site)" and host:
+        return f"https://www.virustotal.com/gui/{'ip-address' if external_intel._is_ip(host) else 'domain'}/{host}"  # noqa: SLF001
+    if name == "CIRCL hashlookup" and sha256:
+        return f"https://hashlookup.circl.lu/lookup/sha256/{sha256}"
+    if name == "MalwareBazaar" and sha256 and entry.get("status") == "match":
+        return f"https://bazaar.abuse.ch/sample/{sha256}/"
+    if name == "URLhaus" and host:
+        ref = str(entry.get("reference") or "")
+        return ref if ref.startswith("https://urlhaus.abuse.ch/") else f"https://urlhaus.abuse.ch/browse.php?search={quote(host)}"
+    if name == "AlienVault OTX" and host:
+        return f"https://otx.alienvault.com/indicator/{'ip' if external_intel._is_ip(host) else 'hostname'}/{host}"  # noqa: SLF001
+    if name == "Google Safe Browsing" and host:
+        return f"https://transparencyreport.google.com/safe-browsing/search?url={quote(target.strip(), safe='')}"
+    if name == "urlscan.io" and host:
+        rid = str(entry.get("result_id") or "")
+        return f"https://urlscan.io/result/{rid}/" if re.fullmatch(r"[0-9a-f-]{36}", rid) else f"https://urlscan.io/search/#domain:{host}"
+    return ""
+
+
+def external_payload(result: ScanResult, target: str, mode: str, sha256: str = "") -> dict[str, Any]:
+    """One row per outside service for the "External intelligence" card: its status chip, the key
+    numbers, and a link to its public report. Never includes keys; says when a service isn't set up."""
+    from core import external_intel  # noqa: PLC0415
+
+    intelligence = result.osint_summary or {}
+    status = str(intelligence.get("status") or "disabled")
+    configured = external_intel.configured()
+    if mode == "File":
+        names: tuple[str, ...] = ("VirusTotal", "MalwareBazaar", "CIRCL hashlookup")
+        answers = dict(intelligence.get("hash_sources") or {})
+        for feed, entry in (intelligence.get("feeds") or {}).items():   # the public feeds, when they list it
+            if isinstance(entry, dict) and entry.get("status") == "matched" and feed not in answers:
+                answers[feed] = {"status": "match", "detail": "lists this file's fingerprint"}
+                names = (*names, feed)
+        sent = "sha256"
+    elif mode == "URL":
+        names, answers, sent = external_intel.LINK_SOURCES, dict(intelligence.get("link_sources") or {}), "link"
+    else:
+        names, answers, sent = (), {}, "none"
+    ran = status not in {"disabled", "not_requested", "off_for_scan", "rate_limited", "not_applicable", "skipped"}
+    rows = []
+    for name in names:
+        service = _ROW_SERVICE.get(name, "")
+        entry = answers.get(name)
+        if not isinstance(entry, dict):
+            entry = {"status": "off" if not ran else "timeout"}
+        if entry.get("status") in {"off", "timeout"} and service and not configured.get(service, True):
+            entry = {"status": "no_key"}
+        row = {key: entry[key] for key in _ROW_KEEP if key in entry}
+        row.update(name=name, service=service, chip=_CHIP.get(str(entry.get("status")), "neutral"),
+                   configured=bool(configured.get(service, True)), link=_external_link(name, entry, target, sha256))
+        rows.append(row)
+    return {"ran": ran, "status": status, "sent": sent, "rows": rows,
+            "configured": configured, "any_configured": any(configured.get(_ROW_SERVICE.get(n, ""), False) for n in names)}
 
 
 # ------------------------------------------------------------ one final verdict, one finding list

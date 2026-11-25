@@ -38,7 +38,7 @@
       <p class="tr-kicker"><span data-l="en">CyberScan://privacy</span><span data-l="ar">الخصوصية</span></p>
       <h1><span data-l="en">Privacy policy</span><span data-l="ar">سياسة الخصوصية</span></h1>
       <p class="tr-lead"><span data-l="en">CyberScan is built to know as little about you as possible. This page says exactly what it reads, what it keeps and who else is involved.</span><span data-l="ar">صُمّم CyberScan ليعرف عنك أقل قدر ممكن. توضح هذه الصفحة بدقة ما الذي يقرؤه، وما الذي يحتفظ به، ومن الجهات الأخرى المشاركة.</span></p>
-      <p class="tr-meta"><span data-l="en">Last updated: 22 November 2026</span><span data-l="ar">آخر تحديث: 22 نوفمبر 2026</span></p>
+      <p class="tr-meta"><span data-l="en">Last updated: 25 November 2026</span><span data-l="ar">آخر تحديث: 25 نوفمبر 2026</span></p>
     </header>
     <div data-l="en">
       <section class="tr-card tr-note">
@@ -48,13 +48,14 @@
           <li>A file you check on this website is sent to CyberScan's server, <strong>read in memory and deleted</strong> as soon as the check ends. It is never run, and no copy or history is kept on the server.</li>
           <li>Your scan history stays <strong>in your own browser</strong>; you can clear it at any time.</li>
           <li>The desktop and Android apps check files <strong>on your own device</strong>.</li>
+          <li>A website scan also asks outside threat-intelligence services such as VirusTotal using <strong>only the file's fingerprint or the link</strong>, never the file; you can switch this off for any scan (<a href="#external">details</a>).</li>
         </ul>
       </section>
       <section class="tr-card">
         <h2>What CyberScan reads</h2>
         <p>Only what you give it: a file you drop or choose, a link you paste, or text you paste. CyberScan reads the bytes of that input (static analysis: file type, structure, entropy, signatures, known patterns, YARA rules). It does not open, execute or render the file.</p>
         <p>On the website, files are limited to 4 MB. The upload goes over HTTPS to the server, is written to a temporary folder only for the check and deleted when the check ends (also when it fails or times out).</p>
-        <p>Links are analysed as text (their shape and known lists of bad domains); CyberScan does not visit them for you.</p>
+        <p>Links are analysed as text (their shape and known lists of bad domains); CyberScan does not visit them for you. Unless you switch it off, the link is also looked up with outside services (see <a href="#external">External threat-intelligence lookups</a>).</p>
       </section>
       <section class="tr-card">
         <h2>What the server keeps</h2>
@@ -78,7 +79,19 @@
           <li><strong>Have I Been Pwned</strong>, only when you use the password check: your browser sends the first 5 characters of the password's SHA-1 hash (k-anonymity), never the password.</li>
           <li><strong>YouTube</strong>, only where a page shows a video: it uses the privacy-enhanced youtube-nocookie.com player, which contacts YouTube only when you press play.</li>
         </ul>
-        <p>Online threat-intelligence lookups (VirusTotal, abuse.ch, OTX) exist in the desktop app and are off by default; the website never sends your files or their fingerprints to them.</p>
+      </section>
+      <section class="tr-card" id="external">
+        <h2>External threat-intelligence lookups</h2>
+        <p>To tell you whether the wider security community already knows what you are checking, a website scan also asks outside threat-intelligence services, <strong>by default, with a switch just above the Start button to turn it off</strong> (your choice is remembered in your browser as <code>cs-external-intel</code>). These are <strong>lookups only</strong>: CyberScan never uploads your file and never submits anything for scanning, so CyberScan adds nothing new to these services' databases.</p>
+        <p>What is sent, and to whom:</p>
+        <ul>
+          <li><strong>For a file: only its SHA-256 fingerprint</strong> (a 64-character code computed from the file; the file cannot be rebuilt from it), to <strong>VirusTotal</strong> (Google; how many antivirus engines flag it), <strong>MalwareBazaar</strong> (abuse.ch; known malware samples) and <strong>CIRCL hashlookup</strong> (Luxembourg's CERT; known, legitimate software). The file's name and contents are never sent.</li>
+          <li><strong>For a link: the link itself</strong> to <strong>VirusTotal</strong>, <strong>Google Safe Browsing</strong> and <strong>URLhaus</strong> (abuse.ch), and <strong>only its host name</strong> (for example <code>example.com</code>) to VirusTotal's site report, <strong>AlienVault OTX</strong> (LevelBlue) and <strong>urlscan.io</strong> (only searched for existing public scans; CyberScan never asks it to visit the link). Links to private or local addresses are not sent anywhere.</li>
+          <li><strong>Pasted text is not sent</strong> to any of these services.</li>
+        </ul>
+        <p>The requests come from CyberScan's server, not from your browser, so these services see the server's address, not yours, and no cookie or identifier of yours. A service is asked only when the site operator has set up a key for it (CIRCL needs none); the result card says which services answered and which are not configured. Answers (the services' numbers, not your link) are cached for up to 6 hours, in memory and in the site's own storage on AWS, under a one-way code of what was looked up, so repeated checks don't spend the services' free quotas. To protect those quotas, the number of scans with online lookups is limited per visitor; the visitor's address is held in memory only for that, and forgotten when the server instance stops.</p>
+        <p>Each service handles what it receives under its own privacy policy: VirusTotal (Google), Google Safe Browsing (Google), abuse.ch (URLhaus, MalwareBazaar), CIRCL, AlienVault OTX (LevelBlue) and urlscan.io. If a link is private (for example it contains a password-reset token), switch the lookups off before you check it.</p>
+        <p>In the desktop app the same lookups stay off until you turn them on in Settings, and use keys you enter yourself.</p>
       </section>
       <section class="tr-card">
         <h2>Your choices and rights</h2>
@@ -95,13 +108,14 @@
           <li>الملف الذي تفحصه على هذا الموقع يُرسل إلى خادم CyberScan، <strong>ويُقرأ في الذاكرة ثم يُحذف</strong> فور انتهاء الفحص. لا يُشغَّل أبدًا، ولا تُحفظ منه نسخة ولا سجل على الخادم.</li>
           <li>سجل فحوصاتك يبقى <strong>في متصفحك أنت</strong>، ويمكنك مسحه متى شئت.</li>
           <li>تطبيقا سطح المكتب وأندرويد يفحصان الملفات <strong>على جهازك نفسه</strong>.</li>
+          <li>يسأل الفحص على الموقع أيضًا خدمات خارجية لمعلومات التهديدات مثل VirusTotal <strong>ببصمة الملف أو الرابط فقط</strong>، لا الملف أبدًا؛ ويمكنك إيقاف ذلك لأي فحص (<a href="#external-ar">التفاصيل</a>).</li>
         </ul>
       </section>
       <section class="tr-card">
         <h2>ما الذي يقرؤه CyberScan</h2>
         <p>ما تعطيه إياه فقط: ملف تسقطه أو تختاره، أو رابط تلصقه، أو نص تلصقه. يقرأ CyberScan بايتات هذا المُدخل (تحليل ثابت: نوع الملف وبنيته والإنتروبيا والتواقيع والأنماط المعروفة وقواعد YARA)، ولا يفتح الملف ولا يشغّله ولا يعرضه.</p>
         <p>على الموقع، الحد الأقصى للملف 4 ميغابايت. يصل الملف إلى الخادم عبر HTTPS، ويُكتب في مجلد مؤقت لأجل الفحص فقط، ويُحذف عند انتهاء الفحص (وكذلك إذا فشل أو انتهت مهلته).</p>
-        <p>الروابط تُحلَّل كنص (شكلها وقوائم معروفة للنطاقات الضارة)، ولا يزورها CyberScan نيابة عنك.</p>
+        <p>الروابط تُحلَّل كنص (شكلها وقوائم معروفة للنطاقات الضارة)، ولا يزورها CyberScan نيابة عنك. وما لم توقف ذلك، يُبحث عن الرابط أيضًا لدى خدمات خارجية (انظر <a href="#external-ar">البحث في مصادر معلومات التهديدات الخارجية</a>).</p>
       </section>
       <section class="tr-card">
         <h2>ما الذي يحتفظ به الخادم</h2>
@@ -125,7 +139,19 @@
           <li><strong>Have I Been Pwned</strong>، فقط حين تستخدم فحص كلمة المرور: يرسل متصفحك أول 5 أحرف من بصمة SHA-1 لكلمة المرور (إخفاء الهوية بالتجزئة)، ولا يرسل كلمة المرور أبدًا.</li>
           <li><strong>YouTube</strong>، فقط حيث تعرض صفحة مقطع فيديو: يُستخدم مشغّل youtube-nocookie.com المعزّز للخصوصية، ولا يتصل بـ YouTube إلا حين تضغط تشغيل.</li>
         </ul>
-        <p>البحث في معلومات التهديدات عبر الإنترنت (VirusTotal وabuse.ch وOTX) موجود في تطبيق سطح المكتب ومعطّل افتراضيًا، والموقع لا يرسل ملفاتك ولا بصماتها إليها أبدًا.</p>
+      </section>
+      <section class="tr-card" id="external-ar">
+        <h2>البحث في مصادر معلومات التهديدات الخارجية</h2>
+        <p>لنخبرك هل يعرف مجتمع الأمن السيبراني ما تفحصه مسبقًا، يسأل الفحص على الموقع أيضًا خدمات خارجية لمعلومات التهديدات، <strong>افتراضيًا، مع مفتاح فوق زر البدء مباشرة لإيقافه</strong> (ويتذكر متصفحك اختيارك باسم <code>cs-external-intel</code>). هذه <strong>استعلامات فقط</strong>: لا يرفع CyberScan ملفك أبدًا ولا يرسل أي شيء للفحص، فلا يضيف CyberScan شيئًا جديدًا إلى قواعد بيانات هذه الخدمات.</p>
+        <p>ما الذي يُرسل، وإلى من:</p>
+        <ul>
+          <li><strong>للملف: بصمة SHA-256 فقط</strong> (رمز من 64 خانة يُحسب من الملف، ولا يمكن إعادة بناء الملف منه) إلى <strong>VirusTotal</strong> (من Google؛ كم محرك مكافحة فيروسات يشير إليه)، و<strong>MalwareBazaar</strong> (من abuse.ch؛ عيّنات البرمجيات الضارة المعروفة)، و<strong>CIRCL hashlookup</strong> (فريق الاستجابة الوطني في لوكسمبورغ؛ البرامج المعروفة والموثوقة). لا يُرسل اسم الملف ولا محتواه أبدًا.</li>
+          <li><strong>للرابط: الرابط نفسه</strong> إلى <strong>VirusTotal</strong> و<strong>Google Safe Browsing</strong> و<strong>URLhaus</strong> (من abuse.ch)، و<strong>اسم المضيف فقط</strong> (مثل <code>example.com</code>) إلى تقرير الموقع في VirusTotal و<strong>AlienVault OTX</strong> (من LevelBlue) و<strong>urlscan.io</strong> (يُبحث فيه عن فحوص علنية سابقة فقط، ولا يطلب منه CyberScan زيارة الرابط أبدًا). الروابط إلى عناوين خاصة أو محلية لا تُرسل إلى أي جهة.</li>
+          <li><strong>النص الملصق لا يُرسل</strong> إلى أي من هذه الخدمات.</li>
+        </ul>
+        <p>تصدر الطلبات من خادم CyberScan لا من متصفحك، فترى هذه الخدمات عنوان الخادم لا عنوانك، ولا أي ملف تعريف ارتباط أو معرّف خاص بك. لا تُسأل خدمة إلا إذا أعدّ مشغّل الموقع مفتاحًا لها (CIRCL لا تحتاج مفتاحًا)، وتوضح بطاقة النتيجة أي الخدمات أجابت وأيها غير مُعدّ. تُحفظ الإجابات (أرقام الخدمات، لا رابطك) مؤقتًا حتى 6 ساعات في الذاكرة وفي تخزين الموقع نفسه على AWS، تحت رمز أحادي الاتجاه لما بُحث عنه، كي لا تستهلك الفحوص المتكررة الحصص المجانية لهذه الخدمات. ولحماية هذه الحصص يُحدّ عدد الفحوص التي تتضمن بحثًا عبر الإنترنت لكل زائر؛ ويُحتفظ بعنوان الزائر في الذاكرة لهذا الغرض فقط، ويُنسى حين تتوقف نسخة الخادم.</p>
+        <p>تتعامل كل خدمة مع ما يصلها وفق سياسة الخصوصية الخاصة بها: VirusTotal (Google)، وGoogle Safe Browsing (Google)، وabuse.ch (URLhaus وMalwareBazaar)، وCIRCL، وAlienVault OTX (LevelBlue)، وurlscan.io. إن كان الرابط خاصًا (مثلًا يحتوي رمز إعادة تعيين كلمة مرور) فأوقف هذا البحث قبل فحصه.</p>
+        <p>في تطبيق سطح المكتب يبقى هذا البحث متوقفًا حتى تفعّله من الإعدادات، ويستخدم مفاتيح تُدخلها بنفسك.</p>
       </section>
       <section class="tr-card">
         <h2>خياراتك وحقوقك</h2>

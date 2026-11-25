@@ -45,7 +45,7 @@
         osint: "Other security services have reported it.", privacy: "It holds private information, like names or phone numbers.", secrets: "It contains secret keys or passwords.",
         archive: "It's a box of files; we looked inside.", model: "A computer that learned from examples thought it looked risky.", other: "It's a clue worth noticing." },
       srcTitle: "Where each detection comes from", srcSub: "The rules, lists and databases behind the findings, with a description where one exists.",
-      srcRule: "Rule", srcSet: "Rule set", srcBy: "Author", srcLic: "Licence", srcRef: "Description", srcHashes: "Known-malware hash databases", srcLists: "Link lists",
+      srcRule: "Rule", srcSet: "Rule set", srcBy: "Author", srcLic: "Licence", srcRef: "Description", srcHashes: "Known-malware hash databases", srcLists: "Link lists", srcExternal: "External intelligence",
       srcMitre: "MITRE ATT&CK", srcNone: "No rule, list or database matched: the findings come from CyberScan's own structure and content checks.",
       hashSt: { found: "listed", matched: "listed", not_found: "not listed", no_match: "not listed", no_key: "not asked (no key)", unavailable: "unavailable", disabled: "off", timeout: "timed out", error: "error" },
       wrong: "Wrong result?", wrongTitle: "Report a wrong result", wrongBody: "This prepares an email to the developer in your own mail app. It contains only what's below: no file, no file name, nothing else. You can read and edit it before sending.",
@@ -89,7 +89,7 @@
         osint: "أبلغت عنه خدمات أمنية أخرى.", privacy: "يحتوي معلومات خاصة مثل الأسماء أو أرقام الهواتف.", secrets: "يحتوي مفاتيح سرية أو كلمات مرور.",
         archive: "إنه صندوق ملفات، وقد نظرنا بداخله.", model: "حاسوب تعلّم من الأمثلة رأى أنه يبدو خطرًا.", other: "إنه دليل يستحق الانتباه." },
       srcTitle: "من أين جاء كل كشف", srcSub: "القواعد والقوائم وقواعد البيانات وراء النتائج، مع وصف حيث يوجد.",
-      srcRule: "القاعدة", srcSet: "مجموعة القواعد", srcBy: "المؤلف", srcLic: "الترخيص", srcRef: "الوصف", srcHashes: "قواعد بصمات البرامج الضارة المعروفة", srcLists: "قوائم الروابط",
+      srcRule: "القاعدة", srcSet: "مجموعة القواعد", srcBy: "المؤلف", srcLic: "الترخيص", srcRef: "الوصف", srcHashes: "قواعد بصمات البرامج الضارة المعروفة", srcLists: "قوائم الروابط", srcExternal: "الاستخبارات الخارجية",
       srcMitre: "MITRE ATT&CK", srcNone: "لم تطابق أي قاعدة أو قائمة أو قاعدة بيانات: النتائج من فحوص CyberScan الخاصة للبنية والمحتوى.",
       hashSt: { found: "مُدرج", matched: "مُدرج", not_found: "غير مُدرج", no_match: "غير مُدرج", no_key: "لم يُسأل (لا مفتاح)", unavailable: "غير متاح", disabled: "متوقف", timeout: "انتهت المهلة", error: "خطأ" },
       wrong: "نتيجة خاطئة؟", wrongTitle: "أبلغ عن نتيجة خاطئة", wrongBody: "يُعدّ هذا رسالة بريد إلى المطوّر في تطبيق البريد لديك. لا تحتوي إلا ما يظهر أدناه: لا ملف ولا اسم ملف ولا شيء آخر. يمكنك قراءتها وتعديلها قبل الإرسال.",
@@ -303,6 +303,20 @@
         li.append(el("b", "", name), document.createTextNode(` · ${l.hashSt[status] || status.replace(/_/g, " ")}`));
         if (st && st.entries) li.append(el("small", "", ` (${Number(st.entries).toLocaleString(CS.lang)})`));
         if (/malwarebazaar/i.test(name) && li.className === "hit" && r.sha256) { li.append(document.createTextNode(" · ")); li.append(linkOrText("bazaar.abuse.ch", `https://bazaar.abuse.ch/sample/${r.sha256}/`)); }
+        ul.append(li);
+      });
+      box.append(ul); card.append(box);
+    }
+    // external intelligence (VirusTotal and the others): the services that answered, with their public report
+    const ext = ((r.external && r.external.rows) || []).filter((x) => !["off", "not_configured"].includes(x.chip));
+    if (ext.length) {
+      any = true;
+      const box = el("div", "rp-src-group"); box.append(el("h4", "", l.srcExternal));
+      const ul = el("ul", "rp-src-flat");
+      ext.forEach((x) => {
+        const li = el("li", x.chip === "bad" || x.chip === "warn" ? "hit" : "");
+        li.append(el("b", "", x.name), document.createTextNode(` · ${window.CSExternal ? window.CSExternal.lineOf(x) : String(x.status || "").replace(/_/g, " ")}`));
+        if (x.link && /^https:\/\//.test(x.link)) { li.append(document.createTextNode(" · ")); li.append(linkOrText(new URL(x.link).host, x.link)); }
         ul.append(li);
       });
       box.append(ul); card.append(box);

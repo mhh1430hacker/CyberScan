@@ -114,6 +114,9 @@ OSINT = {
     "invalid_indicator": ("osint.not_applicable", "not_applicable", "Online lookups don't apply to free text",
                           "البحث عبر الإنترنت لا ينطبق على النص الحر"),
     "skipped": ("osint.skipped_time_limit", "partial", "Skipped: the time limit was reached", "تُخطّي: بلغ الفحص حدّه الزمني"),
+    "off_for_scan": ("osint.off_for_scan", "disabled", "Online lookups were turned off for this scan", "أُوقف البحث عبر الإنترنت لهذا الفحص"),
+    "rate_limited": ("osint.rate_limited", "disabled", "Online lookups skipped: too many from your connection in a short time; try again in a few minutes",
+                     "تُخطّي البحث عبر الإنترنت: طلبات كثيرة من اتصالك في وقت قصير؛ أعد المحاولة بعد دقائق"),
 }
 
 
@@ -135,6 +138,10 @@ HASH_SOURCE = {
     "timeout": ("hash.timeout", "Didn't answer in time", "لم يُجب في الوقت المحدد"),
     "error": ("hash.error", "Couldn't be reached", "تعذّر الوصول إليه"),
     "unavailable": ("hash.unavailable", "Database not installed", "قاعدة البيانات غير مثبّتة"),
+    "several": ("hash.several", "Several antivirus engines flag it", "عدة محركات لمكافحة الفيروسات تشير إليه"),
+    "quota": ("hash.quota", "Not checked: the free quota is used up for now", "لم يُفحص: نفدت الحصة المجانية مؤقتًا"),
+    "seen": ("hash.seen", "Seen before, nothing flagged", "شوهد من قبل ولم يُشر إليه بشيء"),
+    "not_applicable": ("hash.not_applicable", "Doesn't apply here", "لا ينطبق هنا"),
 }
 
 

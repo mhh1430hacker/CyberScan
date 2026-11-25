@@ -285,7 +285,10 @@ AR: dict[str, str] = {
     "Ollama isn't running": "Ollama لا يعمل",
     "Checking…": "جارٍ التحقق…",
     # --- keys and display ----------------------------------------------------------
-    "Free keys: auth.abuse.ch (one key covers URLhaus and ThreatFox) and otx.alienvault.com. They are stored encrypted for your Windows account.": "مفاتيح مجانية من auth.abuse.ch (مفتاح واحد يغطي URLhaus وThreatFox) ومن otx.alienvault.com. تُحفظ مشفّرة لحساب Windows الخاص بك.",
+    "Free keys: auth.abuse.ch (one key covers URLhaus, ThreatFox and MalwareBazaar), otx.alienvault.com, virustotal.com, Google Cloud (Safe Browsing API) and urlscan.io. They are stored encrypted for your Windows account.": "مفاتيح مجانية من auth.abuse.ch (مفتاح واحد يغطي URLhaus وThreatFox وMalwareBazaar)، ومن otx.alienvault.com وvirustotal.com وGoogle Cloud (واجهة Safe Browsing) وurlscan.io. تُحفظ مشفّرة لحساب Windows الخاص بك.",
+    "VirusTotal key (files, links and sites, by fingerprint or address only)": "مفتاح VirusTotal (للملفات والروابط والمواقع، بالبصمة أو العنوان فقط)",
+    "Google Safe Browsing key (links)": "مفتاح Google Safe Browsing (للروابط)",
+    "urlscan.io key (searches existing public scans of a site)": "مفتاح urlscan.io (يبحث في الفحوص العلنية السابقة للموقع)",
     "abuse.ch key (URLhaus and ThreatFox)": "مفتاح abuse.ch (لـ URLhaus وThreatFox)",
     "AlienVault OTX key": "مفتاح AlienVault OTX",
     "Forget saved keys": "حذف المفاتيح المحفوظة",
