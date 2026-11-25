@@ -54,3 +54,4 @@ web_v/static/downloads/*.apk
 
 # Real-user vitals and error reports collected by the local server (web_v/site_extras.py)
 data/rum/
+data/visits.json

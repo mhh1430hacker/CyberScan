@@ -62,6 +62,7 @@ from ui.scan_service import ScanService  # noqa: E402
 import services  # noqa: E402
 import assistant  # noqa: E402
 import site_extras  # noqa: E402  - trust pages, per-language URLs, sitemap, security.txt, vitals/errors beacons
+import visits  # noqa: E402  - the real visit counter (web_v/visits.py)
 import profile_stats  # noqa: E402  - the support page's live public numbers (GET /api/profile)
 try:
     import toolbox  # noqa: E402
@@ -144,10 +145,10 @@ SCAN_URL = os.environ.get("CYBERSCAN_SCAN_URL", "app.html")    # where the landi
 HOME_URL = os.environ.get("CYBERSCAN_HOME_URL", "/")           # where the scan page's logo leads
 JOURNEY_URL = os.environ.get("CYBERSCAN_JOURNEY_URL", "/journey")   # the File Journey (its own host on the site: j.<domain>)
 LANDING_ONLY_CSS = ("landing.css", "scroll.css", "science.css", "scrolly.css", "saudi.css", "cinema.css", "team.css", "theme.css", "get-app.css", "hero-art.css",
-                    "intro.css", "landing-plus.css")
+                    "intro.css", "landing-plus.css", "origin.css")
 LANDING_ONLY_JS = ("js/gl-hero.js", "js/pipeline.js", "js/film.js", "js/story.js", "js/landing.js",
                    "js/get-app.js", "js/lite.js", "js/scroll.js", "js/science.js", "js/scrolly-i18n.js", "js/scrolly.js", "js/saudi.js", "js/tilt.js", "js/tour.js", "js/team.js",
-                   "js/intro-early.js", "js/intro.js", "js/landing-i18n.js", "js/live-demo.js")   # the opening sequence (#preloader) is the landing's own
+                   "js/intro-early.js", "js/intro.js", "js/landing-i18n.js", "js/live-demo.js", "js/origin.js")   # the opening sequence (#preloader) is the landing's own
 
 
 def _cut(html: str, start: str, end: str) -> str:
@@ -1329,7 +1330,7 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
                 if self._guard(api=False):
                     self._static(path)
                 return
-            if path in ("/api/vitals", "/api/errors", "/api/health"):
+            if path in ("/api/vitals", "/api/errors", "/api/health", "/api/visit", "/api/visits"):
                 # no token: navigator.sendBeacon can't send headers; the Origin/Host check still applies
                 if self._guard(api=False):
                     self._site_api(method, path)
@@ -1389,6 +1390,17 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
             status page's health check (GET). See web_v/site_extras.py."""
             if path == "/api/health" and method == "GET":
                 self._json(HTTPStatus.OK, site_extras.health())
+                return
+            # the real visit counter: one POST per browser session (js/visits.js), GET for the total
+            if path == "/api/visits" and method == "GET":
+                self._json(HTTPStatus.OK, visits.total())
+                return
+            if path == "/api/visit" and method == "POST":
+                visits.record(self.headers.get("User-Agent", ""))
+                self._send(HTTPStatus.NO_CONTENT, b"", "text/plain")
+                return
+            if path == "/api/visits":
+                self._json(HTTPStatus.METHOD_NOT_ALLOWED, {"error": "method not allowed"})
                 return
             if path == "/api/health" or method != "POST":
                 self._json(HTTPStatus.METHOD_NOT_ALLOWED, {"error": "method not allowed"})

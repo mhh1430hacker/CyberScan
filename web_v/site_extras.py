@@ -142,7 +142,7 @@ def json_ld(path: str) -> str:
 
 SHARED_CSS = '<link rel="stylesheet" href="a11y-panel.css">'
 SHARED_JS = ('<script src="js/errors.js"></script>', '<script src="js/a11y-early.js"></script>')
-SHARED_TAIL = ('<script src="js/a11y-panel.js"></script>', '<script src="js/vitals.js"></script>')
+SHARED_TAIL = ('<script src="js/a11y-panel.js"></script>', '<script src="js/vitals.js"></script>', '<script src="js/visits.js"></script>')
 
 
 def decorate(html: str, path: str, lang: str | None = None) -> str:

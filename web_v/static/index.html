@@ -46,6 +46,7 @@
   <link rel="stylesheet" href="hero-art.css">
   <link rel="stylesheet" href="polish.css">
   <link rel="stylesheet" href="landing-plus.css">
+  <link rel="stylesheet" href="origin.css">
   <link rel="stylesheet" href="fabric.css">
   <link rel="stylesheet" href="lang-gate.css">
   <link rel="stylesheet" href="a11y.css">
@@ -313,6 +314,42 @@
       </div>
     </section>
     <!-- ============ /MADE BY SAUDI HANDS ============ -->
+    <!-- ============ ORIGINALITY (origin.css, js/origin.js): a pinned scroll scene ============ -->
+    <section id="origin" class="og" data-shape="hex" data-shape-fade="0.18" data-tint="#0a0616" aria-labelledby="og-title">
+      <div class="og-stage">
+        <div class="og-glow" aria-hidden="true"></div>
+        <div class="og-inner">
+          <div class="og-visual" aria-hidden="true">
+            <svg class="og-print" viewBox="-160 -160 320 320">
+              <defs>
+                <linearGradient id="og-grad" x1="0" y1="-1" x2="0" y2="1" gradientUnits="objectBoundingBox">
+                  <stop offset="0" stop-color="#ffe7a8"/><stop offset=".5" stop-color="#c9a2ff"/><stop offset="1" stop-color="#22e8ff"/>
+                </linearGradient>
+              </defs>
+              <circle class="og-ring" r="152"/>
+              <g class="og-ridges"></g>
+              <circle class="og-core" r="4" cy="-6"/>
+            </svg>
+            <span class="og-beam"></span>
+            <span class="og-seal"><span><span data-i18n="ogSeal">Made here</span><small>CYBERSCAN</small></span></span>
+          </div>
+          <div class="og-words">
+            <p class="og-kicker" data-i18n="ogKicker">// Originality</p>
+            <h2 class="og-title" id="og-title" data-i18n="ogTitle">Original, line by line.</h2>
+            <p class="og-lead" data-i18n="ogLead">CyberScan isn't a copy of another product. Its idea, its code and its design were born here.</p>
+            <ol class="og-pillars">
+              <li class="og-pillar"><b data-i18n="ogP1T">An engine written from scratch</b><p data-i18n="ogP1">Static analysis, scoring and plain-language explanations were all written here, line by line, not wrapped around another tool.</p></li>
+              <li class="og-pillar"><b data-i18n="ogP2T">Our own real repair</b><p data-i18n="ogP2">It rebuilds a clean copy of the file (CDR) instead of stopping at a warning.</p></li>
+              <li class="og-pillar"><b data-i18n="ogP3T">Design without templates</b><p data-i18n="ogP3">Every motion and scene, from the File Journey to the Cubeverse, is drawn in code for CyberScan alone.</p></li>
+              <li class="og-pillar"><b data-i18n="ogP4T">Arabic first</b><p data-i18n="ogP4">Designed in Arabic from day one, then extended to thirty languages.</p></li>
+              <li class="og-pillar"><b data-i18n="ogP5T">Honest about sources</b><p data-i18n="ogP5">We use trusted open rules and data, such as YARA-Forge and abuse.ch, and name them instead of hiding them.</p></li>
+            </ol>
+          </div>
+        </div>
+        <div class="og-progress" aria-hidden="true"><i></i></div>
+      </div>
+    </section>
+    <!-- ============ /ORIGINALITY ============ -->
 
 
     <section id="film" class="l-section film-sec cine" data-shape="ring" data-shape-fade="0.12" data-tint="#090620" aria-labelledby="film-h">
@@ -800,6 +837,11 @@
       <div class="stats-grid" id="stats-grid"></div>
       <p class="stats-note" id="stats-note"></p>
       <p class="stats-live" id="stats-live" hidden></p>
+      <div class="visits" id="visits" hidden aria-live="polite">
+        <b class="vs-n">0</b>
+        <span class="vs-label"><i class="vs-dot" aria-hidden="true"></i><span data-i18n="vsLabel">real visits to the site</span></span>
+        <small class="vs-since"></small>
+      </div>
     </section>
 
     <!-- ============ ONYX | THE MINDS BEHIND CYBERSCAN (team.css, js/team.js) ============ -->
@@ -1496,6 +1538,7 @@
   <script src="js/science.js"></script>
   <script src="js/scrolly.js"></script>
   <script src="js/saudi.js"></script>
+  <script src="js/origin.js"></script>
   <script src="js/tilt.js"></script>
   <script src="js/tour.js"></script>
   <script src="js/team.js"></script>
