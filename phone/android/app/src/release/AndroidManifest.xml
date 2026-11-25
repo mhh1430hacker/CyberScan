@@ -1,0 +1,9 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <!-- CyberScan does every check on the phone and never needs the network. Libraries (Google ML
+         Kit for QR codes, via mobile_scanner) add INTERNET to send their own usage metrics; it is
+         removed from release builds so "nothing leaves the device" is enforced by Android itself
+         (the bundled QR model works offline). Debug builds keep it for Flutter's hot reload. -->
+    <uses-permission android:name="android.permission.INTERNET" tools:node="remove" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" tools:node="remove" />
+</manifest>

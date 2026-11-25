@@ -2,17 +2,27 @@
  *
  * The panel is built on first open, so the landing page pays nothing for it until then.
  * Answers are plain text (textContent), never HTML. The conversation lives in this tab's
- * sessionStorage (a convenience: the page works the same without it). */
+ * sessionStorage (a convenience: the page works the same without it).
+ *
+ * From a scan result, "Ask about this result" opens the panel with a short summary of that result
+ * (verdict, score, top findings: never the file or its name) sent along with each question until
+ * the person removes it (window.CSAsk.open(question, context)). */
 (function () {
   "use strict";
   const CS = window.CS;
-  if (!CS || !document.getElementById("landing")) return;
+  if (!CS) return;
+  // the landing has the floating button; the scan page opens the panel only from a result (CSAsk.open)
+  const onLanding = !!document.getElementById("landing");
   const { t, el } = CS;
   const KEY = "cs-ask";
   const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   let panel = null, list = null, input = null, send = null, chips = null, busy = false, opener = null;
   let history = [];
+  let context = null, contextLabel = "";
+  const CTX = { en: { about: "About your result: {v}", remove: "Stop using this result", ask: "Explain this result in simple words: what does it mean and what should I do?" },
+    ar: { about: "عن نتيجتك: {v}", remove: "توقف عن استخدام هذه النتيجة", ask: "اشرح لي هذه النتيجة بكلمات بسيطة: ماذا تعني وماذا أفعل؟" } };
+  const C = () => CTX[CS.lang === "ar" ? "ar" : "en"];
   try { history = JSON.parse(sessionStorage.getItem(KEY) || "[]").filter((m) => m && (m.role === "user" || m.role === "assistant") && typeof m.text === "string").slice(-20); } catch { history = []; }
   const save = () => { try { sessionStorage.setItem(KEY, JSON.stringify(history.slice(-20))); } catch { /* storage off */ } };
 
@@ -24,7 +34,7 @@
   fab.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c-4.97 0-9 3.36-9 7.5 0 2.2 1.14 4.18 2.95 5.55L5 21l4.6-2.44c.77.17 1.58.27 2.4.27 4.97 0 9-3.36 9-7.5S16.97 3 12 3z"/><path class="ask-spark" d="M12 7.2l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z"/></svg>';
   const fabLabel = el("span", "ask-fab-label");
   fab.append(fabLabel);
-  document.body.append(fab);
+  if (onLanding) document.body.append(fab);
   fab.addEventListener("click", () => (panel && !panel.hidden ? close() : open(fab)));
   document.addEventListener("click", (e) => {
     const trigger = e.target.closest && e.target.closest("[data-ask-open]");
@@ -61,6 +71,7 @@
         <button type="button" class="ask-clear"></button>
         <button type="button" class="ask-close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
       </header>
+      <div class="ask-ctx" hidden><span class="ask-ctx-text"></span><button type="button" class="ask-ctx-x"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
       <div class="ask-list" role="log" aria-live="polite" aria-relevant="additions"></div>
       <div class="ask-chips"></div>
       <form class="ask-form">
@@ -76,7 +87,8 @@
     send = panel.querySelector(".ask-send");
     fab.setAttribute("aria-controls", "ask-panel");
     panel.querySelector(".ask-close").addEventListener("click", close);
-    panel.querySelector(".ask-clear").addEventListener("click", () => { history = []; save(); render(); input.focus(); });
+    panel.querySelector(".ask-clear").addEventListener("click", () => { history = []; save(); setContext(null); render(); input.focus(); });
+    panel.querySelector(".ask-ctx-x").addEventListener("click", () => { setContext(null); input.focus(); });
     panel.querySelector(".ask-form").addEventListener("submit", (e) => { e.preventDefault(); ask(input.value); });
     input.addEventListener("keydown", (e) => {
       if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); ask(input.value); }
@@ -150,8 +162,19 @@
     list.scrollTop = list.scrollHeight;
   }
 
+  function setContext(ctx, label) {
+    context = ctx && typeof ctx === "object" ? ctx : null;
+    contextLabel = context ? String(label || "") : "";
+    if (!panel) return;
+    const box = panel.querySelector(".ask-ctx");
+    box.hidden = !context;
+    box.querySelector(".ask-ctx-text").textContent = context ? C().about.replace("{v}", contextLabel) : "";
+    box.querySelector(".ask-ctx-x").setAttribute("aria-label", C().remove);
+  }
+
   function open(from, question) {
     if (!panel) build();
+    setContext(context, contextLabel);
     opener = from || fab;
     panel.hidden = false;
     fab.setAttribute("aria-expanded", "true");
@@ -189,7 +212,7 @@
       const res = await CS.api("/api/assistant", {
         method: "POST",
         headers: { "Content-Type": "application/json", "X-CyberScan-Lang": CS.lang },
-        body: JSON.stringify({ question, history: past }),
+        body: JSON.stringify(context ? { question, history: past, context } : { question, history: past }),
       });
       const answer = res.refused ? t("askRefused") : String(res.answer || "").trim() || t("askError");
       history.push({ role: "assistant", text: answer, source: res.source });
@@ -206,6 +229,11 @@
     }
   }
 
-  CS.onLang(texts);
+  CS.onLang(() => { texts(); setContext(context, contextLabel); });
   texts();
+  // the scan page asks about a result: the summary goes with the questions until it is removed
+  window.CSAsk = {
+    open(question, ctx, label, from) { setContext(ctx, label); open(from || fab, question === undefined ? C().ask : question); },
+    clearContext() { setContext(null); },
+  };
 })();

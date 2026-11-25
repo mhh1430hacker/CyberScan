@@ -4,6 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'app_state.dart';
+import 'checks.dart';
+import 'native.dart';
 import 'screens/history_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/settings_screen.dart';
@@ -47,8 +49,48 @@ class Shell extends StatefulWidget {
   State<Shell> createState() => _ShellState();
 }
 
-class _ShellState extends State<Shell> {
+class _ShellState extends State<Shell> with WidgetsBindingObserver {
   int _tab = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final app = AppScope.of(context);
+      updateWidget(app, app.history.isEmpty ? null : app.history.first);
+      app.refreshFolder();
+      // a share or the widget's Quick scan button that opened the app
+      final first = await Native.listen(_incoming);
+      if (first != null) _incoming(first);
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && mounted) AppScope.of(context).refreshFolder();
+  }
+
+  void _incoming(Incoming i) {
+    if (!mounted) return;
+    final app = AppScope.of(context);
+    Navigator.of(context).popUntil((r) => r.isFirst);
+    setState(() => _tab = 0);
+    switch (i.type) {
+      case 'quickScan':
+        pickAndCheckFile(context, app);
+      case 'files':
+        checkSharedFiles(context, app, i.files, skipped: i.skipped);
+      case 'text':
+        checkSharedText(context, app, i.text ?? '');
+    }
+  }
   @override
   Widget build(BuildContext context) {
     final s = AppScope.of(context).s;

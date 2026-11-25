@@ -64,26 +64,30 @@ class FindingTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = C.severity(f.severity);
+    // Flutter can't paint a rounded border whose sides differ in colour (it asserts in debug and
+    // draws square corners in release), so: a rounded outline on top, a clipped colour bar below.
     return Container(
-      decoration: BoxDecoration(
-        color: C.surface,
+      foregroundDecoration: BoxDecoration(borderRadius: BorderRadius.circular(16), border: Border.all(color: C.line)),
+      child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
-        border: BorderDirectional(start: BorderSide(color: color, width: 3), top: const BorderSide(color: C.line), end: const BorderSide(color: C.line), bottom: const BorderSide(color: C.line)),
+        child: Container(
+          decoration: BoxDecoration(color: C.surface, border: BorderDirectional(start: BorderSide(color: color, width: 3))),
+          padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Row(children: [
+              Expanded(child: Text(f.title(ar), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15.5))),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(color: color.withValues(alpha: .14), borderRadius: BorderRadius.circular(99)),
+                child: Text(severityLabel, style: TextStyle(color: color, fontSize: 11.5, fontWeight: FontWeight.w700)),
+              ),
+            ]),
+            const SizedBox(height: 6),
+            Text(f.detail(ar), style: const TextStyle(color: C.muted, height: 1.45, fontSize: 14)),
+          ]),
+        ),
       ),
-      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [
-          Expanded(child: Text(f.title(ar), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15.5))),
-          const SizedBox(width: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-            decoration: BoxDecoration(color: color.withValues(alpha: .14), borderRadius: BorderRadius.circular(99)),
-            child: Text(severityLabel, style: TextStyle(color: color, fontSize: 11.5, fontWeight: FontWeight.w700)),
-          ),
-        ]),
-        const SizedBox(height: 6),
-        Text(f.detail(ar), style: const TextStyle(color: C.muted, height: 1.45, fontSize: 14)),
-      ]),
     );
   }
 }

@@ -42,7 +42,7 @@
       repSaved: "Saved next to the original: {p}", repNoFile: "Repair works on files. Choose the file again to repair it.",
       repMalware: "This file is listed as known malware. Repair can remove added parts, but the safe action is to delete it.",
       sev: { high: "High", medium: "Medium", low: "Low" },
-      statusOn: "Protection active", statusPartial: "Protection partly available", statusUnknown: "Protection status unavailable",
+      statusOn: "Protection active", statusPartial: "Protection partly available", statusUnknown: "Protection status unavailable", statusLoading: "Checking protection…", statRulesOff: "The large rule set isn't loaded here; the built-in rules still run.",
       statusUpdated: "Rules updated {d}", statRules: "threat rules", statHashes: "known-malware fingerprints", statLinks: "malicious links & domains",
       recentTitle: "Recent scans", recentAll: "All history",
       howTitle: "How a scan works",
@@ -82,7 +82,7 @@
       repSaved: "حُفظت بجوار الأصل: {p}", repNoFile: "الإصلاح يعمل على الملفات. اختر الملف مرة أخرى لإصلاحه.",
       repMalware: "هذا الملف مُدرج كبرنامج ضار معروف. يمكن للإصلاح إزالة الأجزاء المضافة، لكن الإجراء الآمن هو حذفه.",
       sev: { high: "مرتفع", medium: "متوسط", low: "منخفض" },
-      statusOn: "الحماية فعّالة", statusPartial: "الحماية متاحة جزئيًا", statusUnknown: "حالة الحماية غير متاحة",
+      statusOn: "الحماية فعّالة", statusPartial: "الحماية متاحة جزئيًا", statusUnknown: "حالة الحماية غير متاحة", statusLoading: "جارٍ التحقق من الحماية…", statRulesOff: "مجموعة القواعد الكبيرة غير محمّلة هنا؛ القواعد المدمجة ما زالت تعمل.",
       statusUpdated: "حُدّثت القواعد {d}", statRules: "قاعدة تهديد", statHashes: "بصمة برامج ضارة معروفة", statLinks: "رابط ونطاق ضار",
       recentTitle: "آخر الفحوصات", recentAll: "السجل كاملًا",
       howTitle: "كيف يعمل الفحص",
@@ -113,9 +113,14 @@
   const recentCard = el("section", "sp-card sp-recent");
   const howCard = el("section", "sp-card sp-how");
   rail.append(statusCard, recentCard, howCard);
-  let protection = null, pollTimer = null, recent = null;
+  let protection = null, pollTimer = null, recent = null, protLoading = true, protTries = 0;
   async function loadProtection() {
+    protLoading = !protection;
+    if (protLoading) paintSources();
     try { protection = await api("/api/protection"); } catch { protection = null; }
+    protLoading = false;
+    // a cold start can fail once: try again before saying the status is unavailable
+    if (!protection && protTries++ < 2) { protLoading = true; paintSources(); clearTimeout(pollTimer); pollTimer = setTimeout(loadProtection, 1500); return; }
     paintSources();
     if (protection && protection.updater && protection.updater.running) {
       clearTimeout(pollTimer); pollTimer = setTimeout(loadProtection, 4000);
@@ -143,14 +148,23 @@
     const live = p ? [p.forge, p.malware_hashes, p.lists].filter(Boolean).length : 0;
     statusCard.classList.toggle("partial", !!p && live < 3);
     const title = el("div", "sp-status-title");
-    title.append(el("b", "", live === 3 ? l.statusOn : p ? l.statusPartial : l.statusUnknown), el("small", "", p ? fill(l.statusUpdated, { d: p.updated || l.never }) : ""));
+    statusCard.classList.toggle("loading", protLoading && !p);
+    title.append(el("b", "", protLoading && !p ? l.statusLoading : live === 3 ? l.statusOn : p ? l.statusPartial : l.statusUnknown), el("small", "", p ? fill(l.statusUpdated, { d: p.updated || l.never }) : ""));
     head.append(mark, title);
     statusCard.append(head);
-    if (p) {
+    if (p || protLoading) {
+      // while /api/protection answers: a placeholder, never a misleading 0; a source that isn't loaded shows a dash
       const stats = el("div", "sp-stats");
-      [[p.forge_rules, l.statRules], [p.malware_hashes, l.statHashes], [(p.urlhaus || 0) + (p.phishing || 0), l.statLinks]].forEach(([n, k]) => {
-        const s = el("div", "sp-stat"); const b = el("b", "", compact(n)); b.dir = "auto"; s.append(b, el("span", "", k)); stats.append(s);
+      const rules = p ? (Number(p.forge_rules) || 0) : 0;
+      const links = p ? (Number(p.urlhaus) || 0) + (Number(p.phishing) || 0) : 0;
+      [[p && (rules || null), l.statRules, p && !rules ? l.statRulesOff : ""], [p && (Number(p.malware_hashes) || null), l.statHashes, p && !p.malware_hashes ? l.hashesOff : ""],
+        [p && (links || null), l.statLinks, p && !links ? l.forgeOff : ""]].forEach(([n, k, off]) => {
+        const s = el("div", `sp-stat${!p ? " skel" : ""}`);
+        const b = el("b", "", !p ? "…" : n ? compact(n) : "–"); b.dir = "auto";
+        if (off) s.title = off;
+        s.append(b, el("span", "", k)); stats.append(s);
       });
+      if (!p) stats.setAttribute("aria-busy", "true");
       statusCard.append(stats);
     }
     // every source in detail

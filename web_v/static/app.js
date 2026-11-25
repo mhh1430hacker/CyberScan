@@ -1306,11 +1306,21 @@ function renderHistory(animate) {
   const query = $("history-search").value.trim().toLowerCase();
   const all = state.history || [];
   const range = ($("history-date") || {}).value || "all";
-  const since = range === "all" ? 0 : Date.now() - Number(range) * 86400000;
-  const rows = all.filter((r) =>
-    (state.filter === "all" || (state.filter === "quarantined" ? r.quarantined : r.classification === state.filter || (state.filter === "SUSPICIOUS" && r.classification === "KNOWN_MALWARE"))) &&
-    (!query || r.target.toLowerCase().includes(query)) &&
-    (!since || new Date(r.timestamp).getTime() >= since));
+  // a custom range: from the start of "from" to the end of "to" (either may be empty)
+  const custom = range === "custom";
+  if ($("history-range")) $("history-range").hidden = !custom;
+  const dayStart = (v) => { const d = new Date(`${v}T00:00:00`); return Number.isNaN(d.getTime()) ? null : d.getTime(); };
+  const from = custom && $("history-from") && $("history-from").value ? dayStart($("history-from").value) : null;
+  const to = custom && $("history-to") && $("history-to").value ? dayStart($("history-to").value) : null;
+  const since = range === "all" || custom ? 0 : Date.now() - Number(range) * 86400000;
+  const type = ($("history-type") || {}).value || "all";
+  const rows = all.filter((r) => {
+    const ts = new Date(r.timestamp).getTime();
+    return (state.filter === "all" || (state.filter === "quarantined" ? r.quarantined : r.classification === state.filter || (state.filter === "SUSPICIOUS" && r.classification === "KNOWN_MALWARE"))) &&
+      (!query || r.target.toLowerCase().includes(query) || verdictWords(r.classification).join(" ").toLowerCase().includes(query)) &&
+      (!since || ts >= since) && (from == null || ts >= from) && (to == null || ts < to + 86400000) &&
+      (type === "all" || historyType(r.target) === type);
+  });
   const sort = ($("history-sort") || {}).value || "new";
   if (sort === "old") rows.reverse();
   else if (sort === "risk") rows.sort((a, b) => (b.score - a.score) || (new Date(b.timestamp) - new Date(a.timestamp)));
@@ -1351,6 +1361,21 @@ function renderHistory(animate) {
   }
 }
 
+/* what a history row was, from its target: a link, pasted text, or a file by its extension */
+const TYPE_EXT = {
+  doc: /\.(pdf|docx?|docm|xlsx?|xlsm|pptx?|pptm|rtf|odt|ods|odp|txt|csv|md|eml|msg)$/i,
+  program: /\.(exe|dll|scr|com|msi|msix|sys|elf|so|dylib|apk|appx|jar|bin)$/i,
+  archive: /\.(zip|rar|7z|gz|tgz|tar|cab|iso|img|crx|xpi)$/i,
+  image: /\.(png|jpe?g|gif|bmp|webp|svg|ico|tiff?|heic)$/i,
+  script: /\.(ps1|bat|cmd|vbs|js|jse|hta|py|sh|php|html?|wsf|lnk)$/i,
+};
+function historyType(target) {
+  const t = String(target || "");
+  if (/^https?:\/\//i.test(t)) return "url";
+  if (t === "Pasted text") return "text";
+  const name = t.split(/[\\/]/).pop();
+  return Object.keys(TYPE_EXT).find((k) => TYPE_EXT[k].test(name)) || "other";
+}
 const sortNew = () => (($("history-sort") || {}).value || "new") === "new";   // day groups only make sense newest-first
 function historyRow(r, delay) {
   const row = el("div", "row");
@@ -1407,7 +1432,7 @@ async function deleteRecord(record, row, name) {
 }
 
 $("history-search").addEventListener("input", () => renderHistory(false));
-["history-date", "history-sort"].forEach((id) => { if ($(id)) $(id).addEventListener("change", () => renderHistory(false)); });
+["history-date", "history-sort", "history-type", "history-from", "history-to"].forEach((id) => { if ($(id)) $(id).addEventListener("change", () => renderHistory(false)); });
 const historyChips = [...document.querySelectorAll("#view-history .chip")];
 historyChips.forEach((chip) => chip.setAttribute("aria-pressed", String(chip.classList.contains("active"))));
 historyChips.forEach((chip) => chip.addEventListener("click", () => {
@@ -1593,7 +1618,17 @@ window.CS = {
 document.addEventListener("DOMContentLoaded", () => {
   applyLang();
   if (!I18N[lang]) CS_LANGS.load(lang).then(applyLang).catch(() => { lang = "en"; applyLang(); });
+  /* Prefill (browser extension, phone share, links): #/scan?url=<link> or ?url=<link> fills the Link
+   * field, #/scan?text=<message> the Text field. Nothing starts by itself: the visitor presses Start. */
+  const pre = new URLSearchParams((location.hash.split("?")[1] || "") || location.search.slice(1));
+  if (location.hash.includes("?")) history.replaceState(null, "", location.pathname + location.search.replace(/[?&](url|text)=[^&]*/g, "") + "#/scan");
   route();
+  if (SCAN_PAGE && (pre.get("url") || pre.get("text"))) {
+    const m = pre.get("url") ? "url" : "text";
+    tabs.find((x) => x.dataset.mode === m)?.click();
+    $(m).value = (pre.get(m) || "").slice(0, m === "url" ? 2048 : 20000);
+    updateReady();
+  }
   loadSettings();
   loadAiStatus();
 });

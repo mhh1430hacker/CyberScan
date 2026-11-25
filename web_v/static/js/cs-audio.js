@@ -43,7 +43,16 @@
 
   /* ---------------- preferences: one cookie for the whole site ---------------- */
   const KEY = "cs-audio";
-  const P = { m: 0, v: 0.7, f: 1 };
+  const P = { m: 0, v: 0.7, f: 1, o: "calm" };
+  // three moods of the same piece (same chords, same wall-clock position): calm is the original
+  // Signal Garden; focus holds a steady, sparse middle with no lead or beat; cinematic is fuller,
+  // with the lead phrase more often, a deeper pulse and a brighter filter
+  const MOODS = {
+    calm: { flat: 0, bias: 0, lead: 0.55, every: 2, glass: 1, pulse: 1, shaker: 1, tilt: 0, bell: 1 },
+    focus: { flat: 0.85, bias: -0.04, lead: 9, every: 2, glass: 0.78, pulse: 0, shaker: 0, tilt: -180, bell: 0.5 },
+    cinematic: { flat: 0, bias: 0.14, lead: 0.42, every: 1, glass: 1.12, pulse: 1.35, shaker: 1.3, tilt: 320, bell: 1.6 },
+  };
+  const mood = () => MOODS[P.o] || MOODS.calm;
   function cookieDomain() {
     const host = location.hostname;
     if (!host.includes(".") || /^[\d.]+$/.test(host) || host.endsWith(".localhost")) return "";
@@ -61,6 +70,7 @@
       const v = parseFloat(q.get("v"));
       if (v >= 0 && v <= 1) P.v = v;
       P.f = q.get("f") === "0" ? 0 : 1;
+      P.o = MOODS[q.get("o")] ? q.get("o") : "calm";
       return;
     }
     try {   // the old per-page keys
@@ -69,7 +79,7 @@
     } catch { /* storage off */ }
   }
   function writePrefs() {
-    const raw = `m=${P.m}&v=${P.v.toFixed(2)}&f=${P.f}`;
+    const raw = `m=${P.m}&v=${P.v.toFixed(2)}&f=${P.f}&o=${P.o}`;
     try {
       document.cookie = `${KEY}=${encodeURIComponent(raw)}; Path=/; Max-Age=31536000; SameSite=Lax${cookieDomain()}${location.protocol === "https:" ? "; Secure" : ""}`;
     } catch { /* cookies off */ }
@@ -170,8 +180,10 @@
   const MOTIFS = [[0, -1, -2, -1], [0, 1, 0, -2], [-2, -1, 0, 0], [0, -2, -3, -2], [1, 0, -1, -3]];
   let jBias = 0, jTilt = 0;               // the journey's colour
   function intensity(c) {
-    const arc = (((c % 64) + 64) % 64) / 64;
-    return clamp(0.2 + 0.66 * Math.pow(Math.sin(Math.PI * arc), 1.3) + (h(c, 1) - 0.5) * 0.12 + jBias, 0.08, 1);
+    const arc = (((c % 64) + 64) % 64) / 64, M = mood();
+    const base = 0.2 + 0.66 * Math.pow(Math.sin(Math.PI * arc), 1.3) + (h(c, 1) - 0.5) * 0.12;
+    const steady = 0.44 + (h(c, 1) - 0.5) * 0.06;
+    return clamp(base + (steady - base) * M.flat + M.bias + jBias, 0.08, 1);
   }
 
   let playing = false, timer = 0, horizon = 0, offset = 0, air = null, duck = 1;
@@ -266,34 +278,34 @@
     const k = ((c % 16) + 16) % 16, [bass, voicing] = PROG[k], I = intensity(c);
     voicing.forEach((m, i) => padNote(m, t + i * 0.05, len, 0.034 + (i === 3 ? 0.006 : 0), [-0.4, -0.13, 0.13, 0.4][i], atk));
     bassNote(bass + 12 * (bass < 40 ? 1 : 0), t, len, 0.1 + I * 0.06, atk * 0.6);
-    padF.frequency.setTargetAtTime(560 + I * 1500 + jTilt, t, 1.6);
+    padF.frequency.setTargetAtTime(560 + I * 1500 + jTilt + mood().tilt, t, 1.6);
   }
   function step(i, w) {
     const t = at(w);
     if (t < ctx.currentTime - 0.02) return;
     const c = Math.floor(i / PER_CHORD), s = ((i % PER_CHORD) + PER_CHORD) % PER_CHORD, k = ((c % 16) + 16) % 16;
-    const I = intensity(c), voicing = PROG[k][1];
+    const I = intensity(c), voicing = PROG[k][1], M = mood();
     if (s === 0) chordAt(c, t, PER_CHORD * STEP, 1.8);
     // the glass arpeggio: chord tones an octave or two up, following a contour; density follows intensity
     const rot = Math.floor(h(c, 9) * 4) * 2, wgt = WEIGHT[(s + rot) % 16];
-    if (wgt < I * 0.95 + (h(i, 3) - 0.5) * 0.08) {
+    if (wgt < I * 0.95 * Math.min(1, M.glass) + (h(i, 3) - 0.5) * 0.08) {
       const pool = voicing.map((m) => m + 12).concat(voicing.slice(2).map((m) => m + 24));
       const idx = CONTOURS[Math.floor(h(c, 5) * 3)][s] % pool.length;
       const accent = s % 4 === 0 ? 1 : 0.72;
-      glass(pool[idx], t, (0.024 + I * 0.012) * accent, 1.1 + I * 0.9, (h(i, 4) - 0.5) * 0.9, I > 0.7 && h(i, 6) > 0.6);
+      glass(pool[idx], t, (0.024 + I * 0.012) * accent * Math.max(1, M.glass), 1.1 + I * 0.9, (h(i, 4) - 0.5) * 0.9, I > 0.7 && h(i, 6) > 0.6);
     }
     // the lead: a slow phrase in the fuller passages, every other chord
-    if (I > 0.55 && c % 2 === 1 && !BORROWED.has(k) && s % 4 === 0) {
+    if (I > M.lead && c % M.every === M.every - 1 && !BORROWED.has(k) && s % 4 === 0) {
       const motif = MOTIFS[Math.floor(h(c, 11) * MOTIFS.length)], top = voicing[3] + 12;
       let base = 0; PENT.forEach((m, j) => { if (Math.abs(m - top) < Math.abs(PENT[base] - top)) base = j; });
       const note = PENT[clamp(base + motif[s / 4], 0, PENT.length - 1)];
-      lead(note, t, STEP * 3.4, 0.014 + (I - 0.55) * 0.03);
+      lead(note, t, STEP * 3.4, 0.014 + Math.max(0, I - 0.55) * 0.03);
     }
     // the heartbeat and a breath of shaker at the peaks
-    if (I > 0.6 && (s === 0 || s === 6 || s === 8)) pulse(t, s === 6 ? 0.05 : 0.085);
-    if (I > 0.76 && s % 2 === 1) shaker(t, 0.004 + (h(i, 8) * 0.003), (h(i, 2) - 0.5) * 0.6);
+    if (M.pulse && I > 0.6 && (s === 0 || s === 6 || s === 8)) pulse(t, (s === 6 ? 0.05 : 0.085) * M.pulse);
+    if (M.shaker && I > 0.76 && s % 2 === 1) shaker(t, (0.004 + (h(i, 8) * 0.003)) * M.shaker, (h(i, 2) - 0.5) * 0.6);
     // now and then a far, high bell
-    if (s % 2 === 1 && h(i, 13) < 0.02 + I * 0.012) glass(voicing[Math.floor(h(i, 14) * 4)] + 24, t, 0.012, 3.2, (h(i, 15) - 0.5) * 1.4, false);
+    if (s % 2 === 1 && h(i, 13) < (0.02 + I * 0.012) * M.bell) glass(voicing[Math.floor(h(i, 14) * 4)] + 24, t, 0.012, 3.2, (h(i, 15) - 0.5) * 1.4, false);
   }
   function tick() {
     if (!playing || !running()) return;
@@ -386,7 +398,7 @@
     STAGES.forEach(([c, b, tl, tr]) => { const w = clamp(1 - Math.abs(s - c) / 0.17) ** 2; wsum += w; bias += w * b; tilt += w * tl; trem += w * tr; });
     if (wsum > 0) { bias /= wsum; tilt /= wsum; trem /= wsum; }
     jBias = bias; jTilt = tilt;
-    padF.frequency.setTargetAtTime(560 + intensity(Math.floor(wall() / STEP / PER_CHORD)) * 1500 + jTilt, t, 0.8);
+    padF.frequency.setTargetAtTime(560 + intensity(Math.floor(wall() / STEP / PER_CHORD)) * 1500 + jTilt + mood().tilt, t, 0.8);
     j.pedal.gain.setTargetAtTime(s > 0.992 ? 0.02 : 0.05, t, 0.6);
     j.tl.frequency.setTargetAtTime(Math.max(0.01, trem), t, 0.3); j.td.gain.setTargetAtTime(trem > 0.2 ? 0.35 : 0, t, 0.3);
     const v = clamp(Math.abs(vel) * 4.5);
@@ -539,6 +551,8 @@
     get music() { return !!P.m; },
     get fx() { return !!P.f; },
     get volume() { return P.v; },
+    get mood() { return P.o; },
+    moods: Object.keys(MOODS),
     get unlocked() { return running(); },
     get context() { return ctx; },
     musicPlaying: () => playing && running(),
@@ -549,6 +563,13 @@
     },
     setFx(v) { P.f = v ? 1 : 0; writePrefs(); if (P.f) unlock(); emit(); },
     setVolume(v) { P.v = clamp(Number(v) || 0); writePrefs(); applyLevel(0.08); emit(); },
+    /* a mood changes how the same piece is played from the next note on (the position stays the wall clock) */
+    setMood(m) {
+      if (!MOODS[m] || m === P.o) return;
+      P.o = m; writePrefs();
+      if (ctx && playing) padF.frequency.setTargetAtTime(560 + intensity(Math.floor(wall() / STEP / PER_CHORD)) * 1500 + jTilt + mood().tilt, ctx.currentTime, 0.8);
+      emit();
+    },
     setDuck(k) { duck = clamp(Number(k)); applyLevel(0.3); },
     onChange(fn, win) { subs.push({ fn, win: win || window }); },
     unlock,

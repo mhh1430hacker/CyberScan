@@ -1,0 +1,64 @@
+# Continuous integration: every push and pull request.
+#  - Python: syntax of every project file, then the test suite (tests/, no network needed)
+#  - JavaScript: `node --check` on every site script (vendor and Pyodide files excluded)
+#  - Links: Tools/check_links.py starts the local web server and crawls every internal link
+# It never deploys: publishing stays manual (Tools/deploy/deploy_aws.py).
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python:
+    runs-on: windows-latest
+    timeout-minutes: 40
+    env:
+      CYBERSCAN_AUTO_UPDATE: "0"
+      PYTHONUTF8: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+      - name: Install dependencies (without the desktop GUI, PyInstaller and torch)
+        shell: bash
+        run: |
+          grep -viE '^(torch|pyinstaller|pyinstaller-hooks-contrib|pyside6|pyside6-[a-z]+|shiboken6|pywebview)(==|$)' requirements.txt > ci-requirements.txt
+          python -m pip install --upgrade pip
+          pip install -r ci-requirements.txt pytest
+      - name: Python syntax
+        shell: bash
+        run: |
+          git ls-files '*.py' | grep -vE '^(build|dist)/' > py-files.txt
+          python -c "import ast,sys; [ast.parse(open(f,encoding='utf-8').read(),f) for f in open('py-files.txt').read().split()]; print('syntax ok')"
+      - name: Tests
+        run: python -m pytest -q -p no:cacheprovider
+      - name: Internal links
+        run: python Tools/check_links.py
+
+  javascript:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: node --check every site script
+        run: |
+          set -e
+          count=0
+          while IFS= read -r f; do
+            node --check "$f"
+            count=$((count+1))
+          done < <(git ls-files 'web_v/static/*.js' 'web_v/static/**/*.js' 'phone/**/*.js' 'extension/**/*.js' | grep -vE '/(pyodide|vendor)/|\.min\.js$|\.mjs$' | sort -u)
+          echo "$count scripts checked"

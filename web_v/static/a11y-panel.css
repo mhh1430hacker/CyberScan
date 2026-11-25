@@ -1,0 +1,88 @@
+/* The Accessibility quick panel (js/a11y-panel.js) and the two display modes it switches on.
+ * Shared by every page; uses only its own class names (a11y-*). */
+
+/* ---------------- the tab and the panel ---------------- */
+.a11y-tab {
+  position: fixed; inset-inline-start: 0; top: 128px; z-index: 2147483000;
+  display: grid; place-items: center; width: 38px; height: 40px; padding: 0;
+  border: 1px solid rgba(201, 162, 255, .45); border-inline-start: 0; border-start-end-radius: 12px; border-end-end-radius: 12px;
+  border-start-start-radius: 0; border-end-start-radius: 0;
+  background: rgba(14, 9, 34, .82); color: #eaf9ff; cursor: pointer;
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px -12px rgba(0, 0, 0, .8), inset 0 1px 0 rgba(255, 255, 255, .08);
+  transition: width .2s, background .2s, border-color .2s;
+}
+.a11y-tab:hover, .a11y-tab[aria-expanded="true"] { width: 44px; border-color: #22e8ff; background: rgba(24, 14, 56, .92); }
+.a11y-tab svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.a11y-tab:focus-visible { outline: 2px solid #22e8ff; outline-offset: 2px; }
+
+.a11y-panel {
+  position: fixed; inset-inline-start: 52px; top: 120px; z-index: 2147483001; transform: scale(.98);
+  width: min(300px, calc(100vw - 68px)); padding: 14px; border-radius: 16px; opacity: 0;
+  background: rgba(14, 9, 34, .94); border: 1px solid rgba(201, 162, 255, .32); color: #f3eeff;
+  font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans Arabic", Tahoma, sans-serif;
+  -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+  box-shadow: 0 24px 60px -20px rgba(0, 0, 0, .9), 0 0 0 1px rgba(34, 232, 255, .06);
+  transition: opacity .18s, transform .18s;
+}
+.a11y-panel.in { opacity: 1; transform: none; }
+.a11y-panel[hidden] { display: none; }
+.a11y-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+.a11y-title { margin: 0; font-size: 16px; font-weight: 750; letter-spacing: .01em; color: #fff; }
+.a11y-x { display: grid; place-items: center; width: 32px; height: 32px; padding: 0; border-radius: 10px; border: 1px solid rgba(201, 162, 255, .25); background: transparent; color: #e9e2ff; cursor: pointer; }
+.a11y-x svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.a11y-list { display: grid; gap: 6px; }
+.a11y-sw {
+  display: grid; grid-template-columns: 22px 1fr 40px; align-items: center; gap: 10px; width: 100%; min-height: 44px; padding: 8px 10px;
+  border-radius: 12px; border: 1px solid rgba(201, 162, 255, .18); background: rgba(255, 255, 255, .03); color: #f3eeff;
+  font: inherit; text-align: start; cursor: pointer;
+}
+.a11y-sw:hover { border-color: rgba(34, 232, 255, .5); background: rgba(34, 232, 255, .06); }
+.a11y-sw svg { width: 20px; height: 20px; fill: none; stroke: #c9a2ff; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.a11y-knob { position: relative; width: 40px; height: 22px; border-radius: 999px; background: #3a3158; border: 1px solid #6d6290; transition: background .2s; }
+.a11y-knob::after { content: ""; position: absolute; top: 2px; inset-inline-start: 2px; width: 16px; height: 16px; border-radius: 50%; background: #d9d2f2; transition: inset-inline-start .2s, background .2s; }
+.a11y-sw.on { border-color: rgba(34, 232, 255, .55); }
+.a11y-sw.on .a11y-knob { background: #0d7f91; border-color: #22e8ff; }
+.a11y-sw.on .a11y-knob::after { inset-inline-start: 20px; background: #fff; }
+.a11y-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; }
+.a11y-hint { margin: 0; font-size: 13px; color: #c3b9e2; }
+.a11y-reset { padding: 6px 12px; min-height: 32px; border-radius: 999px; border: 1px solid rgba(201, 162, 255, .3); background: transparent; color: #f3eeff; font: inherit; font-size: 13px; cursor: pointer; }
+.a11y-panel button:focus-visible { outline: 2px solid #22e8ff; outline-offset: 2px; }
+
+@media (max-width: 760px) {
+  .a11y-tab { top: auto; bottom: calc(max(16px, env(safe-area-inset-bottom)) + 124px); transform: none; }
+  .a11y-panel { top: auto; bottom: calc(max(16px, env(safe-area-inset-bottom)) + 116px); inset-inline-start: 50px; transform: scale(.98); }
+  .a11y-panel.in { transform: none; }
+}
+@media print { .a11y-tab, .a11y-panel { display: none !important; } }
+@media (forced-colors: active) {
+  .a11y-tab, .a11y-panel, .a11y-sw { border: 1px solid CanvasText; }
+  .a11y-sw.on .a11y-knob { background: Highlight; }
+}
+
+/* ---------------- larger text ---------------- */
+/* The site sizes text in px, so the root font size alone would change little: zoom scales the
+ * page's content (not the fixed panel), standard in every current browser. */
+html.a11y-large { font-size: 112.5%; }
+html.a11y-large body > :not(.a11y-tab):not(.a11y-panel):not(canvas):not(.csr):not(.grain):not(.tint):not(.cells) { zoom: 1.125; }
+@supports not (zoom: 1) { html.a11y-large body { font-size: 112.5%; } }
+
+/* ---------------- high contrast ---------------- */
+/* Muted text becomes near-white, panels become solid, borders and focus rings stronger, and the
+ * decorative glow/grain layers that sit over text are switched off. */
+html.a11y-contrast {
+  --muted: #e4e0f5; --s-muted: #e4e0f5; --soft: #f4f1ff; --text: #ffffff; --s-text: #ffffff; --line: rgba(255, 255, 255, .45);
+}
+html.a11y-contrast body { background-color: #000 !important; }
+html.a11y-contrast :is(p, li, dd, dt, small, label, figcaption, td, th, time, summary, blockquote, .muted) { color: #f4f1ff !important; text-shadow: none !important; opacity: 1 !important; }
+html.a11y-contrast a:not([class]) { color: #7ff3ff !important; text-decoration: underline !important; }
+html.a11y-contrast :is(.grain, .tint, .glow-cursor, .scanlines, .sp-glow) { display: none !important; }
+html.a11y-contrast :is(button, input, select, textarea) { border-color: rgba(255, 255, 255, .7) !important; }
+html.a11y-contrast :focus-visible { outline: 3px solid #ffff00 !important; outline-offset: 3px !important; }
+html.a11y-contrast :is(.tr-card, .tr-stat, .glass, .card) { background: #0b0718 !important; border-color: rgba(255, 255, 255, .5) !important; }
+
+/* the scan page has its sidebar on the start edge: a round button above the music player instead */
+body.page-scan .a11y-tab { top: auto; bottom: calc(max(16px, env(safe-area-inset-bottom)) + 58px); inset-inline-start: auto; inset-inline-end: 18px;
+  width: 44px; height: 44px; border: 1px solid rgba(201, 162, 255, .45); border-radius: 50%; }
+body.page-scan .a11y-tab:hover, body.page-scan .a11y-tab[aria-expanded="true"] { width: 44px; }
+body.page-scan .a11y-panel { top: auto; bottom: calc(max(16px, env(safe-area-inset-bottom)) + 112px); inset-inline-start: auto; inset-inline-end: 18px; }

@@ -57,7 +57,8 @@ def project_files() -> dict[str, Path]:
         tree(rel, r"\.py$")
     tree("repair_engine", r"\.(py|json)$")
     tree("Tools")
-    for rel in ("web_v/server.py", "web_v/services.py", "web_v/assistant.py", "web_v/assistant_knowledge.md", "web_v/toolbox.py", "web_v/bit_brain.py",
+    for rel in ("web_v/server.py", "web_v/services.py", "web_v/assistant.py", "web_v/assistant_knowledge.md", "web_v/toolbox.py", "web_v/bit_brain.py", "web_v/profile_stats.py",
+                "web_v/site_extras.py", "web_v/email_check.py",
                 "ui/scan_service.py", "ui/secrets.py", "intel/__init__.py", "intel/updater.py", "config.py",
                 "intel/data/forge.yarx", "intel/data/manifest.json", "intel/data/malware-hashes.bin",
                 "intel/data/urlhaus.txt.gz", "intel/data/phishing-domains.txt.gz", "intel/data/secrets.json"):
@@ -153,6 +154,43 @@ def rollback() -> None:
     print("Rolled back to deploy/cyberscan-lambda-previous.zip")
 
 
+def staging() -> None:
+    """--staging: the same package, built on top of what is live, sent to a SECOND Lambda function
+    (default name CyberScan-staging, or CYBERSCAN_STAGING_FUNCTION) under its own S3 key. Production
+    (the CyberScan function, its package and CloudFront) is not touched. The staging function must
+    already exist (create it once in the console, see README "Staging"); this script creates nothing.
+    CYBERSCAN_STAGING_URL (its Function URL) is checked at the end when set."""
+    function = os.environ.get("CYBERSCAN_STAGING_FUNCTION", "CyberScan-staging")
+    key = "deploy/staging/cyberscan-lambda.zip"
+    cfg = Config(retries={"max_attempts": 8, "mode": "standard"}, connect_timeout=20, read_timeout=300, s3={"addressing_style": "path"})
+    s3 = boto3.client("s3", region_name=REGION, config=cfg)
+    lam = boto3.client("lambda", region_name=REGION, config=cfg)
+    try:
+        lam.get_function_configuration(FunctionName=function)
+    except lam.exceptions.ResourceNotFoundException:
+        raise SystemExit(f"No Lambda function named {function!r} in {REGION}. Create it first (README: Staging).")
+    work = Path(tempfile.mkdtemp(prefix="cyberscan-staging-"))
+    live, new = work / "live.zip", work / "new.zip"
+    print("1/3 downloading the production package as the base…")
+    s3.download_file(BUCKET, LIVE_KEY, str(live))
+    print("2/3 building the staging package from the project…")
+    build(live, new)
+    print(f"3/3 uploading to s3://{BUCKET}/{key} and updating {function}…")
+    s3.upload_file(str(new), BUCKET, key)
+    lam.update_function_code(FunctionName=function, S3Bucket=BUCKET, S3Key=key)
+    lam.get_waiter("function_updated_v2").wait(FunctionName=function, WaiterConfig={"Delay": 5, "MaxAttempts": 90})
+    url = os.environ.get("CYBERSCAN_STAGING_URL", "").strip()
+    if url:
+        with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "CyberScan-deploy-check"}), timeout=60) as r:
+            print(f"  {r.status} {url}")
+    print("Staging updated. Production was not changed.")
+
+
 if __name__ == "__main__":
     os.chdir(ROOT)
-    rollback() if "--rollback" in sys.argv else main()
+    if "--rollback" in sys.argv:
+        rollback()
+    elif "--staging" in sys.argv:
+        staging()
+    else:
+        main()

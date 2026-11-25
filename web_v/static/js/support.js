@@ -19,7 +19,7 @@ const T = {
     uses: "بصراحة: دعمك يروح لتكاليف تشغيل CyberScan فعليًا، الخوادم وتكلفة نماذج الذكاء الاصطناعي ورسوم النشر في متاجر التطبيقات.",
     optional: "الدعم اختياري تمامًا، ولا يتوقف عليه أي شيء في هذه الصفحة.",
     exTitle: "في هذه الصفحة عالم مخفي",
-    exText: "خمسة عوالم صغيرة من المكعبات: تسقط وتُبنى وتتموّج وتتداخل في بعضها. استكشفها متى شئت، وزر الدعم يبقى معك.",
+    exText: "ستة عوالم صغيرة من المكعبات: تسقط وتُبنى وتتموّج وتتداخل في بعضها، وواحد يفكّك ملفًا طبقةً بعد طبقة. استكشفها متى شئت، وزر الدعم يبقى معك.",
     explore: "ادخل عالم المكعبات", exploreAgain: "العودة إلى عالم المكعبات", loading: "يجهّز العالم…", loadFail: "تعذّر تحميل عالم المكعبات، حاول مرة أخرى.",
     wTitle: "الأبحاث والأعمال", wLead: "أبحاث منشورة ومشاريع مفتوحة المصدر.", wPapers: "أبحاث منشورة", wViews: "مشاهدة للأبحاث",
     wDownloads: "تنزيل للأبحاث", wRepos: "مستودع مفتوح المصدر", wPapersH: "الأبحاث (Zenodo)", wJan: "يناير 2026", wPre: "ورقة أولية · يناير 2026",
@@ -28,6 +28,15 @@ const T = {
     wP2: "إطار لاختبار ثبات النماذج اللغوية الكبيرة تحت الضغط، يرصد تراجع التنوّع والانحراف الدلالي.",
     wP3: "شبكة مذبذبات مكانية مخمّدة كسريًا: استكشاف عددي للفوضى والجواذب والارتباطات المكانية.",
     wP4: "منصة ذكاء اصطناعي للتحضير لاختبارات قياس.", wAsof: "الأرقام من السجلات العامة حتى نوفمبر 2026.",
+    vKicker: "أحدث فيديو · YouTube", vBadge: "اضغط للتشغيل", vPlay: "تشغيل الفيديو: {t}", vFrame: "فيديو YouTube: {t}",
+    vNote: "لا يتصل متصفحك بـ YouTube قبل أن تضغط تشغيل؛ عندها يُحمَّل الفيديو من youtube-nocookie.com.", vChannel: "قناة Ainex على YouTube",
+    wLive: "أرقام مباشرة من Zenodo وGitHub، آخر تحديث {d}.", wStars: "{n} نجمة على GitHub",
+    tlTitle: "المحطات",
+    tl1d: "أكتوبر 2024", tl1: "حساب GitHub", tl1p: "بداية المستودعات المفتوحة المصدر على github.com/mhh1430hacker.",
+    tl2d: "يناير 2026", tl2: "إصدار Ainex-Limit-Experiment", tl2p: "التجربة الحسابية لانهيار النماذج اللغوية، بإصدار مؤرشف على Zenodo بمعرّف DOI.",
+    tl3d: "يناير 2026", tl3: "أبحاث Ainex الثلاثة", tl3p: "نشر ثلاث أوراق على Zenodo: حد Ainex، وتفرّد Ainex، والتباعد البنيوي.",
+    tl4d: "2026", tl4: "تطوير CyberScan وإطلاق ainex-ai.xyz", tl4p: "منصة لتحليل الملفات واكتشاف التهديدات، متاحة على الويب.",
+    tl5d: "نوفمبر 2026", tl5: "تطبيق الجوال 1.1.0 وتطبيق Windows 2.0.0", tl5p: "CyberScan على الجوال وعلى سطح المكتب.",
     langLabel: "English",
   },
   en: {
@@ -45,7 +54,7 @@ const T = {
     uses: "Honestly: your support pays for what keeps CyberScan running: the servers, the AI model costs and the app store publishing fees.",
     optional: "Support is entirely optional; nothing on this page depends on it.",
     exTitle: "There is a world hidden in this page",
-    exText: "Five small worlds of cubes that fall, build, ripple and fold into each other. Explore whenever you like; the support button stays with you.",
+    exText: "Six small worlds of cubes that fall, build, ripple and fold into each other, and one that takes a file apart layer by layer. Explore whenever you like; the support button stays with you.",
     explore: "Enter the Cubeverse", exploreAgain: "Back to the Cubeverse", loading: "Preparing the world…", loadFail: "The Cubeverse could not load. Please try again.",
     wTitle: "Research & work", wLead: "Published research and open-source projects.", wPapers: "published papers", wViews: "paper views",
     wDownloads: "paper downloads", wRepos: "open-source repositories", wPapersH: "Research (Zenodo)", wJan: "January 2026", wPre: "Preprint · January 2026",
@@ -54,6 +63,15 @@ const T = {
     wP2: "A stability stress-testing framework for large language models that detects variance decay and semantic divergence.",
     wP3: "A fractionally damped spatial oscillator network: a numerical exploration of chaos, attractors and spatial correlations.",
     wP4: "An AI platform for preparing for the Qiyas exams.", wAsof: "Figures from public records as of November 2026.",
+    vKicker: "Latest video · YouTube", vBadge: "Click to play", vPlay: "Play the video: {t}", vFrame: "YouTube video: {t}",
+    vNote: "Your browser contacts YouTube only when you press play; the video then loads from youtube-nocookie.com.", vChannel: "Ainex on YouTube",
+    wLive: "Live figures from Zenodo and GitHub, last updated {d}.", wStars: "{n} stars on GitHub",
+    tlTitle: "Milestones",
+    tl1d: "October 2024", tl1: "GitHub account", tl1p: "The open-source repositories begin at github.com/mhh1430hacker.",
+    tl2d: "January 2026", tl2: "Ainex-Limit-Experiment release", tl2p: "The computational experiment on language-model collapse, with a release archived on Zenodo under a DOI.",
+    tl3d: "January 2026", tl3: "The three Ainex papers", tl3p: "Three papers published on Zenodo: the Ainex Limit, the Ainex Singularity and the Structural Divergence.",
+    tl4d: "2026", tl4: "CyberScan, and ainex-ai.xyz goes live", tl4p: "A platform for analysing files and detecting threats, open on the web.",
+    tl5d: "November 2026", tl5: "Phone app 1.1.0 and Windows 2.0.0", tl5p: "CyberScan on the phone and on the desktop.",
     langLabel: "العربية",
   },
 };
@@ -77,6 +95,7 @@ function paint() {
   fab.setAttribute("aria-label", t.fabLabel);
   document.querySelectorAll(".sp-copy").forEach((b) => b.setAttribute("aria-label", b.dataset.label === "iban" ? t.copyIban : t.copyAccount));
   explore.querySelector("span").textContent = visited ? t.exploreAgain : t.explore;
+  paintVideo(); paintLive();
   $("sp-lang").textContent = lang === "ar" ? "EN" : "ع";
   $("sp-lang").setAttribute("aria-label", t.langLabel);
 }
@@ -168,6 +187,73 @@ $("sp-qr-open").addEventListener("click", () => { if (qrDialog.showModal) { qrDi
 $("sp-qr-close").addEventListener("click", () => qrDialog.close());
 qrDialog.addEventListener("click", (e) => { if (e.target === qrDialog) qrDialog.close(); });
 qrDialog.addEventListener("close", () => $("sp-qr-open").focus({ preventScroll: true }));
+/* ---------------- the featured video: a click-to-load facade ----------------
+ * Until the visitor presses play the page shows a still served by this site (support/yt-featured.jpg, or the
+ * latest video's still that /api/profile embeds as a data: image) and makes no request to YouTube. The press
+ * swaps the still for the privacy-enhanced player (youtube-nocookie.com). */
+const video = { id: "BMldxyd71ws", title: "CyberScan IN 1 MINUTE" };
+const fill = (s, o) => s.replace(/\{(\w+)\}/g, (m, k) => (o[k] != null ? o[k] : m));
+function paintVideo() {
+  const b = $("sp-video-play"); if (!b) return;
+  b.setAttribute("aria-label", fill(T[lang].vPlay, { t: video.title }));
+  const f = $("sp-video-frame").querySelector("iframe"); if (f) f.title = fill(T[lang].vFrame, { t: video.title });
+}
+$("sp-video-play")?.addEventListener("click", () => {
+  const box = $("sp-video-frame");
+  if (!/^[\w-]{11}$/.test(video.id) || box.querySelector("iframe")) return;
+  const f = document.createElement("iframe");
+  f.src = `https://www.youtube-nocookie.com/embed/${video.id}?autoplay=1&rel=0&modestbranding=1&hl=${lang}`;
+  f.title = fill(T[lang].vFrame, { t: video.title });
+  f.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
+  f.referrerPolicy = "strict-origin-when-cross-origin";
+  box.replaceChildren(f);
+  box.classList.add("is-live");
+  f.focus();
+  try { window.CSAudio?.music && window.CSAudio.setMusic(false); } catch { /* no music */ }   // the site's music makes way for the video
+});
+
+/* ---------------- live numbers (GET /api/profile, cached six hours on the server) ---------------- */
+let live = null;
+const nf = (n) => Number(n).toLocaleString("en-US");
+function countTo(node, to) {
+  const from = Number(String(node.textContent).replace(/[^\d]/g, "")) || 0;
+  if (from === to) return;
+  if (motionOff() || !node.isConnected) { node.textContent = nf(to); return; }
+  const t0 = performance.now(), run = (now) => { const k = Math.min(1, (now - t0) / 900), e = 1 - Math.pow(1 - k, 3); node.textContent = nf(Math.round(from + (to - from) * e)); if (k < 1) requestAnimationFrame(run); };
+  requestAnimationFrame(run);
+}
+function paintLive() {
+  if (!live) return;
+  const asof = $("sp-asof");
+  if (asof && live.checked) asof.textContent = fill(T[lang].wLive, { d: new Intl.DateTimeFormat(lang === "ar" ? "ar-SA-u-nu-latn-ca-gregory" : "en-GB", { dateStyle: "medium", timeStyle: "short" }).format(new Date(live.checked * 1000)) });
+  const stars = live.github && live.github.stars;
+  const gh = document.querySelector('.sp-links a[href="https://github.com/mhh1430hacker"]');
+  if (gh && stars != null) gh.title = fill(T[lang].wStars, { n: nf(stars) });
+}
+function applyLive(d) {
+  live = d;
+  const tot = d.totals || {}, gh = d.github || {};
+  const set = (sel, v) => { const n = document.querySelector(sel); if (n && Number.isFinite(Number(v))) countTo(n, Number(v)); };
+  set('[data-stat="papers"]', tot.papers); set('[data-stat="views"]', tot.views); set('[data-stat="downloads"]', tot.downloads); set('[data-stat="repos"]', gh.repos);
+  for (const [rec, p] of Object.entries(d.papers || {})) { set(`[data-pv="${rec}"]`, p.views); set(`[data-pd="${rec}"]`, p.downloads); }
+  const v = d.video;
+  if (v && /^[\w-]{11}$/.test(v.id) && !$("sp-video-frame").querySelector("iframe")) {
+    video.id = v.id; video.title = v.title || video.title;
+    $("sp-video-play").dataset.video = v.id;
+    $("sp-video-title").textContent = video.title;
+    if (v.thumb && /^data:image\/jpeg;base64,/.test(v.thumb)) $("sp-video-thumb").src = v.thumb;
+  }
+  paintVideo(); paintLive();
+}
+(async () => {
+  try {
+    const token = document.querySelector('meta[name="cyberscan-token"]')?.content || "";
+    const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 9000);
+    const r = await fetch("/api/profile", { headers: { "X-CyberScan-Token": token }, signal: ctl.signal, cache: "no-store" });
+    clearTimeout(timer);
+    if (r.ok) applyLive(await r.json());
+  } catch { /* offline or blocked: the fixed numbers in the page stay */ }
+})();
 paint();
 
 /* ---------------- the Cubeverse: loaded only when asked for ---------------- */
@@ -200,6 +286,12 @@ explore.addEventListener("click", async () => {
     toast(T[lang].loadFail);
   } finally { entering = false; explore.removeAttribute("aria-busy"); }
 });
+
+// a shared Cube Architecture build (#build=...): open the Cubeverse straight into it
+if (/^#build=[A-Za-z0-9_-]{3,}/.test(location.hash)) {
+  try { sessionStorage.setItem("cv-world", "architecture"); } catch { /* storage off */ }
+  addEventListener("load", () => setTimeout(() => explore.click(), 350), { once: true });
+}
 
 /* ---------------- Bit: a small companion on the calm page, loaded once the page is idle ---------------- */
 const idle = window.requestIdleCallback || ((fn) => setTimeout(fn, 600));

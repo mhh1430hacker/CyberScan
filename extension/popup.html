@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>CyberScan</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <img src="icons/icon-32.png" alt="" width="24" height="24">
+    <strong>CyberScan</strong>
+  </header>
+  <main>
+    <h1 data-i18n="popupTitle"></h1>
+    <div class="row">
+      <input id="link" type="url" dir="ltr" autocomplete="off" spellcheck="false" data-i18n-ph="popupPlaceholder">
+      <button id="page" class="ghost" type="button" data-i18n="popupThisPage" hidden></button>
+    </div>
+    <section id="result" class="result" hidden aria-live="polite">
+      <div class="verdict"><span class="dot"></span><span id="level"></span><span id="score" class="score"></span></div>
+      <div id="host" class="host" dir="ltr"></div>
+      <ul id="reasons"></ul>
+    </section>
+    <button id="check" class="primary" type="button" disabled data-i18n="popupCheck"></button>
+
+    <h2 data-i18n="popupDownloads"></h2>
+    <ul id="downloads" class="downloads"></ul>
+    <label class="toggle"><input id="notifyAll" type="checkbox"> <span data-i18n="popupSettings"></span></label>
+    <p class="privacy" data-i18n="popupPrivacy"></p>
+  </main>
+  <script src="heuristics.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

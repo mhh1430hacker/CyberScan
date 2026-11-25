@@ -3,13 +3,18 @@
  * what it already worked out in the reader's language (the one score and verdict, the findings, the
  * engines' states, the scan's own time) and opens this page; nothing is sent anywhere. The score is
  * shown as weighted evidence (not a probability), model output only if a model produced any, and the
- * limits of static analysis. All text from the result is inserted as text, never as HTML. */
+ * limits of static analysis. All text from the result is inserted as text, never as HTML.
+ *
+ * A shared result (#r=…, js/share-code.js) is rendered read-only from the link itself: nothing was
+ * uploaded and nothing is fetched. The printed report carries a QR code that opens that shared view,
+ * and prints in a light or a dark design. */
 (function () {
   "use strict";
   const $ = (id) => document.getElementById(id);
   const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
+  const shared = /^#r=/.test(location.hash) ? location.hash.slice(3) : null;
   let data = null;
-  try { data = JSON.parse(localStorage.getItem(location.hash.slice(1)) || "null"); } catch { data = null; }
+  if (!shared) { try { data = JSON.parse(localStorage.getItem(location.hash.slice(1)) || "null"); } catch { data = null; } }
   // the report's language: the scan's, else the one chosen in the app
   let saved = "";
   try { saved = localStorage.getItem("cyberscan-lang") || ""; } catch { /* storage off */ }
@@ -17,7 +22,12 @@
   document.documentElement.lang = ar ? "ar" : "en";
   document.documentElement.dir = ar ? "rtl" : "ltr";
   const T = ar ? {
-    title: "تقرير فحص CyberScan", print: "اطبع أو احفظ بصيغة PDF", missing: "لم يُعثر على بيانات هذا التقرير في هذا المتصفح. افتحه من نتيجة الفحص في CyberScan.",
+    title: "تقرير فحص CyberScan", print: "اطبع أو احفظ بصيغة PDF", pdf: "تنزيل PDF", pLight: "طباعة فاتحة", pDark: "طباعة داكنة", pTheme: "تصميم الطباعة",
+    fp: "بصمة الملف", fpNote: "أي تغيير ولو بايت واحد في الملف يغيّر هذه البصمة كليًا.", qrTitle: "تحقّق", qrNote: "يفتح هذا الرمز ملخصًا للقراءة فقط لهذه النتيجة. لم يُرفع أي ملف: الملخص كله داخل الرابط.",
+    shTitle: "نتيجة CyberScan مشارَكة", shNote: "ملخص للقراءة فقط شاركه أحدهم برابط. لم يُرفع الملف، ولا يحفظ أي خادم هذه النتيجة: كل ما تراه موجود داخل الرابط نفسه.",
+    shVerify: "تحقّق بنفسك: افحص الملف نفسه في CyberScan وتأكد أن بصمة SHA-256 تطابق البصمة أعلاه. إن اختلفت البصمة فهو ملف آخر.",
+    shScan: "افتح الماسح", shBad: "رابط المشاركة هذا تالف أو ناقص.", shOld: "هذا المتصفح لا يفتح الروابط المضغوطة. جرّب إصدارًا حديثًا من Chrome أو Edge أو Firefox أو Safari.",
+    shRules: "القواعد المطابِقة", shName: "الاسم", shNoName: "لم يُدرجه المرسل", shTop: "أبرز الأدلة", shLink: "رابط المشاركة", missing: "لم يُعثر على بيانات هذا التقرير في هذا المتصفح. افتحه من نتيجة الفحص في CyberScan.",
     s: ["تعريف الفحص", "ما فُحص", "الملخص التنفيذي", "التصنيف", "تقييم الخطورة", "أدلة الكشف", "النتائج التقنية", "الإجراءات الموصى بها", "بيانات الفحص الوصفية", "حدود هذا التقرير وإخلاء المسؤولية"],
     id: "معرّف التقرير", generated: "تاريخ الإنشاء", scanned: "وقت الفحص", engine: "المحرك", target: "الهدف", type: "النوع", size: "الحجم", sha: "SHA-256", mode: "نوع الفحص",
     modes: { file: "ملف", url: "رابط", text: "نص" },
@@ -29,14 +39,19 @@
     verdict: "النتيجة", elapsed: "مدة الفحص", seconds: "{s} ث", agree: "توافق الأدلة", agreeMany: "اتفقت {n} فحوص مستقلة", agreeOne: "فحص واحد", agreeNone: "لا أدلة",
     staticScore: "درجة القواعد الساكنة", contentScore: "درجة فحص المحتوى", finalScore: "الدرجة النهائية",
     peKeys: { machine: "المعمارية", subsystem: "النظام الفرعي", imports: "الدوال المستوردة", suspicious: "استيرادات مشبوهة", sections: "الأقسام" },
-    cats: { yara: "قواعد YARA", heuristic: "القواعد الاستدلالية", structural: "تحليل البنية", content: "فحص المحتوى", url: "تحليل الرابط", phishing: "فحص التصيّد", osint: "البحث عبر الإنترنت", model: "نموذج التعلّم", archive: "فحص الأرشيف", hash: "قاعدة البصمات", privacy: "الخصوصية", secrets: "الأسرار" },
+    cats: { yara: "قواعد YARA", heuristic: "القواعد الاستدلالية", structural: "تحليل البنية", content: "فحص المحتوى", url: "تحليل الرابط", phishing: "فحص التصيّد", osint: "البحث عبر الإنترنت", model: "نموذج التعلّم", archive: "فحص الأرشيف", tradecraft: "أساليب المهاجمين", hash: "قاعدة البصمات", privacy: "الخصوصية", secrets: "الأسرار" },
     disclaimer: ["أُعدّ هذا التقرير آليًا بواسطة CyberScan، وهو مشروع بحثي تعليمي دفاعي، وليس بديلًا عن برامج الحماية التجارية.", "التحليل ساكن فقط: لم يُفتح الهدف ولم يُشغَّل، ولا يمكن رؤية السلوك الذي يظهر عند التشغيل فقط.", "«لم تُرصد علامات تحذير» لا تعني أن الهدف آمن، والدرجة ليست احتمالًا.", "لا يتضمن هذا التقرير أي شهادة أو ضمان أمني."],
     cls: { EMPTY: "ملف فارغ", KNOWN_MALWARE: "برنامج ضار معروف", NO_INDICATORS_OBSERVED: "لم تُرصد علامات تحذير", REVIEW: "يحتاج مراجعة", SUSPICIOUS: "مشبوه", UNKNOWN: "غير حاسم" },
     sevs: { critical: "حرج", high: "مرتفع", medium: "متوسط", low: "منخفض", info: "معلومة" },
     bands: ["0: لا مؤشرات", "1–49: مراجعة", "50+: مشبوه"],
     recos: { KNOWN_MALWARE: ["احذفه ولا تفتحه أو تشغّله.", "إن فُتح، افصل الجهاز عن الشبكة وشغّل فحصًا كاملًا.", "أبلغ فريق الأمن عن مصدره."], NO_INDICATORS_OBSERVED: ["لم تجد هذه الفحوص مؤشرات مشبوهة.", "هذا ليس ضمانًا؛ فضّل المصادر الموثوقة."], REVIEW: ["راجع الأدلة قبل فتحه.", "تحقق من مصدره عبر وسيلة أخرى."], SUSPICIOUS: ["لا تفتحه ولا تشغّله.", "أبلغ عنه واحذفه إن وصل بالبريد أو المحادثة.", "إن فُتح، افصل الجهاز عن الشبكة وشغّل فحصًا كاملًا."], UNKNOWN: ["لم يكتمل التحليل: عامله على أنه غير متحقق منه.", "أعد الفحص أو استخدم أداة أخرى قبل فتحه."] },
   } : {
-    title: "CyberScan scan report", print: "Print or save as PDF", missing: "This report's data isn't in this browser. Open it from a scan result in CyberScan.",
+    title: "CyberScan scan report", print: "Print or save as PDF", pdf: "Download PDF", pLight: "Light print", pDark: "Dark print", pTheme: "Print design",
+    fp: "File fingerprint", fpNote: "Changing even one byte of the file changes this fingerprint completely.", qrTitle: "Verify", qrNote: "This code opens a read-only summary of this result. No file was uploaded: the whole summary is inside the link.",
+    shTitle: "Shared CyberScan result", shNote: "A read-only summary someone shared by link. The file was not uploaded and no server keeps this result: everything you see is inside the link itself.",
+    shVerify: "Verify it yourself: scan the same file in CyberScan and check that its SHA-256 matches the one above. A different fingerprint means a different file.",
+    shScan: "Open the scanner", shBad: "This shared link is damaged or incomplete.", shOld: "This browser can't open compressed links. Try a recent Chrome, Edge, Firefox or Safari.",
+    shRules: "Matched rules", shName: "Name", shNoName: "not included by the sender", shTop: "Top evidence", shLink: "Shared link", missing: "This report's data isn't in this browser. Open it from a scan result in CyberScan.",
     s: ["Scan identification", "What was checked", "Executive summary", "Classification", "Risk assessment", "Detection evidence", "Technical findings", "Recommended actions", "Scan metadata", "Limitations and disclaimers"],
     id: "Report ID", generated: "Generated", scanned: "Scanned", engine: "Engine", target: "Target", type: "Type", size: "Size", sha: "SHA-256", mode: "Scan type",
     modes: { file: "File", url: "Link", text: "Text" },
@@ -48,7 +63,7 @@
     verdict: "Result", elapsed: "Scan duration", seconds: "{s} s", agree: "Evidence agreement", agreeMany: "{n} independent checks agreed", agreeOne: "One check", agreeNone: "No evidence",
     staticScore: "Static rules score", contentScore: "Content inspection score", finalScore: "Final score",
     peKeys: { machine: "Machine", subsystem: "Subsystem", imports: "Imported functions", suspicious: "Suspicious imports", sections: "Sections" },
-    cats: { yara: "YARA rules", heuristic: "Heuristic rules", structural: "Structure analysis", content: "Content inspection", url: "Link analysis", phishing: "Phishing check", osint: "Online lookups", model: "Learning model", archive: "Archive check", hash: "Hash database", privacy: "Privacy", secrets: "Secrets" },
+    cats: { yara: "YARA rules", heuristic: "Heuristic rules", structural: "Structure analysis", content: "Content inspection", url: "Link analysis", phishing: "Phishing check", osint: "Online lookups", model: "Learning model", archive: "Archive check", tradecraft: "Attacker techniques", hash: "Hash database", privacy: "Privacy", secrets: "Secrets" },
     disclaimer: ["This report was generated automatically by CyberScan, a defensive research and education project. It is not a replacement for commercial security products.", "The analysis is static only: nothing was opened or run, so behaviour that only appears at run time cannot be seen.", "\"No warning signs observed\" does not mean the target is safe, and the score is not a probability.", "This report carries no certification or security guarantee."],
     cls: { EMPTY: "Empty file", KNOWN_MALWARE: "Known malware", NO_INDICATORS_OBSERVED: "No warning signs observed", REVIEW: "Needs review", SUSPICIOUS: "Suspicious", UNKNOWN: "Inconclusive" },
     sevs: { critical: "Critical", high: "High", medium: "Medium", low: "Low", info: "Info" },
@@ -56,10 +71,95 @@
     recos: { KNOWN_MALWARE: ["Delete it; do not open or run it.", "If it was opened, disconnect the computer from the network and run a full scan.", "Report where it came from to your security team."], NO_INDICATORS_OBSERVED: ["No suspicious indicators were found by these checks.", "That is not a guarantee; prefer trusted sources."], REVIEW: ["Review the evidence before opening it.", "Verify where it came from through another channel."], SUSPICIOUS: ["Do not open or run it.", "If it arrived by email or chat, report it and delete it.", "If it was opened, disconnect the computer from the network and run a full scan."], UNKNOWN: ["The analysis was incomplete: treat it as unverified.", "Scan again or use another tool before opening it."] },
   };
   const fill = (s, o) => String(s).replace(/\{(\w+)\}/g, (_, k) => (o[k] != null ? o[k] : ""));
-  document.title = T.title;
-  $("print").textContent = T.print;
+  document.title = shared ? T.shTitle : T.title;
+  // the toolbar: Download PDF (the browser's print dialog, "Save as PDF") and the print design
+  $("print").textContent = T.pdf;
+  $("print").title = T.print;
   $("print").addEventListener("click", () => window.print());
+  let theme = "light";
+  try { theme = localStorage.getItem("cs-report-theme") === "dark" ? "dark" : "light"; } catch { /* storage off */ }
+  const themeBox = el("div", "theme"); themeBox.setAttribute("role", "group"); themeBox.setAttribute("aria-label", T.pTheme);
+  const setTheme = (k) => {
+    theme = k; document.documentElement.dataset.print = k;
+    themeBox.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.k === k)));
+    try { localStorage.setItem("cs-report-theme", k); } catch { /* storage off */ }
+  };
+  [["light", T.pLight], ["dark", T.pDark]].forEach(([k, label]) => { const b = el("button", "", label); b.type = "button"; b.dataset.k = k; b.addEventListener("click", () => setTheme(k)); themeBox.append(b); });
+  $("bar").append(themeBox);
+  setTheme(theme);
   const doc = $("doc");
+  const logo = () => { const i = el("img", "logo"); i.src = "icon.svg"; i.alt = ""; i.width = 34; i.height = 34; return i; };
+  const qrBlock = (link) => {
+    const box = el("div", "qr");
+    const code = window.CSQR && window.CSQR.svg(link, { label: T.qrTitle });
+    if (!code) return null;
+    const txt = el("div", "qr-text");
+    txt.append(el("b", "", T.qrTitle), el("p", "note", T.qrNote));
+    const a = el("a", "mono qr-link", link.length > 90 ? `${link.slice(0, 88)}…` : link); a.href = link; a.dir = "ltr";
+    txt.append(a);
+    box.append(code, txt);
+    return box;
+  };
+  const fpBlock = (sha) => {
+    if (!sha) return null;
+    const box = el("div", "fp");
+    const code = el("code", "mono", sha.replace(/(.{16})/g, "$1 ").trim()); code.dir = "ltr";
+    box.append(el("small", "", T.fp), code, el("p", "note", T.fpNote));
+    return box;
+  };
+
+  /* ---------- a shared result: everything comes from the link ---------- */
+  if (shared) {
+    (async () => {
+      let o = null, err = "";
+      try { o = await window.CSShare.decode(shared); } catch (e) { err = String(e && e.message) === "unsupported" ? T.shOld : T.shBad; }
+      if (!o) { $("loading").textContent = err || T.shBad; $("loading").classList.add("missing"); $("bar").hidden = true; return; }
+      doc.replaceChildren();
+      const tone = o.c === "SUSPICIOUS" || o.c === "KNOWN_MALWARE" ? "bad" : o.c === "REVIEW" ? "warn" : o.c === "NO_INDICATORS_OBSERVED" ? "ok" : "neutral";
+      const head = el("header", "head");
+      const brand = el("div", "brand"); const bl = el("span", "brand-l"); bl.append(logo(), el("b", "", "CyberScan")); brand.append(bl);
+      head.append(brand, el("h1", "", T.shTitle), el("p", `verdict t-${tone}`, `${T.cls[o.c] || o.c} · ${o.s}/100`));
+      doc.append(head);
+      const note = el("p", "shared-note", T.shNote); doc.append(note);
+      const sec = (title) => { const x = el("section", "sec"); x.append(el("h2", "", title)); doc.append(x); return x; };
+      const kvs = (rows) => {
+        const dl = el("dl", "kv");
+        rows.filter(([, v]) => v != null && v !== "").forEach(([k, v, mono]) => { dl.append(el("dt", "", k)); const d = el("dd"); const b = el("bdi", mono ? "mono" : "", String(v)); b.dir = mono ? "ltr" : "auto"; d.append(b); dl.append(d); });
+        return dl;
+      };
+      const s1 = sec(T.s[1]);
+      s1.append(kvs([[T.shName, o.n || T.shNoName], [T.mode, T.modes[o.m] || o.m], [T.type, o.t], [T.scanned, o.d ? new Intl.DateTimeFormat(ar ? "ar" : "en", { dateStyle: "long", timeStyle: "short" }).format(new Date(o.d)) : ""],
+        [T.engine, o.e ? `Sentinel ${o.e}` : "", true]]));
+      const fp = fpBlock(o.h); if (fp) s1.append(fp);
+      const s2 = sec(T.s[4]);
+      const scale = el("div", `scale t-${tone}`); const mk = el("i", "mk"); mk.style.insetInlineStart = `${o.s}%`; scale.append(el("span", "z0"), el("span", "z1"), el("span", "z2"), mk);
+      s2.append(kvs([[T.score, `${o.s} / 100`], [T.band, o.s >= 50 ? T.bands[2] : o.s > 0 ? T.bands[1] : T.bands[0]]]), scale, el("p", "note", T.scoreNote));
+      const s3 = sec(T.shTop);
+      if (!o.f || !o.f.length) s3.append(el("p", "", T.none));
+      else {
+        const tb = el("table"); const thead = el("thead"); const trh = el("tr");
+        [T.sev, T.finding, T.contrib, T.source].forEach((h) => { const th = el("th", "", h); th.scope = "col"; trh.append(th); });
+        thead.append(trh); tb.append(thead);
+        const tbody = el("tbody");
+        o.f.forEach(([title, sev, w, cat]) => {
+          const tr = el("tr", `s-${sev}`);
+          [T.sevs[sev] || sev, title, w ? `+${w}` : "–", T.cats[String(cat).toLowerCase()] || String(cat).replace(/_/g, " ")].forEach((v, i) => {
+            const td = el(i === 1 ? "th" : "td", i === 0 ? "sev" : i === 2 ? "num" : "", String(v)); td.dir = "auto"; if (i === 1) td.scope = "row"; tr.append(td);
+          });
+          tbody.append(tr);
+        });
+        tb.append(tbody); const wrap = el("div", "table-wrap"); wrap.append(tb); s3.append(wrap);
+      }
+      if (o.y && o.y.length) { s3.append(el("h3", "", T.shRules)); const ul = el("ul"); o.y.forEach((y) => { const li = el("li"); const b = el("bdi", "mono", y); b.dir = "ltr"; li.append(b); ul.append(li); }); s3.append(ul); }
+      const s4 = sec(T.qrTitle);
+      s4.append(el("p", "lead", T.shVerify));
+      const cta = el("a", "cta", T.shScan); cta.href = "/#/scan"; s4.append(cta);
+      const q = qrBlock(location.href); if (q) s4.append(q);
+      const s5 = sec(T.s[9]); const ul = el("ul"); T.disclaimer.forEach((x) => ul.append(el("li", "", x))); s5.append(ul);
+      const foot = el("footer", "foot"); foot.append(document.createTextNode("CyberScan · " + T.shTitle)); doc.append(foot);
+    })();
+    return;
+  }
   if (!data || !data.result) {
     // nothing to print: say how to get the report, without a Print button
     $("bar").hidden = true;
@@ -98,7 +198,7 @@
 
   // 1. branding: the product, and the site it came from when it isn't this computer
   const head = el("header", "head");
-  const brand = el("div", "brand"); brand.append(el("b", "", "CyberScan"));
+  const brand = el("div", "brand"); const bl = el("span", "brand-l"); bl.append(logo(), el("b", "", "CyberScan")); brand.append(bl);
   if (view.host) brand.append(ltr(view.host));
   head.append(brand, el("h1", "", T.title), el("p", `verdict t-${tone}`, `${T.cls[cls] || cls} · ${score}/100`));
   doc.append(head);
@@ -107,7 +207,8 @@
     [T.engine, r.detection_engine ? `Sentinel ${r.detection_engine.version || ""}`.trim() : "CyberScan", true]]));
   const name = view.target || (mode === "url" ? String(r.target || "") : String(r.target || "").split(/[\\/]/).filter(Boolean).pop() || r.target);
   section(T.s[1]).append(kv([[T.target, name, mode === "url"], [T.mode, T.modes[mode]], [T.type, mode === "file" ? view.type : ""],
-    [T.size, mode === "file" && r.size ? `${Number(r.size).toLocaleString(ar ? "ar" : "en")} B` : ""], [T.sha, mode === "file" ? r.sha256 : "", true]]));
+    [T.size, mode === "file" && r.size ? `${Number(r.size).toLocaleString(ar ? "ar" : "en")} B` : ""]]));
+  if (mode === "file") { const fp = fpBlock(r.sha256); if (fp) doc.lastElementChild.append(fp); }
   // 4. executive summary
   const ex = section(T.s[2]);
   const counts = {}; finds.forEach((f) => { counts[f.sev] = (counts[f.sev] || 0) + 1; });
@@ -170,5 +271,14 @@
   const li = section(T.s[9]); const ul = el("ul"); T.disclaimer.forEach((x) => ul.append(el("li", "", x))); li.append(ul);
   const limits = view.limits != null ? view.limits : (ar ? "" : r.limitations);
   if (limits) { const p = el("p", "note", limits); p.dir = "auto"; li.append(p); }
+  // the verify code: a QR that opens the shareable, read-only summary of this result (no file name)
+  if (window.CSShare && window.CSQR) {
+    const vs = section(T.qrTitle);
+    const sv = view.verify || {};
+    window.CSShare.url({ c: cls, s: score, m: mode, h: mode === "file" ? r.sha256 : "", t: mode === "file" ? (view.type || "") : "",
+      e: (r.detection_engine && r.detection_engine.version) || "", d: scannedAt || data.generated,
+      f: finds.slice(0, 6).map((f) => [sv.titles && sv.titles[f.title] || f.title, f.sev, f.contrib, f.cat]),
+      y: (r.yara || []).map((y) => y.rule_name) }).then((link) => { const q = qrBlock(link); if (q) vs.append(q); }).catch(() => vs.remove());
+  }
   const foot = el("footer", "foot"); foot.append(document.createTextNode("CyberScan · "), ltr(reportId)); doc.append(foot);
 })();

@@ -115,7 +115,7 @@ export function create(ctx) {
       if (zi > maxDepth) { maxDepth = zi; ctx.sfx("step", { k: ((zi % 12) + 12) % 12 }); }
       minDepth = Math.min(minDepth, zi);
       if (zi >= 7) ctx.discover("i-7", { ar: TXT.ar.f7, en: TXT.en.f7 });
-      if (zi >= 20) ctx.discover("i-20", { ar: TXT.ar.f20, en: TXT.en.f20 });
+      if (zi >= 20) { ctx.discover("i-20", { ar: TXT.ar.f20, en: TXT.en.f20 }); ctx.achieve?.("depth20"); }
       if (zi <= -2) ctx.discover("i-out", { ar: TXT.ar.fOut, en: TXT.en.fOut });
     }
     if (!active && z === lastZ && hoverLevel === null && !engine.input.active) return false;

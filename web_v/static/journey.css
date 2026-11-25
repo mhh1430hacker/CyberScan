@@ -67,9 +67,9 @@ button { font: inherit; color: inherit; }
 /* ---------- header ---------- */
 .fj-top { position: fixed; z-index: 20; top: 0; left: 0; right: 0; display: flex; align-items: center; gap: 16px; padding: 16px clamp(14px, 3vw, 32px); }
 .fj-brand { display: flex; align-items: center; gap: 10px; min-height: 44px; text-decoration: none; font-weight: 700; font-size: 16.5px; letter-spacing: .01em; }
-.fj-brand svg { width: 24px; height: 24px; fill: none; stroke: var(--tone); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 10px rgba(var(--tone-rgb), .55)); transition: stroke .6s; }
+.fj-brand svg { width: 24px; height: 24px; fill: none; stroke: var(--tone); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 10px rgba(var(--tone-rgb), .55)); }
 .fj-title { margin: 0 auto; display: flex; flex-direction: column; align-items: center; line-height: 1.2; text-align: center; }
-.fj-title b { font: 600 10.5px/1 var(--mono); letter-spacing: .44em; color: var(--tone); margin-inline-start: .44em; transition: color .6s; }
+.fj-title b { font: 600 10.5px/1 var(--mono); letter-spacing: .44em; color: var(--tone); margin-inline-start: .44em; }
 .fj-title span { font-size: 12.5px; color: var(--muted); margin-top: 5px; letter-spacing: .02em; }
 [dir="rtl"] .fj-title b { font-family: "Reem Kufi CS", var(--ar); font-size: 14px; line-height: 1.2; letter-spacing: 0; margin: 0; }
 .fj-tools { display: flex; align-items: center; gap: 8px; }
@@ -98,9 +98,9 @@ button { font: inherit; color: inherit; }
 [dir="rtl"] .fj-rail button { padding: 4px 0 4px 6px; }
 .fj-rail .dot { position: relative; z-index: 1; width: 28px; height: 28px; flex: none; display: grid; place-items: center; border-radius: 50%; color: transparent; font: 600 10px/1 var(--mono); }
 .fj-rail .dot::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--bg); border: 1.5px solid rgba(201, 162, 255, .55);
-  transition: transform .5s var(--ease), background-color .5s, border-color .5s, box-shadow .5s; }
+  transition: transform .5s var(--ease); }
 .fj-rail .lbl { display: grid; grid-template-rows: auto 0fr; line-height: 1.3; transition: grid-template-rows .6s var(--ease), transform .6s var(--ease); }
-.fj-rail .lbl b { font: 600 10.5px/1.3 var(--mono); letter-spacing: .2em; color: #bdb4da; transition: color .4s; }
+.fj-rail .lbl b { font: 600 10.5px/1.3 var(--mono); letter-spacing: .2em; color: #bdb4da; }
 .fj-rail .lbl small { overflow: hidden; font-size: 12.5px; color: var(--muted); opacity: 0; transition: opacity .5s ease; }
 [dir="rtl"] .fj-rail .lbl b { font-family: var(--ar); font-size: 13px; letter-spacing: 0; font-weight: 650; }
 .fj-rail li.done .dot::before { background: rgba(var(--tone-rgb), .9); border-color: transparent; transform: scale(.7); }
@@ -203,8 +203,12 @@ button { font: inherit; color: inherit; }
 .fj-sig em { font-style: normal; }
 .fj-sig b, .fj-depth b { color: var(--ink); font-weight: 600; unicode-bidi: isolate; }
 .fj-sig b { color: var(--tone); }
-.fj-pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--tone); box-shadow: 0 0 0 0 rgba(var(--tone-rgb), .6); animation: fj-pulse 2.4s ease-out infinite; }
-@keyframes fj-pulse { 0% { box-shadow: 0 0 0 0 rgba(var(--tone-rgb), .6); } 80%, 100% { box-shadow: 0 0 0 9px rgba(var(--tone-rgb), 0); } }
+/* (no colour transitions on what follows --tone: the grade changes it a few times a second, and each
+ * transition would keep repainting the glass under it; the grade is gradual enough on its own) */
+/* the pulse: a ring that grows and fades (transform and opacity only: the compositor runs it, no repaint of the glass under it) */
+.fj-pulse { position: relative; width: 7px; height: 7px; border-radius: 50%; background: var(--tone); }
+.fj-pulse::after { content: ""; position: absolute; inset: -1px; border-radius: 50%; border: 1.5px solid rgba(var(--tone-rgb), .7); animation: fj-pulse 2.4s ease-out infinite; }
+@keyframes fj-pulse { 0% { transform: scale(1); opacity: .9; } 80%, 100% { transform: scale(3.4); opacity: 0; } }
 [dir="rtl"] .fj-tele, [dir="rtl"] .fj-sig b { font-family: var(--ar); letter-spacing: 0; font-size: 12.5px; text-transform: none; }
 .fj-depth { display: inline-flex; align-items: baseline; gap: 8px; } .fj-depth i { font-style: normal; unicode-bidi: isolate; } .fj-depth b { direction: ltr; font-family: var(--mono); letter-spacing: .12em; }
 .fj-line { position: relative; height: 2px; border-radius: 2px; background: rgba(201, 162, 255, .16); direction: ltr; }
@@ -219,7 +223,7 @@ button { font: inherit; color: inherit; }
 .fj-mouse i { position: absolute; left: 50%; top: 7px; width: 3px; height: 7px; margin-left: -1.5px; border-radius: 2px; background: var(--acc); animation: fj-wheel 1.6s var(--ease) 6; }
 @keyframes fj-wheel { 0% { transform: translateY(0); opacity: 1; } 70% { transform: translateY(12px); opacity: 0; } 100% { opacity: 0; } }
 .fj-hint.gone { opacity: 0; transform: translateX(-50%) translateY(10px); }
-.fj-still .fj-mouse i, .fj-still .fj-pulse { animation: none; }
+.fj-still .fj-mouse i, .fj-still .fj-pulse::after { animation: none; }
 
 /* ---------- the text version (no WebGL, no JS, screen readers, and "text version" mode) ---------- */
 .fj-static { display: none; pointer-events: auto; max-width: 760px; margin: 0 auto; padding: 120px 22px 80px; }
@@ -286,7 +290,63 @@ html:not(.js) #fj-gl, html:not(.js) #fj-xfade, html:not(.js) .fj-hud, html:not(.
   .fj-lab small { font-size: 11.5px; line-height: 1.25; }
   .fj-final .ctas a { padding: 12px 20px; }
 }
-@media (prefers-reduced-motion: reduce) { .fj-mouse i, .fj-pulse { animation: none; } .fj-skip { transition: none; } }
-.reduce-motion .fj-mouse i, .reduce-motion .fj-pulse { animation: none; }
+@media (prefers-reduced-motion: reduce) { .fj-mouse i, .fj-pulse::after { animation: none; } .fj-skip { transition: none; } }
+.reduce-motion .fj-mouse i, .reduce-motion .fj-pulse::after { animation: none; }
 /* quality steps (js/journey.js lowers them on slow frames): no live blur over the canvas */
 .fj-q2 .fj-rail, .fj-q2 .fj-btn, .fj-q2 .fj-chap, .fj-q2 .fj-tele, .fj-q2 .fj-lab, .fj-q2 .fj-final .note { backdrop-filter: none; -webkit-backdrop-filter: none; background-color: var(--glass-solid); }
+
+/* ---------- your file: the way back to the example (or to your last scan), and its verdict pillar ---------- */
+.fj-mine svg, .fj-playbtn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.fj-mine { border-color: rgba(34, 232, 255, .4); }
+.fj-lab.you { padding-top: 7px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), 0 0 44px -4px var(--c), 0 0 0 1.5px var(--c); }
+.fj-lab .you-tag { font: 700 10px/1 var(--mono); letter-spacing: .22em; color: #04030c; background: var(--c); padding: 3px 8px; border-radius: 999px; }
+[dir="rtl"] .fj-lab .you-tag { font-family: var(--ar); letter-spacing: 0; font-size: 11.5px; }
+.fj-lab.dim.on { opacity: .45; }
+
+/* ---------- autoplay: the play button, the controls while it plays, the subtitles ---------- */
+.fj-playbtn { border-color: rgba(34, 232, 255, .45); }
+.fj-playbtn .pa, .fj-playbtn.is-on .pl { display: none; }
+.fj-playbtn.is-on .pa { display: inline; }
+.fj-playbtn .pl { fill: currentColor; fill-opacity: .25; }
+.fj-auto { position: fixed; z-index: 21; top: 72px; left: 50%; transform: translateX(-50%); display: flex; flex-wrap: nowrap; align-items: center; justify-content: center; gap: 6px; padding: 6px;
+  max-width: calc(100% - 24px); border-radius: 18px; background: linear-gradient(180deg, rgba(255, 255, 255, .045), rgba(255, 255, 255, 0) 60%), var(--glass-solid); border: 1px solid var(--line);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06), 0 18px 50px -24px rgba(0, 0, 0, .9); }
+.fj-auto[hidden] { display: none; }
+.fj-a-btn { display: inline-flex; align-items: center; gap: 7px; height: 38px; padding: 0 12px; border-radius: 12px; border: 1px solid transparent; background: transparent; color: var(--ink); font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+.fj-a-btn:hover:not(:disabled) { background: rgba(var(--tone-rgb), .14); }
+.fj-a-btn:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+.fj-a-btn:disabled { opacity: .6; cursor: default; }
+.fj-a-btn svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.fj-a-btn.pp .pl, .fj-a-btn.pp.is-paused .pa { display: none; }
+.fj-a-btn.pp.is-paused .pl { display: inline; fill: currentColor; fill-opacity: .25; }
+.fj-a-btn[aria-pressed="true"] { border-color: rgba(34, 232, 255, .45); background: rgba(34, 232, 255, .1); }
+.fj-a-btn.cl .dot { fill: #ff4f7a; stroke: none; }
+.fj-a-btn.cl.is-rec { border-color: rgba(255, 79, 122, .6); background: rgba(255, 79, 122, .12); }
+.fj-a-btn.cl.is-rec .dot { animation: fj-rec 1s steps(2, jump-none) infinite; }
+@keyframes fj-rec { 50% { opacity: .25; } }
+.fj-a-msg { font-size: 12.5px; color: var(--cyan); padding-inline: 4px; }
+.fj-a-msg:empty { display: none; }
+.fj-a-keys { font: 500 10.5px/1.3 var(--mono); letter-spacing: .06em; color: var(--muted); padding-inline: 8px 4px; }
+[dir="rtl"] .fj-a-keys { font-family: var(--ar); letter-spacing: 0; font-size: 12px; }
+.fj-subt { position: fixed; z-index: 13; left: 50%; bottom: 104px; transform: translate(-50%, 8px); width: max-content; max-width: min(760px, calc(100% - 32px)); margin: 0; padding: 10px 18px;
+  border-radius: 14px; background: rgba(4, 3, 12, .82); border: 1px solid rgba(var(--tone-rgb), .3); color: #f4efff; font-size: clamp(15px, 1.5vw, 18px); line-height: 1.55; text-align: center;
+  opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .45s ease, transform .6s var(--ease), visibility 0s linear .45s; }
+.fj-subt.on { opacity: 1; visibility: visible; transform: translate(-50%, 0); transition: opacity .45s ease, transform .6s var(--ease); }
+.fj-subt:empty { display: none; }
+.fj-auto-on .fj-hint { opacity: 0; }
+@media (max-width: 860px) {
+  .fj-playbtn span, .fj-mine span { display: none; }
+  .fj-playbtn, .fj-mine { width: 44px; padding: 0; }
+  .fj-auto { top: 64px; gap: 2px; }
+  .fj-a-btn { padding: 0 9px; height: 40px; }
+  .fj-a-btn span, .fj-a-keys { display: none; }
+  .fj-subt { bottom: calc(max(12px, env(safe-area-inset-bottom)) + 128px); font-size: 14.5px; padding: 8px 14px; }
+}
+@media (prefers-reduced-motion: reduce) { .fj-subt, .fj-subt.on { transition: opacity .3s ease; transform: translate(-50%, 0); } .fj-a-btn.cl.is-rec .dot { animation: none; } }
+.fj-q2 .fj-auto { backdrop-filter: none; }
+.fj-textmode .fj-auto, .fj-textmode .fj-subt { visibility: hidden; }
+@media (max-width: 480px) {
+  .fj-top { gap: 6px; }
+  .fj-brand span { display: none; }                                        /* the shield stays: room for the controls */
+  .fj-tools { gap: 4px; }
+}

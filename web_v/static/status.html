@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#04030c">
+  <meta name="cyberscan-token" content="__CYBERSCAN_TOKEN__">
+  <meta name="description" content="Live status of CyberScan: website version, server uptime, and the number of detection rules and known-malware hashes loaded.">
+  <title>System status · CyberScan</title>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="CyberScan">
+  <meta property="og:title" content="System status · CyberScan">
+  <meta property="og:description" content="Live status of CyberScan: website version, server uptime, and the number of detection rules and known-malware hashes loaded.">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="icon" href="favicon.ico" sizes="32x32">
+  <link rel="stylesheet" href="trust.css">
+  <script src="js/trust-early.js"></script>
+</head>
+<body data-title-en="System status · CyberScan" data-title-ar="حالة النظام · CyberScan">
+  <a class="tr-skip" href="#main"><span data-l="en">Skip to content</span><span data-l="ar">انتقل إلى المحتوى</span></a>
+  <header class="tr-top">
+    <a class="tr-brand" href="/"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 14 20 19v8c0 7.5 5.1 13.4 12 15 6.9-1.6 12-7.5 12-15v-8z"/><path d="m26.5 28.5 3.8 3.8 7.4-8"/></svg>CyberScan</a>
+    <nav class="tr-nav" aria-label="CyberScan">
+      <a href="/privacy"><span data-l="en">Privacy</span><span data-l="ar">الخصوصية</span></a>
+      <a href="/terms"><span data-l="en">Terms</span><span data-l="ar">الشروط</span></a>
+      <a href="/security"><span data-l="en">Security</span><span data-l="ar">الأمان</span></a>
+      <a href="/status" aria-current="page"><span data-l="en">Status</span><span data-l="ar">الحالة</span></a>
+      <a href="/tests"><span data-l="en">Tests</span><span data-l="ar">الاختبارات</span></a>
+      <a href="/changelog"><span data-l="en">Changelog</span><span data-l="ar">سجل التغييرات</span></a>
+    </nav>
+    <button class="tr-lang" id="tr-lang" type="button">العربية</button>
+  </header>
+
+  <main class="tr-main" id="main">
+    <header class="tr-hero">
+      <p class="tr-kicker"><span data-l="en">CyberScan://status</span><span data-l="ar">الحالة</span></p>
+      <h1><span data-l="en">System status</span><span data-l="ar">حالة النظام</span></h1>
+      <p class="tr-lead"><span data-l="en">Is CyberScan up, which version is running, and how current is its threat knowledge?</span><span data-l="ar">هل يعمل CyberScan، وأي إصدار يعمل، وما مدى حداثة معرفته بالتهديدات؟</span></p>
+    </header>
+      <section class="tr-card" id="st-root" aria-live="polite">
+        <p class="tr-light wait" id="st-light">…</p>
+        <p class="tr-meta" id="st-checked"></p>
+      </section>
+      <div class="tr-grid" id="st-grid"></div>
+    <div data-l="en">
+      <section class="tr-card">
+        <h2>About these numbers</h2>
+        <p>They come live from the server you are connected to: <code>/api/health</code> (version and uptime of this server instance) and <code>/api/protection</code> (the detection rules and threat lists the engine has loaded). The page checks again every 30 seconds while it is open. Online, the site runs on AWS Lambda, which starts and stops server instances on demand, so “uptime” is the age of the instance that answered, not of the whole service.</p>
+      </section>
+    </div>
+    <div data-l="ar">
+      <section class="tr-card">
+        <h2>عن هذه الأرقام</h2>
+        <p>تأتي مباشرة من الخادم المتصل به: <code>/api/health</code> (إصدار نسخة الخادم هذه ومدة تشغيلها) و<code>/api/protection</code> (قواعد الكشف وقوائم التهديدات التي حمّلها المحرك). تعيد الصفحة الفحص كل 30 ثانية ما دامت مفتوحة. على الإنترنت يعمل الموقع على AWS Lambda التي تشغّل نسخ الخادم وتوقفها عند الحاجة، لذا فإن «مدة التشغيل» هي عمر النسخة التي أجابت، لا عمر الخدمة كلها.</p>
+      </section>
+    </div>
+  </main>
+
+  <footer class="tr-foot">
+    <span>© 2026 CyberScan · ONYX</span>
+    <a href="/"><span data-l="en">Home</span><span data-l="ar">الرئيسية</span></a>
+    <a href="/app.html"><span data-l="en">Scan</span><span data-l="ar">الفحص</span></a>
+    <a href="/journey"><span data-l="en">File Journey</span><span data-l="ar">رحلة الملف</span></a>
+    <a href="/support"><span data-l="en">Support the developer</span><span data-l="ar">ادعم المطوّر</span></a>
+    <span class="sp"></span>
+    <a href="mailto:mahdi-alhajji@zohomail.sa" dir="ltr">mahdi-alhajji@zohomail.sa</a>
+  </footer>
+  <script src="js/trust.js"></script>
+</body>
+</html>

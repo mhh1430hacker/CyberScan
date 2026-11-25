@@ -320,6 +320,11 @@ class CyberScanApp(QMainWindow):
         QTimer.singleShot(0, self._apply_layout_mode)
         if scan_process.enabled():
             scan_process.HOST.warm_up()  # the first scan should not wait for imports
+        # Update check (ui/updater.py): the installed app only; asks before downloading or installing.
+        if (getattr(sys, "frozen", False) or os.environ.get("CYBERSCAN_UPDATE_CHECK")) and not os.environ.get("CYBERSCAN_NO_UPDATE_CHECK"):
+            from ui import updater
+
+            updater.install_update_checker(self, DATA_DIR, lambda: self.language)
 
     # ===================================================================== build
     def _build(self) -> None:
@@ -1897,6 +1902,9 @@ class CyberScanApp(QMainWindow):
             event.ignore()
             QMessageBox.information(self, self.t("Analysis in progress"), self.t("Wait for the current scan to finish, then close CyberScan."))
             return
+        from ui import updater
+
+        updater.wait_for_threads(self)
         self.repair_view.wait()
         for probe in list(self._repair_probes):
             probe.wait(30000)

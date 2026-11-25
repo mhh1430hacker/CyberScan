@@ -288,6 +288,7 @@
   /* ---------------- hero card ---------------- */
   const card = landing.querySelector(".scan-card");
   function playCard() {
+    if (card.classList.contains("ld-live")) return;   // the live demo (js/live-demo.js) shows a real result
     card.classList.remove("lit");
     const meter = card.querySelector(".sc-meter");
     const num = card.querySelector(".sc-num");

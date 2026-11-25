@@ -199,3 +199,9 @@ html.reduce-motion .sp-shield .sh-tick { animation: none; stroke-dashoffset: 0; 
   .sp-members li { grid-template-columns: 1fr; gap: 2px; }
 }
 @media print { .sp-sources, .sp-repair { display: none; } }
+/* protection numbers while /api/protection answers: a shimmer, never a misleading 0 */
+.sp-status.loading .sp-status-title b::before { background: #94a3b8; animation: none; }
+.sp-stat.skel b { color: var(--pro-sub); background: none; -webkit-text-fill-color: currentColor; }
+.sp-stat.skel { background: linear-gradient(100deg, rgba(9, 5, 20, .5) 30%, rgba(201, 162, 255, .12) 50%, rgba(9, 5, 20, .5) 70%) 0 0 / 300% 100%; animation: sp-skel 1.4s linear infinite; }
+@keyframes sp-skel { to { background-position: -300% 0; } }
+@media (prefers-reduced-motion: reduce) { .sp-stat.skel { animation: none; } }

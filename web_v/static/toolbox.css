@@ -181,3 +181,19 @@
 }
 @media (prefers-reduced-motion: reduce) { .tb *, .tb-runner * { animation: none !important; transition: none !important; } }
 html.reduce-motion .tb *, html.reduce-motion .tb-runner * { animation: none !important; transition: none !important; }
+/* the tools map: grouped by what people want to do */
+.tb-mode-box { margin: 4px 0 10px; }
+.tb-mode { display: inline-flex; flex-wrap: wrap; gap: 4px; padding: 4px; border-radius: 999px; border: 1px solid rgba(201, 162, 255, .22); background: rgba(9, 5, 20, .5); }
+.tb-mode-btn { border: 0; background: none; color: #b9c2dc; font: inherit; font-size: 13px; padding: 7px 14px; border-radius: 999px; cursor: pointer; }
+.tb-mode-btn.on { background: linear-gradient(120deg, rgba(201, 162, 255, .28), rgba(34, 232, 255, .2)); color: #fff; }
+.tb-mode-btn:focus-visible { outline: 2px solid #22e8ff; outline-offset: 2px; }
+.tb-map { display: grid; gap: 26px; }
+.tb-map[hidden], .tb-grid[hidden] { display: none; }
+.tb-use-title { display: flex; align-items: baseline; flex-wrap: wrap; gap: 10px; margin: 0; font-size: 19px; }
+.tb-use-title small { color: #8f9ab8; font-weight: 500; font-size: 13px; }
+.tb-use-n { font: 700 12px/1 ui-monospace, monospace; color: hsl(var(--h, 200) 90% 70%); padding: 4px 7px; border-radius: 8px; border: 1px solid hsl(var(--h, 200) 90% 70% / .35); }
+.tb-use-sub { margin: 4px 0 12px; color: #a9b4cf; font-size: 13.5px; }
+.tb-card-ex { display: block; margin-top: 6px; font-size: 11.5px; color: #8f9ab8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+.tb-card-ex b { font-weight: 600; color: #c9a2ff; }
+.tb-card-ex code { font: 11px/1.4 ui-monospace, Consolas, monospace; color: #cfe9ff; }
+.tb-paste-note { margin: 0 0 10px; padding: 10px 12px; border-radius: 12px; border: 1px dashed rgba(34, 232, 255, .35); color: #bfe9f3; font-size: 13px; }

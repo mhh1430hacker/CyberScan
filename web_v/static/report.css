@@ -63,3 +63,42 @@ li { margin: 4px 0; }
   .scale span, .scale .mk { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 html, body { overflow-x: hidden; }
+/* toolbar: Download PDF and the print design */
+.bar { gap: 10px; flex-wrap: wrap; align-items: center; }
+.bar .theme { display: inline-flex; gap: 2px; padding: 3px; border-radius: 10px; background: #1b1e36; }
+.bar .theme button { padding: 7px 12px; background: transparent; color: #c9d1ea; font-weight: 600; }
+.bar .theme button[aria-pressed="true"] { background: #c9a2ff; color: #140a26; }
+/* brand, fingerprint, verify code, shared view */
+.brand-l { display: inline-flex; align-items: center; gap: 10px; }
+.logo { width: 34px; height: 34px; }
+.fp { margin-top: 12px; padding: 12px 14px; border: 1px solid var(--line); border-inline-start: 4px solid var(--accent); border-radius: 8px; background: #f8fafc; }
+.fp small { display: block; color: var(--sub); font-weight: 600; letter-spacing: .04em; text-transform: uppercase; font-size: 11px; }
+.fp code { display: block; margin: 4px 0; font-size: 13.5px; letter-spacing: .02em; }
+.fp .note { margin: 0; }
+.qr { display: flex; gap: 18px; align-items: center; margin-top: 12px; break-inside: avoid; }
+.qr svg { flex: none; width: 132px; height: 132px; border: 1px solid var(--line); border-radius: 6px; }
+.qr-text b { display: block; font-size: 15px; }
+.qr-text .note { margin: 4px 0 6px; }
+.qr-link { font-size: 11px; color: var(--accent); text-decoration: none; }
+.shared-note { margin: 12px 0 0; padding: 10px 14px; border-radius: 8px; background: #ecfeff; border: 1px solid #a5f3fc; color: #155e75; }
+.cta { display: inline-block; margin: 6px 0 4px; padding: 9px 18px; border-radius: 10px; background: #22d3ee; color: #04121b; font-weight: 700; text-decoration: none; }
+.cta:focus-visible { outline: 3px solid #0e7490; outline-offset: 2px; }
+@media (max-width: 700px) { .qr { flex-direction: column; align-items: flex-start; } .qr svg { width: 160px; height: 160px; } }
+/* the dark print design (screen preview too): violet and cyan on deep night, colours kept when printing */
+html[data-print="dark"] { --ink: #ecebff; --sub: #a9a6cf; --line: #2a2550; --accent: #22e8ff; }
+html[data-print="dark"] body { background: #04030c; }
+html[data-print="dark"] .doc { background: #0b0820; box-shadow: 0 10px 40px rgba(0, 0, 0, .6); }
+html[data-print="dark"] th { background: #120e2c; }
+html[data-print="dark"] .fp { background: #120e2c; }
+html[data-print="dark"] .brand b { color: #c9a2ff; }
+html[data-print="dark"] .head { border-bottom-color: #c9a2ff; }
+html[data-print="dark"] .shared-note { background: #0c2333; border-color: #155e75; color: #a5f3fc; }
+html[data-print="dark"] .scale .mk { background: #0b0820; border-color: #ecebff; }
+html[data-print="dark"] .qr svg { border-color: #fff; }
+@media print {
+  .cta { display: none; }
+  .qr-link { color: var(--ink); }
+  html[data-print="dark"], html[data-print="dark"] body, html[data-print="dark"] .doc { background: #0b0820 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  html[data-print="dark"] * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .fp, .shared-note, th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}

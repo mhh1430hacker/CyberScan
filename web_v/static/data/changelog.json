@@ -1,0 +1,383 @@
+{
+ "generated_from": "git log",
+ "releases": [
+  {
+   "version": "2026.11.21",
+   "date": "2026-11-21",
+   "commit": "8da1c69",
+   "entries": [
+    {
+     "kind": "new",
+     "text": "Support page: research and work section from public records",
+     "commit": "9ed12f6"
+    },
+    {
+     "kind": "new",
+     "text": "Support page: the Cubeverse, five interactive cube worlds",
+     "commit": "0722d2d"
+    },
+    {
+     "kind": "changed",
+     "text": "Mynex support tab on the landing; YouTube handle and nickname on the support page",
+     "commit": "8da1c69"
+    }
+   ]
+  },
+  {
+   "version": "2026.11.20",
+   "date": "2026-11-20",
+   "commit": "50883e3",
+   "entries": [
+    {
+     "kind": "changed",
+     "text": "Unified site audio, continuous journey, science film, phone and Windows apps",
+     "commit": "50883e3"
+    }
+   ]
+  },
+  {
+   "version": "2026.11.15",
+   "date": "2026-11-15",
+   "commit": "54be143",
+   "entries": [
+    {
+     "kind": "new",
+     "text": "Add the interactive CyberScan Lab, Bedrock assistant and pending work",
+     "commit": "54be143"
+    },
+    {
+     "kind": "changed",
+     "text": "Replace the CyberScan Lab with a pinned scroll story",
+     "commit": "d467ba2"
+    },
+    {
+     "kind": "changed",
+     "text": "Complete the 30 languages: new texts, counted messages, builds",
+     "commit": "d29faf4"
+    }
+   ]
+  },
+  {
+   "version": "2026.11.09",
+   "date": "2026-11-09",
+   "commit": "17939e5",
+   "entries": [
+    {
+     "kind": "new",
+     "text": "Add the \"Science behind CyberScan\" section, scan input checks and pending work",
+     "commit": "17939e5"
+    },
+    {
+     "kind": "fixed",
+     "text": "Fix landing page freezes, add purple glass identity and \"Ask the AI\"",
+     "commit": "609c26b"
+    }
+   ]
+  },
+  {
+   "version": "2026.11.08",
+   "date": "2026-11-08",
+   "commit": "5f1deae",
+   "entries": [
+    {
+     "kind": "new",
+     "text": "Add open-source protection: YARA-Forge, threat lists, secrets, leaked passwords",
+     "commit": "5f1deae"
+    },
+    {
+     "kind": "new",
+     "text": "Add the scan subdomain setup: CloudFront host router and notes",
+     "commit": "a5f9158"
+    },
+    {
+     "kind": "new",
+     "text": "Add the GitHub Actions deploy to AWS and the IAM policies",
+     "commit": "be478e8"
+    },
+    {
+     "kind": "changed",
+     "text": "Landing-only main site and a calmer, professional scan interface",
+     "commit": "a537bcc"
+    },
+    {
+     "kind": "changed",
+     "text": "Split the scan app from the landing page",
+     "commit": "b0d75f4"
+    },
+    {
+     "kind": "changed",
+     "text": "Make the website much lighter on visitors' browsers",
+     "commit": "7fd470b"
+    },
+    {
+     "kind": "fixed",
+     "text": "Expect the new warning for a link that borrows the Microsoft name",
+     "commit": "44c61e0"
+    },
+    {
+     "kind": "fixed",
+     "text": "Hide the empty 'choose from disk' row online",
+     "commit": "ea28bdf"
+    },
+    {
+     "kind": "fixed",
+     "text": "Fix the live site behind CloudFront: origin check, caching, HEAD",
+     "commit": "e862dbb"
+    }
+   ]
+  },
+  {
+   "version": "2026.11.07",
+   "date": "2026-11-07",
+   "commit": "c41dab6",
+   "entries": [
+    {
+     "kind": "new",
+     "text": "Add the AWS Lambda + S3 deployment guide",
+     "commit": "c41dab6"
+    },
+    {
+     "kind": "new",
+     "text": "Add a public mode and an AWS Lambda package for the website",
+     "commit": "9d2b2e3"
+    },
+    {
+     "kind": "new",
+     "text": "Add the CyberScan Android app and a full-featured phone app",
+     "commit": "23541af"
+    },
+    {
+     "kind": "new",
+     "text": "Narrate the explainer film with ElevenLabs and retime it to the voice",
+     "commit": "b78ce75"
+    },
+    {
+     "kind": "changed",
+     "text": "Use generic tool paths in the Android guide and release script",
+     "commit": "9e38c09"
+    },
+    {
+     "kind": "fixed",
+     "text": "Fix the Arabic bands, improve accessibility, add film music and contact",
+     "commit": "5142034"
+    }
+   ]
+  },
+  {
+   "version": "2026.11.06",
+   "date": "2026-11-06",
+   "commit": "3745500",
+   "entries": [
+    {
+     "kind": "new",
+     "text": "Add CyberScan Mobile: an Android/iPhone web app that scans on the device",
+     "commit": "3745500"
+    },
+    {
+     "kind": "new",
+     "text": "Ask for a language on first visit, add a neon \"< >\" cursor and button sounds",
+     "commit": "655216f"
+    },
+    {
+     "kind": "changed",
+     "text": "Rebuild the landing as a calm cyberpunk experience with an explainer film",
+     "commit": "f71f931"
+    },
+    {
+     "kind": "fixed",
+     "text": "Keep the repair summaries in the web server so it runs without Qt",
+     "commit": "07f4342"
+    }
+   ]
+  },
+  {
+   "version": "2026.11.05",
+   "date": "2026-11-05",
+   "commit": "b3bf777",
+   "entries": [
+    {
+     "kind": "new",
+     "text": "Add command palette, in-browser fingerprints, batch scans and PWA support",
+     "commit": "b3bf777"
+    },
+    {
+     "kind": "new",
+     "text": "Add an animated landing page and bring the web app to feature parity",
+     "commit": "97f934a"
+    },
+    {
+     "kind": "new",
+     "text": "Add a web interface for scanning, history and settings",
+     "commit": "cd2ddbc"
+    },
+    {
+     "kind": "changed",
+     "text": "Make the landing page cinematic and give app results a landing moment",
+     "commit": "acd4463"
+    },
+    {
+     "kind": "fixed",
+     "text": "Retry dropped connections in Phase 1 downloads instead of skipping samples",
+     "commit": "d651de0"
+    }
+   ]
+  },
+  {
+   "version": "2026.11.04",
+   "date": "2026-11-04",
+   "commit": "0f4ee7b",
+   "entries": [
+    {
+     "kind": "new",
+     "text": "Add engines that check the model's own reasoning, and wire them into scans",
+     "commit": "0f4ee7b"
+    },
+    {
+     "kind": "new",
+     "text": "Give every file its own galaxy, and turn the home screen into a sonar chamber",
+     "commit": "7baa3c0"
+    },
+    {
+     "kind": "new",
+     "text": "Add finishing touches across the interface",
+     "commit": "24fd0ab"
+    },
+    {
+     "kind": "changed",
+     "text": "Rebuild infected files without a clean copy (blind repair)",
+     "commit": "8857a60"
+    },
+    {
+     "kind": "fixed",
+     "text": "Fix the usability findings, harden the repair executor, add evaluation harnesses",
+     "commit": "679af22"
+    },
+    {
+     "kind": "fixed",
+     "text": "Stop stray windows flashing when the language is switched",
+     "commit": "342891b"
+    }
+   ]
+  },
+  {
+   "version": "2026.11.02",
+   "date": "2026-11-02",
+   "commit": "0b24ad0",
+   "entries": [
+    {
+     "kind": "new",
+     "text": "Make Repair real and add the exhibit mode (live file surgery)",
+     "commit": "0b24ad0"
+    },
+    {
+     "kind": "changed",
+     "text": "Carry a scan result into Repair with a sonar-wave transition",
+     "commit": "84ba35d"
+    },
+    {
+     "kind": "changed",
+     "text": "Adopt the sonar cube mark and the bilingual name",
+     "commit": "40ab58a"
+    }
+   ]
+  },
+  {
+   "version": "2026.11.01",
+   "date": "2026-11-01",
+   "commit": "f061e06",
+   "entries": [
+    {
+     "kind": "new",
+     "text": "Add the repair engine: region parsers, data pipeline, inert injector, executor",
+     "commit": "f061e06"
+    },
+    {
+     "kind": "new",
+     "text": "Map the file's inside as a sonar cube, keep the journey smooth, add a repair mode",
+     "commit": "0ca5213"
+    },
+    {
+     "kind": "changed",
+     "text": "Adopt a precision visual system drawn from the best-regarded product UIs",
+     "commit": "393cc1d"
+    },
+    {
+     "kind": "fixed",
+     "text": "Fix the ten-persona UX review: honest verdicts, exposed disguises, real actions",
+     "commit": "5e841e2"
+    }
+   ]
+  },
+  {
+   "version": "2026.10.31",
+   "date": "2026-10-31",
+   "commit": "a9ce130",
+   "entries": [
+    {
+     "kind": "changed",
+     "text": "Explain results in plain words, locally, and finish the checks that could not run",
+     "commit": "a9ce130"
+    },
+    {
+     "kind": "changed",
+     "text": "Rebuild the interface around three reading levels and a history rail",
+     "commit": "3115ed1"
+    }
+   ]
+  },
+  {
+   "version": "2026.10.29",
+   "date": "2026-10-29",
+   "commit": "14108c7",
+   "entries": [
+    {
+     "kind": "changed",
+     "text": "Make the scan a visible journey from target to verdict",
+     "commit": "14108c7"
+    },
+    {
+     "kind": "changed",
+     "text": "Redesign the main screen around an identity element and one clear action",
+     "commit": "e4563dd"
+    },
+    {
+     "kind": "changed",
+     "text": "Redesign the results screen as a verdict-first view of real scan data",
+     "commit": "bad0352"
+    }
+   ]
+  },
+  {
+   "version": "2026.10.28",
+   "date": "2026-10-28",
+   "commit": "d43e385",
+   "entries": [
+    {
+     "kind": "new",
+     "text": "Add in-memory forest exporter with scikit-learn parity tests",
+     "commit": "d43e385"
+    },
+    {
+     "kind": "new",
+     "text": "Add strictly validated JSON forest format with bounded, digest-first loading",
+     "commit": "d35819b"
+    },
+    {
+     "kind": "changed",
+     "text": "Load structural models only through the explicit, digest-first safe loader",
+     "commit": "4a5e980"
+    },
+    {
+     "kind": "changed",
+     "text": "Store integrity-sensitive artifacts byte-for-byte",
+     "commit": "eb1b0f3"
+    },
+    {
+     "kind": "fixed",
+     "text": "Limit default pytest collection to tests/ and archive dead legacy UI",
+     "commit": "408c236"
+    }
+   ]
+  }
+ ]
+}

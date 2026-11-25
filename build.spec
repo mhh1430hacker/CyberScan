@@ -32,9 +32,26 @@ for rel in DATA_DIRS:
 # The app imports some engines lazily (only when a scan needs them): name them so they are packed.
 hiddenimports = []
 for package in ("core", "detection", "ui", "ml", "repair_engine", "reports", "monitoring", "intel"):
-    hiddenimports += collect_submodules(package, filter=lambda name: ".tests" not in name and "test_" not in name)
+    hiddenimports += collect_submodules(
+        package,
+        # repair_engine.data builds training datasets (pyarrow/parquet, downloads): never used by the app
+        filter=lambda name: ".tests" not in name and "test_" not in name and not name.startswith("repair_engine.data"),
+    )
 hiddenimports += ["yara", "yara_x", "pefile", "capstone", "olefile", "pypdf", "aiohttp", "cryptography", "PIL", "zxingcpp",
                   "sklearn.ensemble", "sklearn.tree", "sklearn.utils._typedefs"]
+
+# Size (2.1.0): the 2.0.0 folder was 583 MB, mostly dataframe libraries nothing in the app uses.
+# scikit-learn imports narwhals, and PyInstaller then follows narwhals' optional backends (polars
+# 164 MB, pyarrow 84 MB, pandas 13 MB, dask, duckdb...). narwhals only touches a backend when it is
+# handed one of its objects, so leaving them out is safe; `CyberScan.exe --self-test` (main.py)
+# loads every engine and runs real scans in the frozen build to prove it.
+EXCLUDES = [
+    "tkinter", "matplotlib", "PyQt5", "PyQt6", "IPython", "pytest", "notebook", "jupyter", "boto3", "botocore",
+    "polars", "_polars_runtime_32", "pyarrow", "pandas", "fsspec", "dask", "distributed", "duckdb", "ibis",
+    "pyspark", "modin", "sqlframe", "cudf", "lightgbm", "xgboost", "torch", "tensorflow", "sympy", "numba",
+    "repair_engine.data", "sklearn.datasets.tests", "scipy.datasets", "pooch", "setuptools", "pip",
+    "PIL.ImageQt", "PIL.ImageTk",  # (numpy.f2py stays: numpy imports it at start-up)
+]
 
 a = Analysis(
     ["main.py"],
@@ -42,9 +59,19 @@ a = Analysis(
     binaries=[],
     datas=datas,
     hiddenimports=hiddenimports,
-    excludes=["tkinter", "matplotlib", "PyQt5", "PyQt6", "IPython", "pytest", "notebook", "jupyter", "boto3", "botocore"],
+    excludes=EXCLUDES,
     noarchive=False,
 )
+# Qt's software OpenGL fallback (20 MB): the window paints with QPainter only, no OpenGL/QML.
+a.binaries = [b for b in a.binaries if os.path.basename(b[0]).lower() != "opengl32sw.dll"]
+# Qt's own translations: keep only English and Arabic (the app translates everything else itself).
+def _keep(dest):
+    d = dest.replace("\\", "/").lower()
+    if "pyside6/translations/" in d:
+        return d.endswith(("_ar.qm", "_en.qm"))
+    return "/tests/" not in "/" + d  # test data shipped inside packages
+a.datas = [x for x in a.datas if _keep(x[0])]
+
 pyz = PYZ(a.pure)
 
 exe = EXE(

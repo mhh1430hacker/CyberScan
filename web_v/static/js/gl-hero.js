@@ -337,6 +337,8 @@
       if (W <= 1000 && best.dataset.shapeX) targetFade = Math.min(targetFade, 0.55);
     }
   }
+  // a section that changes its own data-shape (the hero's live demo: the dropped file) asks for a re-pick
+  window.addEventListener("cs:shape-refresh", pickShape);
   window.addEventListener("scroll", () => {
     turb = Math.min(1, turb + Math.abs(scrollY - lastScroll) * 0.0012);
     lastScroll = scrollY;

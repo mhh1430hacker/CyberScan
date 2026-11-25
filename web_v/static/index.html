@@ -18,6 +18,9 @@
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
+  <!-- Structured data: SoftwareApplication + Person, canonical, hreflang and the per-page social card are
+       added by the server (web_v/site_extras.py: decorate, json_ld). FAQPage JSON-LD for the landing goes
+       here as <script type="application/ld+json">…</script> (a data block: CSP does not block it). -->
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="icon" href="favicon.ico" sizes="32x32">
@@ -42,6 +45,7 @@
   <link rel="stylesheet" href="get-app.css">
   <link rel="stylesheet" href="hero-art.css">
   <link rel="stylesheet" href="polish.css">
+  <link rel="stylesheet" href="landing-plus.css">
   <link rel="stylesheet" href="fabric.css">
   <link rel="stylesheet" href="lang-gate.css">
   <link rel="stylesheet" href="a11y.css">
@@ -100,16 +104,19 @@
   </div>
 
   <div class="scroll-progress" aria-hidden="true"><i></i></div>
-  <nav class="side-dots" aria-hidden="true">
-    <a tabindex="-1" href="#top" data-sec="top"><span data-i18n="dTop">Start</span></a>
-    <a tabindex="-1" href="#film" data-sec="film"><span data-i18n="lVideo">Video</span></a>
-    <a tabindex="-1" href="#manifesto" data-sec="manifesto"><span data-i18n="mfKicker">Why</span></a>
-    <a tabindex="-1" href="#how" data-sec="how"><span data-i18n="lHow">How it works</span></a>
-    <a tabindex="-1" href="#science" data-sec="science"><span data-i18n="dSci">Science</span></a>
-    <a tabindex="-1" href="#features" data-sec="features"><span data-i18n="lFeatures">Features</span></a>
-    <a tabindex="-1" href="#repair-sec" data-sec="repair-sec"><span data-i18n="lRepair">Repair</span></a>
-    <a tabindex="-1" href="#privacy" data-sec="privacy"><span data-i18n="lPrivacy">Privacy</span></a>
-    <a tabindex="-1" href="#team" data-sec="team"><span data-i18n="tmNav">Team</span></a>
+  <nav class="side-dots" aria-label="Page sections" data-i18n-aria="menuNav">
+    <a href="#top" data-sec="top"><span data-i18n="dTop">Start</span></a>
+    <a href="#film" data-sec="film"><span data-i18n="lVideo">Video</span></a>
+    <a href="#manifesto" data-sec="manifesto"><span data-i18n="mfKicker">Why</span></a>
+    <a href="#how" data-sec="how"><span data-i18n="lHow">How it works</span></a>
+    <a href="#science" data-sec="science"><span data-i18n="dSci">Science</span></a>
+    <a href="#features" data-sec="features"><span data-i18n="lFeatures">Features</span></a>
+    <a href="#repair-sec" data-sec="repair-sec"><span data-i18n="lRepair">Repair</span></a>
+    <a href="#privacy" data-sec="privacy"><span data-i18n="lPrivacy">Privacy</span></a>
+    <a href="#compare" data-sec="compare"><span data-i18n="dCompare">Compare</span></a>
+    <a href="#stats" data-sec="stats"><span data-i18n="dStats">Numbers</span></a>
+    <a href="#team" data-sec="team"><span data-i18n="tmNav">Team</span></a>
+    <a href="#faq" data-sec="faq"><span data-i18n="dFaq">FAQ</span></a>
   </nav>
 
   <!-- ===================================================== LANDING -->
@@ -126,6 +133,7 @@
         <a href="#features" data-i18n="lFeatures">Features</a>
         <a href="#repair-sec" data-i18n="lRepair">Repair</a>
         <a href="#privacy" data-i18n="lPrivacy">Privacy</a>
+        <a href="#faq" data-i18n="dFaq">FAQ</a>
         <a href="#team" data-i18n="tmNav">Team</a>
         <div class="get-app">
           <button class="get-app-btn" type="button" aria-expanded="false" aria-controls="get-app-panel" aria-label="Get the app" data-i18n-aria="lPhone">
@@ -156,7 +164,7 @@
                 <em data-i18n="soon">Coming soon</em>
               </div>
             </div>
-            <a class="apk-card win-card" id="win-link" href="downloads/CyberScan-Setup-2.0.0.exe" download>
+            <a class="apk-card win-card" id="win-link" href="downloads/CyberScan-Setup-2.1.0.exe" download>
               <svg class="apk-ico win-ico" viewBox="0 0 48 48" aria-hidden="true"><path d="M7 11.5 21 9.6V23H7zM24 9.2 41 7v16H24zM7 26h14v13.4L7 37.5zM24 26h17v16l-17-2.3z"/></svg>
               <span class="apk-text"><b data-i18n="winTitle">Download for Windows</b><small id="win-meta">Setup · Windows 10/11 · 64-bit</small></span>
               <svg class="apk-dl" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m-5-5 5 5 5-5M5 20h14"/></svg>
@@ -201,6 +209,7 @@
           <a href="#features" data-i18n="lFeatures">Features</a>
           <a href="#repair-sec" data-i18n="lRepair">Repair</a>
           <a href="#privacy" data-i18n="lPrivacy">Privacy</a>
+          <a href="#faq" data-i18n="dFaq">FAQ</a>
           <a href="#team" data-i18n="tmNav">Team</a>
         </nav>
         <div class="l-sheet-row">
@@ -232,10 +241,12 @@
           <a class="ghost big fj-cta" href="/journey"><span class="fj-cta-ring" aria-hidden="true"></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.5h7l4 4v13H7z"/><path d="M14 3.5v4h4"/><circle cx="12.5" cy="14" r="2.6"/><path d="m14.4 15.9 2.1 2.1"/></svg><span data-i18n="lJourney">The file journey</span></a>
           <a class="ghost big" href="#how" data-i18n="lWatch">See how it works</a>
         </div>
+        <!-- live figures from GET /api/protection (js/live-demo.js) -->
+        <p class="live-strip" id="live-strip" hidden><i class="ls-dot" aria-hidden="true"></i><span class="ls-items" id="ls-items"></span></p>
       </div>
 
       <div class="hero-visual" data-reveal>
-        <div class="scan-card tilt">
+        <div class="scan-card tilt" id="ld-card">
           <div class="sc-head">
             <span class="sc-icon" aria-hidden="true">EXE</span>
             <div><b data-i18n="lCardFile">invoice_2026.pdf.exe</b><small>412 KB</small></div>
@@ -253,6 +264,19 @@
             <li data-i18n="lCardF3">Encoded PowerShell command</li>
           </ul>
           <div class="sc-beam" aria-hidden="true"></div>
+          <div class="ld-drop" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 4v11m-5-5 5 5 5-5M5 20h14"/></svg><b data-i18n="ldDropHere">Drop to scan it</b></div>
+        </div>
+        <!-- the live demo: a real scan of a dropped file or a harmless sample, in place (js/live-demo.js) -->
+        <div class="ld-try" id="ld-try">
+          <p class="ld-hint" data-i18n="ldHint">Try it for real: drop a file here, or scan a harmless sample.</p>
+          <div class="ld-samples" role="group" aria-label="Harmless samples" data-i18n-aria="ldSamples">
+            <button type="button" class="ld-chip" data-sample="clean"><i class="ld-sw ok" aria-hidden="true"></i><span>quarterly-report.pdf</span></button>
+            <button type="button" class="ld-chip" data-sample="disguised"><i class="ld-sw bad" aria-hidden="true"></i><span>invoice_2026.pdf.exe</span></button>
+            <button type="button" class="ld-chip" data-sample="phish"><i class="ld-sw warn" aria-hidden="true"></i><span>mailbox-verify.html</span></button>
+            <button type="button" class="ld-chip ld-pick" id="ld-pick"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V7m-5 5 5-5 5 5M5 4h14"/></svg><span data-i18n="ldPick">Your own file</span></button>
+            <input type="file" id="ld-file" class="ld-file" tabindex="-1" aria-hidden="true">
+          </div>
+          <p class="ld-status" id="ld-status" role="status" aria-live="polite"></p>
         </div>
         <div class="orbit o1" aria-hidden="true" data-depth="0.7"></div>
         <div class="orbit o2" aria-hidden="true" data-depth="0.45"></div>
@@ -356,11 +380,10 @@
         <p class="l-sub" data-i18n="lHowSub"></p>
       </div>
       <ol class="l-steps how-grid" id="l-steps"></ol>
-    </section>
-
-    <section id="pipeline" class="l-section pipe-sec" data-shape="helix" data-shape-fade="0.2" data-tint="#0c0720">
-      <h2 class="l-h2 center" data-i18n="pipeTitle"></h2>
-      <p class="l-sub center" data-reveal data-i18n="pipeSub"></p>
+      <!-- the engine pipeline, folded into "How it works" (one explanation instead of two sections) -->
+      <div id="pipeline" class="pipe-sec pipe-merged" data-shape="helix" data-shape-fade="0.2">
+      <h3 class="pipe-h3" data-i18n="pipeTitle"></h3>
+      <p class="pipe-note" data-i18n="pipeSub"></p>
       <div class="pipe" id="pipe" data-reveal>
         <div class="pipe-diagram" id="pipe-diagram">
           <svg class="pipe-svg" id="pipe-svg" aria-hidden="true"></svg>
@@ -372,6 +395,7 @@
           <p id="pp-body"></p>
           <div class="pp-example"><small data-i18n="ppExample">Example finding</small><code id="pp-example"></code></div>
         </aside>
+      </div>
       </div>
     </section>
 
@@ -745,10 +769,37 @@
       <div class="priv-grid stack" id="priv-grid"></div>
     </section>
 
-    <section class="l-section stats-sec skewable" data-shape="ring" data-shape-fade="0.25" data-tint="#0e0619">
+    <!-- ============ HONEST COMPARISON (landing-plus.css; strings js/landing-i18n.js) ============ -->
+    <section id="compare" class="l-section cmp-sec" data-shape="ring" data-shape-fade="0.22" data-tint="#0a0718" aria-labelledby="cmp-h">
+      <span class="sec-tag" data-i18n="cmpKicker">// Honest comparison</span>
+      <h2 class="l-h2" id="cmp-h" data-i18n="cmpTitle">CyberScan, VirusTotal and Windows Defender</h2>
+      <p class="l-sub" data-i18n="cmpSub">Three good tools that do different jobs. Here is where each one is strongest, including where the others beat us.</p>
+      <div class="cmp-wrap" tabindex="0" role="region" aria-labelledby="cmp-h">
+        <table class="cmp">
+          <thead><tr><th scope="col" data-i18n="cmpWhat">What matters</th><th scope="col" class="cmp-us">CyberScan</th><th scope="col">VirusTotal</th><th scope="col">Windows Defender</th></tr></thead>
+          <tbody>
+            <tr><th scope="row" data-i18n="cmpR1">Where your file is analysed</th><td class="cmp-y"><span class="cmp-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span class="cmp-mk" data-i18n="cmpYes">Yes</span></span><span data-i18n="cmpR1a">On CyberScan&#x27;s own server, or entirely on your PC with the Windows app. Never shared with other companies.</span></td><td class="cmp-n"><span class="cmp-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg><span class="cmp-mk" data-i18n="cmpNo">No</span></span><span data-i18n="cmpR1b">Uploads are shared with the security industry, and paying customers can download them.</span></td><td class="cmp-y"><span class="cmp-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span class="cmp-mk" data-i18n="cmpYes">Yes</span></span><span data-i18n="cmpR1c">On your PC. Unknown files may be sent to Microsoft&#x27;s cloud for a closer look (on by default).</span></td></tr>
+            <tr><th scope="row" data-i18n="cmpR2">Kept afterwards</th><td class="cmp-y"><span class="cmp-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span class="cmp-mk" data-i18n="cmpYes">Yes</span></span><span data-i18n="cmpR2a">Deleted when the scan ends. The website keeps no history.</span></td><td class="cmp-n"><span class="cmp-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg><span class="cmp-mk" data-i18n="cmpNo">No</span></span><span data-i18n="cmpR2b">Kept, and findable by its fingerprint, indefinitely.</span></td><td class="cmp-p"><span class="cmp-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg><span class="cmp-mk" data-i18n="cmpPart">Partly</span></span><span data-i18n="cmpR2c">Samples sent to Microsoft are handled under Microsoft&#x27;s terms.</span></td></tr>
+            <tr><th scope="row" data-i18n="cmpR3">Explains what it found</th><td class="cmp-y"><span class="cmp-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span class="cmp-mk" data-i18n="cmpYes">Yes</span></span><span data-i18n="cmpR3a">Every finding in plain language, in 30 languages, with what to do next.</span></td><td class="cmp-p"><span class="cmp-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg><span class="cmp-mk" data-i18n="cmpPart">Partly</span></span><span data-i18n="cmpR3b">Detection names from each vendor and technical reports to interpret yourself.</span></td><td class="cmp-p"><span class="cmp-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg><span class="cmp-mk" data-i18n="cmpPart">Partly</span></span><span data-i18n="cmpR3c">A threat name, a severity and a recommended action.</span></td></tr>
+            <tr><th scope="row" data-i18n="cmpR4">Repairs a clean copy</th><td class="cmp-y"><span class="cmp-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span class="cmp-mk" data-i18n="cmpYes">Yes</span></span><span data-i18n="cmpR4a">Cuts out what doesn&#x27;t belong and checks the copy still opens as the same kind of file.</span></td><td class="cmp-n"><span class="cmp-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg><span class="cmp-mk" data-i18n="cmpNo">No</span></span><span data-i18n="cmpR4b">Detection only.</span></td><td class="cmp-p"><span class="cmp-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg><span class="cmp-mk" data-i18n="cmpPart">Partly</span></span><span data-i18n="cmpR4c">Removes or quarantines the whole file; no rebuilt copy.</span></td></tr>
+            <tr><th scope="row" data-i18n="cmpR5">Works offline</th><td class="cmp-y"><span class="cmp-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span class="cmp-mk" data-i18n="cmpYes">Yes</span></span><span data-i18n="cmpR5a">The Windows app keeps 1.5 million+ known-malware fingerprints and thousands of rules on your PC.</span></td><td class="cmp-n"><span class="cmp-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg><span class="cmp-mk" data-i18n="cmpNo">No</span></span><span data-i18n="cmpR5b">An online service.</span></td><td class="cmp-y"><span class="cmp-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span class="cmp-mk" data-i18n="cmpYes">Yes</span></span><span data-i18n="cmpR5c">Local signatures; the cloud adds faster protection when you are online.</span></td></tr>
+            <tr><th scope="row" data-i18n="cmpR6">Rules you can read</th><td class="cmp-y"><span class="cmp-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span class="cmp-mk" data-i18n="cmpYes">Yes</span></span><span data-i18n="cmpR6a">Open YARA rules (YARA-Forge) and published scoring.</span></td><td class="cmp-p"><span class="cmp-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg><span class="cmp-mk" data-i18n="cmpPart">Partly</span></span><span data-i18n="cmpR6b">YARA hunting on paid plans.</span></td><td class="cmp-n"><span class="cmp-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg><span class="cmp-mk" data-i18n="cmpNo">No</span></span><span data-i18n="cmpR6c">Proprietary signatures.</span></td></tr>
+            <tr><th scope="row" data-i18n="cmpR7">Number of engines</th><td class="cmp-p"><span class="cmp-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg><span class="cmp-mk" data-i18n="cmpPart">Partly</span></span><span data-i18n="cmpR7a">One product with nine analysers.</span></td><td class="cmp-y"><span class="cmp-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span class="cmp-mk" data-i18n="cmpYes">Yes</span></span><span data-i18n="cmpR7b">70+ antivirus engines side by side: its biggest strength.</span></td><td class="cmp-p"><span class="cmp-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg><span class="cmp-mk" data-i18n="cmpPart">Partly</span></span><span data-i18n="cmpR7c">Microsoft&#x27;s own engine.</span></td></tr>
+            <tr><th scope="row" data-i18n="cmpR8">Watches the file run</th><td class="cmp-n"><span class="cmp-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg><span class="cmp-mk" data-i18n="cmpNo">No</span></span><span data-i18n="cmpR8a">Never runs your file, so it can&#x27;t see what a program does when it runs.</span></td><td class="cmp-y"><span class="cmp-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span class="cmp-mk" data-i18n="cmpYes">Yes</span></span><span data-i18n="cmpR8b">Sandboxes run many samples and record their behaviour.</span></td><td class="cmp-y"><span class="cmp-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span class="cmp-mk" data-i18n="cmpYes">Yes</span></span><span data-i18n="cmpR8c">Behaviour monitoring watches programs as they run.</span></td></tr>
+            <tr><th scope="row" data-i18n="cmpR9">Always-on protection</th><td class="cmp-p"><span class="cmp-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg><span class="cmp-mk" data-i18n="cmpPart">Partly</span></span><span data-i18n="cmpR9a">The Windows app can watch the folders you choose.</span></td><td class="cmp-n"><span class="cmp-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg><span class="cmp-mk" data-i18n="cmpNo">No</span></span><span data-i18n="cmpR9b">On demand only.</span></td><td class="cmp-y"><span class="cmp-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span class="cmp-mk" data-i18n="cmpYes">Yes</span></span><span data-i18n="cmpR9c">Real-time protection built into Windows.</span></td></tr>
+            <tr><th scope="row" data-i18n="cmpR10">Price</th><td class="cmp-y"><span class="cmp-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span class="cmp-mk" data-i18n="cmpYes">Yes</span></span><span data-i18n="cmpR10a">Free, no account.</span></td><td class="cmp-p"><span class="cmp-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg><span class="cmp-mk" data-i18n="cmpPart">Partly</span></span><span data-i18n="cmpR10b">Free for non-commercial use; paid plans for business.</span></td><td class="cmp-y"><span class="cmp-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span class="cmp-mk" data-i18n="cmpYes">Yes</span></span><span data-i18n="cmpR10c">Included with Windows.</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="cmp-better" data-i18n="cmpBetter">What the others do better: VirusTotal&#x27;s 70+ engines and sandbox reports, and Defender&#x27;s always-on behaviour monitoring. CyberScan is the second opinion that explains itself, not a replacement for your antivirus.</p>
+      <p class="cmp-source" data-i18n="cmpSource">Compared from each product&#x27;s public documentation, November 2026.</p>
+    </section>
+
+    <section id="stats" class="l-section stats-sec skewable" data-shape="ring" data-shape-fade="0.25" data-tint="#0e0619">
       <h2 class="l-h2 center" data-reveal data-i18n="lStatsTitle"></h2>
       <div class="stats-grid" id="stats-grid"></div>
       <p class="stats-note" id="stats-note"></p>
+      <p class="stats-live" id="stats-live" hidden></p>
     </section>
 
     <!-- ============ ONYX | THE MINDS BEHIND CYBERSCAN (team.css, js/team.js) ============ -->
@@ -774,6 +825,48 @@
           <p class="tm-sign" dir="ltr" data-i18n="tmClose2">ONYX — Building the Future of Cybersecurity.</p>
         </footer>
       </div>
+    </section>
+
+    <!-- ============ FAQ (native <details>: keyboard accessible; FAQPage structured data below) ============ -->
+    <section id="faq" class="l-section faq-sec" data-shape="sphere" data-shape-fade="0.25" data-tint="#0b0619" aria-labelledby="faq-h">
+      <span class="sec-tag" data-i18n="faqKicker">// Questions</span>
+      <h2 class="l-h2" id="faq-h" data-i18n="faqTitle">Questions people ask</h2>
+      <div class="faq-list">
+        <details class="faq-item" name="faq">
+          <summary><span data-i18n="faqQ1">Is my file uploaded? Is it kept?</span><i class="faq-ic" aria-hidden="true"></i></summary>
+          <p data-i18n="faqA1">On the website, your file travels over an encrypted connection to CyberScan&#x27;s server, is analysed in a temporary folder and is deleted as soon as the scan ends. The website keeps no history and never shares your file. The Windows app analyses everything on your own PC.</p>
+        </details>
+        <details class="faq-item" name="faq">
+          <summary><span data-i18n="faqQ2">Is CyberScan free?</span><i class="faq-ic" aria-hidden="true"></i></summary>
+          <p data-i18n="faqA2">Yes. The website, the Android app and the Windows app are free, with no account to create.</p>
+        </details>
+        <details class="faq-item" name="faq">
+          <summary><span data-i18n="faqQ3">How accurate is it?</span><i class="faq-ic" aria-hidden="true"></i></summary>
+          <p data-i18n="faqA3">In our latest evaluation, CyberScan gave a strong warning on 1 of 245 clean files and repaired 84 of 86 tampered files. It is static analysis: it can miss threats that only show themselves when a program runs, so a clean result is not a guarantee.</p>
+        </details>
+        <details class="faq-item" name="faq">
+          <summary><span data-i18n="faqQ4">What can I scan?</span><i class="faq-ic" aria-hidden="true"></i></summary>
+          <p data-i18n="faqA4">Programs (Windows and Linux), PDFs, Office documents, archives, scripts, emails, images with QR codes, links and pasted text. Files up to 4 MB on the website; the Windows app takes files up to 50 MB.</p>
+        </details>
+        <details class="faq-item" name="faq">
+          <summary><span data-i18n="faqQ5">Does CyberScan run my file?</span><i class="faq-ic" aria-hidden="true"></i></summary>
+          <p data-i18n="faqA5">Never. Every check reads the bytes at rest: the structure, the rules, the fingerprints and the content. Nothing is opened, executed or rendered.</p>
+        </details>
+        <details class="faq-item" name="faq">
+          <summary><span data-i18n="faqQ6">Does it work offline?</span><i class="faq-ic" aria-hidden="true"></i></summary>
+          <p data-i18n="faqA6">The Windows app does: its rules and known-malware fingerprints are stored on your PC, and online lookups are optional (they send only a fingerprint, never the file). The website needs a connection.</p>
+        </details>
+        <details class="faq-item" name="faq">
+          <summary><span data-i18n="faqQ7">Is there a phone or desktop app?</span><i class="faq-ic" aria-hidden="true"></i></summary>
+          <p data-i18n="faqA7">Yes: a signed Android app and a Windows app with real-time folder protection, both in the &quot;Get the app&quot; menu at the top. Google Play, App Store and Microsoft Store listings are coming soon.</p>
+        </details>
+        <details class="faq-item" name="faq">
+          <summary><span data-i18n="faqQ8">How is it different from an antivirus?</span><i class="faq-ic" aria-hidden="true"></i></summary>
+          <p data-i18n="faqA8">An antivirus stays on guard all the time and can stop programs as they run. CyberScan is the second opinion you ask before opening something: it explains what it found in plain words and can repair a clean copy.</p>
+        </details>
+      </div>
+      <p class="faq-more"><button type="button" class="ghost" data-ask-open=""><span data-i18n="faqMore">Still wondering? Ask the AI.</span></button></p>
+      <script type="application/ld+json" id="faq-ld">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is my file uploaded? Is it kept?","acceptedAnswer":{"@type":"Answer","text":"On the website, your file travels over an encrypted connection to CyberScan's server, is analysed in a temporary folder and is deleted as soon as the scan ends. The website keeps no history and never shares your file. The Windows app analyses everything on your own PC."}},{"@type":"Question","name":"Is CyberScan free?","acceptedAnswer":{"@type":"Answer","text":"Yes. The website, the Android app and the Windows app are free, with no account to create."}},{"@type":"Question","name":"How accurate is it?","acceptedAnswer":{"@type":"Answer","text":"In our latest evaluation, CyberScan gave a strong warning on 1 of 245 clean files and repaired 84 of 86 tampered files. It is static analysis: it can miss threats that only show themselves when a program runs, so a clean result is not a guarantee."}},{"@type":"Question","name":"What can I scan?","acceptedAnswer":{"@type":"Answer","text":"Programs (Windows and Linux), PDFs, Office documents, archives, scripts, emails, images with QR codes, links and pasted text. Files up to 4 MB on the website; the Windows app takes files up to 50 MB."}},{"@type":"Question","name":"Does CyberScan run my file?","acceptedAnswer":{"@type":"Answer","text":"Never. Every check reads the bytes at rest: the structure, the rules, the fingerprints and the content. Nothing is opened, executed or rendered."}},{"@type":"Question","name":"Does it work offline?","acceptedAnswer":{"@type":"Answer","text":"The Windows app does: its rules and known-malware fingerprints are stored on your PC, and online lookups are optional (they send only a fingerprint, never the file). The website needs a connection."}},{"@type":"Question","name":"Is there a phone or desktop app?","acceptedAnswer":{"@type":"Answer","text":"Yes: a signed Android app and a Windows app with real-time folder protection, both in the \"Get the app\" menu at the top. Google Play, App Store and Microsoft Store listings are coming soon."}},{"@type":"Question","name":"How is it different from an antivirus?","acceptedAnswer":{"@type":"Answer","text":"An antivirus stays on guard all the time and can stop programs as they run. CyberScan is the second opinion you ask before opening something: it explains what it found in plain words and can repair a clean copy."}}]}</script>
     </section>
 
     <section class="l-cta" data-shape="word" data-shape-fade="0.4" data-tint="#0d0a24">
@@ -802,6 +895,15 @@
           </button>
         </div>
       </div>
+      <nav class="foot-row foot-links" aria-label="Site information">
+        <a href="/privacy" data-i18n="footPrivacy">Privacy</a>
+        <a href="/terms" data-i18n="footTerms">Terms</a>
+        <a href="/security" data-i18n="footSecurity">Security</a>
+        <a href="/status" data-i18n="footStatus">Status</a>
+        <a href="/tests" data-i18n="footTests">Independent tests</a>
+        <a href="/changelog" data-i18n="footChangelog">Changelog</a>
+        <a href="#accessibility" data-a11y-open data-i18n="a11yOpen">Accessibility</a>
+      </nav>
     </footer>
   </div>
 
@@ -1146,6 +1248,18 @@
                 <select id="history-date" class="field">
                   <option value="all" data-i18n="hAll">Any time</option><option value="1" data-i18n="hDay">Last 24 hours</option>
                   <option value="7" data-i18n="hWeek">Last 7 days</option><option value="30" data-i18n="hMonth">Last 30 days</option>
+                  <option value="custom" data-i18n="hCustom">Custom range…</option>
+                </select></label>
+              <span class="history-range" id="history-range" hidden>
+                <label><span data-i18n="hFrom">From</span> <input id="history-from" class="field" type="date"></label>
+                <label><span data-i18n="hTo">To</span> <input id="history-to" class="field" type="date"></label>
+              </span>
+              <label><span data-i18n="hType">Type</span>
+                <select id="history-type" class="field">
+                  <option value="all" data-i18n="htAll">All types</option><option value="doc" data-i18n="htDoc">Documents</option>
+                  <option value="program" data-i18n="htProgram">Programs</option><option value="archive" data-i18n="htArchive">Archives</option>
+                  <option value="image" data-i18n="htImage">Images</option><option value="script" data-i18n="htScript">Scripts and web pages</option>
+                  <option value="url" data-i18n="htUrl">Links</option><option value="text" data-i18n="htText">Text</option><option value="other" data-i18n="htOther">Other files</option>
                 </select></label>
               <label><span data-i18n="hSort">Sort</span>
                 <select id="history-sort" class="field">
@@ -1340,6 +1454,7 @@
   <script src="js/i18n.js"></script>
   <script src="js/scrolly-i18n.js"></script>
   <script src="js/languages.js"></script>
+  <script src="js/landing-i18n.js"></script>
   <script src="js/cells.js"></script>
   <script src="js/cube.js"></script>
   <script src="app.js"></script>
@@ -1361,11 +1476,17 @@
   <script src="js/film.js"></script>
   <script src="js/story.js"></script>
   <script src="js/landing.js"></script>
+  <script src="js/live-demo.js"></script>
   <script src="js/get-app.js"></script>
   <script src="js/a11y.js"></script>
   <script src="js/performance/performanceUI.js"></script>
   <script src="js/scan-center.js"></script>
   <script src="js/scan-pro.js"></script>
+  <script src="js/qr.js"></script>
+  <script src="js/share-code.js"></script>
+  <script src="js/result-plus.js"></script>
+  <script src="js/scan-extras.js"></script>
+  <script src="js/journey-hook.js"></script><!-- track D: "Watch this file's journey" under a file result (self-contained; listens to cs:rc-built) -->
   <script src="js/toolbox-ar.js"></script>
   <script src="js/toolbox.js"></script>
   <script src="js/intro.js"></script>

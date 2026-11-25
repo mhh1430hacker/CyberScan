@@ -1,0 +1,117 @@
+/* js/result-plus.js: why this result (evidence flow, simple/expert), detection sources, share, wrong result, Bit. */
+.rp-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; flex-wrap: wrap; }
+.rp-head h3 { margin: 0 0 2px; }
+.rp-seg { display: inline-flex; gap: 3px; padding: 4px; border-radius: 999px; border: 1px solid rgba(201, 162, 255, .25); background: rgba(9, 5, 20, .55); }
+.rp-seg-btn { border: 0; background: none; color: #b9c2dc; font: inherit; font-size: 13px; font-weight: 600; padding: 7px 14px; border-radius: 999px; cursor: pointer; }
+.rp-seg-btn small { font-weight: 400; opacity: .8; }
+.rp-seg-btn[aria-pressed="true"] { background: linear-gradient(120deg, rgba(201, 162, 255, .32), rgba(34, 232, 255, .22)); color: #fff; }
+.rp-seg-btn:focus-visible, .rp-ev-btn:focus-visible, .rp-bit-x:focus-visible { outline: 2px solid #22e8ff; outline-offset: 2px; }
+.rp-kid { margin: 14px 0 4px; padding: 12px 14px; border-radius: 14px; background: rgba(201, 162, 255, .1); border: 1px solid rgba(201, 162, 255, .22); font-size: 15px; line-height: 1.6; }
+
+/* the flow: evidence rows → curves → score */
+.rp-flow { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 90px 118px; align-items: center; margin-top: 14px; }
+.rp-ev { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; grid-column: 1; grid-row: 1; position: relative; z-index: 1; }
+.rp-curves { grid-column: 1 / -1; grid-row: 1; position: absolute; inset: 0; pointer-events: none; overflow: visible; }
+.rp-score { grid-column: 3; grid-row: 1; position: relative; z-index: 1; display: grid; place-items: center; align-content: center; width: 112px; height: 112px; justify-self: end;
+  border-radius: 50%; background: radial-gradient(circle at 35% 30%, rgba(201, 162, 255, .35), rgba(9, 5, 20, .9) 70%); border: 2px solid var(--risk, #c9a2ff); box-shadow: 0 0 30px rgba(201, 162, 255, .25); }
+.rp-score small { font-size: 11px; color: #b9c2dc; }
+.rp-score b { font-size: 34px; line-height: 1; letter-spacing: -.02em; }
+.rp-score span { font-size: 12px; color: #b9c2dc; }
+.rp-ev-row { animation: rp-in .5s cubic-bezier(.22, 1, .36, 1) both; animation-delay: calc(var(--i) * 60ms); }
+@keyframes rp-in { from { opacity: 0; transform: translateY(8px); } }
+.rp-ev-btn { width: 100%; display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(60px, 1fr) auto; gap: 10px; align-items: center; padding: 9px 12px; border-radius: 12px;
+  border: 1px solid rgba(201, 162, 255, .16); background: rgba(9, 5, 20, .5); color: inherit; font: inherit; text-align: start; cursor: pointer; transition: border-color .2s, background .2s; }
+.rp-ev-btn:hover, .rp-ev-row.open .rp-ev-btn { border-color: rgba(34, 232, 255, .45); background: rgba(34, 232, 255, .07); }
+.rp-ev-name { font-size: 13.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rp-ev-bar { height: 8px; border-radius: 6px; background: rgba(255, 255, 255, .07); overflow: hidden; }
+.rp-ev-bar i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #c9a2ff, #22e8ff); transform-origin: left; animation: rp-grow .9s cubic-bezier(.22, 1, .36, 1) both; }
+[dir="rtl"] .rp-ev-bar i { transform-origin: right; }
+@keyframes rp-grow { from { transform: scaleX(0); } }
+.rp-ev-row.s-critical .rp-ev-bar i, .rp-ev-row.s-high .rp-ev-bar i { background: linear-gradient(90deg, #ff4fd8, #f87171); }
+.rp-ev-row.s-medium .rp-ev-bar i { background: linear-gradient(90deg, #fbbf24, #fb923c); }
+.rp-ev-w { font-size: 12.5px; font-variant-numeric: tabular-nums; color: #e9e3ff; white-space: nowrap; }
+.rp-ev-more { margin: 6px 4px 2px; padding: 10px 12px; border-inline-start: 2px solid rgba(34, 232, 255, .45); font-size: 13.5px; color: #cfd6ee; }
+.rp-ev-more p { margin: 0 0 6px; }
+.rp-ev-none { color: #a9b4cf; }
+.rp-curve { fill: none; stroke: rgba(201, 162, 255, .45); stroke-linecap: round; transition: stroke .2s, opacity .2s; }
+.rp-curve.s-critical, .rp-curve.s-high { stroke: rgba(255, 79, 216, .5); }
+.rp-curve.s-medium { stroke: rgba(251, 191, 36, .5); }
+.rp-flow[class*="focus-"] .rp-curve { opacity: .25; }
+.rp-flow.focus-0 .c-0, .rp-flow.focus-1 .c-1, .rp-flow.focus-2 .c-2, .rp-flow.focus-3 .c-3, .rp-flow.focus-4 .c-4, .rp-flow.focus-5 .c-5, .rp-flow.focus-6 .c-6, .rp-flow.focus-7 .c-7 { opacity: 1; stroke: #22e8ff; }
+.rp-math { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 6px; }
+.rp-math span { display: grid; gap: 1px; padding: 8px 12px; border-radius: 12px; background: rgba(9, 5, 20, .5); border: 1px solid rgba(201, 162, 255, .16); }
+.rp-math small { font-size: 11px; color: #a9b4cf; }
+.rp-math b { font-size: 15px; font-variant-numeric: tabular-nums; }
+.rp-math .fin { border-color: var(--risk, #c9a2ff); }
+.rp-kv { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 4px 14px; margin: 6px 0 0; font-size: 13px; }
+.rp-kv dt { color: #a9b4cf; } .rp-kv dd { margin: 0; overflow-wrap: anywhere; }
+.rp-kv .mono { font: 12px/1.5 ui-monospace, Consolas, monospace; }
+.rp-expert { margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(201, 162, 255, .14); }
+
+/* detection sources */
+.rp-src-list { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 8px; }
+.rp-src-item { padding: 10px 12px; border-radius: 12px; background: rgba(9, 5, 20, .5); border: 1px solid rgba(201, 162, 255, .16); }
+.rp-src-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.rp-src-kind { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: #c9a2ff; }
+.rp-src-top code { font: 600 13px/1.4 ui-monospace, Consolas, monospace; color: #e9f7ff; overflow-wrap: anywhere; }
+.rp-src-item p { margin: 4px 0; font-size: 13px; color: #cfd6ee; }
+.rp-src-meta { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 12.5px; color: #cfd6ee; }
+.rp-src-meta small, .rp-src-flat small { color: #a9b4cf; }
+.rp-src a, .rp-share-out a { color: #22e8ff; text-underline-offset: 3px; }
+.rp-src-group { margin-top: 14px; }
+.rp-src-group h4 { margin: 0 0 6px; font-size: 14px; }
+.rp-src-flat { margin: 0; padding-inline-start: 18px; display: grid; gap: 4px; font-size: 13px; }
+.rp-src-flat li.hit b { color: #ff7ab8; }
+.rp-wrong { white-space: nowrap; }
+
+/* actions under the summary */
+.rp-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.rp-actions [hidden] { display: none; }
+
+/* dialogs (share, wrong result) */
+.rp-modal-back { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 16px; background: rgba(4, 3, 12, .72); backdrop-filter: blur(6px); }
+.rp-modal { width: min(560px, 100%); max-height: calc(100vh - 32px); overflow: auto; padding: 22px; border-radius: 20px; background: #0d0a22; border: 1px solid rgba(201, 162, 255, .3); box-shadow: 0 30px 80px rgba(0, 0, 0, .6); color: #ecebff; }
+.rp-modal h3 { margin: 0 0 8px; }
+.rp-modal p { margin: 0 0 10px; color: #cfd6ee; font-size: 14px; }
+.rp-pre { margin: 10px 0; padding: 12px; border-radius: 12px; background: #06051a; border: 1px solid rgba(201, 162, 255, .2); font: 12px/1.55 ui-monospace, Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; color: #d7f6ff; }
+.rp-consent { display: flex; gap: 8px; align-items: flex-start; margin: 8px 0; font-size: 14px; cursor: pointer; }
+.rp-consent input, .rp-kind input { accent-color: #c9a2ff; width: 18px; height: 18px; margin-top: 1px; }
+.rp-kind { border: 1px solid rgba(201, 162, 255, .2); border-radius: 12px; padding: 8px 12px; margin: 0 0 6px; display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 14px; }
+.rp-kind legend { padding: 0 6px; color: #a9b4cf; font-size: 12.5px; }
+.rp-kind label { display: flex; gap: 6px; align-items: center; cursor: pointer; }
+.rp-modal-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.rp-modal button:disabled { opacity: .45; cursor: not-allowed; }
+.rp-share-out { margin-top: 14px; display: grid; gap: 10px; }
+.rp-share-out[hidden] { display: none; }
+.rp-share-link { width: 100%; font: 12px ui-monospace, Consolas, monospace; }
+.rp-share-act { display: flex; gap: 8px; flex-wrap: wrap; }
+.rp-qr { margin: 0; display: flex; align-items: center; gap: 12px; }
+.rp-qr svg { width: 150px; height: 150px; border-radius: 10px; flex: none; }
+.rp-qr figcaption { font-size: 13px; color: #a9b4cf; }
+
+/* Bit, the quiet guide */
+.rp-bit { display: flex; align-items: center; gap: 10px; margin-top: 12px; padding: 8px 8px 8px 10px; border-radius: 16px; background: rgba(201, 162, 255, .08); border: 1px solid rgba(201, 162, 255, .22); max-width: 560px;
+  animation: rp-in .6s .5s cubic-bezier(.22, 1, .36, 1) both; }
+.rp-bit-bot { flex: none; width: 38px; height: 38px; display: grid; place-items: center; border-radius: 50%; background: linear-gradient(140deg, #7c3aed, #22e8ff); }
+.rp-bit-bot svg { width: 30px; height: 30px; overflow: visible; }
+.rp-bit-say { margin: 0; flex: 1; font-size: 14px; line-height: 1.5; color: #ecebff; }
+.rp-bit-say b { color: #c9a2ff; }
+.rp-bit-x { flex: none; width: 30px; height: 30px; display: grid; place-items: center; border: 0; border-radius: 10px; background: transparent; color: #b9c2dc; cursor: pointer; }
+.rp-bit-x svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 2; fill: none; }
+.rp-bit-x:hover { background: rgba(255, 255, 255, .08); }
+.rp-bit.still, .rp-bit.still * { animation: none !important; }
+
+@media (max-width: 700px) {
+  .rp-flow { grid-template-columns: minmax(0, 1fr); }
+  .rp-curves { display: none; }
+  .rp-score { grid-column: 1; grid-row: 2; justify-self: center; margin-top: 14px; width: 96px; height: 96px; }
+  .rp-score b { font-size: 28px; }
+  .rp-ev-btn { grid-template-columns: minmax(0, 1fr) auto; }
+  .rp-ev-bar { grid-column: 1 / -1; grid-row: 2; }
+  .rp-qr { flex-direction: column; align-items: flex-start; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rp-ev-row, .rp-ev-bar i, .rp-bit { animation: none; }
+}
+html.reduce-motion .rp-ev-row, html.reduce-motion .rp-ev-bar i, html.reduce-motion .rp-bit { animation: none; }
+@media print { .rp-actions, .rp-wrong, .rp-bit, .rp-seg { display: none !important; } .rp-curves { display: none; } }

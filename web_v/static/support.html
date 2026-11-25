@@ -23,6 +23,24 @@
   </header>
 
   <main class="sp-main" id="sp-main">
+    <!-- the featured video: a still and a play button; YouTube (youtube-nocookie.com) is contacted only when the visitor presses play.
+         js/support.js fills in the channel's latest video from /api/profile (the still arrives as a data: image from our server). -->
+    <section class="sp-video" data-cv aria-labelledby="sp-video-title">
+      <div class="sp-video-frame" id="sp-video-frame">
+        <button class="sp-video-play" id="sp-video-play" type="button" data-video="BMldxyd71ws">
+          <img src="support/yt-featured.jpg" width="480" height="360" alt="" id="sp-video-thumb" decoding="async">
+          <span class="sp-video-btn" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z"/></svg></span>
+          <span class="sp-video-badge" data-t="vBadge">Click to load</span>
+        </button>
+      </div>
+      <div class="sp-video-text">
+        <p class="sp-kicker" data-t="vKicker">أحدث فيديو · YouTube</p>
+        <h2 id="sp-video-title" lang="en" dir="ltr">CyberScan IN 1 MINUTE</h2>
+        <p class="sp-video-note" data-t="vNote"></p>
+        <a class="sp-video-link" href="https://www.youtube.com/@AinexTube" target="_blank" rel="noopener noreferrer"><span data-t="vChannel">قناة Ainex على YouTube</span> <bdi dir="ltr">@AinexTube</bdi></a>
+      </div>
+    </section>
+
     <section class="sp-card" aria-labelledby="sp-name">
       <figure class="sp-photo" data-bit="photo" data-cv="photo">
         <img src="support/mahdi.jpg" width="720" height="900" alt="" id="sp-photo">
@@ -49,16 +67,16 @@
         <p data-t="wLead">أبحاث منشورة ومشاريع مفتوحة المصدر.</p>
       </header>
       <ul class="sp-stats">
-        <li><b>3</b><span data-t="wPapers">أبحاث منشورة</span></li>
-        <li><b>1,210</b><span data-t="wViews">مشاهدة للأبحاث</span></li>
-        <li><b>576</b><span data-t="wDownloads">تنزيل للأبحاث</span></li>
-        <li><b>17</b><span data-t="wRepos">مستودع مفتوح المصدر</span></li>
+        <li><b data-stat="papers">3</b><span data-t="wPapers">أبحاث منشورة</span></li>
+        <li><b data-stat="views">1,210</b><span data-t="wViews">مشاهدة للأبحاث</span></li>
+        <li><b data-stat="downloads">576</b><span data-t="wDownloads">تنزيل للأبحاث</span></li>
+        <li><b data-stat="repos">17</b><span data-t="wRepos">مستودع مفتوح المصدر</span></li>
       </ul>
       <h3 class="sp-sub" data-t="wPapersH">الأبحاث (Zenodo)</h3>
       <ol class="sp-papers">
-        <li><a href="https://doi.org/10.5281/zenodo.18649873" target="_blank" rel="noopener noreferrer" lang="en" dir="ltr">The Ainex Singularity: A Geometric Proof of Dimensional Collapse and the Necessity of Fluid Topology</a><small><span data-t="wJan">يناير 2026</span> · <bdi>724</bdi> <span data-t="wV">مشاهدة</span> · <bdi>395</bdi> <span data-t="wD">تنزيل</span></small></li>
-        <li><a href="https://doi.org/10.5281/zenodo.18242108" target="_blank" rel="noopener noreferrer" lang="en" dir="ltr">The Ainex Limit: Geometric Proof of LLM Semantic Collapse</a><small><span data-t="wJan">يناير 2026</span> · <bdi>380</bdi> <span data-t="wV">مشاهدة</span> · <bdi>123</bdi> <span data-t="wD">تنزيل</span></small></li>
-        <li><a href="https://doi.org/10.5281/zenodo.18285674" target="_blank" rel="noopener noreferrer" lang="en" dir="ltr">The Ainex Structural Divergence: A Unified Mathematical Proof of Static AI Collapse versus Fluid Adaptive Systems</a><small><span data-t="wPre">ورقة أولية · يناير 2026</span> · <bdi>106</bdi> <span data-t="wV">مشاهدة</span> · <bdi>58</bdi> <span data-t="wD">تنزيل</span></small></li>
+        <li><a href="https://doi.org/10.5281/zenodo.18649873" target="_blank" rel="noopener noreferrer" lang="en" dir="ltr">The Ainex Singularity: A Geometric Proof of Dimensional Collapse and the Necessity of Fluid Topology</a><small><span data-t="wJan">يناير 2026</span> · <bdi data-pv="18649873">724</bdi> <span data-t="wV">مشاهدة</span> · <bdi data-pd="18649873">395</bdi> <span data-t="wD">تنزيل</span></small></li>
+        <li><a href="https://doi.org/10.5281/zenodo.18242108" target="_blank" rel="noopener noreferrer" lang="en" dir="ltr">The Ainex Limit: Geometric Proof of LLM Semantic Collapse</a><small><span data-t="wJan">يناير 2026</span> · <bdi data-pv="18242108">380</bdi> <span data-t="wV">مشاهدة</span> · <bdi data-pd="18242108">123</bdi> <span data-t="wD">تنزيل</span></small></li>
+        <li><a href="https://doi.org/10.5281/zenodo.18285674" target="_blank" rel="noopener noreferrer" lang="en" dir="ltr">The Ainex Structural Divergence: A Unified Mathematical Proof of Static AI Collapse versus Fluid Adaptive Systems</a><small><span data-t="wPre">ورقة أولية · يناير 2026</span> · <bdi data-pv="18285674">106</bdi> <span data-t="wV">مشاهدة</span> · <bdi data-pd="18285674">58</bdi> <span data-t="wD">تنزيل</span></small></li>
       </ol>
       <h3 class="sp-sub" data-t="wProjH">مشاريع مختارة (GitHub)</h3>
       <ul class="sp-projects">
@@ -73,7 +91,19 @@
         <a href="https://www.youtube.com/@AinexTube" target="_blank" rel="noopener noreferrer">YouTube</a>
         <a href="https://www.kaggle.com/mhh1430hacker" target="_blank" rel="noopener noreferrer">Kaggle</a>
       </nav>
-      <p class="sp-asof" data-t="wAsof">الأرقام من السجلات العامة حتى نوفمبر 2026.</p>
+      <p class="sp-asof" id="sp-asof" data-t="wAsof">الأرقام من السجلات العامة حتى نوفمبر 2026.</p>
+    </section>
+
+    <!-- milestones: public facts only (GitHub, Zenodo, the site and the app releases) -->
+    <section class="sp-time" data-cv aria-labelledby="sp-time-title">
+      <h2 id="sp-time-title" data-t="tlTitle">المحطات</h2>
+      <ol class="sp-tl">
+        <li><time datetime="2024-10" data-t="tl1d">أكتوبر 2024</time><b data-t="tl1">حساب GitHub</b><p data-t="tl1p"></p></li>
+        <li><time datetime="2026-01" data-t="tl2d">يناير 2026</time><b data-t="tl2">إصدار Ainex-Limit-Experiment</b><p data-t="tl2p"></p></li>
+        <li><time datetime="2026-01" data-t="tl3d">يناير 2026</time><b data-t="tl3">أبحاث Ainex الثلاثة</b><p data-t="tl3p"></p></li>
+        <li><time datetime="2026" data-t="tl4d">2026</time><b data-t="tl4">تطوير CyberScan وإطلاق ainex-ai.xyz</b><p data-t="tl4p"></p></li>
+        <li class="is-now"><time datetime="2026-11" data-t="tl5d">نوفمبر 2026</time><b data-t="tl5">تطبيق الجوال 1.1.0 وتطبيق Windows 2.0.0</b><p data-t="tl5p"></p></li>
+      </ol>
     </section>
 
     <section class="sp-explore" data-cv aria-labelledby="sp-explore-title">

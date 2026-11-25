@@ -110,7 +110,7 @@ class S {
   String get keepHistorySub => _('Saved only on this phone', 'يُحفظ على هذا الهاتف فقط');
   String get privacy => _('Privacy', 'الخصوصية');
   String get privacyText => _(
-      'CyberScan checks files, links and messages on this phone. It has no account, no ads and no analytics, and it never uploads what you check. '
+      'CyberScan checks files, links and messages on this phone, including ones you share to it from other apps. It has no account, no ads and no analytics, and it never uploads what you check. '
           'The camera is used only to read QR codes, and nothing it sees is saved. Your history stays on this phone until you clear it.',
       'يفحص CyberScan الملفات والروابط والرسائل على هذا الهاتف. لا حساب ولا إعلانات ولا تحليلات، ولا يرفع أبدًا ما تفحصه. '
           'تُستخدم الكاميرا فقط لقراءة رموز QR ولا يُحفظ شيء مما تراه. يبقى سجلك على هذا الهاتف حتى تمسحه.');
@@ -131,4 +131,26 @@ class S {
   String get next => _('Next', 'التالي');
   String get start => _('Start', 'ابدأ');
   String get skip => _('Skip', 'تخطَّ');
+
+  // Share to CyberScan, the widget and the watched folder
+  String get quickScan => _('Quick scan', 'فحص سريع');
+  String get widgetEmpty => _('No checks yet', 'لا فحوصات بعد');
+  String get sharedResults => _('Shared items', 'العناصر المُشارَكة');
+  String sharedSkipped(int n) => _('$n item(s) could not be read or were larger than 100 MB.', 'تعذّرت قراءة $n عنصر أو كان أكبر من 100 ميغابايت.');
+  String get watchTitle => _('New files', 'الملفات الجديدة');
+  String get watchSub => _('Check files that arrive in a folder you choose', 'افحص الملفات التي تصل إلى مجلد تختاره');
+  String get watchChoose => _('Choose a folder', 'اختر مجلدًا');
+  String get watchForget => _('Stop watching', 'أوقف المتابعة');
+  String watchFolderLine(String name) => _('Watching: $name', 'المجلد المتابَع: $name');
+  String get watchLost => _('Access to the folder was removed. Choose it again.', 'أُلغي الوصول إلى المجلد. اختره من جديد.');
+  String get watchExplain => _(
+      'Android lets an app see only the folder you pick here, with no storage permission. Each time you open CyberScan it lists the files added since last time, and you decide what to scan. '
+          'Android does not let apps watch downloads in the background without broad storage access, and Android 11 and newer do not allow picking the top Download folder itself: pick a folder inside it (for example the one your browser or messaging app saves to), or use Share to CyberScan from the download notification.',
+      'يسمح أندرويد للتطبيق برؤية المجلد الذي تختاره هنا فقط، دون أي إذن تخزين. في كل مرة تفتح CyberScan يعرض الملفات المضافة منذ آخر مرة، وأنت تقرّر ما يُفحص. '
+          'لا يسمح أندرويد للتطبيقات بمراقبة التنزيلات في الخلفية دون صلاحية تخزين واسعة، ولا يسمح أندرويد 11 وما بعده باختيار مجلد Download الرئيسي نفسه: اختر مجلدًا داخله (مثل الذي يحفظ فيه متصفحك أو تطبيق المراسلة)، أو استخدم «المشاركة إلى CyberScan» من إشعار التنزيل.');
+  String newFilesCount(int n, String folder) => _('$n new file(s) in $folder since last time', '$n ملف جديد في $folder منذ آخر مرة');
+  String get scanThem => _('Scan them', 'افحصها');
+  String get dismiss => _('Dismiss', 'تجاهل');
+  String get shareTip => _('Tip: in any app, tap Share and choose CyberScan to check a file, link or message instantly.',
+      'نصيحة: في أي تطبيق، اضغط «مشاركة» واختر CyberScan لفحص ملف أو رابط أو رسالة فورًا.');
 }

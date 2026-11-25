@@ -1,0 +1,80 @@
+{
+  "extName": {
+    "message": "CyberScan: link and download checker"
+  },
+  "extDescription": {
+    "message": "Check links and downloads before you open them. Instant local hints, then a full check on CyberScan in one click."
+  },
+  "actionTitle": {
+    "message": "Check a link with CyberScan"
+  },
+  "menuLink": {
+    "message": "Scan link with CyberScan"
+  },
+  "menuSelection": {
+    "message": "Scan selected text with CyberScan"
+  },
+  "menuPage": {
+    "message": "Scan this page's address with CyberScan"
+  },
+  "menuDownload": {
+    "message": "Scan this download"
+  },
+  "popupTitle": {
+    "message": "Check a link"
+  },
+  "popupPlaceholder": {
+    "message": "Paste a link"
+  },
+  "popupCheck": {
+    "message": "Full check on CyberScan"
+  },
+  "popupThisPage": {
+    "message": "This page"
+  },
+  "popupDownloads": {
+    "message": "Recent downloads"
+  },
+  "popupNoDownloads": {
+    "message": "No downloads yet."
+  },
+  "popupSettings": {
+    "message": "Tell me when a download finishes"
+  },
+  "popupPrivacy": {
+    "message": "The instant hints are read from the address itself, on your computer. Nothing is sent until you choose the full check, which opens the CyberScan page with the link filled in."
+  },
+  "levelHigh": {
+    "message": "Looks dangerous"
+  },
+  "levelReview": {
+    "message": "Worth a closer look"
+  },
+  "levelLow": {
+    "message": "No warning signs in the address"
+  },
+  "lowNote": {
+    "message": "These quick hints read only the address. Run the full check to look further."
+  },
+  "notifTitleRisky": {
+    "message": "Check this download before opening it"
+  },
+  "notifTitleDone": {
+    "message": "Download finished"
+  },
+  "notifCheck": {
+    "message": "Check on CyberScan"
+  },
+  "notifDismiss": {
+    "message": "Dismiss"
+  },
+  "checkName": {
+    "message": "Name"
+  },
+  "checkFrom": {
+    "message": "From"
+  },
+  "notifShow": {
+    "message": "Show file"
+  }
+}

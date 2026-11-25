@@ -1,0 +1,490 @@
+{
+ "generated": "2026-11-22T04:09:18Z",
+ "engine": "8da1c69 2026-11-21",
+ "machine": "Windows 11, Python 3.14.5, 16 CPU threads",
+ "settings": "Website defaults; online threat-intelligence lookups off; 60 s time limit per file",
+ "benign": {
+  "files": 321,
+  "bytes": 37866793,
+  "errors": 0,
+  "suspicious": 2,
+  "review": 54,
+  "fp_suspicious_rate": 0.0062,
+  "fp_any_rate": 0.1745,
+  "groups": {
+   "PE binaries (.pyd/.dll from .venv packages)": {
+    "files": 70,
+    "bytes": 26501176,
+    "suspicious": 0,
+    "review": 42,
+    "clean": 28,
+    "errors": 0
+   },
+   "Python source (.venv packages)": {
+    "files": 70,
+    "bytes": 1545515,
+    "suspicious": 0,
+    "review": 1,
+    "clean": 69,
+    "errors": 0
+   },
+   "Data and text (.json/.txt/.md/.toml/.cfg)": {
+    "files": 70,
+    "bytes": 5272555,
+    "suspicious": 0,
+    "review": 10,
+    "clean": 60,
+    "errors": 0
+   },
+   "Website code (.js/.css/.html)": {
+    "files": 70,
+    "bytes": 1585379,
+    "suspicious": 2,
+    "review": 0,
+    "clean": 68,
+    "errors": 0
+   },
+   "Images, fonts and audio": {
+    "files": 30,
+    "bytes": 2919849,
+    "suspicious": 0,
+    "review": 1,
+    "clean": 29,
+    "errors": 0
+   },
+   "Archives and documents (.zip/.whl/.pdf)": {
+    "files": 11,
+    "bytes": 42319,
+    "suspicious": 0,
+    "review": 0,
+    "clean": 11,
+    "errors": 0
+   }
+  },
+  "flagged": [
+   {
+    "group": "Website code (.js/.css/.html)",
+    "file": "m.js",
+    "type": ".js",
+    "classification": "SUSPICIOUS",
+    "score": 100
+   },
+   {
+    "group": "Website code (.js/.css/.html)",
+    "file": "toolbox.js",
+    "type": ".js",
+    "classification": "SUSPICIOUS",
+    "score": 100
+   },
+   {
+    "group": "Python source (.venv packages)",
+    "file": "jupyter.py",
+    "type": ".py",
+    "classification": "REVIEW",
+    "score": 30
+   },
+   {
+    "group": "PE binaries (.pyd/.dll from .venv packages)",
+    "file": "_matching.cp314-win_amd64.pyd",
+    "type": ".pyd",
+    "classification": "REVIEW",
+    "score": 25
+   },
+   {
+    "group": "PE binaries (.pyd/.dll from .venv packages)",
+    "file": "_cyutility.cp314-win_amd64.pyd",
+    "type": ".pyd",
+    "classification": "REVIEW",
+    "score": 25
+   },
+   {
+    "group": "PE binaries (.pyd/.dll from .venv packages)",
+    "file": "_k_means_elkan.cp314-win_amd64.pyd",
+    "type": ".pyd",
+    "classification": "REVIEW",
+    "score": 25
+   },
+   {
+    "group": "PE binaries (.pyd/.dll from .venv packages)",
+    "file": "byteswap.cp314-win_amd64.pyd",
+    "type": ".pyd",
+    "classification": "REVIEW",
+    "score": 25
+   },
+   {
+    "group": "PE binaries (.pyd/.dll from .venv packages)",
+    "file": "_sgd_fast.cp314-win_amd64.pyd",
+    "type": ".pyd",
+    "classification": "REVIEW",
+    "score": 25
+   },
+   {
+    "group": "PE binaries (.pyd/.dll from .venv packages)",
+    "file": "Shiboken.pyd",
+    "type": ".pyd",
+    "classification": "REVIEW",
+    "score": 25
+   },
+   {
+    "group": "PE binaries (.pyd/.dll from .venv packages)",
+    "file": "_multidict.cp314-win_amd64.pyd",
+    "type": ".pyd",
+    "classification": "REVIEW",
+    "score": 25
+   },
+   {
+    "group": "PE binaries (.pyd/.dll from .venv packages)",
+    "file": "_bounded_integers.cp314-win_amd64.pyd",
+    "type": ".pyd",
+    "classification": "REVIEW",
+    "score": 25
+   },
+   {
+    "group": "PE binaries (.pyd/.dll from .venv packages)",
+    "file": "_ball_tree.cp314-win_amd64.pyd",
+    "type": ".pyd",
+    "classification": "REVIEW",
+    "score": 25
+   },
+   {
+    "group": "PE binaries (.pyd/.dll from .venv packages)",
+    "file": "_isfinite.cp314-win_amd64.pyd",
+    "type": ".pyd",
+    "classification": "REVIEW",
+    "score": 25
+   },
+   {
+    "group": "PE binaries (.pyd/.dll from .venv packages)",
+    "file": "_ccallback_c.cp314-win_amd64.pyd",
+    "type": ".pyd",
+    "classification": "REVIEW",
+    "score": 25
+   },
+   {
+    "group": "PE binaries (.pyd/.dll from .venv packages)",
+    "file": "_reachability.cp314-win_amd64.pyd",
+    "type": ".pyd",
+    "classification": "REVIEW",
+    "score": 25
+   },
+   {
+    "group": "PE binaries (.pyd/.dll from .venv packages)",
+    "file": "_contourpy.cp314-win_amd64.pyd",
+    "type": ".pyd",
+    "classification": "REVIEW",
+    "score": 25
+   },
+   {
+    "group": "PE binaries (.pyd/.dll from .venv packages)",
+    "file": "_generator.cp314-win_amd64.pyd",
+    "type": ".pyd",
+    "classification": "REVIEW",
+    "score": 25
+   },
+   {
+    "group": "PE binaries (.pyd/.dll from .venv packages)",
+    "file": "_cext.cp314-win_amd64.pyd",
+    "type": ".pyd",
+    "classification": "REVIEW",
+    "score": 25
+   },
+   {
+    "group": "PE binaries (.pyd/.dll from .venv packages)",
+    "file": "_traversal.cp314-win_amd64.pyd",
+    "type": ".pyd",
+    "classification": "REVIEW",
+    "score": 25
+   },
+   {
+    "group": "PE binaries (.pyd/.dll from .venv packages)",
+    "file": "_lsap.cp314-win_amd64.pyd",
+    "type": ".pyd",
+    "classification": "REVIEW",
+    "score": 25
+   },
+   {
+    "group": "PE binaries (.pyd/.dll from .venv packages)",
+    "file": "groupby.cp314-win_amd64.pyd",
+    "type": ".pyd",
+    "classification": "REVIEW",
+    "score": 25
+   },
+   {
+    "group": "PE binaries (.pyd/.dll from .venv packages)",
+    "file": "_qhull.cp314-win_amd64.pyd",
+    "type": ".pyd",
+    "classification": "REVIEW",
+    "score": 25
+   },
+   {
+    "group": "PE binaries (.pyd/.dll from .venv packages)",
+    "file": "_gradient_boosting.cp314-win_amd64.pyd",
+    "type": ".pyd",
+    "classification": "REVIEW",
+    "score": 25
+   },
+   {
+    "group": "PE binaries (.pyd/.dll from .venv packages)",
+    "file": "_radius_neighbors.cp314-win_amd64.pyd",
+    "type": ".pyd",
+    "classification": "REVIEW",
+    "score": 25
+   },
+   {
+    "group": "PE binaries (.pyd/.dll from .venv packages)",
+    "file": "QtOpenGLWidgets.pyd",
+    "type": ".pyd",
+    "classification": "REVIEW",
+    "score": 25
+   },
+   {
+    "group": "PE binaries (.pyd/.dll from .venv packages)",
+    "file": "_pocketfft_umath.cp314-win_amd64.pyd",
+    "type": ".pyd",
+    "classification": "REVIEW",
+    "score": 25
+   },
+   {
+    "group": "PE binaries (.pyd/.dll from .venv packages)",
+    "file": "lib.cp314-win_amd64.pyd",
+    "type": ".pyd",
+    "classification": "REVIEW",
+    "score": 25
+   },
+   {
+    "group": "PE binaries (.pyd/.dll from .venv packages)",
+    "file": "_ansari_swilk_statistics.cp314-win_amd64.pyd",
+    "type": ".pyd",
+    "classification": "REVIEW",
+    "score": 25
+   },
+   {
+    "group": "PE binaries (.pyd/.dll from .venv packages)",
+    "file": "_pava_pybind.cp314-win_amd64.pyd",
+    "type": ".pyd",
+    "classification": "REVIEW",
+    "score": 25
+   },
+   {
+    "group": "PE binaries (.pyd/.dll from .venv packages)",
+    "file": "QtQmlFeatures.pyd",
+    "type": ".pyd",
+    "classification": "REVIEW",
+    "score": 25
+   },
+   {
+    "group": "PE binaries (.pyd/.dll from .venv packages)",
+    "file": "QtDesigner.pyd",
+    "type": ".pyd",
+    "classification": "REVIEW",
+    "score": 25
+   },
+   {
+    "group": "PE binaries (.pyd/.dll from .venv packages)",
+    "file": "_re.cp314-win_amd64.pyd",
+    "type": ".pyd",
+    "classification": "REVIEW",
+    "score": 25
+   },
+   {
+    "group": "PE binaries (.pyd/.dll from .venv packages)",
+    "file": "givens_elimination.cp314-win_amd64.pyd",
+    "type": ".pyd",
+    "classification": "REVIEW",
+    "score": 25
+   },
+   {
+    "group": "PE binaries (.pyd/.dll from .venv packages)",
+    "file": "hashtable.cp314-win_amd64.pyd",
+    "type": ".pyd",
+    "classification": "REVIEW",
+    "score": 25
+   },
+   {
+    "group": "PE binaries (.pyd/.dll from .venv packages)",
+    "file": "_image.cp314-win_amd64.pyd",
+    "type": ".pyd",
+    "classification": "REVIEW",
+    "score": 25
+   },
+   {
+    "group": "PE binaries (.pyd/.dll from .venv packages)",
+    "file": "_qmvnt_cy.cp314-win_amd64.pyd",
+    "type": ".pyd",
+    "classification": "REVIEW",
+    "score": 25
+   },
+   {
+    "group": "PE binaries (.pyd/.dll from .venv packages)",
+    "file": "_uarray.cp314-win_amd64.pyd",
+    "type": ".pyd",
+    "classification": "REVIEW",
+    "score": 25
+   },
+   {
+    "group": "PE binaries (.pyd/.dll from .venv packages)",
+    "file": "interval.cp314-win_amd64.pyd",
+    "type": ".pyd",
+    "classification": "REVIEW",
+    "score": 25
+   },
+   {
+    "group": "PE binaries (.pyd/.dll from .venv packages)",
+    "file": "_json.cp314-win_amd64.pyd",
+    "type": ".pyd",
+    "classification": "REVIEW",
+    "score": 25
+   },
+   {
+    "group": "PE binaries (.pyd/.dll from .venv packages)",
+    "file": "QtLabsStyleKit.pyd",
+    "type": ".pyd",
+    "classification": "REVIEW",
+    "score": 25
+   }
+  ],
+  "top_reasons": [
+   [
+    "Header mismatch",
+    40
+   ],
+   [
+    "Unusual capitalization pattern",
+    10
+   ],
+   [
+    "High entropy",
+    3
+   ],
+   [
+    "EncodedPowerShell",
+    2
+   ],
+   [
+    "Direct IPv4 URL host",
+    1
+   ]
+  ]
+ },
+ "synthetic": {
+  "samples": [
+   {
+    "name": "PDF that runs a script when opened (/OpenAction + /JavaScript)",
+    "expected": "flag",
+    "classification": "NO_INDICATORS_OBSERVED",
+    "score": 0,
+    "ok": false
+   },
+   {
+    "name": "Text with an encoded PowerShell command",
+    "expected": "flag",
+    "classification": "SUSPICIOUS",
+    "score": 100,
+    "ok": true
+   },
+   {
+    "name": "Program with a hidden encoded PowerShell string",
+    "expected": "flag",
+    "classification": "SUSPICIOUS",
+    "score": 100,
+    "ok": true
+   },
+   {
+    "name": "Document named .pdf that is really a program",
+    "expected": "flag",
+    "classification": "REVIEW",
+    "score": 25,
+    "ok": true
+   },
+   {
+    "name": "Program with a large high-entropy appended block",
+    "expected": "flag",
+    "classification": "REVIEW",
+    "score": 18,
+    "ok": true
+   },
+   {
+    "name": "Office macro text with AutoOpen + Shell",
+    "expected": "flag",
+    "classification": "NO_INDICATORS_OBSERVED",
+    "score": 0,
+    "ok": false
+   },
+   {
+    "name": "ZIP with data hidden before the archive",
+    "expected": "flag",
+    "classification": "REVIEW",
+    "score": 25,
+    "ok": true
+   },
+   {
+    "name": "Clean minimal PE (no overlay)",
+    "expected": "clean",
+    "classification": "NO_INDICATORS_OBSERVED",
+    "score": 0,
+    "ok": true
+   },
+   {
+    "name": "Clean PNG",
+    "expected": "clean",
+    "classification": "NO_INDICATORS_OBSERVED",
+    "score": 0,
+    "ok": true
+   },
+   {
+    "name": "Clean JPEG",
+    "expected": "clean",
+    "classification": "NO_INDICATORS_OBSERVED",
+    "score": 0,
+    "ok": true
+   },
+   {
+    "name": "Clean GIF",
+    "expected": "clean",
+    "classification": "NO_INDICATORS_OBSERVED",
+    "score": 0,
+    "ok": true
+   },
+   {
+    "name": "Clean OOXML document",
+    "expected": "clean",
+    "classification": "NO_INDICATORS_OBSERVED",
+    "score": 0,
+    "ok": true
+   },
+   {
+    "name": "Clean ZIP",
+    "expected": "clean",
+    "classification": "NO_INDICATORS_OBSERVED",
+    "score": 0,
+    "ok": true
+   },
+   {
+    "name": "Plain English text",
+    "expected": "clean",
+    "classification": "NO_INDICATORS_OBSERVED",
+    "score": 0,
+    "ok": true
+   }
+  ],
+  "flagged_of_expected": [
+   5,
+   7
+  ],
+  "clean_of_expected": [
+   7,
+   7
+  ]
+ },
+ "speed": {
+  "median_s": 0.321,
+  "p95_s": 2.261,
+  "max_s": 7.142
+ },
+ "corpus_digest": "73febb6967bab141",
+ "not_measured": [
+  "Detection of real, live malware (no malware or EICAR test file was used).",
+  "Files larger than 4 MB (the website's upload limit).",
+  "Online threat-intelligence lookups (they were switched off for repeatability)."
+ ]
+}

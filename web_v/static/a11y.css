@@ -77,3 +77,8 @@ html.perf-low .grain, html.perf-low .scanlines { display: none !important; }
 @media (max-width: 760px) {
   .sy-nav a { min-width: 28px; min-height: 28px; justify-content: center; }
 }
+
+/* footer: the trust pages and the Accessibility panel (js/a11y-panel.js) */
+.foot-links { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 4px 18px; padding-top: 12px; }
+.foot-links a { color: #cfc6ea; text-decoration: none; font-size: 14px; padding-block: 5px; border-bottom: 1px solid transparent; }
+.foot-links a:hover, .foot-links a:focus-visible { color: #fff; border-bottom-color: #22e8ff; }

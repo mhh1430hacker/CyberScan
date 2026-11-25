@@ -58,6 +58,40 @@ class HomeScreen extends StatelessWidget {
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const QrScreen()))),
             ],
           ),
+          if (app.newFiles.isNotEmpty) ...[
+            const SizedBox(height: 14),
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(color: C.surface, borderRadius: BorderRadius.circular(18), border: Border.all(color: C.cyan.withValues(alpha: .45))),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Row(children: [
+                  const Icon(Icons.download_rounded, color: C.cyan),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(s.newFilesCount(app.newFiles.length, app.watchFolder ?? ''), style: const TextStyle(fontWeight: FontWeight.w700))),
+                ]),
+                const SizedBox(height: 6),
+                Text(app.newFiles.take(3).map((f) => f.name).join(' · '), maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(color: C.muted, fontSize: 13)),
+                const SizedBox(height: 8),
+                Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                  TextButton(onPressed: app.markFolderSeen, child: Text(s.dismiss)),
+                  const SizedBox(width: 6),
+                  FilledButton(
+                    onPressed: () => checkFolderFiles(context, app, app.newFiles),
+                    style: FilledButton.styleFrom(backgroundColor: C.cyan, foregroundColor: C.bg),
+                    child: Text(s.scanThem),
+                  ),
+                ]),
+              ]),
+            ),
+          ],
+          if (app.history.isEmpty) ...[
+            const SizedBox(height: 16),
+            Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              const Icon(Icons.ios_share_rounded, size: 18, color: C.violet),
+              const SizedBox(width: 8),
+              Expanded(child: Text(s.shareTip, style: const TextStyle(color: C.muted, fontSize: 13, height: 1.45))),
+            ]),
+          ],
           if (app.history.isNotEmpty) ...[
             const SizedBox(height: 18),
             Row(children: [

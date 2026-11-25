@@ -64,7 +64,7 @@
       const s = document.getElementById(d.dataset.sec);
       if (s && s.getBoundingClientRect().top < innerHeight * 0.45) active = d;
     }
-    dots.forEach((d) => d.classList.toggle("on", d === active));
+    dots.forEach((d) => { const on = d === active; if (on === d.classList.contains("on")) return; d.classList.toggle("on", on); if (on) d.setAttribute("aria-current", "location"); else d.removeAttribute("aria-current"); });
     if (!reduced) {
       const y = scrollY;
       aurora.style.transform = `translateY(${y * 0.35}px)`;

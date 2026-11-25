@@ -255,6 +255,50 @@ Options:
 
 Reported metrics include accuracy, balanced accuracy, macro-F1, confusion matrix, per-class metrics, one-vs-rest ROC-AUC, and calibration diagnostics. These metrics apply only to the supplied evaluation set. Brier/ECE are computed from raw uncalibrated Random Forest scores and do not make them calibrated probabilities. These metrics are not a malware-coverage claim. A family-disjoint, independently labeled holdout is required for claims about unseen-family generalization.
 
+## Website: trust pages, monitoring, CI and staging
+
+The website (`web_v/`) also serves `/privacy`, `/terms`, `/security`, `/status`, `/tests` and `/changelog`,
+per-language addresses (`/ar/`, `/fr/privacy`, … for all 30 languages), `/sitemap.xml` and
+`/.well-known/security.txt`. That logic lives in `web_v/site_extras.py`; the server calls it.
+
+| Task | Command |
+|---|---|
+| Rebuild the public changelog from `git log` | `python tools/changelog.py` |
+| Re-measure the engine for `/tests` (writes `web_v/static/data/bench.json`, ~5 min) | `python tools/bench_engine.py` |
+| Redraw the social-card images (`web_v/static/og/*.png`) | `python tools/og_images.py` |
+| Check every internal link (starts its own server) | `python tools/check_links.py` |
+
+Real-user monitoring stays on the site: `js/vitals.js` (20 % of page views) and `js/errors.js` post to
+`/api/vitals` and `/api/errors`. Locally they are appended to `data/rum/*.jsonl` (capped at 2 MB each);
+on Lambda they are printed to CloudWatch Logs as lines starting with `CS_VITALS` / `CS_ERRORS`. No IP
+address or identifier is stored.
+
+CI (`.github/workflows/ci.yml`) runs on every push and pull request: Python syntax, `pytest`,
+`node --check` on every site script and the link checker. It never deploys.
+
+### Staging
+
+Run a staging copy before publishing to the live site:
+
+1. **Locally, in public mode** (same behaviour as Lambda, no AWS):
+   `cd web_v && set CYBERSCAN_PUBLIC=1 && set CYBERSCAN_BIND=127.0.0.1 && python run.py`
+   (or `python -c "from server import create_server; s,a=create_server(8811); s.serve_forever()"`).
+2. **On AWS**, with a second Lambda function that you create once in the console: copy the
+   `CyberScan` function's configuration (runtime, handler `lambda_function.handler`, memory, timeout,
+   environment variables, role) to a function named `CyberScan-staging`, and give it a Function URL.
+   Then:
+
+   ```
+   set CYBERSCAN_STAGING_URL=https://<id>.lambda-url.eu-north-1.on.aws/
+   python tools/deploy/deploy_aws.py --staging
+   ```
+
+   This builds the package exactly like a real deploy (live package + working tree), uploads it to
+   `s3://cyberscan-assets/deploy/staging/cyberscan-lambda.zip` and updates only the staging function.
+   Production, its package and CloudFront are not touched. Set `CYBERSCAN_SITE_ORIGINS` on the staging
+   function to its Function URL, and `CYBERSCAN_STAGING_FUNCTION` here if you chose another name.
+   When staging looks right, run `python tools/deploy/deploy_aws.py` (no flag) to publish.
+
 ## Limitations
 - Synthetic data is only for software testing and is clearly labeled as synthetic.
 - Real-world malware detection requires validation against labeled evaluation data.

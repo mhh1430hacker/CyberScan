@@ -11,6 +11,15 @@ from __future__ import annotations
 from ui.i18n import count as count_in, translate  # noqa: E402
 
 AR: dict[str, str] = {
+    # --- updates (ui/updater.py) ---------------------------------------------
+    "Download update": "تنزيل التحديث",
+    "Downloading the update…": "جارٍ تنزيل التحديث…",
+    "Install now": "ثبّت الآن",
+    "Later": "لاحقًا",
+    "Not now": "ليس الآن",
+    "Skip this version": "تخطَّ هذا الإصدار",
+    "Cancel": "إلغاء",
+    "The update could not be downloaded: ": "تعذّر تنزيل التحديث: ",
     # --- shell ---------------------------------------------------------------
     "CyberScan · Local threat analysis": "المسبار السيبراني · التحليل المحلي للمخاطر",
     "LOCAL SECURITY LAB": "مختبر أمني محلي",

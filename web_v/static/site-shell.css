@@ -138,6 +138,46 @@ html.cs-framed body::after, html.cs-framed body::before { display: none !importa
 .csm-pill.on:hover .csm-vol, .csm-pill.on:focus-within .csm-vol { width: 84px; opacity: 1; margin-inline-end: 8px; }
 @media (prefers-reduced-motion: reduce) { .csm-pill.playing .eq i { animation: none; height: 8px; } }
 html.reduce-motion .csm-pill.playing .eq i { animation: none; height: 8px; }
+/* the music settings: volume and mood (js/sound.js). A popover beside the landing's header button
+   and inside the floating player; inline in the phone menu. */
+.csm-pill.on .csm-vol { width: 84px; opacity: 1; margin-inline-end: 4px; }
+.csm-pop-wrap { position: relative; display: inline-flex; }
+.csm-more { display: inline-grid; place-items: center; width: 34px; min-width: 34px; height: 34px; padding: 0; border-radius: 999px; cursor: pointer; }
+.csm-pill .csm-more { width: 32px; min-width: 32px; height: 32px; border: 0; background: transparent; color: inherit; }
+.csm-more svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+.csm-more:hover, .csm-pop-wrap.open .csm-more { background: rgba(201, 162, 255, .14); }
+.csm-more:focus-visible { outline: 2px solid #22e8ff; outline-offset: 2px; }
+.csm-panel { color: #eaf4ff; font: 500 13px/1.35 system-ui, -apple-system, "Segoe UI", sans-serif; text-align: start; }
+.csm-pop {
+  position: absolute; top: calc(100% + 10px); inset-inline-end: 0; z-index: 80; width: 260px; padding: 14px;
+  border-radius: 16px; background: rgba(12, 8, 30, .94); border: 1px solid rgba(201, 162, 255, .3);
+  box-shadow: 0 24px 60px -20px rgba(0, 0, 0, .8), 0 0 0 1px rgba(255, 255, 255, .03) inset;
+  backdrop-filter: blur(16px) saturate(140%); -webkit-backdrop-filter: blur(16px) saturate(140%);
+}
+.csm-pop.csm-pop-up { top: auto; bottom: calc(100% + 10px); }
+.csm-pop[hidden], .csm-note[hidden] { display: none; }
+.csm-row { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 6px 10px; }
+.csm-row .csm-k { grid-column: 1 / -1; }
+.csm-k { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #b9a8e0; padding: 0; }
+.csm-range { width: 100%; accent-color: #c9a2ff; margin: 0; }
+.csm-range:focus-visible, .csm-mood input:focus-visible + span { outline: 2px solid #22e8ff; outline-offset: 2px; }
+.csm-out { font-variant-numeric: tabular-nums; font-size: 12px; color: #cfe9ff; min-width: 3.2em; text-align: end; }
+.csm-moods { border: 0; margin: 12px 0 0; padding: 0; display: grid; gap: 6px; min-width: 0; }
+.csm-moods legend { margin-bottom: 6px; }
+.csm-mood { position: relative; display: block; cursor: pointer; }
+.csm-mood input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.csm-mood span { display: grid; gap: 1px; padding: 8px 10px 8px 30px; border-radius: 10px; border: 1px solid rgba(201, 162, 255, .16); background: rgba(255, 255, 255, .02); position: relative; }
+[dir="rtl"] .csm-mood span { padding: 8px 30px 8px 10px; }
+.csm-mood span::before { content: ""; position: absolute; inset-inline-start: 10px; top: 12px; width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid #8f7fb8; }
+.csm-mood input:checked + span { border-color: rgba(34, 232, 255, .55); background: rgba(34, 232, 255, .07); }
+.csm-mood input:checked + span::before { border-color: #22e8ff; background: radial-gradient(circle, #22e8ff 0 40%, transparent 45%); }
+.csm-mood b { font-weight: 650; font-size: 13px; }
+.csm-mood small { font-size: 11.5px; color: #a99cc9; }
+.csm-note { margin: 10px 0 0; font-size: 12px; color: #a99cc9; }
+.csm-inline { margin-top: 10px; padding: 12px; border-radius: 14px; border: 1px solid rgba(201, 162, 255, .18); background: rgba(255, 255, 255, .02); }
+.csm-inline .csm-moods { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.csm-inline .csm-mood small { display: none; }
+.csm-inline .csm-mood span { padding-block: 9px; }
 @media (forced-colors: active) { .csm-pill { border-color: CanvasText; } }
 
 /* while another page is shown in the persistent player's frame (js/site-nav.js sets .cs-framed on

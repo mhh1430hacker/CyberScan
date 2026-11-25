@@ -247,6 +247,7 @@ export function create(ctx) {
       const now = performance.now();
       for (let k = 0; k < Math.min(3, phys.events.length); k++) {
         const ev = phys.events[k]; if (ev.s < BIG) break;
+        ctx.count?.("impacts");   // a badge at 100 (cubeverse.js)
         if (!ctx.reduced()) rings.spawn(ev.p, ev.n, new THREE.Color(PALETTE[colorOf[ev.b.idx]][0]), 0.35 + Math.min(1.4, ev.s * 0.1));
         if (k === 0 && now - lastSound > 70) { lastSound = now; if (ev.s > 7) ctx.sfx("pluck", { k: colorOf[ev.b.idx] * 2 + (ev.b.idx % 3), pan: clamp(ev.p.x / 7, -1, 1) }); else ctx.sfx("tick", { k: ev.b.idx }); }
       }

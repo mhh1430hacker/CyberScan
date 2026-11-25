@@ -61,6 +61,8 @@ from ui.scan_service import ScanService  # noqa: E402
 
 import services  # noqa: E402
 import assistant  # noqa: E402
+import site_extras  # noqa: E402  - trust pages, per-language URLs, sitemap, security.txt, vitals/errors beacons
+import profile_stats  # noqa: E402  - the support page's live public numbers (GET /api/profile)
 try:
     import toolbox  # noqa: E402
 except ImportError:   # the phone engine (m/engine.zip) carries the server's result format, not the Toolbox
@@ -141,11 +143,11 @@ SITE_ORIGINS = {o.strip().rstrip("/") for o in os.environ.get("CYBERSCAN_SITE_OR
 SCAN_URL = os.environ.get("CYBERSCAN_SCAN_URL", "app.html")    # where the landing sends people
 HOME_URL = os.environ.get("CYBERSCAN_HOME_URL", "/")           # where the scan page's logo leads
 JOURNEY_URL = os.environ.get("CYBERSCAN_JOURNEY_URL", "/journey")   # the File Journey (its own host on the site: j.<domain>)
-LANDING_ONLY_CSS = ("landing.css", "scroll.css", "science.css", "scrolly.css", "saudi.css", "cinema.css", "team.css", "theme.css", "ask.css", "get-app.css", "hero-art.css",
-                    "intro.css")
+LANDING_ONLY_CSS = ("landing.css", "scroll.css", "science.css", "scrolly.css", "saudi.css", "cinema.css", "team.css", "theme.css", "get-app.css", "hero-art.css",
+                    "intro.css", "landing-plus.css")
 LANDING_ONLY_JS = ("js/gl-hero.js", "js/pipeline.js", "js/film.js", "js/story.js", "js/landing.js",
-                   "js/get-app.js", "js/lite.js", "js/scroll.js", "js/science.js", "js/scrolly-i18n.js", "js/scrolly.js", "js/saudi.js", "js/tilt.js", "js/tour.js", "js/team.js", "js/ask.js",
-                   "js/intro-early.js", "js/intro.js")   # the opening sequence (#preloader) is the landing's own
+                   "js/get-app.js", "js/lite.js", "js/scroll.js", "js/science.js", "js/scrolly-i18n.js", "js/scrolly.js", "js/saudi.js", "js/tilt.js", "js/tour.js", "js/team.js",
+                   "js/intro-early.js", "js/intro.js", "js/landing-i18n.js", "js/live-demo.js")   # the opening sequence (#preloader) is the landing's own
 
 
 def _cut(html: str, start: str, end: str) -> str:
@@ -184,6 +186,7 @@ _ASSETS_LOCK = threading.Lock()
 COMPRESSIBLE = ("text/", "application/javascript", "application/json", "application/manifest+json", "image/svg+xml", "application/xml")
 VERSIONED = re.compile(r"_v/([0-9a-f]{10})/(.+)")    # /_v/<content hash>/<path>: a file at one exact version
 BUNDLE = re.compile(r"((?:[\w-]+\+)+[\w-]+)\.css")   # a+b+c.css: those root stylesheets, joined in order
+JS_BUNDLE = re.compile(r"((?:[\w-]+(?:~[\w-]+)*\+)+[\w-]+(?:~[\w-]+)*)\.js")   # js~a+js~b.js: js/a.js then js/b.js
 
 
 def _asset(path: Path, compressible: bool) -> tuple[str, bytes | None]:
@@ -253,6 +256,79 @@ def _bundle(names: list[str]) -> tuple[str, bytes, str, bytes | None] | None:
     return hit
 
 
+# ---- script bundles: the page's consecutive deferred scripts served as one file, in order.
+# Deferred scripts already run one after another in document order, so joining a run of them
+# changes only the number of requests. What stays a file of its own: the synchronous *-early.js
+# head scripts, any file that starts with a file-level "use strict" (joined, its strictness would
+# silently apply to nothing or to its neighbours), and anything that isn't a plain local .js.
+# Files that are one IIFE (no top-level declarations) are wrapped in try/catch, so an error in one
+# is reported but doesn't stop the scripts after it, as it wouldn't when they were separate files.
+_JS_STRICT = re.compile(r'\A\ufeff?\s*(?:(?:/\*.*?\*/|//[^\n]*)\s*)*["\']use strict["\']', re.S)
+_JS_IIFE = re.compile(r"\A\s*(?:(?:/\*.*?\*/|//[^\n]*)\s*)*[(!]\s*(?:async\s+)?(?:function\b|\(\s*\)\s*=>)", re.S)
+_JS_TOP_DECL = re.compile(r"^(?:const|let|var|function|async function|class)\b", re.M)
+_JS_TAG = re.compile(r'<script src="((?:[\w-]+/)*[\w-]+\.js)"></script>')
+_JS_RUN = re.compile(r'(?:<script src="(?:[\w-]+/)*[\w-]+\.js"></script>\s*){2,}')
+
+
+def _js_joinable(rel: str) -> bool:
+    f = STATIC_DIR / rel
+    if rel.endswith("-early.js") or not f.is_file():
+        return False
+    with f.open("rb") as fh:
+        head = fh.read(4096).decode("utf-8", "ignore")
+    return not _JS_STRICT.match(head)
+
+
+def _js_part(rel: str, data: bytes) -> bytes:
+    text = data.decode("utf-8").replace("\r\n", "\n").rstrip()
+    if _JS_IIFE.match(text) and not _JS_TOP_DECL.search(text) and text.endswith((")();", ")()", "}();")):
+        text = f"try {{\n{text}\n}} catch (e) {{ setTimeout(function () {{ throw e; }}); }}"
+    return f"/* {rel} */\n{text}\n;\n".encode("utf-8")
+
+
+def _js_bundle(names: list[str]) -> tuple[str, bytes, str, bytes | None] | None:
+    """(stamp, body, content hash, gzip) of a script bundle, rebuilt only when a part changes."""
+    import hashlib  # noqa: PLC0415
+
+    if not 1 < len(names) <= 80 or not all(re.fullmatch(r"(?:[\w-]+/)*[\w-]+\.js", n) and _js_joinable(n) for n in names):
+        return None
+    key = ("js",) + tuple((n, (STATIC_DIR / n).stat().st_mtime_ns, (STATIC_DIR / n).stat().st_size) for n in names)
+    hit = _BUNDLES.get(key)
+    if hit is None:
+        body = b"".join(_js_part(n, (STATIC_DIR / n).read_bytes()) for n in names)
+        hit = (_bundle_stamp(names), body, hashlib.sha256(body).hexdigest()[:16], None if PUBLIC else _gzip(body))
+        with _ASSETS_LOCK:
+            if len(_BUNDLES) > 16:
+                _BUNDLES.clear()
+            _BUNDLES[key] = hit
+    return hit
+
+
+def _bundle_scripts(html: str) -> str:
+    """Replace each run of plain consecutive <script src> tags with as few bundles as allowed."""
+    def run(m: re.Match) -> str:
+        out: list[str] = []
+        group: list[str] = []
+
+        def flush() -> None:
+            built = _js_bundle(group) if len(group) > 1 else None
+            if built is not None:
+                out.append(f'<script src="/_v/{built[0]}/{"+".join(n[:-3].replace("/", "~") for n in group)}.js"></script>')
+            else:
+                out.extend(f'<script src="{n}"></script>' for n in group)
+            group.clear()
+
+        for name in _JS_TAG.findall(m.group(0)):
+            if _js_joinable(name):
+                group.append(name)
+            else:
+                flush()
+                out.append(f'<script src="{name}"></script>')
+        flush()
+        return "\n  ".join(out) + "\n  "
+    return _JS_RUN.sub(run, html)
+
+
 def _version_of(rel: str) -> str | None:
     target = (STATIC_DIR / rel).resolve()
     if STATIC_DIR not in target.parents or not target.is_file():
@@ -281,6 +357,9 @@ def _versioned_refs(html: str, defer: bool, bundle: bool) -> str:
             head = head[:first] + f'<link rel="stylesheet" href="/_v/{stamp}/{joined}.css">' + head[first:]
             html = head + html[head_end:]
 
+    if bundle and defer:
+        html = _bundle_scripts(html)
+
     def script(m: re.Match) -> str:
         src, rest = m.group(1), m.group(2)
         v = _version_of(src) if not src.startswith(("http", "/", "_v/")) else None
@@ -298,12 +377,11 @@ def _versioned_refs(html: str, defer: bool, bundle: bool) -> str:
     return re.sub(r'<link rel="stylesheet" href="([^"]+\.css)">', link, html)
 
 
-def _head_meta(html: str, path: str = "/") -> str:
-    """Canonical address and absolute social-card URLs, when the site's address is known."""
-    if not CANONICAL_URL:
-        return html
-    html = html.replace('content="og-image.png"', f'content="{CANONICAL_URL}/og-image.png"')
-    return html.replace("</head>", f'  <link rel="canonical" href="{CANONICAL_URL}{path}">\n  <meta property="og:url" content="{CANONICAL_URL}{path}">\n</head>', 1)
+def _head_meta(html: str, path: str = "/", lang: str | None = None) -> str:
+    """Canonical address, hreflang alternates, the page's social card, JSON-LD and the shared
+    accessibility / monitoring scripts (web_v/site_extras.py; the site's address defaults to
+    https://ainex-ai.xyz, CYBERSCAN_CANONICAL_URL changes it)."""
+    return site_extras.decorate(html, path, lang)
 
 
 def landing_page(html: str) -> str:
@@ -340,30 +418,30 @@ def _static_signature() -> tuple:
     return newest, count
 
 
-def page_html(raw: bytes, token: str, scan: bool) -> bytes:
+def page_html(raw: bytes, token: str, scan: bool, lang: str | None = None) -> bytes:
     """The rendered page, kept until index.html or a file it references changes: rendering
     (cutting, versioning every reference) costs tens of ms of GIL time per request otherwise."""
     import hashlib  # noqa: PLC0415
 
-    key = (hashlib.sha256(raw).digest(), token, scan)
+    key = (hashlib.sha256(raw).digest(), token, scan, lang)
     sig = _static_signature()
     hit = _PAGES.get(key)
     if hit and hit[0] == sig:
         return hit[1]
-    body = _render_page(raw, token, scan)
+    body = _render_page(raw, token, scan, lang)
     with _ASSETS_LOCK:
-        if len(_PAGES) > 8:
+        if len(_PAGES) > 40:   # landing + scan, and the landing in each of the 30 language addresses
             _PAGES.clear()
         _PAGES[key] = (sig, body)
     return body
 
 
-def _render_page(raw: bytes, token: str, scan: bool) -> bytes:
+def _render_page(raw: bytes, token: str, scan: bool, lang: str | None = None) -> bytes:
     html = raw.decode("utf-8").replace("\r\n", "\n")   # a Windows checkout has CRLF line ends
     html = html.replace("__CYBERSCAN_TOKEN__", token).replace("__CYBERSCAN_SCAN_URL__", SCAN_URL).replace("__CYBERSCAN_HOME_URL__", HOME_URL)
     if not scan:
         html = landing_page(html.replace('href="/journey"', f'href="{JOURNEY_URL}"'))
-        return _versioned_refs(_head_meta(html), defer=True, bundle=True).encode("utf-8")
+        return _versioned_refs(_head_meta(html, "/", lang), defer=True, bundle=True).encode("utf-8")
     html = _cut(html, "<!-- ===================================================== LANDING -->", "<!-- ===================================================== APP -->")
     html = _cut_element(html, '<nav class="side-dots"', "nav")
     html = _cut_element(html, '<div id="preloader"')
@@ -379,7 +457,7 @@ def _render_page(raw: bytes, token: str, scan: bool) -> bytes:
                   '<div class="grain" aria-hidden="true"></div>', '<div class="cursor-ring" aria-hidden="true"><span></span></div>',
                   '<div class="cursor-dot" aria-hidden="true"></div>', '<script src="js/cells.js"></script>', '<script src="js/fx.js"></script>'):
         html = html.replace(piece, "")
-    html = html.replace('<link rel="stylesheet" href="a11y.css">', '<link rel="stylesheet" href="a11y.css">\n  <link rel="stylesheet" href="scan.css">\n  <link rel="stylesheet" href="workspace.css">\n  <link rel="stylesheet" href="scan-center.css">\n  <link rel="stylesheet" href="scan-pro.css">', 1)
+    html = html.replace('<link rel="stylesheet" href="a11y.css">', '<link rel="stylesheet" href="a11y.css">\n  <link rel="stylesheet" href="scan.css">\n  <link rel="stylesheet" href="workspace.css">\n  <link rel="stylesheet" href="scan-center.css">\n  <link rel="stylesheet" href="scan-pro.css">\n  <link rel="stylesheet" href="result-plus.css">\n  <link rel="stylesheet" href="scan-extras.css">', 1)
     html = html.replace('<body class="on-landing">', '<body class="page-scan">', 1)
     html = html.replace("<title>CyberScan</title>", "<title>CyberScan · Scan</title>", 1)
     html = html.replace('<a class="skip-link" href="#top"', '<a class="skip-link" href="#app"', 1)
@@ -1119,9 +1197,14 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
             self.send_header("Referrer-Policy", "no-referrer")
             self.send_header("X-Frame-Options", "SAMEORIGIN")   # with CSP frame-ancestors, for older browsers
             self.send_header("Cross-Origin-Opener-Policy", "same-origin")
-            # the phone app (/m/) may read QR codes with the camera; nothing else asks for devices
-            camera = "(self)" if self.path.startswith("/m/") else "()"
-            self.send_header("Permissions-Policy", f"camera={camera}, microphone=(), geolocation=(), payment=(), usb=()")
+            # the site's files are only for the site's own pages (ainex-ai.xyz and its scan./j. subdomains)
+            self.send_header("Cross-Origin-Resource-Policy", "same-site")
+            self.send_header("X-Permitted-Cross-Domain-Policies", "none")
+            # the phone app (/m/) and the scan page ("Scan a QR code") may read QR codes with the camera;
+            # nothing else asks for devices
+            scan_page = getattr(self, "_scan_page", False) or self.headers.get("Host", "").startswith("scan.")
+            camera = "(self)" if self.path.startswith("/m/") or scan_page else "()"
+            self.send_header("Permissions-Policy", f"camera={camera}, microphone=(), geolocation=(), payment=(), usb=(), display-capture=(), browsing-topics=()")
             # 'wasm-unsafe-eval' only lets the page compile WebAssembly (the phone
             # app's on-device engine); it does not allow eval() of JavaScript.
             # In public mode the large files come from the asset bucket.
@@ -1130,10 +1213,13 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
                 "Content-Security-Policy",
                 "default-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; style-src 'self'; "
                 f"script-src 'self' 'wasm-unsafe-eval'{assets}; connect-src 'self'{assets} https://api.pwnedpasswords.com; worker-src 'self'; manifest-src 'self'; "
-                "frame-ancestors 'self'; base-uri 'none'; form-action 'self'",  # 'self': the phone app shows its privacy page in a frame
+                # frame-src: the site's own pages (the persistent player, js/site-nav.js) and privacy-enhanced YouTube embeds
+                "frame-src 'self' https://www.youtube-nocookie.com; object-src 'none'; "
+                "frame-ancestors 'self'; base-uri 'none'; form-action 'self'"  # 'self': the phone app shows its privacy page in a frame
+                + ("; upgrade-insecure-requests" if PUBLIC else ""),
             )
             if PUBLIC:   # HTTPS only there; the local server is plain http on the loopback
-                self.send_header("Strict-Transport-Security", "max-age=31536000")
+                self.send_header("Strict-Transport-Security", "max-age=63072000; includeSubDomains")
             for key, value in extra.items():
                 self.send_header(key, value)
             self.end_headers()
@@ -1243,6 +1329,11 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
                 if self._guard(api=False):
                     self._static(path)
                 return
+            if path in ("/api/vitals", "/api/errors", "/api/health"):
+                # no token: navigator.sendBeacon can't send headers; the Origin/Host check still applies
+                if self._guard(api=False):
+                    self._site_api(method, path)
+                return
             if not self._guard(api=True):
                 return
             for route_method, pattern, handler in ROUTES:
@@ -1293,7 +1384,40 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
         def do_DELETE(self) -> None:  # noqa: N802
             self._dispatch("DELETE")
 
+        def _site_api(self, method: str, path: str) -> None:
+            """Real-user vitals and script errors (POST, from js/vitals.js and js/errors.js) and the
+            status page's health check (GET). See web_v/site_extras.py."""
+            if path == "/api/health" and method == "GET":
+                self._json(HTTPStatus.OK, site_extras.health())
+                return
+            if path == "/api/health" or method != "POST":
+                self._json(HTTPStatus.METHOD_NOT_ALLOWED, {"error": "method not allowed"})
+                return
+            try:
+                raw = self._raw_body(4096)
+            except ApiError as exc:
+                self._json(exc.status, {"error": str(exc)})
+                return
+            ok = site_extras.beacon(path.rsplit("/", 1)[1], raw)
+            self._send(HTTPStatus.NO_CONTENT if ok else HTTPStatus.BAD_REQUEST, b"", "text/plain")
+
         def _static(self, path: str) -> None:
+            # trust pages, /<lang>/ addresses, /sitemap.xml, security.txt (web_v/site_extras.py)
+            self._page_lang = self._page_path = None
+            extra_hit = site_extras.resolve(path)
+            if extra_hit:
+                kind, value = extra_hit
+                if kind == "redirect":
+                    self._send(HTTPStatus.MOVED_PERMANENTLY, b"", "text/plain", {"Location": value, "Cache-Control": "public, max-age=3600"})
+                    return
+                if kind == "body":
+                    self._send(HTTPStatus.OK, value[0], value[1], {"Cache-Control": "public, max-age=3600"})
+                    return
+                if kind == "alias":
+                    path = value
+                else:
+                    page_file, self._page_path, self._page_lang = value
+                    path = {"index.html": "/", "journey.html": "/journey", "support.html": "/support"}.get(page_file, "/" + page_file)
             self._scan_page = path in ("/app.html", "/scan", "/scan/")
             name = "index.html" if path in ("/", "/index.html") or self._scan_page else unquote(path).lstrip("/")
             if path in ("/journey", "/journey/"):
@@ -1316,6 +1440,17 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
                 fresh = version == stamp
                 extra = {"Cache-Control": "public, max-age=31536000, immutable" if fresh else ("public, max-age=600" if PUBLIC else "no-cache")}
                 self._send_file(body, "text/css; charset=utf-8", extra, digest, gz, None, ranges=False)
+                return
+            js_bundle = JS_BUNDLE.fullmatch(name) if version else None
+            if js_bundle:
+                built = _js_bundle([n.replace("~", "/") + ".js" for n in js_bundle.group(1).split("+")])
+                if built is None:
+                    self._json(HTTPStatus.NOT_FOUND, {"error": "not found"})
+                    return
+                stamp, body, digest, gz = built
+                fresh = version == stamp
+                extra = {"Cache-Control": "public, max-age=31536000, immutable" if fresh else ("public, max-age=600" if PUBLIC else "no-cache")}
+                self._send_file(body, "text/javascript; charset=utf-8", extra, digest, gz, None, ranges=False)
                 return
             if PUBLIC and ASSET_BASE and (name.startswith("pyodide/") or (name.startswith("downloads/") and name.endswith((".apk", ".exe")))):
                 # larger than Lambda can return (6 MB): served by the asset bucket
@@ -1353,12 +1488,19 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
             rendered = token_page = False
             if name == "index.html" and target == STATIC_DIR / "index.html":
                 host = (self.headers.get("X-Forwarded-Host") or self.headers.get("Host") or "").lower()
-                body = page_html(target.read_bytes(), app.token, scan=self._scan_page or host.startswith("scan."))
+                scan = self._scan_page or host.startswith("scan.")
+                body = page_html(target.read_bytes(), app.token, scan=scan, lang=None if scan else self._page_lang)
                 rendered = token_page = True
             elif target == STATIC_DIR / "support.html":
                 # the robot's brain (/api/bit) needs the page's API token
                 body = target.read_bytes().replace(b"__CYBERSCAN_TOKEN__", app.token.encode())
-                body = _versioned_refs(body.decode("utf-8"), defer=False, bundle=False).encode("utf-8")
+                body = site_extras.decorate(body.decode("utf-8").replace("\r\n", "\n"), "/support", self._page_lang)
+                body = _versioned_refs(body, defer=False, bundle=False).encode("utf-8")
+                rendered = token_page = True
+            elif self._page_path in site_extras.TRUST_PAGES and target == STATIC_DIR / site_extras.TRUST_PAGES[self._page_path]:
+                # /privacy, /terms, /security, /status, /tests, /changelog (the status page reads /api/protection)
+                body = target.read_bytes().decode("utf-8").replace("\r\n", "\n").replace("__CYBERSCAN_TOKEN__", app.token)
+                body = _versioned_refs(site_extras.decorate(body, self._page_path, self._page_lang), defer=False, bundle=False).encode("utf-8")
                 rendered = token_page = True
             elif target in (STATIC_DIR / "journey.html", STATIC_DIR / "report.html"):
                 body = target.read_bytes()
@@ -1366,7 +1508,10 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
                 if host.startswith("j.") and re.fullmatch(r"[a-z0-9.-]+", host):
                     # on its own host (j.<domain>) the way back is the main site, not this page's root
                     body = body.replace(b'href="/"', f'href="https://{host[2:]}/"'.encode())
-                body = _versioned_refs(body.decode("utf-8"), defer=False, bundle=False).encode("utf-8")
+                html = body.decode("utf-8").replace("\r\n", "\n")
+                if target == STATIC_DIR / "journey.html":
+                    html = site_extras.decorate(html, "/journey", self._page_lang)
+                body = _versioned_refs(html, defer=False, bundle=False).encode("utf-8")
                 rendered = True
             types = {".js": "text/javascript", ".mjs": "text/javascript", ".webmanifest": "application/manifest+json",
                      ".svg": "image/svg+xml", ".wasm": "application/wasm", ".zip": "application/zip",
@@ -1783,9 +1928,24 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
             self._send(HTTPStatus.OK, json.dumps({"photos": team_photos()}).encode(), "application/json; charset=utf-8",
                        {"Cache-Control": "no-cache"})
 
+        def profile(self, query: dict) -> None:   # the support page's live numbers and featured video (web_v/profile_stats.py)
+            self._send(HTTPStatus.OK, json.dumps(profile_stats.profile()).encode(), "application/json; charset=utf-8",
+                       {"Cache-Control": "private, max-age=600"})
+
         # ---- the Toolbox: the security tools in Tools/ (web_v/toolbox.py) ----
         def toolbox_list(self, query: dict) -> None:
             self._json(HTTPStatus.OK, toolbox.catalog(PUBLIC))
+
+        # ---- email analysis: a pasted raw email (headers + body), read as text, nothing fetched ----
+        def email_analyze(self, query: dict) -> None:
+            import email_check  # noqa: PLC0415
+            data = self._json_body(email_check.MAX_RAW * 4 + 1024)
+            if not isinstance(data, dict):
+                raise ApiError(400, "expected {raw}")
+            try:
+                self._json(HTTPStatus.OK, email_check.analyze(data.get("raw")))
+            except email_check.EmailError as exc:
+                raise ApiError(400, str(exc)) from exc
 
         def toolbox_run(self, query: dict) -> None:
             data = self._json_body(toolbox.PUBLIC_MAX_BODY if PUBLIC else toolbox.LOCAL_MAX_BODY)
@@ -1841,7 +2001,8 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
                 raise ApiError(429, "Too many questions at once. Please wait a minute.")
             model = "qwen3:8b" if PUBLIC else str(load_settings().get("ai_model", "qwen3:8b"))
             try:
-                result = assistant.ask(data.get("question"), data.get("history"), local=not PUBLIC, client=client, ollama_model=model)
+                result = assistant.ask(data.get("question"), data.get("history"), local=not PUBLIC, client=client, ollama_model=model,
+                                       context=data.get("context"))
             except assistant.AskError as exc:
                 raise ApiError(400, str(exc)) from exc
             self._json(HTTPStatus.OK, result)
@@ -1995,8 +2156,10 @@ ROUTES = [
     _route("POST", rf"/api/history/{ID}/ai", "history_ai"),
     _route("GET", r"/api/stats", "stats"),
     _route("GET", r"/api/team", "team"),
+    _route("GET", r"/api/profile", "profile"),
     _route("GET", r"/api/toolbox", "toolbox_list"),
     _route("POST", r"/api/toolbox/run", "toolbox_run"),
+    _route("POST", r"/api/email", "email_analyze"),
     _route("GET", r"/api/protection", "protection_info"),
     _route("POST", r"/api/protection/update", "protection_update"),
     _route("POST", r"/api/assistant", "assistant_ask"),

@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#04030c">
+  <meta name="cyberscan-token" content="__CYBERSCAN_TOKEN__">
+  <meta name="description" content="How to report a security vulnerability in CyberScan, what is in scope, and the safe-harbour promise for researchers.">
+  <title>Security and vulnerability disclosure · CyberScan</title>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="CyberScan">
+  <meta property="og:title" content="Security and vulnerability disclosure · CyberScan">
+  <meta property="og:description" content="How to report a security vulnerability in CyberScan, what is in scope, and the safe-harbour promise for researchers.">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="icon" href="favicon.ico" sizes="32x32">
+  <link rel="stylesheet" href="trust.css">
+  <script src="js/trust-early.js"></script>
+</head>
+<body data-title-en="Security and vulnerability disclosure · CyberScan" data-title-ar="الأمان والإفصاح عن الثغرات · CyberScan">
+  <a class="tr-skip" href="#main"><span data-l="en">Skip to content</span><span data-l="ar">انتقل إلى المحتوى</span></a>
+  <header class="tr-top">
+    <a class="tr-brand" href="/"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 14 20 19v8c0 7.5 5.1 13.4 12 15 6.9-1.6 12-7.5 12-15v-8z"/><path d="m26.5 28.5 3.8 3.8 7.4-8"/></svg>CyberScan</a>
+    <nav class="tr-nav" aria-label="CyberScan">
+      <a href="/privacy"><span data-l="en">Privacy</span><span data-l="ar">الخصوصية</span></a>
+      <a href="/terms"><span data-l="en">Terms</span><span data-l="ar">الشروط</span></a>
+      <a href="/security" aria-current="page"><span data-l="en">Security</span><span data-l="ar">الأمان</span></a>
+      <a href="/status"><span data-l="en">Status</span><span data-l="ar">الحالة</span></a>
+      <a href="/tests"><span data-l="en">Tests</span><span data-l="ar">الاختبارات</span></a>
+      <a href="/changelog"><span data-l="en">Changelog</span><span data-l="ar">سجل التغييرات</span></a>
+    </nav>
+    <button class="tr-lang" id="tr-lang" type="button">العربية</button>
+  </header>
+
+  <main class="tr-main" id="main">
+    <header class="tr-hero">
+      <p class="tr-kicker"><span data-l="en">CyberScan://security</span><span data-l="ar">الأمان</span></p>
+      <h1><span data-l="en">Vulnerability disclosure</span><span data-l="ar">الإفصاح عن الثغرات</span></h1>
+      <p class="tr-lead"><span data-l="en">Found something? Tell us privately and we will fix it, credit you and never threaten you for good-faith research.</span><span data-l="ar">وجدت شيئًا؟ أخبرنا بشكل خاص، وسنصلحه وننسب الفضل إليك، ولن نهددك أبدًا بسبب بحث بحسن نية.</span></p>
+      <p class="tr-meta"><span data-l="en">Last updated: 22 November 2026</span><span data-l="ar">آخر تحديث: 22 نوفمبر 2026</span></p>
+    </header>
+    <div data-l="en">
+      <section class="tr-card tr-note">
+        <h2>Report a vulnerability</h2>
+        <p>If you believe you have found a security problem in CyberScan (the website ainex-ai.xyz and its subdomains, the desktop app, the Android app or the browser extension), please email <a href="mailto:mahdi-alhajji@zohomail.sa" dir="ltr">mahdi-alhajji@zohomail.sa</a> with:</p>
+        <ul><li>what is affected and where (address, version or build);</li><li>steps to reproduce, and a proof of concept if you have one;</li><li>the impact you think it has.</li></ul>
+        <p>English or Arabic is fine. You will get an answer within <strong>5 working days</strong>, and updates at least every 14 days until it is resolved. We aim to fix confirmed issues within 90 days and will agree a disclosure date with you.</p>
+        <p>Machine-readable contact: <a href="/.well-known/security.txt"><code>/.well-known/security.txt</code></a>.</p>
+      </section>
+      <section class="tr-card">
+        <h2>Safe harbour</h2>
+        <p>We will not pursue or support legal action against research done in good faith that follows this policy. Please:</p>
+        <ul>
+          <li>test only against your own data and your own files; do not access, change or delete other people's data;</li>
+          <li>do not degrade the service: no denial-of-service, load testing, spam or automated mass scanning;</li>
+          <li><strong>never upload real malware</strong> to the public website to test detection: use synthetic, inert test files;</li>
+          <li>do not use social engineering or physical attacks, and give us reasonable time to fix an issue before you publish.</li>
+        </ul>
+      </section>
+      <section class="tr-card">
+        <h2>In scope</h2>
+        <ul>
+          <li>Cross-site scripting, injection, path traversal, server-side request forgery, authentication or token bypass in the website and its API.</li>
+          <li>Ways to make the scanner run, open or execute submitted content, or to read files on the server.</li>
+          <li>Ways to make a malicious file look clean by crafting its structure (detection bypasses are welcome; they help everyone).</li>
+          <li>Privacy problems: anything that would let the site or a third party learn more about visitors than the <a href="/privacy">privacy policy</a> says.</li>
+        </ul>
+        <h3>Out of scope</h3>
+        <ul><li>Reports from automated scanners without a demonstrated impact; missing best-practice headers on non-HTML files; clickjacking on pages with no actions; rate limits on non-sensitive endpoints; issues in third-party services (report those to the vendor).</li></ul>
+      </section>
+      <section class="tr-card">
+        <h2>How CyberScan protects you</h2>
+        <ul>
+          <li>Static analysis only: submitted files are never executed, and on the website they are deleted after each check.</li>
+          <li>A strict Content-Security-Policy (no inline or third-party scripts), HSTS, and isolation headers on every response.</li>
+          <li>Every API call needs the page's token and a matching origin; uploads are size-limited and every analysis has a time limit.</li>
+          <li>No accounts and no stored personal data, so there is nothing to steal.</li>
+        </ul>
+      </section>
+      <section class="tr-card">
+        <h2><span id="thanks">Thanks</span></h2>
+        <p>Researchers who report valid issues will be credited here (with their permission). No reports yet: be the first.</p>
+      </section>
+    </div>
+    <div data-l="ar">
+      <section class="tr-card tr-note">
+        <h2>الإبلاغ عن ثغرة</h2>
+        <p>إذا اعتقدت أنك وجدت مشكلة أمنية في CyberScan (الموقع ainex-ai.xyz ونطاقاته الفرعية، أو تطبيق سطح المكتب، أو تطبيق أندرويد، أو إضافة المتصفح)، فأرسل بريدًا إلى <a href="mailto:mahdi-alhajji@zohomail.sa" dir="ltr">mahdi-alhajji@zohomail.sa</a> يتضمن:</p>
+        <ul><li>ما المتأثر وأين (العنوان أو الإصدار)؛</li><li>خطوات إعادة المشكلة، وإثبات مفهوم إن وُجد؛</li><li>الأثر الذي تتوقعه.</li></ul>
+        <p>العربية أو الإنجليزية مقبولتان. ستصلك إجابة خلال <strong>5 أيام عمل</strong>، وتحديثات كل 14 يومًا على الأقل حتى الحل. نسعى لإصلاح المشكلات المؤكدة خلال 90 يومًا، ونتفق معك على موعد للإفصاح.</p>
+        <p>بيانات التواصل بصيغة آلية: <a href="/.well-known/security.txt"><code>/.well-known/security.txt</code></a>.</p>
+      </section>
+      <section class="tr-card">
+        <h2>الحماية القانونية للباحثين</h2>
+        <p>لن نلاحق ولن ندعم أي إجراء قانوني ضد بحث أُجري بحسن نية ووفق هذه السياسة. نرجو منك:</p>
+        <ul>
+          <li>الاختبار على بياناتك وملفاتك فقط، وعدم الوصول إلى بيانات الآخرين أو تغييرها أو حذفها؛</li>
+          <li>عدم الإضرار بالخدمة: لا هجمات حجب خدمة، ولا اختبارات ضغط، ولا رسائل مزعجة، ولا فحص آلي واسع؛</li>
+          <li><strong>عدم رفع برمجيات خبيثة حقيقية</strong> إلى الموقع العام لاختبار الكشف، بل استخدم ملفات اختبار اصطناعية خاملة؛</li>
+          <li>عدم استخدام الهندسة الاجتماعية أو الهجمات المادية، ومنحنا وقتًا معقولًا للإصلاح قبل النشر.</li>
+        </ul>
+      </section>
+      <section class="tr-card">
+        <h2>ضمن النطاق</h2>
+        <ul>
+          <li>حقن السكربتات عبر المواقع، والحقن، واجتياز المسارات، وتزوير الطلبات من جهة الخادم، وتجاوز المصادقة أو الرمز في الموقع وواجهته البرمجية.</li>
+          <li>طرق تجعل الماسح يشغّل المحتوى المرسل أو يفتحه، أو تقرأ ملفات على الخادم.</li>
+          <li>طرق تجعل ملفًا ضارًا يبدو نظيفًا عبر التلاعب ببنيته (نرحب بتجاوزات الكشف، فهي تفيد الجميع).</li>
+          <li>مشكلات الخصوصية: أي شيء يتيح للموقع أو لجهة خارجية معرفة أكثر مما تقوله <a href="/privacy">سياسة الخصوصية</a> عن الزوار.</li>
+        </ul>
+        <h3>خارج النطاق</h3>
+        <ul><li>تقارير الماسحات الآلية دون أثر مثبت، وغياب ترويسات الممارسات الفضلى على ملفات غير HTML، والنقر الخادع على صفحات بلا إجراءات، وحدود المعدل على نقاط غير حساسة، ومشكلات الخدمات الخارجية (أبلغ مزوّدها).</li></ul>
+      </section>
+      <section class="tr-card">
+        <h2>كيف يحميك CyberScan</h2>
+        <ul>
+          <li>تحليل ثابت فقط: الملفات المرسلة لا تُشغَّل أبدًا، وتُحذف على الموقع بعد كل فحص.</li>
+          <li>سياسة أمان محتوى صارمة (لا سكربتات مضمّنة ولا من جهات خارجية)، وHSTS، وترويسات عزل في كل استجابة.</li>
+          <li>كل طلب للواجهة البرمجية يحتاج رمز الصفحة ومصدرًا مطابقًا، والرفع محدود الحجم ولكل تحليل حد زمني.</li>
+          <li>لا حسابات ولا بيانات شخصية محفوظة، فلا شيء يمكن سرقته.</li>
+        </ul>
+      </section>
+      <section class="tr-card">
+        <h2>شكر وتقدير</h2>
+        <p>سيُذكر هنا الباحثون الذين يبلغون عن مشكلات صحيحة (بإذنهم). لا توجد بلاغات بعد: كن الأول.</p>
+      </section>
+    </div>
+  </main>
+
+  <footer class="tr-foot">
+    <span>© 2026 CyberScan · ONYX</span>
+    <a href="/"><span data-l="en">Home</span><span data-l="ar">الرئيسية</span></a>
+    <a href="/app.html"><span data-l="en">Scan</span><span data-l="ar">الفحص</span></a>
+    <a href="/journey"><span data-l="en">File Journey</span><span data-l="ar">رحلة الملف</span></a>
+    <a href="/support"><span data-l="en">Support the developer</span><span data-l="ar">ادعم المطوّر</span></a>
+    <span class="sp"></span>
+    <a href="mailto:mahdi-alhajji@zohomail.sa" dir="ltr">mahdi-alhajji@zohomail.sa</a>
+  </footer>
+  <script src="js/trust.js"></script>
+</body>
+</html>

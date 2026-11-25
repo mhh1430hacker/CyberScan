@@ -1,7 +1,7 @@
 {
- "file": "CyberScan-Setup-2.0.0.exe",
- "version": "2.0.0",
- "size": 162980727,
- "sha256": "a09b4b19a249af4f4f32ee9a13b91c540caee93165758c62a7c4b0a290925ec2",
- "os": "Windows 10/11 (64-bit)"
+    "file":  "CyberScan-Setup-2.1.0.exe",
+    "version":  "2.1.0",
+    "size":  93232624,
+    "sha256":  "f0ab0459ed6d8476edbc8e1c529f76baf270e7de3da5b4c63bc8f5c5a94057de",
+    "os":  "Windows 10/11 (64-bit)"
 }

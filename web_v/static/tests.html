@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#04030c">
+  <meta name="cyberscan-token" content="__CYBERSCAN_TOKEN__">
+  <meta name="description" content="How CyberScan is tested and the measured numbers: false alarms on clean files, synthetic attack-shaped samples and speed. No malware detection rate is claimed.">
+  <title>Independent tests · CyberScan</title>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="CyberScan">
+  <meta property="og:title" content="Independent tests · CyberScan">
+  <meta property="og:description" content="How CyberScan is tested and the measured numbers: false alarms on clean files, synthetic attack-shaped samples and speed. No malware detection rate is claimed.">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="icon" href="favicon.ico" sizes="32x32">
+  <link rel="stylesheet" href="trust.css">
+  <script src="js/trust-early.js"></script>
+</head>
+<body data-title-en="Independent tests · CyberScan" data-title-ar="الاختبارات المستقلة · CyberScan">
+  <a class="tr-skip" href="#main"><span data-l="en">Skip to content</span><span data-l="ar">انتقل إلى المحتوى</span></a>
+  <header class="tr-top">
+    <a class="tr-brand" href="/"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 14 20 19v8c0 7.5 5.1 13.4 12 15 6.9-1.6 12-7.5 12-15v-8z"/><path d="m26.5 28.5 3.8 3.8 7.4-8"/></svg>CyberScan</a>
+    <nav class="tr-nav" aria-label="CyberScan">
+      <a href="/privacy"><span data-l="en">Privacy</span><span data-l="ar">الخصوصية</span></a>
+      <a href="/terms"><span data-l="en">Terms</span><span data-l="ar">الشروط</span></a>
+      <a href="/security"><span data-l="en">Security</span><span data-l="ar">الأمان</span></a>
+      <a href="/status"><span data-l="en">Status</span><span data-l="ar">الحالة</span></a>
+      <a href="/tests" aria-current="page"><span data-l="en">Tests</span><span data-l="ar">الاختبارات</span></a>
+      <a href="/changelog"><span data-l="en">Changelog</span><span data-l="ar">سجل التغييرات</span></a>
+    </nav>
+    <button class="tr-lang" id="tr-lang" type="button">العربية</button>
+  </header>
+
+  <main class="tr-main" id="main">
+    <header class="tr-hero">
+      <p class="tr-kicker"><span data-l="en">CyberScan://tests</span><span data-l="ar">الاختبارات</span></p>
+      <h1><span data-l="en">Measured, not promised</span><span data-l="ar">أرقام مقيسة، لا وعود</span></h1>
+      <p class="tr-lead"><span data-l="en">The method, the real numbers from the latest run, and an honest list of what has not been measured.</span><span data-l="ar">الطريقة، والأرقام الحقيقية من آخر تشغيل، وقائمة صادقة بما لم يُقَس بعد.</span></p>
+    </header>
+      <div id="tests-root">
+        <div id="tests-live" aria-live="polite"></div>
+        <p class="tr-meta" id="tests-stamp"></p>
+      </div>
+    <div data-l="en">
+      <section class="tr-card">
+        <h2>How we test</h2>
+        <p>We run the same engine the website uses (<code>ScanService</code>, with its default settings and online lookups switched off so runs are repeatable) over two sets of files, with the script <code>tools/bench_engine.py</code>. Everything below is produced by that script; nothing is typed by hand.</p>
+        <ol>
+          <li><strong>Clean files (false alarms).</strong> A fixed random sample of files that are known not to be malware: this website's own code, images and fonts, and the files of well-known open-source packages installed in the project's Python environment, including real Windows programs (<code>.pyd</code>/<code>.dll</code> from numpy, PySide6, Pillow and others). Windows system files are not used. Any “Suspicious” verdict on these files is a false alarm; a “take a look” note is a milder signal that we also count.</li>
+          <li><strong>Synthetic samples.</strong> Small, inert files built byte by byte from the project's test fixtures (<code>tests/repair_fixtures.py</code> and the strings the unit tests use). They have the <em>shape</em> of common attacks (a PDF that runs a script when opened, an encoded PowerShell command, a document that is really a program, data hidden before an archive) but contain nothing that can run. These are checked in memory, because Microsoft Defender on the test machine quarantines byte-built test programs as soon as they are written to disk.</li>
+        </ol>
+      </section>
+      <section class="tr-card tr-warn">
+        <h2>What this does not measure</h2>
+        <ul>
+          <li><strong>Detection of real malware.</strong> No live malware, no downloaded samples and not even the EICAR test file were used, so this page gives <strong>no malware detection rate</strong>. Seven synthetic samples cannot stand in for one.</li>
+          <li>Files larger than 4 MB (the website's limit), and online threat-intelligence lookups.</li>
+          <li>Independent labs have not tested CyberScan yet. If you run a test lab and want to, please <a href="/security">get in touch</a>.</li>
+        </ul>
+      </section>
+    </div>
+    <div data-l="ar">
+      <section class="tr-card">
+        <h2>كيف نختبر</h2>
+        <p>نشغّل المحرك نفسه الذي يستخدمه الموقع (<code>ScanService</code> بإعداداته الافتراضية مع إيقاف البحث عبر الإنترنت ليمكن تكرار النتائج) على مجموعتين من الملفات، بواسطة البرنامج <code>tools/bench_engine.py</code>. كل ما يلي ينتجه هذا البرنامج، ولا شيء مكتوب يدويًا.</p>
+        <ol>
+          <li><strong>ملفات نظيفة (الإنذارات الكاذبة).</strong> عينة عشوائية ثابتة من ملفات معروف أنها ليست برمجيات خبيثة: شيفرة هذا الموقع وصوره وخطوطه، وملفات حزم مفتوحة المصدر معروفة مثبتة في بيئة Python للمشروع، ومنها برامج Windows حقيقية (‎<code>.pyd</code>/<code>.dll</code> من numpy وPySide6 وPillow وغيرها). لم تُستخدم ملفات نظام Windows. أي حكم «مشبوه» على هذه الملفات إنذار كاذب، وملاحظة «يستحق نظرة» إشارة أخف نحسبها أيضًا.</li>
+          <li><strong>عينات اصطناعية.</strong> ملفات صغيرة خاملة مبنية بايتًا بايتًا من أدوات اختبار المشروع (<code>tests/repair_fixtures.py</code> والنصوص التي تستخدمها اختبارات الوحدات). لها <em>شكل</em> هجمات شائعة (ملف PDF يشغّل سكربتًا عند فتحه، وأمر PowerShell مُرمّز، ومستند هو في الحقيقة برنامج، وبيانات مخفية قبل أرشيف) لكنها لا تحتوي على شيء يمكن تشغيله. تُفحص في الذاكرة، لأن Microsoft Defender على جهاز الاختبار يحجر برامج الاختبار المبنية يدويًا فور كتابتها على القرص.</li>
+        </ol>
+      </section>
+      <section class="tr-card tr-warn">
+        <h2>ما الذي لا يقيسه هذا</h2>
+        <ul>
+          <li><strong>كشف البرمجيات الخبيثة الحقيقية.</strong> لم تُستخدم برمجيات خبيثة حيّة ولا عينات منزّلة ولا حتى ملف اختبار EICAR، لذا لا تقدم هذه الصفحة <strong>أي نسبة لكشف البرمجيات الخبيثة</strong>. سبع عينات اصطناعية لا تغني عن ذلك.</li>
+          <li>الملفات الأكبر من 4 ميغابايت (حد الموقع)، والبحث في معلومات التهديدات عبر الإنترنت.</li>
+          <li>لم تختبر مختبرات مستقلة CyberScan بعد. إذا كنت تدير مختبر اختبار وتريد ذلك، <a href="/security">تواصل معنا</a>.</li>
+        </ul>
+      </section>
+    </div>
+  </main>
+
+  <footer class="tr-foot">
+    <span>© 2026 CyberScan · ONYX</span>
+    <a href="/"><span data-l="en">Home</span><span data-l="ar">الرئيسية</span></a>
+    <a href="/app.html"><span data-l="en">Scan</span><span data-l="ar">الفحص</span></a>
+    <a href="/journey"><span data-l="en">File Journey</span><span data-l="ar">رحلة الملف</span></a>
+    <a href="/support"><span data-l="en">Support the developer</span><span data-l="ar">ادعم المطوّر</span></a>
+    <span class="sp"></span>
+    <a href="mailto:mahdi-alhajji@zohomail.sa" dir="ltr">mahdi-alhajji@zohomail.sa</a>
+  </footer>
+  <script src="js/trust.js"></script>
+</body>
+</html>

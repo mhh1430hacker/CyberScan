@@ -11,15 +11,46 @@ const TXT = {
   ar: { tool: "الأداة", build: "ابنِ", erase: "امسح", color: "اللون", size: "الحجم", L: "كبير", M: "متوسط", S: "صغير", sizeL: "مكعب كبير", sizeM: "مكعب متوسط", sizeS: "مكعب صغير",
     edit: "تعديل", undo: "تراجع", clear: "مسح الكل", sure: "متأكد؟", shapes: "الأشكال", full: "الاستوديو ممتلئ", placed: "وُضع مكعب", removed: "أُزيل مكعب", cleared: "مُسح البناء",
     c0: "بنفسجي", c1: "سماوي", c2: "وردي", c3: "لؤلؤي", c4: "غروب", c5: "حبر",
-    tower: "المسلّة", stairs: "درج إلى اللامكان", gate: "البوابة", well: "بئر الأمنيات", meta: "المكعب الفائق (تسراكت)" },
+    tower: "المسلّة", stairs: "درج إلى اللامكان", gate: "البوابة", well: "بئر الأمنيات", meta: "المكعب الفائق (تسراكت)",
+    share: "مشاركة", link: "رابط", image: "صورة", linkLabel: "انسخ رابطًا لهذا البناء", imageLabel: "احفظ البناء صورةً PNG",
+    linkCopied: "نُسخ رابط البناء", linkFail: "تعذّر نسخ الرابط", saved: "حُفظت الصورة", empty: "ابنِ شيئًا أولًا", loaded: "فُتح البناء المشارك ({n} مكعب)", shareTitle: "بنائي في عالم المكعبات" },
   en: { tool: "Tool", build: "Build", erase: "Erase", color: "Colour", size: "Size", L: "L", M: "M", S: "S", sizeL: "Large cube", sizeM: "Medium cube", sizeS: "Small cube",
     edit: "Edit", undo: "Undo", clear: "Clear", sure: "Sure?", shapes: "Shapes", full: "The studio is full", placed: "Cube placed", removed: "Cube removed", cleared: "Build cleared",
     c0: "Violet", c1: "Cyan", c2: "Magenta", c3: "Pearl", c4: "Sunset", c5: "Ink",
-    tower: "The Obelisk", stairs: "Stairs to Nowhere", gate: "The Portal", well: "The Wishing Well", meta: "The Tesseract" },
+    tower: "The Obelisk", stairs: "Stairs to Nowhere", gate: "The Portal", well: "The Wishing Well", meta: "The Tesseract",
+    share: "Share", link: "Link", image: "Image", linkLabel: "Copy a link to this build", imageLabel: "Save the build as a PNG image",
+    linkCopied: "Link to the build copied", linkFail: "The link could not be copied", saved: "Image saved", empty: "Build something first", loaded: "Shared build opened ({n} cubes)", shareTitle: "My build in the Cubeverse" },
 };
 const KEY = (x, y, z) => x + z * N + y * N * N;
 const XYZ = (k) => [k % N, Math.floor(k / (N * N)), Math.floor((k % (N * N)) / N)];
 const saved = { vox: null, cam: null, tool: "build", color: 0, size: 0, found: [] };
+/* a build as a link: "#build=" + base64url of 2 bytes per cube (cell 11 bits, colour 3, size 2), after a version byte */
+const b64u = (u8) => btoa(String.fromCharCode(...u8)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+export function encodeBuild(list) {
+  const u8 = new Uint8Array(1 + list.length * 2); u8[0] = 1;
+  list.forEach(([k, c, s], i) => { const v = (k & 0x7ff) | ((c & 7) << 11) | ((s & 3) << 14); u8[1 + i * 2] = v & 255; u8[2 + i * 2] = v >> 8; });
+  return b64u(u8);
+}
+export function decodeBuild(str) {
+  try {
+    const bin = atob(String(str).replace(/-/g, "+").replace(/_/g, "/"));
+    if (bin.charCodeAt(0) !== 1 || bin.length > 1 + 640 * 2) return null;
+    const out = [], seen = new Set();
+    for (let i = 1; i + 1 < bin.length; i += 2) {
+      const v = bin.charCodeAt(i) | (bin.charCodeAt(i + 1) << 8), k = v & 0x7ff, c = (v >> 11) & 7, s = (v >> 14) & 3;
+      if (k >= N * N * HMAX || c >= PALETTE.length || s >= SIZES.length || seen.has(k)) continue;
+      seen.add(k); out.push([k, c, s]);
+    }
+    return out;
+  } catch { return null; }
+}
+function sharedFromHash() {
+  const m = /^#build=([A-Za-z0-9_-]{3,1800})$/.exec(location.hash || "");
+  if (!m) return null;
+  const list = decodeBuild(m[1]);
+  try { history.replaceState(null, "", location.pathname + location.search); } catch { /* keep the hash */ }
+  return list && list.length ? list : null;
+}
 function loadSession() {
   if (saved.vox) return;
   try { const s = JSON.parse(sessionStorage.getItem("cv-arch") || "null"); if (s && Array.isArray(s.v)) { saved.vox = s.v; saved.found = s.found || []; } } catch { /* storage off */ }
@@ -28,6 +59,8 @@ function loadSession() {
 export function create(ctx) {
   const { engine } = ctx, tier = engine.tier;
   loadSession();
+  const shared = sharedFromHash();
+  if (shared) { saved.vox = shared; saved.found = saved.found || []; }
   const scene = new THREE.Scene();
   scene.background = gradientTexture([[0, "#fbfaff"], [0.55, "#ece9f6"], [1, "#d9d4ea"]]);
   scene.fog = new THREE.Fog(0xe8e5f2, 34, 80);
@@ -205,6 +238,7 @@ export function create(ctx) {
         f.userData.born = now; figuresAlive = now + 6000;
         for (const [a, b, c] of s.cells) glowOf.set(KEY(a, b, c), now + 2200);
         if (!found.has(name)) { found.add(name); persist(); }
+        if (found.size >= 5) ctx.achieve?.("shapes");
         if (changed >= 0) ctx.discover(`a-${name}`, { ar: TXT.ar[name], en: TXT.en[name] });
         dirty = true;
       }
@@ -292,8 +326,38 @@ export function create(ctx) {
   tools.button(g4, { icon: "undo", text: "undo", onClick: doUndo });
   tools.button(g4, { icon: "trash", text: "clear", onClick: (e, b) => doClear(b) });
   const countEl = tools.text(g4);
+  const g5 = tools.group("share");
+  tools.button(g5, { icon: "link", text: "link", label: "linkLabel", onClick: shareLink });
+  tools.button(g5, { icon: "image", text: "image", label: "imageLabel", onClick: saveImage });
   tools.paint();
   check(-1);
+
+  /* ---------- save and share ---------- */
+  async function shareLink() {
+    const t = TXT[ctx.lang()];
+    if (!vox.size) { ctx.announce(t.empty); return; }
+    const url = `${location.origin}${location.pathname}#build=${encodeBuild([...vox].map(([k, v]) => [k, v.c, v.s]))}`;
+    if (navigator.share && matchMedia("(pointer: coarse)").matches) {
+      try { await navigator.share({ title: t.shareTitle, url }); ctx.sfx("chime"); return; } catch (e) { if (e && e.name === "AbortError") return; }
+    }
+    let ok = false;
+    try { await navigator.clipboard.writeText(url); ok = true; } catch {
+      const ta = document.createElement("textarea"); ta.value = url; ta.setAttribute("readonly", ""); document.body.append(ta); ta.select();
+      try { ok = document.execCommand("copy"); } catch { /* refused */ } ta.remove();
+    }
+    ctx.announce(ok ? t.linkCopied : t.linkFail); ctx.toast?.(ok ? t.linkCopied : t.linkFail); ctx.sfx(ok ? "chime" : "tick");
+  }
+  function saveImage() {
+    const t = TXT[ctx.lang()];
+    if (!vox.size) { ctx.announce(t.empty); return; }
+    ghost.visible = false;
+    engine.renderer.render(scene, camera);                  // read the frame in the same task it was drawn (no preserved buffer)
+    const url = engine.renderer.domElement.toDataURL("image/png");
+    const a = document.createElement("a"); a.href = url; a.download = `cubeverse-build-${new Date().toISOString().slice(0, 10)}.png`;
+    document.body.append(a); a.click(); a.remove();
+    ctx.announce(t.saved); ctx.toast?.(t.saved); ctx.sfx("shimmer", { n: 3 });
+  }
+  if (shared) setTimeout(() => { ctx.announce(TXT[ctx.lang()].loaded.replace("{n}", String(vox.size))); ctx.toast?.(TXT[ctx.lang()].loaded.replace("{n}", String(vox.size))); }, 900);
 
   /* ---------- the frame ---------- */
   let lastT = 0;

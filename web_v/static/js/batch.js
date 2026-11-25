@@ -164,23 +164,54 @@
     window.CS.notify && window.CS.notify(item.file.name, item.status.textContent);
   }
 
+  /* the combined summary: counts by verdict, worst first; when the batch ends, the cards are sorted the same way */
+  const RANK = { KNOWN_MALWARE: 0, SUSPICIOUS: 1, REVIEW: 2, UNKNOWN: 3, NO_INDICATORS_OBSERVED: 4, EMPTY: 5 };
+  const BX = {
+    en: { worst: "Worst first", top: "Most serious: {n} · {v} · {s}/100", failed: "{n} couldn't be checked", known: "known malware", unknown: "inconclusive" },
+    ar: { worst: "الأخطر أولًا", top: "الأخطر: {n} · {v} · {s}/100", failed: "تعذّر فحص {n}", known: "برنامج ضار معروف", unknown: "غير حاسم" },
+  };
+  const bx = () => BX[window.CS.lang === "ar" ? "ar" : "en"];
+  const clsOf = (i) => (window.CS.verdictOf ? window.CS.verdictOf(i.result).cls : i.result.classification);
+  const scoreOf = (i) => (window.CS.verdictOf ? window.CS.verdictOf(i.result).score : i.result.combined_score);
+  function sortWorstFirst() {
+    const grid = $("batch-list");
+    const order = items.slice().sort((a, b) => {
+      const ra = a.result ? RANK[clsOf(a)] ?? 3 : a.state === "failed" ? 3.5 : 9, rb = b.result ? RANK[clsOf(b)] ?? 3 : b.state === "failed" ? 3.5 : 9;
+      return ra - rb || (b.result ? scoreOf(b) : 0) - (a.result ? scoreOf(a) : 0);
+    });
+    const first = new Map(order.map((i) => [i.card, i.card.getBoundingClientRect()]));
+    order.forEach((i) => grid.append(i.card));
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    order.forEach((i) => {
+      const a = first.get(i.card), b = i.card.getBoundingClientRect();
+      if (a && (a.left !== b.left || a.top !== b.top)) i.card.animate([{ transform: `translate(${a.left - b.left}px, ${a.top - b.top}px)` }, { transform: "none" }], { duration: 520, easing: "cubic-bezier(.22,1,.36,1)" });
+    });
+  }
   function summary() {
-    const counts = { done: 0, scanning: 0, queued: 0, failed: 0, SUSPICIOUS: 0, REVIEW: 0, NO_INDICATORS_OBSERVED: 0 };
-    items.forEach((i) => { counts[i.state]++; if (i.result) counts[i.result.classification]++; });
+    const counts = { done: 0, scanning: 0, queued: 0, failed: 0, KNOWN_MALWARE: 0, SUSPICIOUS: 0, REVIEW: 0, NO_INDICATORS_OBSERVED: 0, UNKNOWN: 0, EMPTY: 0 };
+    items.forEach((i) => { counts[i.state]++; if (i.result) counts[clsOf(i)] = (counts[clsOf(i)] || 0) + 1; });
     const total = items.length;
     $("batch-title").textContent = t("bTitle")(total);
     $("batch-progress").style.transform = `scaleX(${total ? (counts.done + counts.failed) / total : 0})`;
     const pills = $("batch-summary");
-    pills.replaceChildren(
-      pill(t("bDone")(counts.done, total), "--accent"),
-      pill(`${counts.SUSPICIOUS} ${t("verdicts").SUSPICIOUS[0]}`, "--bad"),
-      pill(`${counts.REVIEW} ${t("verdicts").REVIEW[0]}`, "--warn"),
-      pill(`${counts.NO_INDICATORS_OBSERVED} ${t("verdicts").NO_INDICATORS_OBSERVED[0]}`, "--ok"),
-    );
-    if (counts.failed) pills.append(pill(`${counts.failed} ✕`, "--muted"));
+    // worst first: known malware, suspicious, review, inconclusive, clear; a zero count is left out except "clear"
+    pills.replaceChildren(pill(t("bDone")(counts.done, total), "--accent"));
+    if (counts.KNOWN_MALWARE) pills.append(pill(`${counts.KNOWN_MALWARE} ${bx().known}`, "--bad"));
+    pills.append(pill(`${counts.SUSPICIOUS} ${t("verdicts").SUSPICIOUS[0]}`, "--bad"), pill(`${counts.REVIEW} ${t("verdicts").REVIEW[0]}`, "--warn"));
+    if (counts.UNKNOWN) pills.append(pill(`${counts.UNKNOWN} ${bx().unknown}`, "--muted"));
+    pills.append(pill(`${counts.NO_INDICATORS_OBSERVED} ${t("verdicts").NO_INDICATORS_OBSERVED[0]}`, "--ok"));
+    if (counts.failed) pills.append(pill(bx().failed.replace("{n}", counts.failed), "--muted"));
     if (total && counts.done + counts.failed === total && !queue.length && running === 0) {
       window.CS.state.history = null;
       toast(t("bFinished")(total));
+      sortWorstFirst();
+      const worst = items.filter((i) => i.result).sort((a, b) => (RANK[clsOf(a)] ?? 3) - (RANK[clsOf(b)] ?? 3) || scoreOf(b) - scoreOf(a))[0];
+      if (worst && (RANK[clsOf(worst)] ?? 3) <= 2) {
+        const v = t("verdicts")[clsOf(worst)];
+        const top = el("p", "bworst", bx().top.replace("{n}", worst.file.name).replace("{v}", v ? v[0] : clsOf(worst)).replace("{s}", scoreOf(worst)));
+        top.dir = "auto";
+        pills.append(top);
+      }
     }
   }
   function pill(text, color) { const p = el("span", "bpill", text); p.style.setProperty("--c", `var(${color})`); return p; }

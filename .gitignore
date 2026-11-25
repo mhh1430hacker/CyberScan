@@ -51,3 +51,6 @@ web_v/static/downloads/*.apk
 # PyInstaller / Inno Setup output
 /build/
 /dist/
+
+# Real-user vitals and error reports collected by the local server (web_v/site_extras.py)
+data/rum/

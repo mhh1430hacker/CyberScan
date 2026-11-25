@@ -36,6 +36,15 @@
  * signal), the camera holds one still view per stage and views crossfade; nothing animates.
  * No WebGL: the text version.
  *
+ * Your own file: after a scan, the scan page (js/journey-hook.js) links here with ?f=<base64url JSON>;
+ * the journey then tells that file's story (its name, its parts, its entropy curve, the rules that
+ * matched, its real verdict among the three pillars). Without it, the example file.
+ *
+ * Autoplay: "Play the journey" drives the scroll on a timeline paced by the narration (each line gets
+ * its reading time), with subtitles per stage and, where the browser has a voice for the page's
+ * language, spoken narration (speechSynthesis). Any scroll, wheel or key by the visitor pauses it.
+ * "Save a 10 s clip" records the canvas (MediaRecorder, webm) while it plays.
+ *
  * Words: js/journey-i18n.js (window.FJ_I18N), one dictionary for every language. */
 import * as THREE from "../vendor/three/three.module.min.js";
 
@@ -52,6 +61,49 @@ const seg = (s, a, b, f = ease) => f(clamp((s - a) / (b - a)));
 const rnd = (() => { let x = 1234567; return () => ((x = (x * 16807) % 2147483647) / 2147483647); })();   // deterministic
 const pause = () => new Promise((r) => setTimeout(r, 0));                   // give the page a turn between chunks
 const nn = (i) => String(i + 1).padStart(2, "0");
+
+/* ===================================================================== your own file */
+// The summary js/journey-hook.js writes ({n name, s size, t type, h sha256, e entropy curve, em/ep mean
+// and peak, L parts [[name, offset]], m matched rules, c verdict class, sc score, fb first bytes}).
+// Everything is re-checked here: it is shown as text only, and drawn into canvases, never as HTML.
+const VMAP = { NO_INDICATORS_OBSERVED: 0, REVIEW: 1, SUSPICIOUS: 2, KNOWN_MALWARE: 2 };          // which pillar is the real one
+const VKEY = { NO_INDICATORS_OBSERVED: "vNO", REVIEW: "vREVIEW", SUSPICIOUS: "vSUSPICIOUS", KNOWN_MALWARE: "vKNOWN", UNKNOWN: "vUNKNOWN" };
+function cleanFile(d) {
+  if (!d || typeof d !== "object" || !d.n) return null;
+  const str = (v, n) => String(v == null ? "" : v).replace(/[\u0000-\u001f\u202a-\u202e\u2066-\u2069]/g, "").slice(0, n);
+  const num = (v) => (v != null && v !== "" && Number.isFinite(Number(v)) ? Number(v) : null);
+  const ent = (Array.isArray(d.e) ? d.e : []).map(Number).filter((v) => Number.isFinite(v)).map((v) => clamp(v, 0, 8)).slice(0, 64);
+  const mean = num(d.em) ?? (ent.length ? ent.reduce((a, b) => a + b, 0) / ent.length : null);
+  return {
+    name: str(d.n, 80), size: Math.max(0, num(d.s) || 0), type: str(d.t, 24), sha: /^[0-9a-f]{64}$/i.test(d.h || "") ? String(d.h).toLowerCase() : "",
+    ent: ent.length ? ent : mean != null ? [mean] : [], mean, peak: num(d.ep) ?? (ent.length ? Math.max(...ent) : mean),
+    layers: (Array.isArray(d.L) ? d.L : []).filter((l) => Array.isArray(l) && l[0]).slice(0, 6).map((l) => [str(l[0], 28), str(l[1], 12)]),
+    rules: (Array.isArray(d.m) ? d.m : []).map((r) => str(r, 56)).filter(Boolean).slice(0, 6), nrules: clamp(Math.round(num(d.mr) || 0), 0, 6),
+    cls: VKEY[d.c] ? d.c : "UNKNOWN", score: num(d.sc) == null ? null : clamp(Math.round(num(d.sc)), 0, 100),
+    fb: /^([0-9A-F]{2} ){0,15}[0-9A-F]{2}$/i.test(String(d.fb || "").trim()) ? String(d.fb).trim().toUpperCase() : "",
+  };
+}
+const fromB64u = (v) => decodeURIComponent(escape(atob(v.replace(/-/g, "+").replace(/_/g, "/"))));
+const toB64u = (v) => btoa(unescape(encodeURIComponent(v))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+const MINE = (() => { try { const f = new URLSearchParams(location.search).get("f"); return f && f.length < 8000 ? cleanFile(JSON.parse(fromB64u(f))) : null; } catch { return null; } })();
+const LAST_RAW = (() => { try { const v = sessionStorage.getItem("cs-journey-file"); return v && cleanFile(JSON.parse(v)) ? v : null; } catch { return null; } })();
+const VIDX = MINE ? (VMAP[MINE.cls] ?? -1) : -1;
+const fmtSize = (n) => (n >= 1048576 ? `${(n / 1048576).toFixed(1)} ${T("unitMB")}` : n >= 1024 ? `${(n / 1024).toFixed(1)} ${T("unitKB")}` : `${n} ${T("unitB")}`);
+const fillT = (k, o) => T(k).replace(/\{(\w+)\}/g, (m, x) => (o[x] != null ? o[x] : m));
+const hasArabic = (v) => /[\u0600-\u06ff]/.test(v);
+// what the narrator says at each stage: the example's story, or this file's
+function narration(i) {
+  if (!MINE) return T(`n${i + 1}`);
+  const f = MINE, sep = T("listSep");
+  const vw = T(VKEY[f.cls]);
+  return fillT(`p${i + 1}`, {
+    name: f.name, size: fmtSize(f.size), type: (f.type || T("fileWord")).toUpperCase(),
+    layers: (f.layers.length ? f.layers.map((l) => l[0]) : ["layer1", "layer2", "layer3", "layer4"].map(T)).slice(0, 4).join(sep),
+    mean: f.mean != null ? f.mean.toFixed(2) : "–", peak: f.peak != null ? f.peak.toFixed(2) : "–", entNote: (f.mean || 0) >= 7 ? T("entHigh") : T("entLow"),
+    rulesLine: f.rules.length ? fillT("rulesSome", { n: f.rules.length, list: f.rules.slice(0, 3).join(sep) }) : T("rulesNone"),
+    hash: f.sha ? `${f.sha.slice(0, 8)}…${f.sha.slice(-8)}` : "–", verdict: langOf() === "en" ? vw.toLowerCase() : vw, score: f.score ?? "–",
+  });
+}
 
 /* ===================================================================== text */
 // the six stages (names: s1..s6, subtitles: s1sub..s6sub in the dictionary)
@@ -84,6 +136,10 @@ let lineEls = [], labelEls = [], finalParts = [], lastStage = -1, labelsOn = fal
 // the four layers of the city carry a label in the page's language (drawn into their texture)
 const LAYER_DEF = [["layer1", "0x0000", -48], ["layer2", "0x0200", -84], ["layer3", "0x4A00", -120], ["layer4", "0x9E40", -152]];
 let LAYERS = [];
+// a layer's label: the file's own part when the journey is about your file, the page's words otherwise
+const layerLabel = (i) => { const own = MINE && MINE.layers[i]; if (own) return own[1] ? `${own[0]} · ${own[1]}` : own[0]; const [k, hex] = LAYER_DEF[i]; return `${T(k)} · ${hex}`; };
+// filled in once the world exists: the line tones (the grade) and the words drawn into the 3D scene
+let toneLines = null, relabelScene = null, paintAuto = null;
 
 function words(str) {
   // "[[...]]" segments glow; every word is its own unit so it can arrive on its own beat. Pieces
@@ -113,6 +169,7 @@ function buildText() {
   lb.textContent = T("langSwitch"); lb.setAttribute("aria-label", T("langSwitchAria")); lb.lang = langOf() === "ar" ? "en" : "ar";
   $("fj-hint-t").textContent = T(touch ? "hintTouch" : "hint");
   AUD()?.setLabels?.((on) => T(on ? "sfxOn" : "sfxOff"));
+  paintMine();
 
   lineEls = LINES.map(([a, b, size], i) => {
     const p = document.createElement("p");
@@ -145,6 +202,19 @@ function buildText() {
 
   const lab = (cls, word, cap, c) => { const d = document.createElement("div"); d.className = `fj-lab ${cls}`; d.style.setProperty("--c", c); const b = document.createElement("b"); b.textContent = word; const s = document.createElement("small"); s.textContent = cap; d.append(b, s); return d; };
   labelEls = [lab("c", T("clean"), T("cleanCap"), "#3dffa8"), lab("s", T("suspicious"), T("suspiciousCap"), "#ffc24d"), lab("m", T("malicious"), T("maliciousCap"), "#ff6b85")];
+  if (MINE) {
+    // your file: the pillars take the scan's own classes (no indicators, review, suspicious or known malware)
+    ["vNO", "vREVIEW", MINE.cls === "KNOWN_MALWARE" ? "vKNOWN" : "vSUSPICIOUS"].forEach((k, i) => { labelEls[i].querySelector("b").textContent = T(k); labelEls[i].querySelector("small").textContent = T(`${k}cap`); });
+  }
+  if (MINE && VIDX >= 0) {
+    // and its pillar carries its real verdict and score, the other two step back
+    const k = VKEY[MINE.cls], you = labelEls[VIDX];
+    you.querySelector("b").textContent = T(k);
+    you.querySelector("small").textContent = MINE.score != null ? `${T(`${k}cap`)} · ${MINE.score}/100` : T(`${k}cap`);
+    const tag = document.createElement("span"); tag.className = "you-tag"; tag.textContent = T("yourFile"); you.prepend(tag);
+    you.classList.add("you");
+    labelEls.forEach((l, i) => { if (i !== VIDX) l.classList.add("dim"); });
+  }
   labelsBox.replaceChildren(...labelEls);
   labelsOn = false;
 
@@ -155,13 +225,33 @@ function buildText() {
   const go = document.createElement("a"); go.className = "go"; go.href = "/#/scan"; go.textContent = T("start");
   const home = document.createElement("a"); home.href = "/"; home.textContent = T("home");
   ctas.append(go, home);
-  const note = document.createElement("p"); note.className = "note"; note.textContent = T("note");
+  const note = document.createElement("p"); note.className = "note";
+  note.textContent = MINE ? fillT(VIDX >= 0 ? "noteMine" : "noteMineUnknown", { name: MINE.name, verdict: T(VKEY[MINE.cls]), score: MINE.score ?? "–" }) : T("note");
   finalBox.replaceChildren(h, tag, motto, ctas, note);
   finalParts = [h, tag, motto, ctas, note];
   finalParts.forEach((p, k) => p.style.setProperty("--k", String(k)));
   finalOn = null;
   buildStatic();
   relabelLayers();
+  toneLines?.(); relabelScene?.(); paintAuto?.();
+}
+// the header: your file's name, and the way between your file and the example
+function paintMine() {
+  const title = document.querySelector(".fj-title span");
+  if (MINE && title) { title.textContent = `${T("yourFile")} · ${MINE.name}`; title.dir = "auto"; }
+  let b = $("fj-mine");
+  if (!MINE && !LAST_RAW) { b?.remove(); return; }
+  if (!b) {
+    b = document.createElement("a"); b.id = "fj-mine"; b.className = "fj-btn fj-mine";
+    b.href = MINE ? "/journey" : `/journey?f=${toB64u(LAST_RAW)}`;
+    b.innerHTML = MINE ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></svg><span></span>'
+      : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 13h6M9 17h4"/></svg><span></span>';
+    $("fj-lang").before(b);
+  }
+  const lastName = !MINE && LAST_RAW ? cleanFile(JSON.parse(LAST_RAW)).name : "";
+  b.querySelector("span").textContent = MINE ? T("demo") : T("mine");
+  b.setAttribute("aria-label", MINE ? T("demoAria") : fillT("mineAria", { name: lastName }));
+  b.title = MINE ? T("demoAria") : fillT("mineAria", { name: lastName });
 }
 function buildStatic() {
   // the text version, in the page's language (no WebGL, screen readers, "text version" mode)
@@ -173,6 +263,10 @@ function buildStatic() {
     parts.push(h2, h3);
     LINES.forEach((l, k) => { if (l[0] >= st.a && l[0] < st.b) { const p = document.createElement("p"); p.textContent = T(`l${k + 1}`).replace(/\[\[|\]\]/g, ""); parts.push(p); } });
   });
+  if (MINE) {   // your file's story, in words, before the stages
+    const mine = document.createElement("p"); mine.textContent = STAGES.map((st, i) => narration(i)).join(" ");
+    parts.splice(1, 0, mine);
+  }
   const end = document.createElement("p"); end.textContent = `CYBERSCAN · ${T("tagline")} ${T("motto")}`;
   const back = document.createElement("p"); const a = document.createElement("a"); a.href = "/"; a.textContent = T("home"); back.append(a);
   const note = document.createElement("p"); note.textContent = T("note");
@@ -449,24 +543,38 @@ function buildSky() {
 
 /* ---------------------------------------------------------- 1. THE ENTRY: the file */
 const FW = 14, FH = 18;
-let file, front, back, fileEdges, halo, halo2, glowDisc, spot;
+let file, front, back, fileEdges, halo, halo2, glowDisc, spot, fileCanvas = null, fileTex = null;
+// the file's face: the example, or your file (its type, name, size, then its first bytes or its fingerprint)
+function drawFile(c) {
+  const x = c.getContext("2d");
+  x.clearRect(0, 0, 560, 720);
+  const g = x.createLinearGradient(0, 0, 0, 720); g.addColorStop(0, "#1a1240"); g.addColorStop(1, "#0a0820");
+  x.fillStyle = g; x.fillRect(0, 0, 560, 720);
+  x.fillStyle = "#2a1d5c"; x.beginPath(); x.moveTo(440, 0); x.lineTo(560, 120); x.lineTo(440, 120); x.closePath(); x.fill();   // folded corner
+  x.strokeStyle = "rgba(201,162,255,.6)"; x.lineWidth = 3; x.beginPath(); x.moveTo(440, 0); x.lineTo(440, 120); x.lineTo(560, 120); x.stroke();
+  const fit = (str, max) => { let t = str; while (t.length > 4 && x.measureText(t).width > max) t = t.slice(0, -2); return t === str ? t : `${t.slice(0, -1)}…`; };
+  const type = MINE ? (MINE.type || T("fileWord")).toUpperCase().slice(0, 6) : "PDF";
+  x.direction = "ltr"; x.textAlign = "left";
+  x.fillStyle = "#c9a2ff"; x.font = `800 ${hasArabic(type) ? 40 : 46}px Segoe UI, Tahoma, sans-serif`; x.fillText(type, 44, 92);
+  x.fillStyle = "#ece4ff"; x.font = "600 26px Segoe UI, Tahoma, sans-serif"; x.fillText(fit(MINE ? MINE.name : "quarterly-report.pdf", 470), 44, 150);
+  x.fillStyle = "#8f84b8"; x.font = "500 20px Segoe UI, Tahoma, sans-serif"; x.fillText(MINE ? fmtSize(MINE.size) : `2.4 ${T("unitMB")}`, 44, 182);
+  if (MINE) { x.fillStyle = "#22e8ff"; x.font = "700 17px Segoe UI, Tahoma, sans-serif"; x.fillText(T("yourFile"), 44, 212); }
+  for (let i = 0; i < 10; i++) { x.fillStyle = `rgba(190,170,240,${0.14 + (i % 3) * 0.04})`; x.fillRect(44, 250 + i * 30, 300 + ((i * 97) % 170), 10); }
+  x.fillStyle = "rgba(34,232,255,.75)"; x.font = "500 19px Consolas, monospace";
+  let lines;
+  if (MINE && MINE.fb) {
+    const b = MINE.fb.split(" "), asc = (arr) => arr.map((h) => { const n = parseInt(h, 16); return n >= 32 && n < 127 ? String.fromCharCode(n) : "."; }).join("");
+    lines = [b.slice(0, 8), b.slice(8, 16)].filter((r) => r.length).map((r) => `${r.join(" ").padEnd(24)} ${asc(r)}`);
+  } else if (MINE && MINE.sha) lines = ["SHA-256", MINE.sha.slice(0, 32), MINE.sha.slice(32)];
+  else if (MINE) lines = [];
+  else lines = ["25 50 44 46 2D 31 2E 37  %PDF-1.7", "0A 25 E2 E3 CF D3 0A 31  .%......1", "20 30 20 6F 62 6A 0A 3C   0 obj.<"];
+  lines.forEach((l, i) => x.fillText(l, 44, 600 + i * 30));
+}
 function buildEntry() {
   file = add(new THREE.Group());
-  const fileTex = (() => {
-    const c = document.createElement("canvas"); c.width = 560; c.height = 720;
-    const x = c.getContext("2d");
-    const g = x.createLinearGradient(0, 0, 0, 720); g.addColorStop(0, "#1a1240"); g.addColorStop(1, "#0a0820");
-    x.fillStyle = g; x.fillRect(0, 0, 560, 720);
-    x.fillStyle = "#2a1d5c"; x.beginPath(); x.moveTo(440, 0); x.lineTo(560, 120); x.lineTo(440, 120); x.closePath(); x.fill();   // folded corner
-    x.strokeStyle = "rgba(201,162,255,.6)"; x.lineWidth = 3; x.beginPath(); x.moveTo(440, 0); x.lineTo(440, 120); x.lineTo(560, 120); x.stroke();
-    x.fillStyle = "#c9a2ff"; x.font = "800 46px Segoe UI, sans-serif"; x.fillText("PDF", 44, 92);
-    x.fillStyle = "#ece4ff"; x.font = "600 26px Segoe UI, sans-serif"; x.fillText("quarterly-report.pdf", 44, 150);
-    x.fillStyle = "#8f84b8"; x.font = "500 20px Segoe UI, sans-serif"; x.fillText("2.4 MB", 44, 182);
-    for (let i = 0; i < 11; i++) { x.fillStyle = `rgba(190,170,240,${0.14 + (i % 3) * 0.04})`; x.fillRect(44, 230 + i * 30, 300 + ((i * 97) % 170), 10); }
-    x.fillStyle = "rgba(34,232,255,.75)"; x.font = "500 19px Consolas, monospace";
-    ["25 50 44 46 2D 31 2E 37  %PDF-1.7", "0A 25 E2 E3 CF D3 0A 31  .%......1", "20 30 20 6F 62 6A 0A 3C   0 obj.<"].forEach((l, i) => x.fillText(l, 44, 600 + i * 30));
-    return new THREE.CanvasTexture(c);
-  })();
+  fileCanvas = document.createElement("canvas"); fileCanvas.width = 560; fileCanvas.height = 720;
+  drawFile(fileCanvas);
+  fileTex = new THREE.CanvasTexture(fileCanvas);
   fileTex.colorSpace = THREE.SRGBColorSpace;
   // the two faces have a hole that opens as the camera arrives, with a glowing rim
   const faceMat = (map) => new THREE.ShaderMaterial({
@@ -719,7 +827,15 @@ function updateGates(camZ, sv) {
 /* ---------------------------------------------------------- 2. THE STRUCTURE: a city of bytes */
 const CITY = { z0: -24, z1: -196, rows: 40, cols: 8 };
 const cityN = CITY.rows * CITY.cols * 2;
-let towers, caps, sigSprites = [], cityBeams = [];
+let towers, caps, sigSprites = [], cityBeams = [], sigTex = [];
+// a signature: the bytes, and under them what they are (in the page's language)
+function drawSig(c, str, cap) {
+  const x = c.getContext("2d"); x.clearRect(0, 0, 512, 160);
+  x.textAlign = "center"; x.textBaseline = "middle"; x.direction = "ltr";
+  x.font = "600 52px Consolas, monospace"; x.fillStyle = "#b9c8ff"; x.shadowColor = "#b9c8ff"; x.shadowBlur = 18; x.fillText(str, 256, 58);
+  x.shadowBlur = 10; x.font = `${hasArabic(cap) ? 600 : 500} ${hasArabic(cap) ? 34 : 30}px Segoe UI, Tahoma, sans-serif`; x.fillStyle = "rgba(200,215,255,.82)";
+  x.direction = hasArabic(cap) ? "rtl" : "ltr"; x.fillText(cap, 256, 122);
+}
 const cityData = [];
 function drawLayer(c, label) {
   const x = c.getContext("2d");
@@ -734,7 +850,7 @@ function drawLayer(c, label) {
   x.fillText(label, RTL() ? 984 : 40, 70);
 }
 function relabelLayers() {
-  LAYERS.forEach((m, i) => { const [k, hex] = LAYER_DEF[i]; drawLayer(m.material.map.image, `${T(k)} · ${hex}`); m.material.map.needsUpdate = true; });
+  LAYERS.forEach((m, i) => { drawLayer(m.material.map.image, layerLabel(i)); m.material.map.needsUpdate = true; });
 }
 function buildCity() {
   const towerGeo = new THREE.BoxGeometry(1, 1, 1); towerGeo.translate(0, 0.5, 0);
@@ -761,20 +877,23 @@ function buildCity() {
 }
 function buildCityLayers() {
   // translucent layers the camera passes through, one per part of the file
-  LAYERS = LAYER_DEF.map(([key, hex, z]) => {
+  LAYERS = LAYER_DEF.map(([key, hex, z], i) => {
     const c = document.createElement("canvas"); c.width = 1024; c.height = 512;
-    drawLayer(c, `${T(key)} · ${hex}`);
+    drawLayer(c, layerLabel(i));
     const mat = new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c), transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, fog: true });
     const m = new THREE.Mesh(new THREE.PlaneGeometry(30, 15), mat); m.position.copy(spine(z)); m.position.y += 1; add(m); return m;
   });
 }
 function buildCitySigns() {
-  // floating signatures: one texture per signature, shared by its sprites
-  const SIGS = ["4D 5A 90 00", "%PDF-1.7", "50 4B 03 04", "7F 45 4C 46", "/JavaScript", "/OpenAction", "obj << >>", "stream", "FF D8 FF E0", "vbaProject.bin", "/EmbeddedFile", "D0 CF 11 E0"];
-  const sigTex = SIGS.map((str) => textTex(str, { size: 54, color: "#b9c8ff" }));
+  // floating signatures: one texture per signature (the bytes, and what they are in the page's language),
+  // shared by its sprites; with your file, its own first bytes float among them
+  const SIGS = [["4D 5A 90 00", "sigExe"], ["%PDF-1.7", "sigPdf"], ["50 4B 03 04", "sigZip"], ["7F 45 4C 46", "sigElf"], ["/JavaScript", "sigJs"], ["/OpenAction", "sigAuto"],
+    ["obj << >>", "sigObj"], ["stream", "sigStream"], ["FF D8 FF E0", "sigJpg"], ["vbaProject.bin", "sigVba"], ["/EmbeddedFile", "sigEmb"], ["D0 CF 11 E0", "sigOle"]];
+  if (MINE && MINE.fb) SIGS.unshift([MINE.fb.split(" ").slice(0, 4).join(" "), "sigMine"]);
+  sigTex = SIGS.map(([str, cap]) => { const c = document.createElement("canvas"); c.width = 512; c.height = 160; drawSig(c, str, T(cap)); const t = new THREE.CanvasTexture(c); t.userData = { str, cap }; return t; });
   for (let i = 0; i < 34; i++) {
     const m = new THREE.SpriteMaterial({ map: sigTex[i % SIGS.length], transparent: true, opacity: 0.75, depthWrite: false, blending: THREE.AdditiveBlending, fog: true });
-    const sp = new THREE.Sprite(m); sp.scale.set(512 / 128 * 2.2, 2.2, 1);
+    const sp = new THREE.Sprite(m); sp.scale.set(512 / 160 * 2.75, 2.75, 1);
     const side = i % 2 ? 1 : -1, z = lerp(-30, -160, rnd());
     sp.position.set(spine(z).x + side * (5 + rnd() * 7), (rnd() - 0.5) * 14, z);
     sp.userData.base = sp.position.clone(); sp.userData.w = rnd() * 6.28;
@@ -825,7 +944,11 @@ function buildTunnel() {
   const col = new THREE.Color();
   for (let i = 0; i < barN; i++) {
     const th = rnd() * Math.PI * 2, z = lerp(T0 - 4, T1 + 4, rnd());
-    const e = 0.25 + 0.75 * Math.abs(Math.sin(z * 0.07 + th * 3)) * rnd();   // a made-up entropy profile
+    let e = 0.25 + 0.75 * Math.abs(Math.sin(z * 0.07 + th * 3)) * rnd();     // the example: a made-up entropy profile
+    if (MINE && MINE.ent.length) {                                            // your file: its real curve, from its first byte (entrance) to its last
+      const u = clamp((T0 - 4 - z) / ((T0 - 4) - (T1 + 4)), 0, 0.9999), v = MINE.ent[Math.floor(u * MINE.ent.length)] / 8;
+      e = clamp(0.06 + 0.94 * v * (0.82 + 0.36 * rnd()), 0.05, 1);
+    }
     const q_ = new THREE.Quaternion().setFromUnitVectors(up, tmpV.set(-Math.cos(th), -Math.sin(th), 0));
     const c = spine(z);
     barData.push({ th, z, e, q: q_, p: new THREE.Vector3(c.x + Math.cos(th) * TR, c.y + Math.sin(th) * TR, z) });
@@ -960,7 +1083,32 @@ function buildNet() {
     transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: true,
   });
   add(new THREE.LineSegments(linkGeo, linkMat));
+  // your file: the rules and indicators that matched float among the layers they light up
+  if (MINE && MINE.rules.length) {
+    ruleSprites = MINE.rules.map((rule, i) => {
+      const c = document.createElement("canvas"); c.width = 768; c.height = 168;
+      drawRule(c, rule, i);
+      const t = new THREE.CanvasTexture(c); t.userData = { rule, i };
+      const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, fog: true }));
+      const l = 1 + (i % 4), z = NZ0 - l * NDZ - 6, sc = spine(z), side = i % 2 ? 1 : -1;
+      sp.position.set(sc.x + side * (8.5 + (i % 3) * 2.2), sc.y + 4.5 - (i % 3) * 3.6, z);
+      sp.scale.set(768 / 168 * 3.4, 3.4, 1);
+      sp.userData.l = l; add(sp); return sp;
+    });
+  }
   built.net = true;
+}
+let ruleSprites = [];
+function drawRule(c, rule, i) {
+  const x = c.getContext("2d"); x.clearRect(0, 0, 768, 168);
+  x.textAlign = "center"; x.textBaseline = "middle";
+  const tag = T(i < (MINE ? MINE.nrules : 0) ? "ruleTag" : "findTag");   // YARA rules first, then the scan's indicators
+  x.direction = hasArabic(tag) ? "rtl" : "ltr";
+  x.font = `700 ${hasArabic(tag) ? 30 : 26}px Segoe UI, Tahoma, sans-serif`; x.fillStyle = "#22e8ff"; x.shadowColor = "#22e8ff"; x.shadowBlur = 12; x.fillText(tag, 384, 42);
+  x.direction = hasArabic(rule) ? "rtl" : "ltr";
+  let size = 46; x.font = `600 ${size}px Segoe UI, Tahoma, sans-serif`;
+  while (size > 26 && x.measureText(rule).width > 730) { size -= 2; x.font = `600 ${size}px Segoe UI, Tahoma, sans-serif`; }
+  x.fillStyle = "#ffe0f6"; x.shadowColor = "#ff4fd8"; x.shadowBlur = 16; x.fillText(rule, 384, 110);
 }
 
 /* ---------------------------------------------------------- 5. THE VERIFICATION: gauge, cage, checks (around the file's core) */
@@ -1060,21 +1208,27 @@ const stageOf = (sv) => { for (let i = STAGES.length - 1; i >= 0; i--) if (sv >=
 // held views: one still per stage (its centre), and the ending
 const heldS = (P) => (P >= FINAL_HELD ? 1 : (STAGES[stageOf(P)].a + STAGES[stageOf(P)].b) / 2);
 const fogC = new THREE.Color();
-let gradeKey = "", gradeAt = 0;
+let gradeKey = "", gradeAt = 0, toned = null;
+const q4 = (c) => [c.r, c.g, c.b].map((v) => Math.round(clamp(v) * 15) * 17).join(",");
 function grade(m) {
-  // the page's own colour follows the world: the HUD, the rail, the words and the veil take the
-  // accent and the light of the moment. A custom property on the root restyles the whole page, so
-  // it is coarse (16 levels a channel) and at most a few times a second; the eye reads it as a drift.
+  // the page's own colour follows the world: the HUD, the rail, the header, the controls and the veil
+  // take the accent and the light of the moment. The custom properties are set on those few boxes
+  // only (on the root they restyled every word of the page: the costliest frames of the journey), at
+  // most every 0.6 s and coarse (16 levels a channel); the eye reads it as a drift. Each
+  // narration line has its own fixed tone (toneLines), the colour of the place it is spoken in.
   const now = performance.now();
-  if (now - gradeAt < 350) return;
-  const q4 = (c) => [c.r, c.g, c.b].map((v) => Math.round(clamp(v) * 15) * 17).join(",");
+  if (now - gradeAt < 600) return;
   const k = `${q4(m.a)}|${q4(m.g)}`;
   if (k === gradeKey) return;
   gradeKey = k; gradeAt = now;
   const [a, g] = k.split("|");
-  html.style.setProperty("--tone", `rgb(${a})`); html.style.setProperty("--tone-rgb", a);
-  html.style.setProperty("--light-rgb", g);
+  toned ||= [...document.querySelectorAll(".fj-top, .fj-rail, .fj-hud, .fj-veil, .fj-auto, .fj-subt")];
+  for (const n of toned) { n.style.setProperty("--tone", `rgb(${a})`); n.style.setProperty("--tone-rgb", a); n.style.setProperty("--light-rgb", g); }
 }
+toneLines = () => {
+  for (const l of lineEls) { const t = q4(moodAt((l.a + l.b) / 2).a); l.el.style.setProperty("--tone", `rgb(${t})`); l.el.style.setProperty("--tone-rgb", t); }
+};
+toneLines();
 
 function updateWorld(sv, t) {
   budgets();
@@ -1157,6 +1311,11 @@ function updateWorld(sv, t) {
   }
   // 4. the network: activation runs layer by layer with the scroll
   for (let l = 0; l < NL; l++) actU.value[l] = seg(sv, 0.535 + l * 0.022, 0.565 + l * 0.022);
+  for (const sp of ruleSprites) {
+    const d = camZ - sp.position.z;
+    sp.visible = d > 2 && d < 90;
+    if (sp.visible) sp.material.opacity = 0.95 * actU.value[sp.userData.l] * clamp((d - 4) / 10) * clamp(1 - (d - 60) / 30);
+  }
   // 5. the verification; it fades away as the camera comes close, so nothing fills the lens
   if (built.vault) {
     const vf = clamp((camZ - VZ - 5) / 12) * (1 - seg(sv, 0.862, 0.888));    // and once the verdict begins, it is no longer the subject
@@ -1164,7 +1323,8 @@ function updateWorld(sv, t) {
     vault.visible = gaugeTrack.visible = gaugeFill.visible = needle.visible = ticks.visible = vaultBeam.visible = on;
     if (on) {
       const g = seg(sv, 0.705, 0.765, inOut);
-      const risk = 0.62 + Math.sin(sv * 90) * 0.04 * (1 - seg(sv, 0.76, 0.79));   // the indicators weigh in, then it settles
+      const base = MINE && MINE.score != null ? Math.max(0.03, MINE.score / 100) : 0.62;   // your file: its real score
+      const risk = base + Math.sin(sv * 90) * 0.04 * (1 - seg(sv, 0.76, 0.79));   // the indicators weigh in, then it settles
       const ang = g * risk * GSPAN;
       if (Math.abs(ang - gaugeAng) > 0.004) {                               // rebuild the arc only when it moved
         gaugeAng = ang;
@@ -1189,9 +1349,11 @@ function updateWorld(sv, t) {
     if (on) {
       VERD.forEach((v, i) => {
         const r = seg(sv, 0.858 + i * 0.006, 0.878 + i * 0.006, (x) => 1 + 2.4 * Math.pow(x - 1, 3) + 1.4 * Math.pow(x - 1, 2));
-        v.g.position.y = lerp(-24, 0, clamp(r, 0, 1.2));
-        v.face.material.uniforms.uA.value = seg(sv, 0.866 + i * 0.006, 0.886 + i * 0.006);
-        v.b.material.uniforms.uStrength.value = 0.18 * bm * seg(sv, 0.87 + i * 0.006, 0.9);
+        const dim = VIDX >= 0 && i !== VIDX ? 0.3 : 1, hi = VIDX === i ? 1.7 : 1;   // your file: its verdict lit, the others step back
+        v.g.position.y = lerp(-24, VIDX === i ? 2.5 : 0, clamp(r, 0, 1.2));
+        v.face.material.uniforms.uA.value = seg(sv, 0.866 + i * 0.006, 0.886 + i * 0.006) * dim * (hi > 1 ? 1.35 : 1);
+        v.b.material.uniforms.uStrength.value = 0.18 * bm * seg(sv, 0.87 + i * 0.006, 0.9) * dim * hi;
+        if (VIDX >= 0) { v.edges.material.opacity = dim; v.base.material.opacity = 0.8 * dim; }
       });
     }
   }
@@ -1312,6 +1474,7 @@ function frame(now) {
   raf = 0;
   const dt = clamp((now - last) / 1000, 0, 0.05); last = now;
   stepWheel(dt);
+  const playing = stepAuto(dt);
   const P = rawP();
   const held = rm || !tb().flight;
   if (held !== still) { setStill(held); forceRender = true; }
@@ -1322,7 +1485,7 @@ function frame(now) {
     if (Math.abs(P - s) < 2e-5) s = P;
     sv = s;
   }
-  const moving = wheeling || (!still && sv !== P);
+  const moving = wheeling || playing || (!still && sv !== P);
   if (moving) activeUntil = Math.max(activeUntil, now + 450);             // a short ambient tail after the last movement
   if (!still && now < activeUntil) clock += dt;                             // ambient motion runs only while drawing
   vel = still ? 0 : lerp(vel, (sv - sPrev) / Math.max(dt, 1e-3), 0.2); sPrev = sv;
@@ -1357,6 +1520,190 @@ document.addEventListener("visibilitychange", () => {
   running = !document.hidden;
   if (running) { forceRender = true; wake(); } else stopLoop();
 });
+
+/* ===================================================================== words inside the 3D scene follow the page's language */
+relabelScene = () => {
+  if (fileCanvas) { drawFile(fileCanvas); fileTex.needsUpdate = true; }
+  for (const t of sigTex) { drawSig(t.image, t.userData.str, T(t.userData.cap)); t.needsUpdate = true; }
+  for (const sp of ruleSprites) { const t = sp.material.map; drawRule(t.image, t.userData.rule, t.userData.i); t.needsUpdate = true; }
+  forceRender = true;
+};
+
+/* ===================================================================== autoplay: the journey as a film */
+// A timeline over the progress: a steady pace, slower wherever a line is on screen (each gets its reading
+// time) and a breath at each new stage. Subtitles per stage; spoken narration where a voice exists for
+// the page's language; the stage waits for the narrator (up to 6 s) before moving on.
+const auto = { on: false, paused: false, t: 0, hold: 0, plan: null, st: -1, narrate: true, speaking: false, utt: null, voice: null, endAt: 0, rec: null, recEnd: 0 };
+try { auto.narrate = localStorage.getItem("fj-narrate") !== "0"; } catch { /* storage off */ }
+const synth = "speechSynthesis" in window ? window.speechSynthesis : null;
+function buildPlan() {
+  const P = [0], Tm = [0], step = 0.0005, base = 1 / 66;
+  let p = 0, t = 0;
+  while (p < 1) {
+    let v = base;
+    for (const [a, b, size] of LINES) if (p >= a && p < b) v = Math.min(v, (b - a) / (size === "big" ? 2.8 : size === "mid" ? 4.4 : 3.4));
+    for (const st of STAGES) if (st.a > 0 && p >= st.a && p < st.a + 0.01) v = Math.min(v, 0.0055);
+    p = Math.min(1, p + step); t += step / v; P.push(p); Tm.push(t);
+  }
+  return { P, T: Tm, total: t };
+}
+function planAt(arrX, arrY, x) {
+  let lo = 0, hi = arrX.length - 1;
+  if (x <= arrX[0]) return arrY[0];
+  if (x >= arrX[hi]) return arrY[hi];
+  while (hi - lo > 1) { const mid = (lo + hi) >> 1; if (arrX[mid] <= x) lo = mid; else hi = mid; }
+  return lerp(arrY[lo], arrY[hi], (x - arrX[lo]) / (arrX[hi] - arrX[lo] || 1));
+}
+function pickVoice() {
+  if (!synth) return null;
+  const L = langOf(), vs = synth.getVoices().filter((v) => v.lang && v.lang.toLowerCase().replace("_", "-").startsWith(L));
+  return vs.find((v) => /natural|neural|online/i.test(v.name)) || vs.find((v) => v.localService) || vs[0] || null;
+}
+synth?.addEventListener?.("voiceschanged", () => { auto.voice = pickVoice(); paintAuto?.(); });
+const autoUI = {};
+function buildAutoUI() {
+  const mk = (tag, cls, attrs = {}) => { const n = document.createElement(tag); if (cls) n.className = cls; for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v); return n; };
+  const play = autoUI.play = mk("button", "fj-btn fj-playbtn", { type: "button", id: "fj-autoplay" });
+  play.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path class="pl" d="M8 5.5v13l10.5-6.5z"/><path class="pa" d="M8 5v14M16 5v14"/></svg><span></span>';
+  play.addEventListener("click", () => toggleAuto());
+  $("fj-lang").before(play);
+  const bar = autoUI.bar = mk("div", "fj-auto", { id: "fj-auto", role: "group", hidden: "" });
+  const btn = (cls, icon) => { const b = mk("button", `fj-a-btn ${cls}`, { type: "button" }); b.innerHTML = `${icon}<span></span>`; bar.append(b); return b; };
+  autoUI.pause = btn("pp", '<svg viewBox="0 0 24 24" aria-hidden="true"><path class="pa" d="M8 5v14M16 5v14"/><path class="pl" d="M8 5.5v13l10.5-6.5z"/></svg>');
+  autoUI.stop = btn("st", '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>');
+  autoUI.narr = btn("nr", '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4.2 4.2 0 0 1 0 6M18.2 6.5a8 8 0 0 1 0 11"/></svg>');
+  const canRec = !!(window.MediaRecorder && canvas.captureStream && clipType());
+  if (canRec) autoUI.clip = btn("cl", '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle class="dot" cx="12" cy="12" r="3.6"/></svg>');
+  autoUI.msg = mk("span", "fj-a-msg", { role: "status" }); bar.append(autoUI.msg);
+  autoUI.keys = mk("small", "fj-a-keys"); bar.append(autoUI.keys);
+  autoUI.pause.addEventListener("click", () => toggleAuto());
+  autoUI.stop.addEventListener("click", () => stopAuto());
+  autoUI.narr.addEventListener("click", () => toggleNarr());
+  autoUI.clip?.addEventListener("click", () => recordClip());
+  const sub = autoUI.sub = mk("p", "fj-subt", { id: "fj-subt", dir: "auto" });
+  document.body.append(bar, sub);
+}
+paintAuto = () => {
+  if (!autoUI.play) return;
+  const on = auto.on && !auto.paused;
+  autoUI.play.querySelector("span").textContent = on ? T("pause") : T("playShort");
+  autoUI.play.setAttribute("aria-label", on ? T("pause") : T("play")); autoUI.play.title = `${T("play")} (P)`;
+  autoUI.play.classList.toggle("is-on", on); autoUI.play.setAttribute("aria-pressed", String(auto.on));
+  autoUI.bar.setAttribute("aria-label", T("autoAria"));
+  autoUI.pause.querySelector("span").textContent = on ? T("pause") : T("resume");
+  autoUI.pause.classList.toggle("is-paused", !on);
+  autoUI.stop.querySelector("span").textContent = T("stop");
+  const voice = auto.voice || (auto.voice = pickVoice());
+  autoUI.narr.disabled = !voice;
+  autoUI.narr.setAttribute("aria-pressed", String(!!voice && auto.narrate));
+  autoUI.narr.querySelector("span").textContent = !voice ? T("narrNone") : auto.narrate ? T("narrOn") : T("narrOff");
+  if (autoUI.clip) autoUI.clip.querySelector("span").textContent = auto.rec ? fillT("clipRec", { n: Math.max(0, Math.ceil((auto.recEnd - performance.now()) / 1000)) }) : T("clip");
+  autoUI.clip?.classList.toggle("is-rec", !!auto.rec);
+  autoUI.keys.textContent = T("keys");
+  autoUI.sub.setAttribute("aria-live", voice && auto.narrate ? "off" : "polite");
+  if (auto.on && auto.st >= 0) autoUI.sub.textContent = narration(auto.st);
+};
+function say(st) {
+  const text = narration(st);
+  autoUI.sub.textContent = text;
+  autoUI.sub.classList.remove("on"); void autoUI.sub.offsetWidth; autoUI.sub.classList.add("on");
+  synth?.cancel(); auto.speaking = false;
+  if (!auto.narrate || !synth) return;
+  const v = auto.voice || (auto.voice = pickVoice()); if (!v) return;
+  const u = new SpeechSynthesisUtterance(text); u.voice = v; u.lang = v.lang; u.rate = langOf() === "ar" ? 0.95 : 1; u.pitch = 1;
+  u.onend = u.onerror = () => { if (auto.utt === u) { auto.speaking = false; wake(); } };
+  auto.utt = u; auto.speaking = true;
+  synth.speak(u);
+}
+function stepAuto(dt) {
+  if (!auto.on || auto.paused) return false;
+  const plan = auto.plan, now = performance.now();
+  const p = planAt(plan.T, plan.P, auto.t), st = stageOf(p);
+  const nearEnd = st < STAGES.length - 1 && p >= STAGES[st].b - 0.004;
+  if (nearEnd && auto.speaking && auto.hold < 6) auto.hold += dt;              // the narrator finishes the stage first
+  else { if (!nearEnd) auto.hold = 0; auto.t = Math.min(plan.total, auto.t + dt); }
+  const np = planAt(plan.T, plan.P, auto.t);
+  wheeling = false; scrollTo(0, Math.round(np * maxScroll()));
+  const ns = stageOf(np);
+  if (ns !== auto.st) { auto.st = ns; say(ns); }
+  if (auto.t >= plan.total) {                                               // the ending: a moment, then the film stops
+    auto.endAt ||= now;
+    if (now - auto.endAt > 3500 && !auto.speaking) { stopAuto(true); return false; }
+  }
+  if (auto.rec) paintAuto();
+  return true;
+}
+function startAuto() {
+  auto.plan ||= buildPlan();
+  let P = rawP();
+  if (P > 0.985) { P = 0; scrollTo(0, 0); s = sPrev = 0; forceRender = true; }   // from the start again, without flying back through the world
+  auto.t = planAt(auto.plan.P, auto.plan.T, P);
+  auto.on = true; auto.paused = false; auto.st = -1; auto.hold = 0; auto.endAt = 0;
+  html.classList.add("fj-auto-on"); autoUI.bar.hidden = false;
+  sfx("whoosh"); paintAuto(); wake(400);
+}
+function pauseAuto() { if (!auto.on || auto.paused) return; auto.paused = true; synth?.cancel(); auto.speaking = false; paintAuto(); }
+function resumeAuto() { if (!auto.on) return; auto.paused = false; auto.st = -1; auto.t = planAt(auto.plan.P, auto.plan.T, rawP()); paintAuto(); wake(400); }
+function stopAuto(done) {
+  if (!auto.on) return;
+  auto.on = false; auto.paused = false; synth?.cancel(); auto.speaking = false;
+  if (auto.rec && auto.rec.state !== "inactive") auto.rec.stop();
+  html.classList.remove("fj-auto-on"); autoUI.bar.hidden = true; autoUI.sub.classList.remove("on"); autoUI.sub.textContent = "";
+  paintAuto();
+  if (!done) autoUI.play.focus({ preventScroll: true });
+}
+function toggleAuto() { if (!auto.on) startAuto(); else if (auto.paused) resumeAuto(); else pauseAuto(); }
+function toggleNarr() {
+  auto.narrate = !auto.narrate;
+  try { localStorage.setItem("fj-narrate", auto.narrate ? "1" : "0"); } catch { /* storage off */ }
+  if (!auto.narrate) { synth?.cancel(); auto.speaking = false; } else if (auto.on && !auto.paused && auto.st >= 0) say(auto.st);
+  paintAuto();
+}
+// the visitor takes over: any scroll of their own pauses the film
+const takeOver = (e) => { if (e && e.target && e.target.closest && e.target.closest(".fj-auto, .fj-top")) return; if (auto.on && !auto.paused) pauseAuto(); };
+addEventListener("wheel", takeOver, { passive: true });
+addEventListener("touchstart", takeOver, { passive: true });
+addEventListener("keydown", (e) => {
+  if (e.ctrlKey || e.metaKey || e.altKey || html.classList.contains("fj-textmode")) return;
+  const tgt = e.target, onControl = tgt && tgt.closest && tgt.closest("button, a, input, textarea, select");
+  const k = e.key;
+  if (k === "p" || k === "P") { e.preventDefault(); toggleAuto(); }
+  else if (auto.on && k === " " && !onControl) { e.preventDefault(); toggleAuto(); }
+  else if (auto.on && k === "Escape") { e.preventDefault(); stopAuto(); }
+  else if (auto.on && (k === "n" || k === "N")) toggleNarr();
+  else if (["ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End"].includes(k) || (k === " " && !onControl)) takeOver();
+});
+
+/* ---------- a short clip: the canvas, recorded while the film plays (webm, about 10 s) ---------- */
+function clipType() { try { return ["video/webm;codecs=vp9", "video/webm;codecs=vp8", "video/webm"].find((m) => MediaRecorder.isTypeSupported(m)) || ""; } catch { return ""; } }
+function flashMsg(text) { autoUI.msg.textContent = text; clearTimeout(autoUI.msg.t); autoUI.msg.t = setTimeout(() => { autoUI.msg.textContent = ""; }, 3200); }
+function recordClip() {
+  if (auto.rec) return;
+  const type = clipType();
+  let stream = null, rec = null;
+  try { stream = canvas.captureStream(30); rec = new MediaRecorder(stream, { mimeType: type, videoBitsPerSecond: 6e6 }); } catch { flashMsg(T("clipFail")); return; }
+  const chunks = [];
+  rec.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
+  rec.onstop = () => {
+    stream.getTracks().forEach((t) => t.stop());
+    clearInterval(auto.recTick); auto.rec = null;
+    if (chunks.length) {
+      const url = URL.createObjectURL(new Blob(chunks, { type: "video/webm" }));
+      const a = document.createElement("a"); a.href = url;
+      a.download = `cyberscan-journey${MINE ? `-${MINE.name.replace(/[^\w.-]+/g, "_").slice(0, 40)}` : ""}.webm`;
+      document.body.append(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 8000);
+      flashMsg(T("clipDone"));
+    } else flashMsg(T("clipFail"));
+    paintAuto();
+  };
+  if (!auto.on) startAuto(); else if (auto.paused) resumeAuto();
+  forceRender = true; wake(400);
+  rec.start(500); auto.rec = rec; auto.recEnd = performance.now() + 10000;
+  auto.recTick = setInterval(() => { paintAuto(); if (performance.now() >= auto.recEnd && rec.state !== "inactive") rec.stop(); }, 250);
+  paintAuto();
+}
+buildAutoUI(); paintAuto();
 
 /* ===================================================================== start: the entry first, the rest in chunks */
 // upload a chunk's textures one per task before anything draws them, so no frame pays for them all

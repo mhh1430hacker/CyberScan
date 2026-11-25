@@ -32,7 +32,7 @@ FILES = [
     "ml/forest_export.py", "ml/conformal.py", "ml/counterfactual.py", "ml/feature_schema.py", "ml/pe_layout.py",
     "monitoring/__init__.py", "monitoring/downloads_monitor.py",
     "web_v/server.py", "web_v/services.py", "web_v/mobile_bridge.py",
-    "web_v/assistant.py", "web_v/assistant_knowledge.md",
+    "web_v/assistant.py", "web_v/assistant_knowledge.md", "web_v/email_check.py",
 ]
 TREES = ["core", "detection", "repair_engine/executor", "repair_engine/parsers", "repair_engine/blind", "rules"]
 TREE_FILES = ["repair_engine/__init__.py", "repair_engine/analyze.py", "repair_engine/regions.py",

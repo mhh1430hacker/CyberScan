@@ -34,6 +34,14 @@ from typing import Any
 ROOT = Path(__file__).resolve().parent.parent
 PUBLIC_BLOCKED_CATEGORIES = {"system-security"}
 PUBLIC_BLOCKED_INPUTS = {"directory", "paths", "root"}       # places on the server's disk
+# System tools that can also analyse what the visitor pastes (an export, a list, a config) and open
+# no connection nor folder: on the website they run on pasted content only ("source" must not be
+# "local", which would read the server itself).
+PUBLIC_PASTE_TOOLS = {
+    "cyberscan.system.firewall-config", "cyberscan.system.installed-software", "cyberscan.system.persistence-auditor",
+    "cyberscan.system.process-security", "cyberscan.system.scheduled-tasks", "cyberscan.system.config-auditor",
+    "cyberscan.system.update-status",
+}
 PUBLIC_MAX_BODY = 5_600_000          # bytes of JSON (base64 inflates by 4/3: about 4 MB of file)
 LOCAL_MAX_BODY = 70_000_000
 TIMEOUT_SECONDS = 20                 # public website
@@ -71,8 +79,9 @@ def _allowed(record, public: bool) -> bool:
     if not public:
         return True
     meta = record.metadata
-    return (meta.category.lower() not in PUBLIC_BLOCKED_CATEGORIES and not meta.processing.get("network", False)
-            and not meta.processing.get("filesystem", False))
+    if meta.processing.get("network", False) or meta.processing.get("filesystem", False):
+        return False
+    return meta.category.lower() not in PUBLIC_BLOCKED_CATEGORIES or meta.tool_id in PUBLIC_PASTE_TOOLS
 
 
 def catalog(public: bool) -> dict[str, Any]:
@@ -85,6 +94,7 @@ def catalog(public: bool) -> dict[str, Any]:
         tools.append({
             "id": m.tool_id, "name": m.name, "description": m.description, "category": m.category.lower(),
             "version": m.version, "input": m.input_schema, "privacy": m.privacy, "processing": m.processing,
+            "paste_only": bool(public and m.tool_id in PUBLIC_PASTE_TOOLS),
         })
     tools.sort(key=lambda t: (t["category"], t["name"]))
     hidden = sum(1 for r in _records() if r.status == "available") - len(tools)
@@ -171,6 +181,8 @@ def run(tool_id: Any, input_data: Any, public: bool) -> dict[str, Any]:
         raise ToolboxError(400, "The tool's input must be an object.")
     if public and PUBLIC_BLOCKED_INPUTS & {k for k, v in input_data.items() if _meaningful(v)}:
         raise ToolboxError(403, "Reading folders on the server isn't available on the website; paste the content instead.")
+    if public and tool_id in PUBLIC_PASTE_TOOLS and str(input_data.get("source", "provided")) != "provided":
+        raise ToolboxError(403, "On the website this tool reads only what you paste; reading this computer works in the desktop app.")
     input_data = validate_input(record.metadata.input_schema, input_data)
     declared = float((record.metadata.processing or {}).get("timeout_seconds") or TIMEOUT_SECONDS)
     timeout = max(1.0, min(declared, TIMEOUT_SECONDS if public else LOCAL_TIMEOUT_SECONDS))

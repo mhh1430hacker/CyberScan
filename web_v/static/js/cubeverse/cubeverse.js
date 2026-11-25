@@ -11,6 +11,8 @@ const ICON = {
   quantum: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9h8v8H5z"/><path d="M9 5h10v10" stroke-dasharray="2 2.2"/><path d="M3 21c3-2.5 5-2.5 8 0s5 2.5 10 0" /></svg>',
   dimension: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 8.5h8v8h-8z"/><path d="m13.5 8 4-3 4 3v8l-4 3-4-3z"/><path d="M13.5 8l4 3 4-3M17.5 11v8"/></svg>',
   infinite: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h18v18H3z"/><path d="M7 7h10v10H7z"/><path d="M10.2 10.2h3.6v3.6h-3.6z"/></svg>',
+  cyberscan: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2.8 8 4.6v9.2l-8 4.6-8-4.6V7.4z"/><path d="m12 7.2 4.2 2.4v4.8L12 16.8l-4.2-2.4V9.6z"/><path d="M12 2.8v4.4M20 7.4l-3.8 2.2M4 7.4l3.8 2.2"/></svg>',
+  badges: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v3M10 16h4v4h-4z"/></svg>',
 };
 
 export const WORLDS = [
@@ -39,14 +41,36 @@ export const WORLDS = [
       controls: ["مرّر العجلة أو باعد إصبعيك أو اضغط «اغطس» للتكبير، فالمكعبات داخل المكعبات لا تنتهي.", "انقر مكعبًا لتغطس إلى العالم التالي.", "اسحب لتدير البنية.", "لوحة المفاتيح: + و− للتكبير، والأسهم للتدوير."] },
     en: { title: "Infinite Cube", short: "Cubes nested inside cubes, without end: every level is a small geometric world.",
       controls: ["Scroll, pinch or press Dive to zoom; the cubes inside cubes never end.", "Click a cube to dive into the next world.", "Drag to turn the structure.", "Keyboard: + and − zoom, the arrows turn."] } },
+  { id: "cyberscan", tone: "dark", wipe: ["#06142a", "#22b8e8"],
+    ar: { title: "مكعب CyberScan", short: "ملف على هيئة مكعب: فكّكه طبقة بعد طبقة، من اسمه إلى بصمته، كما يقرؤه CyberScan.",
+      controls: ["انقر على المكعب أو اضغط «انزع طبقة» لتنزع الغلاف الخارجي، و«أعِد طبقة» لتعيده.", "خمس طبقات: الاسم، أول البايتات، البنية، إنتروبيا المحتوى، ثم البصمة والحكم في اللبّ.", "اختر ملفًا من الأمثلة، أو «فحصي الأخير» إن كنت فحصت ملفًا في هذه النافذة.", "لوحة المفاتيح: Enter ينزع طبقة، Backspace يعيدها، R يعيد البناء. اسحب لتدور وكبّر بالعجلة."] },
+    en: { title: "CyberScan Cube", short: "A file as a cube: take it apart layer by layer, from its name to its fingerprint, the way CyberScan reads it.",
+      controls: ["Click the cube or press Peel to remove the outer shell; Put one back returns it.", "Five layers: the name, the first bytes, the structure, the content entropy, then the fingerprint and the verdict at the core.", "Pick an example file, or My last scan if you scanned a file in this tab.", "Keyboard: Enter peels, Backspace puts back, R rebuilds. Drag to orbit, wheel to zoom."] } },
 ];
+/* small achievements, kept in this browser (localStorage "cv-badges") */
+const BADGES = [
+  { id: "shapes", ar: ["مهندس الأشكال", "اكتشف الأشكال الخمسة في عمارة المكعبات."], en: ["Shape finder", "Find all five shapes in Cube Architecture."] },
+  { id: "depth20", ar: ["الغوّاص", "اغطس إلى العمق 20 في المكعب اللانهائي."], en: ["Deep diver", "Dive to depth 20 in the Infinite Cube."] },
+  { id: "impacts100", ar: ["مئة اصطدام", "100 اصطدام في ملعب الجاذبية."], en: ["Hundred impacts", "100 impacts in the Gravity Playground."] },
+  { id: "explorer", ar: ["المستكشف", "زُر العوالم الستة كلها."], en: ["Explorer", "Visit all six worlds."] },
+  { id: "core", ar: ["قلب الملف", "فكّك مكعب CyberScan حتى بصمته."], en: ["To the core", "Take the CyberScan Cube apart down to its fingerprint."] },
+];
+const badges = (() => {
+  let st = { got: {}, n: {}, seen: [] };
+  try { const s = JSON.parse(localStorage.getItem("cv-badges") || "null"); if (s && typeof s === "object") st = { got: s.got || {}, n: s.n || {}, seen: Array.isArray(s.seen) ? s.seen : [] }; } catch { /* storage off */ }
+  let t = 0;
+  const store = () => { clearTimeout(t); t = setTimeout(() => { try { localStorage.setItem("cv-badges", JSON.stringify(st)); } catch { /* storage off */ } }, 250); };
+  return { st, store };
+})();
 const UI = {
   ar: { dock: "عوالم المكعبات", home: "العودة إلى الصفحة الهادئة", help: "طريقة اللعب", hideHelp: "إخفاء", of: "من", tools: "أدوات العالم",
     canvas: "عالم تفاعلي ثلاثي الأبعاد", found: "اكتشاف", loading: "يجهّز العالم…", welcome: "مرحبًا بك في عالم المكعبات", worldN: "العالم",
-    fallbackNote: "متصفحك لا يدعم WebGL 2، فهذه نسخة أخف من العوالم بمكعبات CSS.", exploreAgain: "العودة إلى عالم المكعبات", keysHint: "الأرقام 1–5 تنقلك بين العوالم." },
+    fallbackNote: "متصفحك لا يدعم WebGL 2، فهذه نسخة أخف من العوالم بمكعبات CSS.", exploreAgain: "العودة إلى عالم المكعبات", keysHint: "الأرقام 1–6 تنقلك بين العوالم.",
+    badges: "الأوسمة", badgesOf: "{n} من {m}", badge: "وسام جديد", locked: "لم يُفتح بعد", earned: "حصلت عليه" },
   en: { dock: "Cubeverse worlds", home: "Back to the calm page", help: "How to play", hideHelp: "Hide", of: "of", tools: "World controls",
     canvas: "Interactive 3D world", found: "Discovered", loading: "Preparing the world…", welcome: "Welcome to the Cubeverse", worldN: "World",
-    fallbackNote: "Your browser has no WebGL 2, so here is a lighter version of the worlds made with CSS cubes.", exploreAgain: "Back to the Cubeverse", keysHint: "Keys 1–5 move between worlds." },
+    fallbackNote: "Your browser has no WebGL 2, so here is a lighter version of the worlds made with CSS cubes.", exploreAgain: "Back to the Cubeverse", keysHint: "Keys 1–6 move between worlds.",
+    badges: "Badges", badgesOf: "{n} of {m}", badge: "New badge", locked: "Not yet earned", earned: "Earned" },
 };
 
 let page = null, built = false, engine = null, core = null, fallback = null, mode = "";   // mode: "gl" | "css"
@@ -99,6 +123,14 @@ function build() {
     else if (e.key === "Home") j = 0; else if (e.key === "End") j = items.length - 1;
     if (j >= 0) { e.preventDefault(); roving(items[j]); items[j].focus(); }
   });
+  // the badges: a small button at the end of the dock and its panel
+  const bb = el.badgeBtn = h("button", "cv-badge-btn", { type: "button", "aria-expanded": "false", "aria-controls": "cv-badges" });
+  bb.innerHTML = `${ICON.badges}<span class="cv-badge-n"></span>`;
+  dock.append(h("span", "cv-sep", { "aria-hidden": "true" }), bb);
+  el.badges = h("section", "cv-badges", { id: "cv-badges", hidden: "", "aria-labelledby": "cv-badges-t" });
+  bb.addEventListener("click", (e) => { e.stopPropagation(); toggleBadges(); });
+  el.badges.addEventListener("keydown", (e) => { if (e.key === "Escape") { e.stopPropagation(); toggleBadges(false); bb.focus(); } });
+  document.addEventListener("pointerdown", (e) => { if (!el.badges.hidden && !el.badges.contains(e.target) && !bb.contains(e.target)) toggleBadges(false); });
   document.getElementById("sp-top-slot").append(dock);
   // the caption and the discovery card sit under the header, whatever its height
   const top = document.querySelector(".sp-top");
@@ -120,7 +152,7 @@ function build() {
   const live = el.live = h("p", "cv-live", { "aria-live": "polite" });
   const loading = el.loading = h("div", "cv-loading", { hidden: "" });
   loading.innerHTML = '<span class="cv-spin" aria-hidden="true"><i></i><i></i><i></i></span><span class="cv-loading-text"></span>';
-  root.append(hud, stage, tools, found, live, loading);   // tab order: caption, world, controls
+  root.append(hud, stage, tools, found, live, loading, el.badges);   // tab order: caption, world, controls
   document.querySelector(".sp-foot").after(root);
   el.wipe = h("div", "cv-wipe", { "aria-hidden": "true" });
   el.morph = h("div", "cv-morph", { "aria-hidden": "true" });
@@ -139,6 +171,46 @@ function build() {
   document.addEventListener("sp:modal", (e) => { if (!engine) return; if (e.detail) engine.pause("modal"); else if (inside) engine.resume("modal"); });
   paint();
 }
+function paintBadges() {
+  const u = L(), got = badges.st.got, n = BADGES.filter((b) => got[b.id]).length;
+  el.badgeBtn.querySelector(".cv-badge-n").textContent = `${n}/${BADGES.length}`;
+  el.badgeBtn.setAttribute("aria-label", `${u.badges}: ${fill(u.badgesOf, { n, m: BADGES.length })}`); el.badgeBtn.title = u.badges;
+  const head = h("h3", "", { id: "cv-badges-t", tabindex: "-1" }); head.textContent = u.badges;
+  const ul = h("ul");
+  for (const b of BADGES) {
+    const [name, how] = b[lang()] || b.en, on = !!got[b.id];
+    const li = h("li", on ? "is-on" : "");
+    li.innerHTML = `<span class="cv-badge-ico" aria-hidden="true">${ICON.badges}</span>`;
+    const tx = h("span", "cv-badge-tx"); const nb = h("b"); nb.textContent = name; const sm = h("small"); sm.textContent = how; tx.append(nb, sm);
+    const st = h("span", "cv-badge-st"); st.textContent = on ? u.earned : u.locked;
+    li.append(tx, st); ul.append(li);
+  }
+  el.badges.replaceChildren(head, ul);
+}
+function toggleBadges(force) {
+  const open = force ?? el.badges.hidden;
+  if (open) paintBadges();
+  el.badges.hidden = !open; el.badgeBtn.setAttribute("aria-expanded", String(open));
+  if (open) el.badges.querySelector("h3")?.focus({ preventScroll: true });
+}
+const fill = (s, o) => s.replace(/\{(\w+)\}/g, (m, k) => (o[k] != null ? o[k] : m));
+function achieve(id) {
+  const b = BADGES.find((x) => x.id === id); if (!b || badges.st.got[id]) return false;
+  badges.st.got[id] = Date.now(); badges.store();
+  discover(`badge-${id}`, { ar: `${UI.ar.badge}: ${b.ar[0]}`, en: `${UI.en.badge}: ${b.en[0]}` });
+  sfx("shimmer", { n: 6 });
+  if (el.badgeBtn) { paintBadges(); el.badgeBtn.classList.remove("is-new"); void el.badgeBtn.offsetWidth; el.badgeBtn.classList.add("is-new"); }
+  return true;
+}
+function count(key, by = 1) {
+  const n = (badges.st.n[key] = (Number(badges.st.n[key]) || 0) + by); badges.store();
+  if (key === "impacts" && n >= 100) achieve("impacts100");
+  return n;
+}
+function visit(id) {
+  if (!badges.st.seen.includes(id)) { badges.st.seen.push(id); badges.store(); }
+  if (WORLDS.every((w) => badges.st.seen.includes(w.id))) achieve("explorer");
+}
 function toggleHelp(force) {
   const open = force ?? el.help.hidden;
   el.help.hidden = !open; el.helpBtn.setAttribute("aria-expanded", String(open));
@@ -154,6 +226,7 @@ function paint() {
   el.tools.setAttribute("aria-label", u.tools);
   el.loading.querySelector(".cv-loading-text").textContent = u.loading;
   el.helpBtn.textContent = el.help.hidden ? u.help : u.hideHelp;
+  paintBadges();
   if (currentId) caption(currentId);
 }
 function caption(id) {
@@ -171,6 +244,13 @@ function caption(id) {
 function setTone(tone) { document.body.dataset.cvTone = tone; }
 function announce(text) { el.live.textContent = ""; setTimeout(() => { el.live.textContent = text; }, 60); }
 // a discovery: a short, quiet card at the top, said aloud too (once per visit each)
+// a short confirmation in the same quiet card (a link copied, an image saved)
+function flash(text) {
+  const n = h("span", "cv-found-n"); n.textContent = text;
+  el.found.replaceChildren(n);
+  el.found.classList.remove("is-on"); void el.found.offsetWidth; el.found.classList.add("is-on");
+  clearTimeout(el.found.t); el.found.t = setTimeout(() => el.found.classList.remove("is-on"), 2400);
+}
 function discover(key, names) {
   const name = names[lang()] || names.en;
   const first = !discovered.has(key); discovered.add(key);
@@ -215,7 +295,7 @@ function loadWorld(id) {
 }
 function ctxFor(id) {
   return { engine, core, THREE: core && core.THREE, id, lang, reduced, sfx, announce, discover, setTone, tools: el.tools,
-    text: (o) => o[lang()] || o.en, invalidate: (ms) => engine && engine.invalidate(ms) };
+    text: (o) => o[lang()] || o.en, invalidate: (ms) => engine && engine.invalidate(ms), achieve, count, toast: flash };
 }
 let loaderTimer = 0;
 function showLoader(on) {
@@ -239,6 +319,7 @@ async function mount(id) {
   } else {
     current = fallback.create(id, el.css, ctxFor(id), WORLDS);
   }
+  visit(id);
   el.chips.forEach((c) => { const on = c.dataset.go === id; c.setAttribute("aria-current", on ? "true" : "false"); c.classList.toggle("is-on", on); });
   roving(el.chips[WORLDS.indexOf(w)]);
   caption(id);

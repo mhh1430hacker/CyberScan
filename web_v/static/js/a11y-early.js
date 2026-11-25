@@ -1,6 +1,14 @@
 /* Runs in <head>, before every other script: if the visitor chose "Reduce motion"
  * on this site, every module that asks the browser for (prefers-reduced-motion)
  * gets "yes", and CSS gets html.reduce-motion. The OS setting is honoured anyway. */
+/* The Accessibility panel's display modes (js/a11y-panel.js): larger text and high contrast,
+ * applied here too so the first paint already has them. */
+(function () {
+  "use strict";
+  let modes = "";
+  try { modes = localStorage.getItem("cs-a11y") || ""; } catch { /* storage off */ }
+  modes.split(",").forEach((m) => { if (m === "large" || m === "contrast") document.documentElement.classList.add(`a11y-${m}`); });
+})();
 (function () {
   "use strict";
   let reduce = false;

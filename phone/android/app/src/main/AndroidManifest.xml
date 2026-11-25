@@ -27,7 +27,36 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <!-- Share to CyberScan: files, links and text from any app (handled in MainActivity.kt).
+                 Shared items are scanned on the phone, never uploaded. -->
+            <intent-filter android:label="@string/share_label">
+                <action android:name="android.intent.action.SEND"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="*/*"/>
+            </intent-filter>
+            <intent-filter android:label="@string/share_label">
+                <action android:name="android.intent.action.SEND_MULTIPLE"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="*/*"/>
+            </intent-filter>
+            <!-- the home-screen widget's Quick scan button -->
+            <intent-filter>
+                <action android:name="io.github.mhh1430hacker.cyberscan.QUICK_SCAN"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
         </activity>
+        <!-- Home-screen widget: the latest check and a Quick scan button -->
+        <receiver
+            android:name=".ScanWidgetProvider"
+            android:exported="false"
+            android:label="CyberScan">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/cyberscan_widget_info"/>
+        </receiver>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data
