@@ -89,6 +89,37 @@
     }
   }
 
+  /* ---------------- the ledger: counts up when it arrives; borrowed figures read live ---------------- */
+  const ledger = document.getElementById("og-ledger");
+  if (ledger) {
+    const nums = [...ledger.querySelectorAll(".ogl-n")];
+    // bar lengths: set through the CSSOM (the page's CSP forbids inline style attributes)
+    ledger.querySelectorAll(".ogl-bar[data-w]").forEach((b) => b.style.setProperty("--w", b.dataset.w));
+    const nf = () => { try { return new Intl.NumberFormat(CS.lang === "ar" ? "ar-SA-u-nu-latn" : (CS.lang || "en")); } catch { return { format: String }; } };
+    const show = (el, v) => { el.textContent = (el.dataset.prefix || "") + nf().format(v); };
+    let counted = false;
+    function count() {
+      counted = true;
+      ledger.classList.add("in");
+      if (still()) { nums.forEach((el) => show(el, +el.dataset.n)); return; }
+      const t0 = performance.now(), dur = 1700;
+      const step = (now) => {
+        const k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 4);
+        nums.forEach((el) => show(el, Math.round(+el.dataset.n * e)));
+        if (k < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    }
+    nums.forEach((el) => show(el, still() ? +el.dataset.n : 0));
+    if (still()) count();
+    else new IntersectionObserver((es, o) => { if (es[0].isIntersecting) { count(); o.disconnect(); } }, { threshold: 0.25 }).observe(ledger);
+    // the borrowed figures come from the engine itself, so they stay true after every rules update
+    if (CS.api) CS.api("/api/protection").then((p) => {
+      nums.forEach((el) => { const v = p && +p[el.dataset.live]; if (el.dataset.live && v > 0) { el.dataset.n = String(v); if (counted) show(el, v); } });
+    }).catch(() => { /* the figures from the code stay */ });
+    if (CS.onLang) CS.onLang(() => { if (counted) nums.forEach((el) => show(el, +el.dataset.n)); });
+  }
+
   /* ---------------- the real visit counter ---------------- */
   const box = document.getElementById("visits");
   if (!box) return;

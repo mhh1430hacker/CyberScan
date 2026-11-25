@@ -338,11 +338,11 @@
             <h2 class="og-title" id="og-title" data-i18n="ogTitle">Original, line by line.</h2>
             <p class="og-lead" data-i18n="ogLead">CyberScan isn't a copy of another product. Its idea, its code and its design were born here.</p>
             <ol class="og-pillars">
-              <li class="og-pillar"><b data-i18n="ogP1T">An engine written from scratch</b><p data-i18n="ogP1">Static analysis, scoring and plain-language explanations were all written here, line by line, not wrapped around another tool.</p></li>
-              <li class="og-pillar"><b data-i18n="ogP2T">Our own real repair</b><p data-i18n="ogP2">It rebuilds a clean copy of the file (CDR) instead of stopping at a warning.</p></li>
-              <li class="og-pillar"><b data-i18n="ogP3T">Design without templates</b><p data-i18n="ogP3">Every motion and scene, from the File Journey to the Cubeverse, is drawn in code for CyberScan alone.</p></li>
-              <li class="og-pillar"><b data-i18n="ogP4T">Arabic first</b><p data-i18n="ogP4">Designed in Arabic from day one, then extended to thirty languages.</p></li>
-              <li class="og-pillar"><b data-i18n="ogP5T">Honest about sources</b><p data-i18n="ogP5">We use trusted open rules and data, such as YARA-Forge and abuse.ch, and name them instead of hiding them.</p></li>
+              <li class="og-pillar"><b data-i18n="ogP1T">An engine written from scratch</b><p data-i18n="ogP1"></p><span class="og-fig" data-i18n="ogP1F">9,213 lines · 44 files</span></li>
+              <li class="og-pillar"><b data-i18n="ogP2T">Our own real repair</b><p data-i18n="ogP2"></p><span class="og-fig" data-i18n="ogP2F">4,280 lines · 6 techniques</span></li>
+              <li class="og-pillar"><b data-i18n="ogP3T">Design without templates</b><p data-i18n="ogP3"></p><span class="og-fig" data-i18n="ogP3F">26,988 lines of interface</span></li>
+              <li class="og-pillar"><b data-i18n="ogP4T">Arabic first</b><p data-i18n="ogP4"></p><span class="og-fig" data-i18n="ogP4F">30 languages · 4 platforms</span></li>
+              <li class="og-pillar"><b data-i18n="ogP5T">Honest about sources</b><p data-i18n="ogP5"></p><span class="og-fig" data-i18n="ogP5F">8 open sources, named</span></li>
             </ol>
           </div>
         </div>
@@ -350,6 +350,39 @@
       </div>
     </section>
     <!-- ============ /ORIGINALITY ============ -->
+    <!-- the ledger: what was written here vs what is borrowed, by name (figures: the code itself, Nov 2026; live counts from /api/protection) -->
+    <section id="og-ledger" class="ogl l-section" aria-labelledby="ogl-title">
+      <header class="ogl-head">
+        <p class="og-kicker" data-i18n="oglKicker">// In numbers</p>
+        <h2 class="ogl-title" id="ogl-title" data-i18n="oglTitle">What we built, and what we borrow.</h2>
+        <p class="ogl-lead" data-i18n="oglLead">Originality isn't pretending to build everything alone. It's knowing exactly which part is yours, and naming the rest.</p>
+      </header>
+      <div class="ogl-cols">
+        <div class="ogl-col ogl-ours">
+          <h3><span class="ogl-badge" aria-hidden="true">◆</span><span data-i18n="oglOurs">Written here</span></h3>
+          <ul>
+            <li><b class="ogl-n" data-n="95459">95,459</b><span data-i18n="oglO1">lines of our own code</span><i class="ogl-bar" data-w="1"></i></li>
+            <li><b class="ogl-n" data-n="657">657</b><span data-i18n="oglO2">automated tests that guard the engine</span><i class="ogl-bar" data-w=".62"></i></li>
+            <li><b class="ogl-n" data-n="100" data-prefix="~">~100</b><span data-i18n="oglO3">security tools in the toolbox</span><i class="ogl-bar" data-w=".46"></i></li>
+            <li><b class="ogl-n" data-n="6">6</b><span data-i18n="oglO4">repair techniques that rebuild a clean copy</span><i class="ogl-bar" data-w=".3"></i></li>
+            <li><b class="ogl-n" data-n="4">4</b><span data-i18n="oglO5">platforms: web, Windows, Android, browser</span><i class="ogl-bar" data-w=".24"></i></li>
+            <li><b class="ogl-n" data-n="30">30</b><span data-i18n="oglO6">languages, Arabic first</span><i class="ogl-bar" data-w=".38"></i></li>
+          </ul>
+        </div>
+        <div class="ogl-col ogl-open">
+          <h3><span class="ogl-badge" aria-hidden="true">◇</span><span data-i18n="oglOpen">Borrowed from the community, by name</span></h3>
+          <ul>
+            <li><b class="ogl-n" data-n="5078" data-live="forge_rules">5,078</b><span><span data-i18n="oglB1">threat rules</span> · <cite>YARA-Forge</cite></span><i class="ogl-bar" data-w=".5"></i></li>
+            <li><b class="ogl-n" data-n="1572864" data-live="malware_hashes">1,572,864</b><span><span data-i18n="oglB2">known-malware fingerprints</span> · <cite>VirusShare</cite></span><i class="ogl-bar" data-w="1"></i></li>
+            <li><b class="ogl-n" data-n="112682" data-live="urlhaus">112,682</b><span><span data-i18n="oglB3">malicious links</span> · <cite>URLhaus (abuse.ch)</cite></span><i class="ogl-bar" data-w=".42"></i></li>
+            <li><b class="ogl-n" data-n="392071" data-live="phishing">392,071</b><span><span data-i18n="oglB4">phishing domains</span> · <cite>Phishing.Database</cite></span><i class="ogl-bar" data-w=".7"></i></li>
+            <li><b class="ogl-n" data-n="219" data-live="secret_rules">219</b><span><span data-i18n="oglB5">leaked-secret patterns</span> · <cite>gitleaks</cite></span><i class="ogl-bar" data-w=".2"></i></li>
+            <li class="ogl-libs"><span data-i18n="oglB6">Open libraries we build on:</span> <cite>yara-x</cite> · <cite>three.js</cite> · <cite>pypdf</cite> · <cite>olefile</cite> · <cite>Pyodide</cite> · <cite>Tranco</cite></li>
+          </ul>
+        </div>
+      </div>
+      <p class="ogl-foot"><span data-i18n="oglFoot">Our figures are counted from the code itself (November 2026); the borrowed figures are read live from the engine. Each rule keeps its own licence and author.</span> <a href="/tests" data-i18n="oglTests">See the independent tests</a></p>
+    </section>
 
 
     <section id="film" class="l-section film-sec cine" data-shape="ring" data-shape-fade="0.12" data-tint="#090620" aria-labelledby="film-h">
@@ -1411,6 +1444,7 @@
                 <label>abuse.ch <em id="k-abusech"></em><input type="password" class="field" autocomplete="off" data-secret="abusech"></label>
                 <label>AlienVault OTX <em id="k-otx"></em><input type="password" class="field" autocomplete="off" data-secret="otx"></label>
                 <label>VirusTotal <em id="k-virustotal"></em><input type="password" class="field" autocomplete="off" data-secret="virustotal"></label>
+                <label>Google Safe Browsing <em id="k-safebrowsing"></em><input type="password" class="field" autocomplete="off" data-secret="safebrowsing"></label>
                 <button class="ghost" type="button" id="keys-save" data-i18n="keySave">Save keys</button>
               </div>
             </div>

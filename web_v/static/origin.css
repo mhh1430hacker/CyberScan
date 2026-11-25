@@ -79,3 +79,51 @@ html.reduce-motion .og-ring { animation: none; }
 .visits .vs-label { color: #e6dcff; font-weight: 650; }
 .visits .vs-since { color: #a99cd0; font-size: 12.5px; }
 .visits .vs-dot { display: inline-block; width: 7px; height: 7px; margin-inline-end: 6px; border-radius: 50%; background: #3ddc84; box-shadow: 0 0 8px #3ddc84; vertical-align: middle; }
+
+/* ---- each pillar's real figure (counted from the code) ---- */
+.og-fig { grid-column: 2; justify-self: start; margin-top: 2px; padding: 3px 10px; border-radius: 999px; font: 700 11.5px/1.5 ui-monospace, Consolas, monospace;
+  color: #ffe7a8; background: rgba(232, 196, 106, .1); border: 1px solid rgba(232, 196, 106, .28); direction: ltr; unicode-bidi: isolate; }
+[dir="rtl"] .og-fig { direction: rtl; font-family: inherit; }
+.og-pillar.is-on p { max-height: 220px; }
+
+/* ===================== the ledger: written here vs borrowed, by name ===================== */
+.ogl { position: relative; padding-top: clamp(70px, 10vw, 120px); }
+.ogl-head { max-width: 760px; margin: 0 auto clamp(26px, 4vw, 44px); text-align: center; }
+.ogl-title { margin: 0; font-size: clamp(28px, 3.8vw, 48px); font-weight: 850; line-height: 1.1;
+  background: linear-gradient(110deg, #ffe7a8, #c9a2ff 55%, #22e8ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.ogl-lead { margin: 12px auto 0; color: #c2b6e2; font-size: clamp(15px, 1.4vw, 18px); line-height: 1.6; }
+.ogl-cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(14px, 2.4vw, 26px); }
+.ogl-col { padding: clamp(18px, 2.6vw, 28px); border-radius: 24px; border: 1px solid rgba(201, 162, 255, .18);
+  background: linear-gradient(160deg, rgba(255, 255, 255, .055), rgba(255, 255, 255, .012)), rgba(12, 6, 28, .55);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), 0 30px 70px -40px rgba(0, 0, 0, .9); }
+.ogl-ours { border-color: rgba(232, 196, 106, .3); }
+.ogl-col h3 { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; font-size: 17px; font-weight: 800; }
+.ogl-badge { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 9px; font-size: 14px; color: #05030f; background: linear-gradient(135deg, #ffe7a8, #e8c46a); }
+.ogl-open .ogl-badge { background: linear-gradient(135deg, #bff6ff, #22e8ff); }
+.ogl-col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.ogl-col li { position: relative; display: grid; grid-template-columns: auto 1fr; align-items: baseline; gap: 2px 12px; padding: 10px 12px 14px; border-radius: 14px;
+  background: rgba(8, 4, 22, .45); overflow: hidden; opacity: 0; transform: translateY(14px); transition: opacity .5s, transform .6s cubic-bezier(.22, 1, .36, 1); }
+.ogl.in .ogl-col li { opacity: 1; transform: none; }
+.ogl.in .ogl-col li:nth-child(2) { transition-delay: .06s; } .ogl.in .ogl-col li:nth-child(3) { transition-delay: .12s; }
+.ogl.in .ogl-col li:nth-child(4) { transition-delay: .18s; } .ogl.in .ogl-col li:nth-child(5) { transition-delay: .24s; } .ogl.in .ogl-col li:nth-child(6) { transition-delay: .3s; }
+.ogl-n { font-size: clamp(22px, 2.4vw, 30px); font-weight: 850; font-variant-numeric: tabular-nums; direction: ltr; unicode-bidi: isolate; color: #ffe7a8; min-width: 4ch; }
+.ogl-open .ogl-n { color: #9ff3ff; }
+.ogl-col li > span { color: #d6cdf0; font-size: 14.5px; line-height: 1.45; }
+.ogl-col cite { font-style: normal; font-weight: 700; color: #c9a2ff; }
+.ogl-bar { position: absolute; inset-inline: 12px; bottom: 6px; height: 3px; border-radius: 3px; background: rgba(201, 162, 255, .12); }
+.ogl-bar::after { content: ""; position: absolute; inset: 0; border-radius: inherit; transform-origin: left center; transform: scaleX(0);
+  background: linear-gradient(90deg, #e8c46a, #c9a2ff); transition: transform 1.4s cubic-bezier(.22, 1, .36, 1) .2s; }
+[dir="rtl"] .ogl-bar::after { transform-origin: right center; }
+.ogl-open .ogl-bar::after { background: linear-gradient(90deg, #22e8ff, #c9a2ff); }
+.ogl.in .ogl-bar::after { transform: scaleX(var(--w, 1)); }
+.ogl-libs { grid-template-columns: 1fr !important; color: #c2b6e2; font-size: 14px; line-height: 1.8; }
+.ogl-foot { margin: 18px auto 0; max-width: 820px; text-align: center; color: #a99cd0; font-size: 13px; line-height: 1.6; }
+.ogl-foot a { color: #9ff3ff; font-weight: 700; }
+@media (max-width: 860px) { .ogl-cols { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { .ogl-col li { opacity: 1; transform: none; transition: none; } .ogl-bar::after { transition: none; transform: scaleX(var(--w, 1)); } }
+html.reduce-motion .ogl-col li { opacity: 1; transform: none; transition: none; }
+html.reduce-motion .ogl-bar::after { transition: none; transform: scaleX(var(--w, 1)); }
+/* the libraries line reads as one sentence, not a grid of names */
+.ogl-col li.ogl-libs { display: block; }
+/* Arabic letters must stay joined: no letter-spacing on Arabic kickers */
+[dir="rtl"] .og-kicker, :lang(ar) .og-kicker { letter-spacing: 0; font-family: inherit; }
