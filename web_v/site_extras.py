@@ -22,6 +22,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+import seo_meta  # search-result titles, descriptions, icons, WebSite/Organization/Breadcrumb data
+
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 PUBLIC = os.environ.get("CYBERSCAN_PUBLIC") == "1"
 SITE = (os.environ.get("CYBERSCAN_CANONICAL_URL", "").strip().rstrip("/") or "https://ainex-ai.xyz")
@@ -182,6 +184,11 @@ def decorate(html: str, path: str, lang: str | None = None) -> str:
     ld = json_ld(path)
     if ld:
         head.append(ld)
+    # what search results show: title + description in the page's language, icons Google accepts
+    # (multiples of 48 px), the site name and logo (WebSite/Organization) and breadcrumbs
+    if seo or path == "/app.html":
+        html, extra = seo_meta.apply(html, path, lang, canonical)
+        head += extra
     html = html.replace("</head>", "  " + "\n  ".join(head) + "\n</head>", 1)
     tail = [p for p in SHARED_TAIL if p not in html]
     i = html.rfind("</body>")

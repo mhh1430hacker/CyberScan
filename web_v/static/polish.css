@@ -16,9 +16,9 @@
 .l-top .sound-btn { min-height: 38px; }
 
 /* level 1 (tight): shorter gaps, icon-only "Get the app"; Calm keeps its word (the bars alone read as "....") */
-.l-top.is-tight .l-links { gap: 16px; }
+.l-top.is-tight .l-links { gap: 12px; }   /* tighter so the full bar (with the music settings) still fits at 1280–1440 px */
 .l-top.is-tight { gap: 14px; }
-.l-top.is-tight .l-actions { gap: 6px; }
+.l-top.is-tight .l-actions { gap: 4px; }
 .l-top.is-tight .get-app-btn span { display: none; }
 /* Calm's equaliser: bars of different heights, so it reads as music even when still */
 .sound-btn .eq { height: 14px; }

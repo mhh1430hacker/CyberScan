@@ -8,7 +8,8 @@
 
 html.boot-skip #preloader { display: none !important; }
 html.booting body { overflow: hidden; }
-html.booting .landing, html.booting .l-top, html.booting .side-dots, html.booting .ask-fab { opacity: 0; }
+/* hidden (not transparent) under the overlay: nothing is measured or read half-faded while the intro plays */
+html.booting .landing, html.booting .l-top, html.booting .side-dots, html.booting .ask-fab { visibility: hidden; }
 
 .boot { position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; overflow: hidden; color: #eaf6ff;
   background: radial-gradient(70% 60% at 50% 44%, #0d0a26 0%, #05040f 60%, #020208 100%);

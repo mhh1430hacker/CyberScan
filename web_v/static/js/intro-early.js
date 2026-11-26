@@ -8,5 +8,7 @@
   try { seen = sessionStorage.getItem("cs-intro") === "1"; } catch (e) { /* storage off */ }
   var reduced = (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) || html.classList.contains("reduce-motion");
   var app = /^#\/(scan|history|repair|settings)/.test(location.hash) || /app\.html$/.test(location.pathname) || /^scan\./.test(location.hostname);
-  html.classList.add(seen || reduced || app ? "boot-skip" : "booting");
+  // phones get the short, calm page: no opening sequence (it also kept the content hidden for seconds on slow phones)
+  var small = (window.innerWidth || 0) <= 760;
+  html.classList.add(seen || reduced || app || small ? "boot-skip" : "booting");
 })();

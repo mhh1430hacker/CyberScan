@@ -944,9 +944,10 @@
   const word = root.querySelector(".sy-word");
   let letters = [];
   if (word) {
-    const text = word.textContent; word.setAttribute("aria-label", text);
+    const text = word.textContent;   // read by screen readers from the hidden copy below (aria-label is not allowed on <p>)
     letters = [...text].map((c) => { const s = document.createElement("span"); s.className = "sy-l"; s.textContent = c; s.setAttribute("aria-hidden", "true"); return s; });
-    word.replaceChildren(...letters);
+    const spoken = document.createElement("span"); spoken.className = "sr-only"; spoken.textContent = text;
+    word.replaceChildren(spoken, ...letters);
     letters.forEach((l, i) => { l.style.backgroundSize = `${letters.length * 100}% 100%`; l.style.backgroundPosition = `${(i / Math.max(1, letters.length - 1)) * 100}% 0`; });
   }
   const stepNames = () => root.querySelectorAll("[data-step]").forEach((n) => { n.textContent = stepName(Number(n.dataset.step)); });

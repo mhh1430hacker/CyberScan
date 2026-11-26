@@ -216,7 +216,17 @@ def _bundle_body(names: list[str]) -> bytes | None:
     files = [STATIC_DIR / n for n in names]
     if not all(re.fullmatch(r"[\w.-]+\.css", n) for n in names) or not all(f.is_file() for f in files):
         return None
-    return b"\n".join(b"/* " + n.encode() + b" */\n" + f.read_bytes() for n, f in zip(names, files))
+    return _min_css(b"\n".join(f.read_bytes() for f in files))
+
+
+def _min_css(css: bytes) -> bytes:
+    """A conservative minifier: comments out, runs of whitespace folded, spaces dropped only next to
+    braces, semicolons and commas (never around ':', since "a :hover" and "a:hover" differ)."""
+    text = css.decode("utf-8", "replace")
+    text = re.sub(r"/\*.*?\*/", "", text, flags=re.S)
+    text = re.sub(r"\s+", " ", text)
+    text = re.sub(r"\s*([{};,])\s*", r"\1", text)
+    return text.replace(";}", "}").strip().encode("utf-8")
 
 
 def _gzip(data: bytes) -> bytes | None:
@@ -1574,6 +1584,9 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
                     extra["Cache-Control"] = "no-cache"
                 elif rel.startswith("downloads/") or rel == "m/engine.version":
                     extra["Cache-Control"] = "public, max-age=300, s-maxage=300"
+                elif target.suffix.lower() in (".png", ".jpg", ".jpeg", ".jpe", ".webp", ".avif", ".svg", ".ico", ".woff", ".woff2", ".ttf", ".mp3", ".webm"):
+                    # images, fonts and media rarely change: a week in the browser, a month at the CDN
+                    extra["Cache-Control"] = "public, max-age=604800, s-maxage=2592000, stale-while-revalidate=86400"
                 else:
                     extra["Cache-Control"] = "public, max-age=600, s-maxage=86400, stale-while-revalidate=86400"
             elif rel.startswith("pyodide/") or rel == "m/engine.zip":
