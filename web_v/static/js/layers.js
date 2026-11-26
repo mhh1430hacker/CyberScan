@@ -16,7 +16,7 @@
     en: {
       title: "Layered analysis", live: "Independent layers", note: "Your input was taken apart once and passed through {n} independent layers, each checking one thing. Red = suspicious, green = nothing found, grey = doesn't apply or wasn't available.",
       done: "{d} / {t} layers", sus: "suspicious", ok: "clean", na: "don't apply", un: "unavailable", priv: "privacy notes", applied: "applied",
-      score: "Layered score", noScore: "No layer could answer", effect: "Effect on the verdict", formula: "How the layered score is computed",
+      score: "Layered score (an input to the verdict)", noScore: "No layer could answer", effect: "Effect on the verdict", formula: "How the layered score is computed",
       formulaNote: "w = the layer's reliability, c = how sure this answer is. Layers that don't apply or couldn't answer are left out of every sum.",
       list: "List view (all layers)", legendS: "suspicious", legendC: "nothing found", legendN: "doesn't apply / unavailable",
       checks: "Checks", result: "Result", source: "Source", weight: "Reliability", conf: "Confidence", close: "Close",
@@ -34,12 +34,13 @@
         ["tone", "Which tone suits you?", [["calm", "Calm and simple"], ["direct", "Direct"], ["technical", "Technical"]]],
       ],
       setTitle: "About you (for result summaries)", setNone: "Not set yet: summaries use a balanced default.", setEdit: "Edit",
-      saved: "Saved",
+      saved: "Saved", tailor: "Tailor it to me",
+      srcPlain: { url_intel: "Link reputation check", executables: "Program check", engine: "Detection engine", secrets: "Secret-key detector", hash_intel: "Known-malware fingerprint lookup", entropy: "Randomness measure", pefile: "Program structure reader", model_runtime: "Machine-learning model", magic_bytes: "File-type check", authenticode: "Digital-signature check", qr_scanner: "QR code reader", file_analyzer: "File analyzer", protection: "Protection rules", pe_decompiler: "Program code reader", nextgen_engine: "Behaviour patterns", surprise_map: "Unusual-bytes map", dissonance: "Mismatch check", documents: "Document check", messages: "Message check" },
     },
     ar: {
       title: "التحليل الطبقي", live: "طبقات مستقلة", note: "فُكّك المدخل مرة واحدة ومرّ عبر {n} طبقة مستقلة، تفحص كل منها شيئًا واحدًا. الأحمر = مشبوه، الأخضر = لم يُعثر على شيء، الرمادي = لا ينطبق أو غير متاح.",
       done: "{d} / {t} طبقة", sus: "مشبوهة", ok: "سليمة", na: "لا تنطبق", un: "غير متاحة", priv: "ملاحظات خصوصية", applied: "طُبّقت",
-      score: "الدرجة الطبقية", noScore: "لم تستطع أي طبقة الإجابة", effect: "أثرها على النتيجة", formula: "كيف تُحسب الدرجة الطبقية",
+      score: "الدرجة الطبقية (مُدخل في الحكم)", noScore: "لم تستطع أي طبقة الإجابة", effect: "أثرها على النتيجة", formula: "كيف تُحسب الدرجة الطبقية",
       formulaNote: "w = موثوقية الطبقة، c = مدى تأكد هذه الإجابة. الطبقات التي لا تنطبق أو لم تُجب لا تدخل أي مجموع.",
       list: "عرض القائمة (كل الطبقات)", legendS: "مشبوه", legendC: "لم يُعثر على شيء", legendN: "لا ينطبق / غير متاح",
       checks: "يفحص", result: "النتيجة", source: "المصدر", weight: "الموثوقية", conf: "الثقة", close: "إغلاق",
@@ -57,7 +58,8 @@
         ["tone", "أي أسلوب يناسبك؟", [["calm", "هادئ وبسيط"], ["direct", "مباشر"], ["technical", "تقني"]]],
       ],
       setTitle: "عنك (لملخصات النتائج)", setNone: "لم يُضبط بعد: تستخدم الملخصات إعدادًا متوازنًا.", setEdit: "تعديل",
-      saved: "حُفظ",
+      saved: "حُفظ", tailor: "خصّصه لي",
+      srcPlain: { url_intel: "فحص سمعة الرابط", executables: "فحص البرامج", engine: "محرك الكشف", secrets: "كاشف المفاتيح السرية", hash_intel: "البحث في بصمات البرامج الضارة المعروفة", entropy: "قياس العشوائية", pefile: "قارئ بنية البرامج", model_runtime: "نموذج التعلّم الآلي", magic_bytes: "فحص نوع الملف", authenticode: "فحص التوقيع الرقمي", qr_scanner: "قارئ رموز QR", file_analyzer: "محلّل الملفات", protection: "قواعد الحماية", pe_decompiler: "قارئ شيفرة البرامج", nextgen_engine: "أنماط السلوك", surprise_map: "خريطة البايتات غير المعتادة", dissonance: "فحص عدم التطابق", documents: "فحص المستندات", messages: "فحص الرسائل" },
     },
   };
   const PROFILE_KEY = "cs-reader-profile", SKIP_KEY = "cs-reader-profile-skipped";
@@ -200,8 +202,9 @@
     const add = (k, v) => { if (!v) return; dl.append(el("dt", "", k)); const d = el("dd", "", v); d.dir = "auto"; dl.append(d); };
     add(l.checks, checks);
     add(l.result, pick(entry.detail, lang));
-    add(l.source, entry.source);
-    if (entry.signal != null) add(`${l.weight} · ${l.conf}`, `${Number(entry.weight).toFixed(1)} · ${Math.round(Number(entry.confidence) * 100)}%`);
+    const expert = document.documentElement.dataset.explain === "expert";
+    add(l.source, expert ? entry.source : plainSource(entry.source, l));
+    if (expert && entry.signal != null) add(`${l.weight} · ${l.conf}`, `${Number(entry.weight).toFixed(1)} · ${Math.round(Number(entry.confidence) * 100)}%`);
     tip.append(dl);
     tip.hidden = false;
     const pr = panel.getBoundingClientRect(), cr = cell.getBoundingClientRect();
@@ -211,6 +214,14 @@
     left = Math.max(8, Math.min(pr.width - w - 8, left));
     tip.style.left = `${left}px`;
     tip.style.top = `${cr.bottom - pr.top + 8}px`;
+  }
+
+  // "detection.url_intel" → "Link reputation check": the module's plain name, or its last word spelled out
+  function plainSource(src, l) {
+    const s = String(src || "");
+    if (!s || /\s/.test(s)) return s;
+    const last = s.split(".").pop().toLowerCase();
+    return (l.srcPlain && l.srcPlain[last]) || last.replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase());
   }
 
   function statChip(cls, n, label) { const s = el("span", `lz-stat ${cls}`); s.append(el("b", "", String(n)), el("small", "", label)); return s; }
@@ -414,16 +425,13 @@
         const who = el("span", "lz-ai-who");
         who.append(el("b", "", `${l.writtenFor}: `), document.createTextNode(profileWords(out.profile || used, lang)));
         const src = el("small", "lz-ai-src", out.source === "local" ? l.srcLocal : l.srcAI);
-        const change = el("button", "ghost small", l.change); change.type = "button";
+        const change = el("button", "ghost small", loadProfile() ? l.change : l.tailor); change.type = "button";
         change.addEventListener("click", () => showSurvey(loadProfile() || used, false));
         foot.append(who, change, src);
         body.append(foot);
       }).catch(() => { memo.delete(key); body.replaceChildren(el("p", "lz-ai-loading", l.sumFail)); });
     };
-    const saved = loadProfile();
-    if (saved) write(saved);
-    else if (store.get(SKIP_KEY) === "1") write(null);
-    else showSurvey(null, true);
+    write(loadProfile());
     return card;
   }
 
@@ -473,7 +481,7 @@
       const why = rc.querySelector(".rp-why .rp-why-body") || rc.querySelector(".rp-why");
       const s = r.layers.summary || {};
       if (why && s.formula && !why.querySelector(".lz-why")) {
-        const box = el("div", "lz-why");
+        const box = el("div", "lz-why x-only");
         box.append(el("h4", "", `${STR[lang].score}: ${s.score == null ? "–" : s.score}/100`));
         const p = el("p", "rc-note", pick(s.formula, lang)); p.dir = "auto";
         box.append(p);

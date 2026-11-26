@@ -55,6 +55,7 @@
   <script src="js/nav-early.js"></script>
   <script src="js/intro-early.js"></script>
   <link rel="stylesheet" href="intro.css">
+  <link rel="stylesheet" href="landing-tidy.css">
   <!-- Adaptive Performance Engine: before every module, so they all start at the right level -->
   <script src="js/performance/capabilityDetector.js"></script>
   <script src="js/performance/performanceMonitor.js"></script>
@@ -108,9 +109,7 @@
   <nav class="side-dots" aria-label="Page sections" data-i18n-aria="menuNav">
     <a href="#top" data-sec="top"><span data-i18n="dTop">Start</span></a>
     <a href="#film" data-sec="film"><span data-i18n="lVideo">Video</span></a>
-    <a href="#manifesto" data-sec="manifesto"><span data-i18n="mfKicker">Why</span></a>
-    <a href="#how" data-sec="how"><span data-i18n="lHow">How it works</span></a>
-    <a href="#science" data-sec="science"><span data-i18n="dSci">Science</span></a>
+    <a href="#science" data-sec="science"><span data-i18n="lHow">How it works</span></a>
     <a href="#features" data-sec="features"><span data-i18n="lFeatures">Features</span></a>
     <a href="#repair-sec" data-sec="repair-sec"><span data-i18n="lRepair">Repair</span></a>
     <a href="#privacy" data-sec="privacy"><span data-i18n="lPrivacy">Privacy</span></a>
@@ -128,14 +127,13 @@
         <span>CyberScan</span>
       </a>
       <nav class="l-links">
+        <a href="#science" data-i18n="lHow">How it works</a>
         <a href="#film" data-i18n="lVideo">Video</a>
-        <a href="#how" data-i18n="lHow">How it works</a>
-        <a href="#science" data-i18n="dSci">Science</a>
         <a href="#features" data-i18n="lFeatures">Features</a>
-        <a href="#repair-sec" data-i18n="lRepair">Repair</a>
         <a href="#privacy" data-i18n="lPrivacy">Privacy</a>
-        <a href="#faq" data-i18n="dFaq">FAQ</a>
+        <a href="#compare" data-i18n="dCompare">Compare</a>
         <a href="#team" data-i18n="tmNav">Team</a>
+        <a href="#faq" data-i18n="dFaq">FAQ</a>
         <div class="get-app">
           <button class="get-app-btn" type="button" aria-expanded="false" aria-controls="get-app-panel" aria-label="Get the app" data-i18n-aria="lPhone">
             <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M12 7v7m-3-3 3 3 3-3M10 18.5h4"/></svg>
@@ -194,29 +192,22 @@
       <div class="l-actions">
         <button class="ghost tour-btn" id="tour-start" type="button" aria-describedby="tour-hint" aria-label="Guided journey" data-i18n-aria="tourStart" title=""><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z"/><path d="m15.5 8.5-2.2 4.8-4.8 2.2 2.2-4.8z"/></svg><span data-i18n="tourStart">Take the guided journey</span></button>
         <span class="tour-hint" id="tour-hint" hidden data-i18n="tourHint">An automatic tour of the whole page. Scroll or press any key to take back control.</span>
-        <button class="ghost sfx-btn" type="button" aria-pressed="true" aria-label="Sound effects on"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path class="w1" d="M15.5 9a4.2 4.2 0 0 1 0 6"/><path class="w2" d="M18.2 6.5a8 8 0 0 1 0 11"/><path class="x" d="m16 9.5 5 5m0-5-5 5"/></svg></button>
-        <button class="ghost sound-btn" type="button" aria-pressed="false">
-          <span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="sound-label" data-i18n="soundOff">Calm off</span>
-        </button>
         <button class="ghost lang-btn" type="button" aria-haspopup="dialog">English</button>
         <button class="primary small enter magnetic" type="button" data-i18n="lOpen">Open the app</button>
         <button class="ghost l-menu-btn" id="l-menu-btn" type="button" aria-expanded="false" aria-controls="l-sheet" aria-label="Menu" data-i18n-aria="menuOpen"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="m1" d="M4 7h16"/><path class="m2" d="M4 12h16"/><path class="m3" d="M4 17h16"/></svg></button>
       </div>
       <div class="l-sheet" id="l-sheet" hidden>
         <nav class="l-sheet-links" aria-label="Sections" data-i18n-aria="menuNav">
+          <a href="#science" data-i18n="lHow">How it works</a>
           <a href="#film" data-i18n="lVideo">Video</a>
-          <a href="#how" data-i18n="lHow">How it works</a>
-          <a href="#science" data-i18n="dSci">Science</a>
           <a href="#features" data-i18n="lFeatures">Features</a>
-          <a href="#repair-sec" data-i18n="lRepair">Repair</a>
           <a href="#privacy" data-i18n="lPrivacy">Privacy</a>
-          <a href="#faq" data-i18n="dFaq">FAQ</a>
+          <a href="#compare" data-i18n="dCompare">Compare</a>
           <a href="#team" data-i18n="tmNav">Team</a>
+          <a href="#faq" data-i18n="dFaq">FAQ</a>
         </nav>
         <div class="l-sheet-row">
           <button class="ghost lang-btn" type="button" aria-haspopup="dialog">English</button>
-          <button class="ghost sound-btn" type="button" aria-pressed="false"><span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="sound-label" data-i18n="soundOff">Calm off</span></button>
-          <button class="ghost sfx-btn sfx-wide" type="button" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path class="w1" d="M15.5 9a4.2 4.2 0 0 1 0 6"/><path class="w2" d="M18.2 6.5a8 8 0 0 1 0 11"/><path class="x" d="m16 9.5 5 5m0-5-5 5"/></svg><span data-i18n="menuSfx">Sound effects</span></button>
         </div>
         <div class="l-sheet-row">
           <button class="ghost l-sheet-tour" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z"/><path d="m15.5 8.5-2.2 4.8-4.8 2.2 2.2-4.8z"/></svg><span data-i18n="tourStart">Take the guided journey</span></button>
@@ -240,7 +231,7 @@
           <button class="primary big enter magnetic" type="button"><span data-i18n="lStart">Start scanning</span>
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></button>
           <a class="ghost big fj-cta" href="/journey"><span class="fj-cta-ring" aria-hidden="true"></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.5h7l4 4v13H7z"/><path d="M14 3.5v4h4"/><circle cx="12.5" cy="14" r="2.6"/><path d="m14.4 15.9 2.1 2.1"/></svg><span data-i18n="lJourney">The file journey</span></a>
-          <a class="ghost big" href="#how" data-i18n="lWatch">See how it works</a>
+          <a class="ghost big" href="#science" data-i18n="lWatch">See how it works</a>
         </div>
         <!-- live figures from GET /api/protection (js/live-demo.js) -->
         <p class="live-strip" id="live-strip" hidden><i class="ls-dot" aria-hidden="true"></i><span class="ls-items" id="ls-items"></span></p>
@@ -269,6 +260,7 @@
         </div>
         <!-- the live demo: a real scan of a dropped file or a harmless sample, in place (js/live-demo.js) -->
         <div class="ld-try" id="ld-try">
+          <p class="ld-title"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg><b data-i18n="ldTitle">Try it now</b></p>
           <p class="ld-hint" data-i18n="ldHint">Try it for real: drop a file here, or scan a harmless sample.</p>
           <div class="ld-samples" role="group" aria-label="Harmless samples" data-i18n-aria="ldSamples">
             <button type="button" class="ld-chip" data-sample="clean"><i class="ld-sw ok" aria-hidden="true"></i><span>quarterly-report.pdf</span></button>
@@ -282,109 +274,10 @@
         <div class="orbit o1" aria-hidden="true" data-depth="0.7"></div>
         <div class="orbit o2" aria-hidden="true" data-depth="0.45"></div>
       </div>
-      <a href="#how" class="scroll-cue" aria-hidden="true" tabindex="-1"><span></span></a>
+      <a href="#film" class="scroll-cue" aria-hidden="true" tabindex="-1"><span></span></a>
     </section>
 
-    <!-- ============ MADE BY SAUDI HANDS (saudi.css, js/saudi.js) ============ -->
-    <section id="saudi" class="ks" data-shape="ring" data-shape-fade="0.1" data-tint="#03130d" aria-labelledby="ks-title">
-      <div class="ks-stage">
-        <canvas class="ks-dust" aria-hidden="true"></canvas>
-        <div class="ks-beams" aria-hidden="true"><i></i><i></i><i></i></div>
-        <div class="ks-bg" aria-hidden="true" data-depth="1">
-          <div class="ks-rays"></div>
-          <svg class="ks-pattern" viewBox="-500 -500 1000 1000"><path class="ks-p ks-c" pathLength="1" d="M106.1 -106.1 L106.1 106.1 L-106.1 106.1 L-106.1 -106.1 Z"/><path class="ks-p ks-c" pathLength="1" d="M150.0 0.0 L0.0 150.0 L-150.0 0.0 L-0.0 -150.0 Z"/><path class="ks-p ks-c2" pathLength="1" d="M0.0 -112.0 L32.6 -78.6 L79.2 -79.2 L78.6 -32.6 L112.0 0.0 L78.6 32.6 L79.2 79.2 L32.6 78.6 L0.0 112.0 L-32.6 78.6 L-79.2 79.2 L-78.6 32.6 L-112.0 0.0 L-78.6 -32.6 L-79.2 -79.2 L-32.6 -78.6 Z"/><circle class="ks-p ks-c3" pathLength="1" r="186"/><path class="ks-p ks-r1" pathLength="1" data-i="0" d="M0.0 -322.0 L15.1 -306.5 L36.8 -306.8 L36.5 -285.1 L52.0 -270.0 L36.5 -254.9 L36.8 -233.2 L15.1 -233.5 L0.0 -218.0 L-15.1 -233.5 L-36.8 -233.2 L-36.5 -254.9 L-52.0 -270.0 L-36.5 -285.1 L-36.8 -306.8 L-15.1 -306.5 Z"/><path class="ks-p ks-r1" pathLength="1" data-i="1" d="M190.9 -242.9 L206.0 -227.4 L227.7 -227.7 L227.4 -206.0 L242.9 -190.9 L227.4 -175.8 L227.7 -154.1 L206.0 -154.4 L190.9 -138.9 L175.8 -154.4 L154.1 -154.1 L154.4 -175.8 L138.9 -190.9 L154.4 -206.0 L154.1 -227.7 L175.8 -227.4 Z"/><path class="ks-p ks-r1" pathLength="1" data-i="2" d="M270.0 -52.0 L285.1 -36.5 L306.8 -36.8 L306.5 -15.1 L322.0 0.0 L306.5 15.1 L306.8 36.8 L285.1 36.5 L270.0 52.0 L254.9 36.5 L233.2 36.8 L233.5 15.1 L218.0 0.0 L233.5 -15.1 L233.2 -36.8 L254.9 -36.5 Z"/><path class="ks-p ks-r1" pathLength="1" data-i="3" d="M190.9 138.9 L206.0 154.4 L227.7 154.1 L227.4 175.8 L242.9 190.9 L227.4 206.0 L227.7 227.7 L206.0 227.4 L190.9 242.9 L175.8 227.4 L154.1 227.7 L154.4 206.0 L138.9 190.9 L154.4 175.8 L154.1 154.1 L175.8 154.4 Z"/><path class="ks-p ks-r1" pathLength="1" data-i="4" d="M0.0 218.0 L15.1 233.5 L36.8 233.2 L36.5 254.9 L52.0 270.0 L36.5 285.1 L36.8 306.8 L15.1 306.5 L0.0 322.0 L-15.1 306.5 L-36.8 306.8 L-36.5 285.1 L-52.0 270.0 L-36.5 254.9 L-36.8 233.2 L-15.1 233.5 Z"/><path class="ks-p ks-r1" pathLength="1" data-i="5" d="M-190.9 138.9 L-175.8 154.4 L-154.1 154.1 L-154.4 175.8 L-138.9 190.9 L-154.4 206.0 L-154.1 227.7 L-175.8 227.4 L-190.9 242.9 L-206.0 227.4 L-227.7 227.7 L-227.4 206.0 L-242.9 190.9 L-227.4 175.8 L-227.7 154.1 L-206.0 154.4 Z"/><path class="ks-p ks-r1" pathLength="1" data-i="6" d="M-270.0 -52.0 L-254.9 -36.5 L-233.2 -36.8 L-233.5 -15.1 L-218.0 0.0 L-233.5 15.1 L-233.2 36.8 L-254.9 36.5 L-270.0 52.0 L-285.1 36.5 L-306.8 36.8 L-306.5 15.1 L-322.0 0.0 L-306.5 -15.1 L-306.8 -36.8 L-285.1 -36.5 Z"/><path class="ks-p ks-r1" pathLength="1" data-i="7" d="M-190.9 -242.9 L-175.8 -227.4 L-154.1 -227.7 L-154.4 -206.0 L-138.9 -190.9 L-154.4 -175.8 L-154.1 -154.1 L-175.8 -154.4 L-190.9 -138.9 L-206.0 -154.4 L-227.7 -154.1 L-227.4 -175.8 L-242.9 -190.9 L-227.4 -206.0 L-227.7 -227.7 L-206.0 -227.4 Z"/><path class="ks-p ks-band" pathLength="1" d="M0.0 -340.0 L114.8 -277.2 L240.4 -240.4 L277.2 -114.8 L340.0 0.0 L277.2 114.8 L240.4 240.4 L114.8 277.2 L0.0 340.0 L-114.8 277.2 L-240.4 240.4 L-277.2 114.8 L-340.0 0.0 L-277.2 -114.8 L-240.4 -240.4 L-114.8 -277.2 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="0" d="M81.9 -441.9 L90.7 -433.0 L103.2 -433.1 L103.0 -420.7 L111.9 -411.9 L103.0 -403.2 L103.2 -390.7 L90.7 -390.9 L81.9 -381.9 L73.2 -390.9 L60.7 -390.7 L60.9 -403.2 L51.9 -411.9 L60.9 -420.7 L60.7 -433.1 L73.2 -433.0 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="1" d="M233.3 -379.2 L242.1 -370.3 L254.6 -370.4 L254.4 -357.9 L263.3 -349.2 L254.4 -340.5 L254.6 -328.0 L242.1 -328.2 L233.3 -319.2 L224.6 -328.2 L212.1 -328.0 L212.3 -340.5 L203.3 -349.2 L212.3 -357.9 L212.1 -370.4 L224.6 -370.3 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="2" d="M349.2 -263.3 L357.9 -254.4 L370.4 -254.6 L370.3 -242.1 L379.2 -233.3 L370.3 -224.6 L370.4 -212.1 L357.9 -212.3 L349.2 -203.3 L340.5 -212.3 L328.0 -212.1 L328.2 -224.6 L319.2 -233.3 L328.2 -242.1 L328.0 -254.6 L340.5 -254.4 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="3" d="M411.9 -111.9 L420.7 -103.0 L433.1 -103.2 L433.0 -90.7 L441.9 -81.9 L433.0 -73.2 L433.1 -60.7 L420.7 -60.9 L411.9 -51.9 L403.2 -60.9 L390.7 -60.7 L390.9 -73.2 L381.9 -81.9 L390.9 -90.7 L390.7 -103.2 L403.2 -103.0 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="4" d="M411.9 51.9 L420.7 60.9 L433.1 60.7 L433.0 73.2 L441.9 81.9 L433.0 90.7 L433.1 103.2 L420.7 103.0 L411.9 111.9 L403.2 103.0 L390.7 103.2 L390.9 90.7 L381.9 81.9 L390.9 73.2 L390.7 60.7 L403.2 60.9 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="5" d="M349.2 203.3 L357.9 212.3 L370.4 212.1 L370.3 224.6 L379.2 233.3 L370.3 242.1 L370.4 254.6 L357.9 254.4 L349.2 263.3 L340.5 254.4 L328.0 254.6 L328.2 242.1 L319.2 233.3 L328.2 224.6 L328.0 212.1 L340.5 212.3 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="6" d="M233.3 319.2 L242.1 328.2 L254.6 328.0 L254.4 340.5 L263.3 349.2 L254.4 357.9 L254.6 370.4 L242.1 370.3 L233.3 379.2 L224.6 370.3 L212.1 370.4 L212.3 357.9 L203.3 349.2 L212.3 340.5 L212.1 328.0 L224.6 328.2 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="7" d="M81.9 381.9 L90.7 390.9 L103.2 390.7 L103.0 403.2 L111.9 411.9 L103.0 420.7 L103.2 433.1 L90.7 433.0 L81.9 441.9 L73.2 433.0 L60.7 433.1 L60.9 420.7 L51.9 411.9 L60.9 403.2 L60.7 390.7 L73.2 390.9 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="8" d="M-81.9 381.9 L-73.2 390.9 L-60.7 390.7 L-60.9 403.2 L-51.9 411.9 L-60.9 420.7 L-60.7 433.1 L-73.2 433.0 L-81.9 441.9 L-90.7 433.0 L-103.2 433.1 L-103.0 420.7 L-111.9 411.9 L-103.0 403.2 L-103.2 390.7 L-90.7 390.9 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="9" d="M-233.3 319.2 L-224.6 328.2 L-212.1 328.0 L-212.3 340.5 L-203.3 349.2 L-212.3 357.9 L-212.1 370.4 L-224.6 370.3 L-233.3 379.2 L-242.1 370.3 L-254.6 370.4 L-254.4 357.9 L-263.3 349.2 L-254.4 340.5 L-254.6 328.0 L-242.1 328.2 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="10" d="M-349.2 203.3 L-340.5 212.3 L-328.0 212.1 L-328.2 224.6 L-319.2 233.3 L-328.2 242.1 L-328.0 254.6 L-340.5 254.4 L-349.2 263.3 L-357.9 254.4 L-370.4 254.6 L-370.3 242.1 L-379.2 233.3 L-370.3 224.6 L-370.4 212.1 L-357.9 212.3 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="11" d="M-411.9 51.9 L-403.2 60.9 L-390.7 60.7 L-390.9 73.2 L-381.9 81.9 L-390.9 90.7 L-390.7 103.2 L-403.2 103.0 L-411.9 111.9 L-420.7 103.0 L-433.1 103.2 L-433.0 90.7 L-441.9 81.9 L-433.0 73.2 L-433.1 60.7 L-420.7 60.9 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="12" d="M-411.9 -111.9 L-403.2 -103.0 L-390.7 -103.2 L-390.9 -90.7 L-381.9 -81.9 L-390.9 -73.2 L-390.7 -60.7 L-403.2 -60.9 L-411.9 -51.9 L-420.7 -60.9 L-433.1 -60.7 L-433.0 -73.2 L-441.9 -81.9 L-433.0 -90.7 L-433.1 -103.2 L-420.7 -103.0 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="13" d="M-349.2 -263.3 L-340.5 -254.4 L-328.0 -254.6 L-328.2 -242.1 L-319.2 -233.3 L-328.2 -224.6 L-328.0 -212.1 L-340.5 -212.3 L-349.2 -203.3 L-357.9 -212.3 L-370.4 -212.1 L-370.3 -224.6 L-379.2 -233.3 L-370.3 -242.1 L-370.4 -254.6 L-357.9 -254.4 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="14" d="M-233.3 -379.2 L-224.6 -370.3 L-212.1 -370.4 L-212.3 -357.9 L-203.3 -349.2 L-212.3 -340.5 L-212.1 -328.0 L-224.6 -328.2 L-233.3 -319.2 L-242.1 -328.2 L-254.6 -328.0 L-254.4 -340.5 L-263.3 -349.2 L-254.4 -357.9 L-254.6 -370.4 L-242.1 -370.3 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="15" d="M-81.9 -441.9 L-73.2 -433.0 L-60.7 -433.1 L-60.9 -420.7 L-51.9 -411.9 L-60.9 -403.2 L-60.7 -390.7 L-73.2 -390.9 L-81.9 -381.9 L-90.7 -390.9 L-103.2 -390.7 L-103.0 -403.2 L-111.9 -411.9 L-103.0 -420.7 L-103.2 -433.1 L-90.7 -433.0 Z"/><circle class="ks-p ks-c4" pathLength="1" r="480"/></svg>
-        </div>
-        <div class="ks-glow" aria-hidden="true" data-depth="0.6"></div>
-        <div class="ks-frame" aria-hidden="true"><svg class="ks-corner c1" viewBox="0 0 140 140"><path class="ks-cp" pathLength="1" d="M3 96V22Q3 3 22 3H96"/><path class="ks-cp ks-cp2" pathLength="1" d="M17 66V30Q17 17 30 17H66"/><path class="ks-cd" d="M3 112l5 6-5 6-5-6zM112 3l6 5-6 5-6-5z"/><circle class="ks-cd" cx="30" cy="30" r="2.6"/></svg><svg class="ks-corner c2" viewBox="0 0 140 140"><path class="ks-cp" pathLength="1" d="M3 96V22Q3 3 22 3H96"/><path class="ks-cp ks-cp2" pathLength="1" d="M17 66V30Q17 17 30 17H66"/><path class="ks-cd" d="M3 112l5 6-5 6-5-6zM112 3l6 5-6 5-6-5z"/><circle class="ks-cd" cx="30" cy="30" r="2.6"/></svg><svg class="ks-corner c3" viewBox="0 0 140 140"><path class="ks-cp" pathLength="1" d="M3 96V22Q3 3 22 3H96"/><path class="ks-cp ks-cp2" pathLength="1" d="M17 66V30Q17 17 30 17H66"/><path class="ks-cd" d="M3 112l5 6-5 6-5-6zM112 3l6 5-6 5-6-5z"/><circle class="ks-cd" cx="30" cy="30" r="2.6"/></svg><svg class="ks-corner c4" viewBox="0 0 140 140"><path class="ks-cp" pathLength="1" d="M3 96V22Q3 3 22 3H96"/><path class="ks-cp ks-cp2" pathLength="1" d="M17 66V30Q17 17 30 17H66"/><path class="ks-cd" d="M3 112l5 6-5 6-5-6zM112 3l6 5-6 5-6-5z"/><circle class="ks-cd" cx="30" cy="30" r="2.6"/></svg></div>
-        <div class="ks-veil" aria-hidden="true"></div>
-        <div class="ks-center">
-          <p class="ks-kicker" data-i18n="ksKicker">// Made in Saudi Arabia</p>
-          <h2 class="ks-title" id="ks-title" lang="ar" dir="rtl"><span class="ks-outline" aria-hidden="true">صُنع بأيدٍ سعودية</span><span class="ks-fill">صُنع بأيدٍ سعودية</span><span class="ks-shine" aria-hidden="true">صُنع بأيدٍ سعودية</span></h2>
-          <div class="ks-orn" aria-hidden="true"><i></i><b></b><i></i></div>
-          <p class="ks-sub" data-i18n="ksSub">Made by Saudi hands. Designed and engineered in Saudi Arabia.</p>
-          <ul class="ks-words"><li data-i18n="ksW1">Vision</li><li data-i18n="ksW2">Craft</li><li data-i18n="ksW3">Security</li></ul>
-          <div class="ks-seal" aria-hidden="true" data-depth="0.5">
-            <span class="ks-burst"></span>
-            <span class="ks-flash"></span>
-            <svg class="ks-seal-text" viewBox="-100 -100 200 200"><defs><path id="ks-ring-path" d="M0 -84a84 84 0 1 1 0 168a84 84 0 1 1 0-168"/></defs><text><textPath href="#ks-ring-path" textLength="520">صُنع في السعودية ◆ MADE IN SAUDI ARABIA ◆ صُنع في السعودية ◆ MADE IN SAUDI ARABIA ◆</textPath></text></svg>
-            <svg viewBox="-70 -70 140 140"><path class="ks-seal-star" pathLength="1" d="M0.0 -58.0 L16.9 -40.7 L41.0 -41.0 L40.7 -16.9 L58.0 0.0 L40.7 16.9 L41.0 41.0 L16.9 40.7 L0.0 58.0 L-16.9 40.7 L-41.0 41.0 L-40.7 16.9 L-58.0 0.0 L-40.7 -16.9 L-41.0 -41.0 L-16.9 -40.7 Z"/><circle class="ks-seal-ring" r="40"/><path class="ks-seal-shield" d="M0 -26 -20 -18v14c0 13 8.5 23.5 20 27 11.5-3.5 20-14 20-27v-14z"/><path class="ks-seal-check" d="M-8 0l6 6 11-12"/></svg>
-          </div>
-          <p class="ks-end" data-i18n="ksEnd">Technology we are proud of, built for everyone.</p>
-        </div>
-      </div>
-    </section>
-    <!-- ============ /MADE BY SAUDI HANDS ============ -->
-    <!-- ============ ORIGINALITY (origin.css, js/origin.js): a pinned scroll scene ============ -->
-    <section id="origin" class="og" data-shape="hex" data-shape-fade="0.18" data-tint="#0a0616" aria-labelledby="og-title">
-      <div class="og-stage">
-        <div class="og-glow" aria-hidden="true"></div>
-        <div class="og-inner">
-          <div class="og-visual" aria-hidden="true">
-            <svg class="og-print" viewBox="-160 -160 320 320">
-              <defs>
-                <linearGradient id="og-grad" x1="0" y1="-1" x2="0" y2="1" gradientUnits="objectBoundingBox">
-                  <stop offset="0" stop-color="#ffe7a8"/><stop offset=".5" stop-color="#c9a2ff"/><stop offset="1" stop-color="#22e8ff"/>
-                </linearGradient>
-              </defs>
-              <circle class="og-ring" r="152"/>
-              <g class="og-ridges"></g>
-              <circle class="og-core" r="4" cy="-6"/>
-            </svg>
-            <span class="og-beam"></span>
-            <span class="og-seal"><span><span data-i18n="ogSeal">Made here</span><small>CYBERSCAN</small></span></span>
-          </div>
-          <div class="og-words">
-            <p class="og-kicker" data-i18n="ogKicker">// Originality</p>
-            <h2 class="og-title" id="og-title" data-i18n="ogTitle">Original, line by line.</h2>
-            <p class="og-lead" data-i18n="ogLead">CyberScan isn't a copy of another product. Its idea, its code and its design were born here.</p>
-            <ol class="og-pillars">
-              <li class="og-pillar"><b data-i18n="ogP1T">An engine written from scratch</b><p data-i18n="ogP1"></p><span class="og-fig" data-i18n="ogP1F">9,213 lines · 44 files</span></li>
-              <li class="og-pillar"><b data-i18n="ogP2T">Our own real repair</b><p data-i18n="ogP2"></p><span class="og-fig" data-i18n="ogP2F">4,280 lines · 6 techniques</span></li>
-              <li class="og-pillar"><b data-i18n="ogP3T">Design without templates</b><p data-i18n="ogP3"></p><span class="og-fig" data-i18n="ogP3F">26,988 lines of interface</span></li>
-              <li class="og-pillar"><b data-i18n="ogP4T">Arabic first</b><p data-i18n="ogP4"></p><span class="og-fig" data-i18n="ogP4F">30 languages · 4 platforms</span></li>
-              <li class="og-pillar"><b data-i18n="ogP5T">Honest about sources</b><p data-i18n="ogP5"></p><span class="og-fig" data-i18n="ogP5F">9 open sources, named</span></li>
-            </ol>
-          </div>
-        </div>
-        <div class="og-progress" aria-hidden="true"><i></i></div>
-      </div>
-    </section>
-    <!-- ============ /ORIGINALITY ============ -->
-    <!-- the ledger: what was written here vs what is borrowed, by name (figures: the code itself, Nov 2026; live counts from /api/protection) -->
-    <section id="og-ledger" class="ogl l-section" aria-labelledby="ogl-title">
-      <header class="ogl-head">
-        <p class="og-kicker" data-i18n="oglKicker">// In numbers</p>
-        <h2 class="ogl-title" id="ogl-title" data-i18n="oglTitle">What we built, and what we borrow.</h2>
-        <p class="ogl-lead" data-i18n="oglLead">Originality isn't pretending to build everything alone. It's knowing exactly which part is yours, and naming the rest.</p>
-      </header>
-      <div class="ogl-cols">
-        <div class="ogl-col ogl-ours">
-          <h3><span class="ogl-badge" aria-hidden="true">◆</span><span data-i18n="oglOurs">Written here</span></h3>
-          <ul>
-            <li><b class="ogl-n" data-n="95459">95,459</b><span data-i18n="oglO1">lines of our own code</span><i class="ogl-bar" data-w="1"></i></li>
-            <li><b class="ogl-n" data-n="657">657</b><span data-i18n="oglO2">automated tests that guard the engine</span><i class="ogl-bar" data-w=".62"></i></li>
-            <li><b class="ogl-n" data-n="100" data-prefix="~">~100</b><span data-i18n="oglO3">security tools in the toolbox</span><i class="ogl-bar" data-w=".46"></i></li>
-            <li><b class="ogl-n" data-n="6">6</b><span data-i18n="oglO4">repair techniques that rebuild a clean copy</span><i class="ogl-bar" data-w=".3"></i></li>
-            <li><b class="ogl-n" data-n="4">4</b><span data-i18n="oglO5">platforms: web, Windows, Android, browser</span><i class="ogl-bar" data-w=".24"></i></li>
-            <li><b class="ogl-n" data-n="30">30</b><span data-i18n="oglO6">languages, Arabic first</span><i class="ogl-bar" data-w=".38"></i></li>
-          </ul>
-        </div>
-        <div class="ogl-col ogl-open">
-          <h3><span class="ogl-badge" aria-hidden="true">◇</span><span data-i18n="oglOpen">Borrowed from the community, by name</span></h3>
-          <ul>
-            <li><b class="ogl-n" data-n="5078" data-live="forge_rules">5,078</b><span><span data-i18n="oglB1">threat rules</span> · <cite>YARA-Forge</cite></span><i class="ogl-bar" data-w=".5"></i></li>
-            <li><b class="ogl-n" data-n="1572864" data-live="malware_hashes">1,572,864</b><span><span data-i18n="oglB2">known-malware fingerprints</span> · <cite>VirusShare</cite></span><i class="ogl-bar" data-w="1"></i></li>
-            <li><b class="ogl-n" data-n="112682" data-live="urlhaus">112,682</b><span><span data-i18n="oglB3">malicious links</span> · <cite>URLhaus (abuse.ch)</cite></span><i class="ogl-bar" data-w=".42"></i></li>
-            <li><b class="ogl-n" data-n="392071" data-live="phishing">392,071</b><span><span data-i18n="oglB4">phishing domains</span> · <cite>Phishing.Database</cite></span><i class="ogl-bar" data-w=".7"></i></li>
-            <li><b class="ogl-n" data-n="219" data-live="secret_rules">219</b><span><span data-i18n="oglB5">leaked-secret patterns</span> · <cite>gitleaks</cite></span><i class="ogl-bar" data-w=".2"></i></li>
-            <li class="ogl-libs"><span data-i18n="oglB6">Open libraries we build on:</span> <cite>yara-x</cite> · <cite>three.js</cite> · <cite>pypdf</cite> · <cite>olefile</cite> · <cite>Pyodide</cite> · <cite>EMBER2024</cite> · <cite>Tranco</cite></li>
-          </ul>
-        </div>
-      </div>
-      <p class="ogl-foot"><span data-i18n="oglFoot">Our figures are counted from the code itself (November 2026); the borrowed figures are read live from the engine. Each rule keeps its own licence and author.</span> <a href="/tests" data-i18n="oglTests">See the independent tests</a></p>
-    </section>
-
-
+    <!-- ============ THE FILM (cinema.css, js/film.js) ============ -->
     <section id="film" class="l-section film-sec cine" data-shape="ring" data-shape-fade="0.12" data-tint="#090620" aria-labelledby="film-h">
       <div class="cine-stage">
         <div class="cine-head">
@@ -436,40 +329,8 @@
       </div>
     </section>
 
-    <section id="manifesto" class="manifesto" data-shape="sphere" data-shape-fade="0.22" data-tint="#0d0722">
-      <div class="mf-pin">
-        <span class="mf-kicker" data-i18n="mfKicker">Why CyberScan</span>
-        <p class="mf-text" id="mf-text"></p>
-        <div class="mf-progress"><i id="mf-progress"></i></div>
-      </div>
-    </section>
-
-    <section id="how" class="how l-section" data-shape="ring" data-shape-fade="0.22" data-tint="#0b0619" aria-labelledby="how-h">
-      <div class="how-head">
-        <h2 class="l-h2" id="how-h" data-i18n="lHowTitle"></h2>
-        <p class="l-sub" data-i18n="lHowSub"></p>
-      </div>
-      <ol class="l-steps how-grid" id="l-steps"></ol>
-      <!-- the engine pipeline, folded into "How it works" (one explanation instead of two sections) -->
-      <div id="pipeline" class="pipe-sec pipe-merged" data-shape="helix" data-shape-fade="0.2">
-      <h3 class="pipe-h3" data-i18n="pipeTitle"></h3>
-      <p class="pipe-note" data-i18n="pipeSub"></p>
-      <div class="pipe" id="pipe" data-reveal>
-        <div class="pipe-diagram" id="pipe-diagram">
-          <svg class="pipe-svg" id="pipe-svg" aria-hidden="true"></svg>
-          <div class="pipe-nodes" id="pipe-nodes"></div>
-        </div>
-        <aside class="pipe-panel" id="pipe-panel" aria-live="polite">
-          <span class="pp-kicker" id="pp-kicker"></span>
-          <h3 id="pp-title"></h3>
-          <p id="pp-body"></p>
-          <div class="pp-example"><small data-i18n="ppExample">Example finding</small><code id="pp-example"></code></div>
-        </aside>
-      </div>
-      </div>
-    </section>
-
-    <!-- ============ THE SCIENCE BEHIND CYBERSCAN (science.css, js/science.js, data/science.json) ============ -->
+    <!-- ============ HOW IT WORKS: THE SCIENCE STORY (science.css, scrolly.css, js/science.js, js/scrolly.js) ============
+         the one explanation of how CyberScan works (the separate "How it works" steps and the manifesto said the same) -->
     <section id="science" class="sci" aria-labelledby="sci-title" data-tint="#080512">
       <header class="sci-head" data-shape="hex" data-shape-fade="0.12">
         <span class="sec-tag" data-i18n="sciTag">// The science</span>
@@ -542,6 +403,27 @@
         </section>
       </div>
       <!-- ============ /THE CYBERSCAN STORY ============ -->
+      <!-- the engine pipeline (js/pipeline.js; built when first opened): "How it works" was a second
+           explanation of the same four steps, so only its diagram of the analysers stays, here -->
+      <details class="pipe-more" id="pipe-more">
+        <summary><span data-i18n="pipeMore">Inside the engine: every analyser, one by one</span></summary>
+        <div id="pipeline" class="pipe-sec pipe-merged">
+        <h3 class="pipe-h3" data-i18n="pipeTitle"></h3>
+        <p class="pipe-note" data-i18n="pipeSub"></p>
+        <div class="pipe" id="pipe" data-reveal>
+          <div class="pipe-diagram" id="pipe-diagram">
+            <svg class="pipe-svg" id="pipe-svg" aria-hidden="true"></svg>
+            <div class="pipe-nodes" id="pipe-nodes"></div>
+          </div>
+          <aside class="pipe-panel" id="pipe-panel" aria-live="polite">
+            <span class="pp-kicker" id="pp-kicker"></span>
+            <h3 id="pp-title"></h3>
+            <p id="pp-body"></p>
+            <div class="pp-example"><small data-i18n="ppExample">Example finding</small><code id="pp-example"></code></div>
+          </aside>
+        </div>
+        </div>
+      </details>
 
       <div class="sci-deep" id="sci-deep" lang="en" dir="ltr" data-shape="hex" data-shape-fade="0.08">
       <header class="sci-head sci-deep-head">
@@ -811,16 +693,12 @@
       </div>
     </section>
 
+    <!-- ============ WHAT YOU GET: features, repair, privacy ============ -->
     <section id="features" class="l-section skewable" data-shape="hex" data-shape-fade="0.18" data-tint="#0b0517">
       <h2 class="l-h2 center" data-reveal data-i18n="lFeatTitleN"></h2>
       <p class="l-sub center" data-reveal data-i18n="lFeatSubN"></p>
       <div class="bento" id="feat-grid"></div>
     </section>
-
-    <div class="bands" aria-hidden="true">
-      <div class="band" data-speed="1"><span id="band-a"></span></div>
-      <div class="band outline" data-speed="-1"><span id="band-b"></span></div>
-    </div>
 
     <section id="repair-sec" class="l-section repair-sec" data-shape="file" data-shape-fade="0.28" data-tint="#150a1f">
       <div class="repair-copy">
@@ -836,10 +714,10 @@
 
     <section id="privacy" class="l-section stack-sec" data-shape="sphere" data-shape-fade="0.22" data-tint="#0c0820">
       <h2 class="l-h2 center" data-i18n="lPrivTitle"></h2>
-      <div class="priv-grid stack" id="priv-grid"></div>
+      <div class="priv-grid" id="priv-grid"></div>
     </section>
 
-    <!-- ============ HONEST COMPARISON (landing-plus.css; strings js/landing-i18n.js) ============ -->
+    <!-- ============ PROOF: honest comparison, numbers (landing-plus.css; strings js/landing-i18n.js) ============ -->
     <section id="compare" class="l-section cmp-sec" data-shape="ring" data-shape-fade="0.22" data-tint="#0a0718" aria-labelledby="cmp-h">
       <span class="sec-tag" data-i18n="cmpKicker">// Honest comparison</span>
       <h2 class="l-h2" id="cmp-h" data-i18n="cmpTitle">CyberScan, VirusTotal and Windows Defender</h2>
@@ -877,7 +755,103 @@
       </div>
     </section>
 
-    <!-- ============ ONYX | THE MINDS BEHIND CYBERSCAN (team.css, js/team.js) ============ -->
+    <!-- ============ WHO MADE IT: made by Saudi hands (saudi.css, js/saudi.js), originality (origin.css, js/origin.js) and its ledger, the team ============ -->
+    <section id="saudi" class="ks" data-shape="ring" data-shape-fade="0.1" data-tint="#03130d" aria-labelledby="ks-title">
+      <div class="ks-stage">
+        <canvas class="ks-dust" aria-hidden="true"></canvas>
+        <div class="ks-beams" aria-hidden="true"><i></i><i></i><i></i></div>
+        <div class="ks-bg" aria-hidden="true" data-depth="1">
+          <div class="ks-rays"></div>
+          <svg class="ks-pattern" viewBox="-500 -500 1000 1000"><path class="ks-p ks-c" pathLength="1" d="M106.1 -106.1 L106.1 106.1 L-106.1 106.1 L-106.1 -106.1 Z"/><path class="ks-p ks-c" pathLength="1" d="M150.0 0.0 L0.0 150.0 L-150.0 0.0 L-0.0 -150.0 Z"/><path class="ks-p ks-c2" pathLength="1" d="M0.0 -112.0 L32.6 -78.6 L79.2 -79.2 L78.6 -32.6 L112.0 0.0 L78.6 32.6 L79.2 79.2 L32.6 78.6 L0.0 112.0 L-32.6 78.6 L-79.2 79.2 L-78.6 32.6 L-112.0 0.0 L-78.6 -32.6 L-79.2 -79.2 L-32.6 -78.6 Z"/><circle class="ks-p ks-c3" pathLength="1" r="186"/><path class="ks-p ks-r1" pathLength="1" data-i="0" d="M0.0 -322.0 L15.1 -306.5 L36.8 -306.8 L36.5 -285.1 L52.0 -270.0 L36.5 -254.9 L36.8 -233.2 L15.1 -233.5 L0.0 -218.0 L-15.1 -233.5 L-36.8 -233.2 L-36.5 -254.9 L-52.0 -270.0 L-36.5 -285.1 L-36.8 -306.8 L-15.1 -306.5 Z"/><path class="ks-p ks-r1" pathLength="1" data-i="1" d="M190.9 -242.9 L206.0 -227.4 L227.7 -227.7 L227.4 -206.0 L242.9 -190.9 L227.4 -175.8 L227.7 -154.1 L206.0 -154.4 L190.9 -138.9 L175.8 -154.4 L154.1 -154.1 L154.4 -175.8 L138.9 -190.9 L154.4 -206.0 L154.1 -227.7 L175.8 -227.4 Z"/><path class="ks-p ks-r1" pathLength="1" data-i="2" d="M270.0 -52.0 L285.1 -36.5 L306.8 -36.8 L306.5 -15.1 L322.0 0.0 L306.5 15.1 L306.8 36.8 L285.1 36.5 L270.0 52.0 L254.9 36.5 L233.2 36.8 L233.5 15.1 L218.0 0.0 L233.5 -15.1 L233.2 -36.8 L254.9 -36.5 Z"/><path class="ks-p ks-r1" pathLength="1" data-i="3" d="M190.9 138.9 L206.0 154.4 L227.7 154.1 L227.4 175.8 L242.9 190.9 L227.4 206.0 L227.7 227.7 L206.0 227.4 L190.9 242.9 L175.8 227.4 L154.1 227.7 L154.4 206.0 L138.9 190.9 L154.4 175.8 L154.1 154.1 L175.8 154.4 Z"/><path class="ks-p ks-r1" pathLength="1" data-i="4" d="M0.0 218.0 L15.1 233.5 L36.8 233.2 L36.5 254.9 L52.0 270.0 L36.5 285.1 L36.8 306.8 L15.1 306.5 L0.0 322.0 L-15.1 306.5 L-36.8 306.8 L-36.5 285.1 L-52.0 270.0 L-36.5 254.9 L-36.8 233.2 L-15.1 233.5 Z"/><path class="ks-p ks-r1" pathLength="1" data-i="5" d="M-190.9 138.9 L-175.8 154.4 L-154.1 154.1 L-154.4 175.8 L-138.9 190.9 L-154.4 206.0 L-154.1 227.7 L-175.8 227.4 L-190.9 242.9 L-206.0 227.4 L-227.7 227.7 L-227.4 206.0 L-242.9 190.9 L-227.4 175.8 L-227.7 154.1 L-206.0 154.4 Z"/><path class="ks-p ks-r1" pathLength="1" data-i="6" d="M-270.0 -52.0 L-254.9 -36.5 L-233.2 -36.8 L-233.5 -15.1 L-218.0 0.0 L-233.5 15.1 L-233.2 36.8 L-254.9 36.5 L-270.0 52.0 L-285.1 36.5 L-306.8 36.8 L-306.5 15.1 L-322.0 0.0 L-306.5 -15.1 L-306.8 -36.8 L-285.1 -36.5 Z"/><path class="ks-p ks-r1" pathLength="1" data-i="7" d="M-190.9 -242.9 L-175.8 -227.4 L-154.1 -227.7 L-154.4 -206.0 L-138.9 -190.9 L-154.4 -175.8 L-154.1 -154.1 L-175.8 -154.4 L-190.9 -138.9 L-206.0 -154.4 L-227.7 -154.1 L-227.4 -175.8 L-242.9 -190.9 L-227.4 -206.0 L-227.7 -227.7 L-206.0 -227.4 Z"/><path class="ks-p ks-band" pathLength="1" d="M0.0 -340.0 L114.8 -277.2 L240.4 -240.4 L277.2 -114.8 L340.0 0.0 L277.2 114.8 L240.4 240.4 L114.8 277.2 L0.0 340.0 L-114.8 277.2 L-240.4 240.4 L-277.2 114.8 L-340.0 0.0 L-277.2 -114.8 L-240.4 -240.4 L-114.8 -277.2 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="0" d="M81.9 -441.9 L90.7 -433.0 L103.2 -433.1 L103.0 -420.7 L111.9 -411.9 L103.0 -403.2 L103.2 -390.7 L90.7 -390.9 L81.9 -381.9 L73.2 -390.9 L60.7 -390.7 L60.9 -403.2 L51.9 -411.9 L60.9 -420.7 L60.7 -433.1 L73.2 -433.0 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="1" d="M233.3 -379.2 L242.1 -370.3 L254.6 -370.4 L254.4 -357.9 L263.3 -349.2 L254.4 -340.5 L254.6 -328.0 L242.1 -328.2 L233.3 -319.2 L224.6 -328.2 L212.1 -328.0 L212.3 -340.5 L203.3 -349.2 L212.3 -357.9 L212.1 -370.4 L224.6 -370.3 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="2" d="M349.2 -263.3 L357.9 -254.4 L370.4 -254.6 L370.3 -242.1 L379.2 -233.3 L370.3 -224.6 L370.4 -212.1 L357.9 -212.3 L349.2 -203.3 L340.5 -212.3 L328.0 -212.1 L328.2 -224.6 L319.2 -233.3 L328.2 -242.1 L328.0 -254.6 L340.5 -254.4 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="3" d="M411.9 -111.9 L420.7 -103.0 L433.1 -103.2 L433.0 -90.7 L441.9 -81.9 L433.0 -73.2 L433.1 -60.7 L420.7 -60.9 L411.9 -51.9 L403.2 -60.9 L390.7 -60.7 L390.9 -73.2 L381.9 -81.9 L390.9 -90.7 L390.7 -103.2 L403.2 -103.0 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="4" d="M411.9 51.9 L420.7 60.9 L433.1 60.7 L433.0 73.2 L441.9 81.9 L433.0 90.7 L433.1 103.2 L420.7 103.0 L411.9 111.9 L403.2 103.0 L390.7 103.2 L390.9 90.7 L381.9 81.9 L390.9 73.2 L390.7 60.7 L403.2 60.9 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="5" d="M349.2 203.3 L357.9 212.3 L370.4 212.1 L370.3 224.6 L379.2 233.3 L370.3 242.1 L370.4 254.6 L357.9 254.4 L349.2 263.3 L340.5 254.4 L328.0 254.6 L328.2 242.1 L319.2 233.3 L328.2 224.6 L328.0 212.1 L340.5 212.3 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="6" d="M233.3 319.2 L242.1 328.2 L254.6 328.0 L254.4 340.5 L263.3 349.2 L254.4 357.9 L254.6 370.4 L242.1 370.3 L233.3 379.2 L224.6 370.3 L212.1 370.4 L212.3 357.9 L203.3 349.2 L212.3 340.5 L212.1 328.0 L224.6 328.2 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="7" d="M81.9 381.9 L90.7 390.9 L103.2 390.7 L103.0 403.2 L111.9 411.9 L103.0 420.7 L103.2 433.1 L90.7 433.0 L81.9 441.9 L73.2 433.0 L60.7 433.1 L60.9 420.7 L51.9 411.9 L60.9 403.2 L60.7 390.7 L73.2 390.9 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="8" d="M-81.9 381.9 L-73.2 390.9 L-60.7 390.7 L-60.9 403.2 L-51.9 411.9 L-60.9 420.7 L-60.7 433.1 L-73.2 433.0 L-81.9 441.9 L-90.7 433.0 L-103.2 433.1 L-103.0 420.7 L-111.9 411.9 L-103.0 403.2 L-103.2 390.7 L-90.7 390.9 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="9" d="M-233.3 319.2 L-224.6 328.2 L-212.1 328.0 L-212.3 340.5 L-203.3 349.2 L-212.3 357.9 L-212.1 370.4 L-224.6 370.3 L-233.3 379.2 L-242.1 370.3 L-254.6 370.4 L-254.4 357.9 L-263.3 349.2 L-254.4 340.5 L-254.6 328.0 L-242.1 328.2 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="10" d="M-349.2 203.3 L-340.5 212.3 L-328.0 212.1 L-328.2 224.6 L-319.2 233.3 L-328.2 242.1 L-328.0 254.6 L-340.5 254.4 L-349.2 263.3 L-357.9 254.4 L-370.4 254.6 L-370.3 242.1 L-379.2 233.3 L-370.3 224.6 L-370.4 212.1 L-357.9 212.3 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="11" d="M-411.9 51.9 L-403.2 60.9 L-390.7 60.7 L-390.9 73.2 L-381.9 81.9 L-390.9 90.7 L-390.7 103.2 L-403.2 103.0 L-411.9 111.9 L-420.7 103.0 L-433.1 103.2 L-433.0 90.7 L-441.9 81.9 L-433.0 73.2 L-433.1 60.7 L-420.7 60.9 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="12" d="M-411.9 -111.9 L-403.2 -103.0 L-390.7 -103.2 L-390.9 -90.7 L-381.9 -81.9 L-390.9 -73.2 L-390.7 -60.7 L-403.2 -60.9 L-411.9 -51.9 L-420.7 -60.9 L-433.1 -60.7 L-433.0 -73.2 L-441.9 -81.9 L-433.0 -90.7 L-433.1 -103.2 L-420.7 -103.0 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="13" d="M-349.2 -263.3 L-340.5 -254.4 L-328.0 -254.6 L-328.2 -242.1 L-319.2 -233.3 L-328.2 -224.6 L-328.0 -212.1 L-340.5 -212.3 L-349.2 -203.3 L-357.9 -212.3 L-370.4 -212.1 L-370.3 -224.6 L-379.2 -233.3 L-370.3 -242.1 L-370.4 -254.6 L-357.9 -254.4 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="14" d="M-233.3 -379.2 L-224.6 -370.3 L-212.1 -370.4 L-212.3 -357.9 L-203.3 -349.2 L-212.3 -340.5 L-212.1 -328.0 L-224.6 -328.2 L-233.3 -319.2 L-242.1 -328.2 L-254.6 -328.0 L-254.4 -340.5 L-263.3 -349.2 L-254.4 -357.9 L-254.6 -370.4 L-242.1 -370.3 Z"/><path class="ks-p ks-r2" pathLength="1" data-i="15" d="M-81.9 -441.9 L-73.2 -433.0 L-60.7 -433.1 L-60.9 -420.7 L-51.9 -411.9 L-60.9 -403.2 L-60.7 -390.7 L-73.2 -390.9 L-81.9 -381.9 L-90.7 -390.9 L-103.2 -390.7 L-103.0 -403.2 L-111.9 -411.9 L-103.0 -420.7 L-103.2 -433.1 L-90.7 -433.0 Z"/><circle class="ks-p ks-c4" pathLength="1" r="480"/></svg>
+        </div>
+        <div class="ks-glow" aria-hidden="true" data-depth="0.6"></div>
+        <div class="ks-frame" aria-hidden="true"><svg class="ks-corner c1" viewBox="0 0 140 140"><path class="ks-cp" pathLength="1" d="M3 96V22Q3 3 22 3H96"/><path class="ks-cp ks-cp2" pathLength="1" d="M17 66V30Q17 17 30 17H66"/><path class="ks-cd" d="M3 112l5 6-5 6-5-6zM112 3l6 5-6 5-6-5z"/><circle class="ks-cd" cx="30" cy="30" r="2.6"/></svg><svg class="ks-corner c2" viewBox="0 0 140 140"><path class="ks-cp" pathLength="1" d="M3 96V22Q3 3 22 3H96"/><path class="ks-cp ks-cp2" pathLength="1" d="M17 66V30Q17 17 30 17H66"/><path class="ks-cd" d="M3 112l5 6-5 6-5-6zM112 3l6 5-6 5-6-5z"/><circle class="ks-cd" cx="30" cy="30" r="2.6"/></svg><svg class="ks-corner c3" viewBox="0 0 140 140"><path class="ks-cp" pathLength="1" d="M3 96V22Q3 3 22 3H96"/><path class="ks-cp ks-cp2" pathLength="1" d="M17 66V30Q17 17 30 17H66"/><path class="ks-cd" d="M3 112l5 6-5 6-5-6zM112 3l6 5-6 5-6-5z"/><circle class="ks-cd" cx="30" cy="30" r="2.6"/></svg><svg class="ks-corner c4" viewBox="0 0 140 140"><path class="ks-cp" pathLength="1" d="M3 96V22Q3 3 22 3H96"/><path class="ks-cp ks-cp2" pathLength="1" d="M17 66V30Q17 17 30 17H66"/><path class="ks-cd" d="M3 112l5 6-5 6-5-6zM112 3l6 5-6 5-6-5z"/><circle class="ks-cd" cx="30" cy="30" r="2.6"/></svg></div>
+        <div class="ks-veil" aria-hidden="true"></div>
+        <div class="ks-center">
+          <p class="ks-kicker" data-i18n="ksKicker">// Made in Saudi Arabia</p>
+          <h2 class="ks-title" id="ks-title" lang="ar" dir="rtl"><span class="ks-outline" aria-hidden="true">صُنع بأيدٍ سعودية</span><span class="ks-fill">صُنع بأيدٍ سعودية</span><span class="ks-shine" aria-hidden="true">صُنع بأيدٍ سعودية</span></h2>
+          <div class="ks-orn" aria-hidden="true"><i></i><b></b><i></i></div>
+          <p class="ks-sub" data-i18n="ksSub">Made by Saudi hands. Designed and engineered in Saudi Arabia.</p>
+          <ul class="ks-words"><li data-i18n="ksW1">Vision</li><li data-i18n="ksW2">Craft</li><li data-i18n="ksW3">Security</li></ul>
+          <div class="ks-seal" aria-hidden="true" data-depth="0.5">
+            <span class="ks-burst"></span>
+            <span class="ks-flash"></span>
+            <svg class="ks-seal-text" viewBox="-100 -100 200 200"><defs><path id="ks-ring-path" d="M0 -84a84 84 0 1 1 0 168a84 84 0 1 1 0-168"/></defs><text><textPath href="#ks-ring-path" textLength="520">صُنع في السعودية ◆ MADE IN SAUDI ARABIA ◆ صُنع في السعودية ◆ MADE IN SAUDI ARABIA ◆</textPath></text></svg>
+            <svg viewBox="-70 -70 140 140"><path class="ks-seal-star" pathLength="1" d="M0.0 -58.0 L16.9 -40.7 L41.0 -41.0 L40.7 -16.9 L58.0 0.0 L40.7 16.9 L41.0 41.0 L16.9 40.7 L0.0 58.0 L-16.9 40.7 L-41.0 41.0 L-40.7 16.9 L-58.0 0.0 L-40.7 -16.9 L-41.0 -41.0 L-16.9 -40.7 Z"/><circle class="ks-seal-ring" r="40"/><path class="ks-seal-shield" d="M0 -26 -20 -18v14c0 13 8.5 23.5 20 27 11.5-3.5 20-14 20-27v-14z"/><path class="ks-seal-check" d="M-8 0l6 6 11-12"/></svg>
+          </div>
+          <p class="ks-end" data-i18n="ksEnd">Technology we are proud of, built for everyone.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="origin" class="og" data-shape="hex" data-shape-fade="0.18" data-tint="#0a0616" aria-labelledby="og-title">
+      <div class="og-stage">
+        <div class="og-glow" aria-hidden="true"></div>
+        <div class="og-inner">
+          <div class="og-visual" aria-hidden="true">
+            <svg class="og-print" viewBox="-160 -160 320 320">
+              <defs>
+                <linearGradient id="og-grad" x1="0" y1="-1" x2="0" y2="1" gradientUnits="objectBoundingBox">
+                  <stop offset="0" stop-color="#ffe7a8"/><stop offset=".5" stop-color="#c9a2ff"/><stop offset="1" stop-color="#22e8ff"/>
+                </linearGradient>
+              </defs>
+              <circle class="og-ring" r="152"/>
+              <g class="og-ridges"></g>
+              <circle class="og-core" r="4" cy="-6"/>
+            </svg>
+            <span class="og-beam"></span>
+            <span class="og-seal"><span><span data-i18n="ogSeal">Made here</span><small>CYBERSCAN</small></span></span>
+          </div>
+          <div class="og-words">
+            <p class="og-kicker" data-i18n="ogKicker">// Originality</p>
+            <h2 class="og-title" id="og-title" data-i18n="ogTitle">Original, line by line.</h2>
+            <p class="og-lead" data-i18n="ogLead">CyberScan isn't a copy of another product. Its idea, its code and its design were born here.</p>
+            <ol class="og-pillars">
+              <li class="og-pillar"><b data-i18n="ogP1T">An engine written from scratch</b><p data-i18n="ogP1"></p><span class="og-fig" data-i18n="ogP1F">9,213 lines · 44 files</span></li>
+              <li class="og-pillar"><b data-i18n="ogP2T">Our own real repair</b><p data-i18n="ogP2"></p><span class="og-fig" data-i18n="ogP2F">4,280 lines · 6 techniques</span></li>
+              <li class="og-pillar"><b data-i18n="ogP3T">Design without templates</b><p data-i18n="ogP3"></p><span class="og-fig" data-i18n="ogP3F">26,988 lines of interface</span></li>
+              <li class="og-pillar"><b data-i18n="ogP4T">Arabic first</b><p data-i18n="ogP4"></p><span class="og-fig" data-i18n="ogP4F">30 languages · 4 platforms</span></li>
+              <li class="og-pillar"><b data-i18n="ogP5T">Honest about sources</b><p data-i18n="ogP5"></p><span class="og-fig" data-i18n="ogP5F">9 open sources, named</span></li>
+            </ol>
+          </div>
+        </div>
+        <div class="og-progress" aria-hidden="true"><i></i></div>
+      </div>
+    </section>
+
+    <section id="og-ledger" class="ogl l-section" aria-labelledby="ogl-title">
+      <header class="ogl-head">
+        <p class="og-kicker" data-i18n="oglKicker">// In numbers</p>
+        <h2 class="ogl-title" id="ogl-title" data-i18n="oglTitle">What we built, and what we borrow.</h2>
+        <p class="ogl-lead" data-i18n="oglLead">Originality isn't pretending to build everything alone. It's knowing exactly which part is yours, and naming the rest.</p>
+      </header>
+      <div class="ogl-cols">
+        <div class="ogl-col ogl-ours">
+          <h3><span class="ogl-badge" aria-hidden="true">◆</span><span data-i18n="oglOurs">Written here</span></h3>
+          <ul>
+            <li><b class="ogl-n" data-n="95459">95,459</b><span data-i18n="oglO1">lines of our own code</span><i class="ogl-bar" data-w="1"></i></li>
+            <li><b class="ogl-n" data-n="657">657</b><span data-i18n="oglO2">automated tests that guard the engine</span><i class="ogl-bar" data-w=".62"></i></li>
+            <li><b class="ogl-n" data-n="100" data-prefix="~">~100</b><span data-i18n="oglO3">security tools in the toolbox</span><i class="ogl-bar" data-w=".46"></i></li>
+            <li><b class="ogl-n" data-n="6">6</b><span data-i18n="oglO4">repair techniques that rebuild a clean copy</span><i class="ogl-bar" data-w=".3"></i></li>
+            <li><b class="ogl-n" data-n="4">4</b><span data-i18n="oglO5">platforms: web, Windows, Android, browser</span><i class="ogl-bar" data-w=".24"></i></li>
+            <li><b class="ogl-n" data-n="30">30</b><span data-i18n="oglO6">languages, Arabic first</span><i class="ogl-bar" data-w=".38"></i></li>
+          </ul>
+        </div>
+        <div class="ogl-col ogl-open">
+          <h3><span class="ogl-badge" aria-hidden="true">◇</span><span data-i18n="oglOpen">Borrowed from the community, by name</span></h3>
+          <ul>
+            <li><b class="ogl-n" data-n="5078" data-live="forge_rules">5,078</b><span><span data-i18n="oglB1">threat rules</span> · <cite>YARA-Forge</cite></span><i class="ogl-bar" data-w=".5"></i></li>
+            <li><b class="ogl-n" data-n="1572864" data-live="malware_hashes">1,572,864</b><span><span data-i18n="oglB2">known-malware fingerprints</span> · <cite>VirusShare</cite></span><i class="ogl-bar" data-w="1"></i></li>
+            <li><b class="ogl-n" data-n="112682" data-live="urlhaus">112,682</b><span><span data-i18n="oglB3">malicious links</span> · <cite>URLhaus (abuse.ch)</cite></span><i class="ogl-bar" data-w=".42"></i></li>
+            <li><b class="ogl-n" data-n="392071" data-live="phishing">392,071</b><span><span data-i18n="oglB4">phishing domains</span> · <cite>Phishing.Database</cite></span><i class="ogl-bar" data-w=".7"></i></li>
+            <li><b class="ogl-n" data-n="219" data-live="secret_rules">219</b><span><span data-i18n="oglB5">leaked-secret patterns</span> · <cite>gitleaks</cite></span><i class="ogl-bar" data-w=".2"></i></li>
+            <li class="ogl-libs"><span data-i18n="oglB6">Open libraries we build on:</span> <cite>yara-x</cite> · <cite>three.js</cite> · <cite>pypdf</cite> · <cite>olefile</cite> · <cite>Pyodide</cite> · <cite>EMBER2024</cite> · <cite>Tranco</cite></li>
+          </ul>
+        </div>
+      </div>
+      <p class="ogl-foot"><span data-i18n="oglFoot">Our figures are counted from the code itself (November 2026); the borrowed figures are read live from the engine. Each rule keeps its own licence and author.</span> <a href="/tests" data-i18n="oglTests">See the independent tests</a></p>
+    </section>
+
     <section id="team" class="onyx" data-shape="hex" data-shape-fade="0.12" data-tint="#07060f" aria-labelledby="tm-title">
       <div class="tm-aura" aria-hidden="true"></div>
       <div class="tm-wrap">
@@ -889,15 +863,15 @@
             </div>
           </div>
           <div class="tm-head" data-tm-reveal>
-            <p class="tm-kicker" aria-hidden="true"><span class="tm-kicker-line"></span>THE TEAM</p>
+            <p class="tm-kicker" aria-hidden="true"><span class="tm-kicker-line"></span><span data-i18n="tmNav">The team</span></p>
             <h2 class="tm-title" id="tm-title"><span class="tm-onyx">ONYX</span><span class="tm-bar" aria-hidden="true">|</span><span class="tm-sub" data-i18n="tmKicker">The minds behind CyberScan</span></h2>
             <p class="tm-lead" data-i18n="tmLead">Six people, one product. The team that plans CyberScan, builds it, designs it and tells its story.</p>
           </div>
         </header>
         <div class="tm-grid" id="tm-grid"></div>
         <footer class="tm-close" data-tm-reveal>
-          <p class="tm-motto" dir="ltr" data-i18n="tmClose1">ONE TEAM. ONE VISION. ONE MISSION.</p>
-          <p class="tm-sign" dir="ltr" data-i18n="tmClose2">ONYX — Building the Future of Cybersecurity.</p>
+          <p class="tm-motto" dir="auto" data-i18n="tmClose1">ONE TEAM. ONE VISION. ONE MISSION.</p>
+          <p class="tm-sign" dir="auto" data-i18n="tmClose2">ONYX — Building the Future of Cybersecurity.</p>
         </footer>
       </div>
     </section>

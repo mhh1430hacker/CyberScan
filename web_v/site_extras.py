@@ -142,9 +142,10 @@ def json_ld(path: str) -> str:
     return ""
 
 
-SHARED_CSS = '<link rel="stylesheet" href="a11y-panel.css">'
+SHARED_CSS = ('<link rel="stylesheet" href="a11y-panel.css">', '<link rel="stylesheet" href="dock.css">')
 SHARED_JS = ('<script src="js/errors.js"></script>', '<script src="js/a11y-early.js"></script>')
-SHARED_TAIL = ('<script src="js/a11y-panel.js"></script>', '<script src="js/vitals.js"></script>', '<script src="js/visits.js"></script>')
+# js/dock.js last: the one floating button takes over the triggers the scripts before it built
+SHARED_TAIL = ('<script src="js/a11y-panel.js"></script>', '<script src="js/dock.js"></script>', '<script src="js/vitals.js"></script>', '<script src="js/visits.js"></script>')
 
 
 def decorate(html: str, path: str, lang: str | None = None) -> str:
@@ -163,8 +164,9 @@ def decorate(html: str, path: str, lang: str | None = None) -> str:
     for piece in SHARED_JS:
         if piece not in html:
             head.append(piece)
-    if SHARED_CSS not in html:
-        head.append(SHARED_CSS)
+    for piece in SHARED_CSS:
+        if piece not in html:
+            head.append(piece)
     seo = path in SEO_FILES
     canonical = _url(path, lang) if seo else (f"{SCAN_SITE}/" if path == "/app.html" else None)
     html = re.sub(r'\s*<link rel="canonical"[^>]*>|\s*<meta property="og:url"[^>]*>', "", html)

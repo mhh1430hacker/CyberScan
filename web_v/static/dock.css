@@ -1,0 +1,97 @@
+/* The site's one floating button and its panel (js/dock.js). Every page; own class names (cs-dock-*).
+ * The corner buttons it replaces are hidden here; their panels open next to it. */
+
+/* ---------------- the buttons it replaces ---------------- */
+html.has-dock .ask-fab, html.has-dock .to-top, html.has-dock .mynex-tab, html.has-dock .a11y-tab { display: none !important; }
+
+/* ---------------- the button ---------------- */
+.cs-dock {
+  --dock-b: max(16px, calc(env(safe-area-inset-bottom) + 10px));
+  position: fixed; z-index: 2147482000; inset-inline-end: 16px; bottom: var(--dock-b);
+  display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
+  font: 500 14px/1.3 system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans Arabic", Tahoma, sans-serif; color: #f3eeff;
+  transition: transform .3s cubic-bezier(.22, 1, .36, 1), opacity .3s;
+}
+.cs-dock-btn {
+  position: relative; display: grid; place-items: center; width: 48px; height: 48px; padding: 0; border-radius: 50%; cursor: pointer;
+  color: #fff; border: 1px solid rgba(214, 180, 255, .5);
+  background: linear-gradient(135deg, rgba(124, 58, 237, .94), rgba(162, 28, 175, .92));
+  box-shadow: 0 12px 32px -12px rgba(124, 58, 237, .85), inset 0 1px 0 rgba(255, 255, 255, .25);
+  transition: transform .2s, box-shadow .2s;
+}
+.cs-dock-btn:hover { transform: translateY(-2px); box-shadow: 0 16px 40px -12px rgba(192, 38, 211, .9), inset 0 1px 0 rgba(255, 255, 255, .25); }
+.cs-dock-btn:focus-visible { outline: 2px solid #22e8ff; outline-offset: 3px; }
+.cs-dock-i { position: absolute; inset: 0; display: grid; place-items: center; transition: opacity .2s, transform .25s; }
+.cs-dock-i svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.cs-dock-i-close { opacity: 0; transform: rotate(-60deg); }
+.cs-dock.open .cs-dock-i-open { opacity: 0; transform: rotate(60deg); }
+.cs-dock.open .cs-dock-i-close { opacity: 1; transform: none; }
+
+/* ---------------- the panel ---------------- */
+.cs-dock-panel {
+  width: min(280px, calc(100vw - 32px)); padding: 8px; border-radius: 18px; display: grid; gap: 4px;
+  background: rgba(14, 9, 34, .95); border: 1px solid rgba(201, 162, 255, .32);
+  -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+  box-shadow: 0 24px 60px -20px rgba(0, 0, 0, .9), 0 0 0 1px rgba(34, 232, 255, .06);
+  transform-origin: bottom right; animation: cs-dock-in .18s cubic-bezier(.22, 1, .36, 1);
+}
+[dir="rtl"] .cs-dock-panel { transform-origin: bottom left; }
+.cs-dock-panel[hidden] { display: none; }
+@keyframes cs-dock-in { from { opacity: 0; transform: translateY(8px) scale(.97); } }
+.cs-dock-item {
+  display: grid; grid-template-columns: 26px 1fr auto; align-items: center; gap: 10px; width: 100%; min-height: 44px; padding: 6px 10px;
+  border: 1px solid transparent; border-radius: 12px; background: transparent; color: #f3eeff; font: inherit; text-align: start; text-decoration: none; cursor: pointer;
+}
+.cs-dock-item[hidden] { display: none; }
+.cs-dock-item:hover { background: rgba(201, 162, 255, .1); border-color: rgba(201, 162, 255, .22); }
+.cs-dock-item:focus-visible { outline: 2px solid #22e8ff; outline-offset: 1px; }
+.cs-dock-item > svg { width: 22px; height: 22px; justify-self: center; fill: none; stroke: #c9a2ff; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.cs-dock-label { font-weight: 600; }
+.cs-dock-sub { font-size: 11px; font-weight: 700; letter-spacing: .12em; color: #c3b4e6; }
+/* Mynex: the robot (mynex.css styles it on pages that load it; a plain fallback elsewhere) */
+.cs-dock-support .mynex-bot { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, .3), rgba(255, 255, 255, .06) 70%); }
+.cs-dock-support .mynex-bot svg { width: 24px; height: 24px; overflow: visible; }
+.cs-dock-support .mx-head { fill: #f3eaff; } .cs-dock-support .mx-face { fill: #1a0b33; } .cs-dock-support .mx-eye { fill: #5ff0ff; }
+.cs-dock-support .mx-smile { fill: none; stroke: #5ff0ff; stroke-width: 1.4; stroke-linecap: round; }
+.cs-dock-support .mx-ant, .cs-dock-support .mx-ear { fill: none; stroke: #f3eaff; stroke-width: 2; stroke-linecap: round; }
+.cs-dock-support .mx-tip { fill: #ff7ae6; } .cs-dock-support .mx-body { fill: #d9c4ff; }
+
+/* sound: the music player (js/sound.js) and the effects switch */
+.cs-dock-sound { display: grid; gap: 4px; margin: 2px 0; padding: 4px 0; border-block: 1px solid rgba(201, 162, 255, .16); }
+.csm-pill.csm-in-dock {
+  position: static; inset: auto; z-index: auto; width: 100%; padding: 0 0 0 0; gap: 4px; border: 0; border-radius: 12px; background: transparent; box-shadow: none;
+  -webkit-backdrop-filter: none; backdrop-filter: none; font: inherit; flex-wrap: wrap;
+}
+.csm-in-dock .csm-toggle { flex: 1 1 auto; min-height: 44px; padding: 0 10px; gap: 12px; border-radius: 12px; font-weight: 600; justify-content: flex-start; }
+.csm-in-dock .csm-toggle .eq { width: 26px; justify-content: center; }
+.csm-in-dock .csm-vol { order: 3; flex: 1 1 100%; }
+.csm-pill.csm-in-dock.on .csm-vol { width: auto; opacity: 1; margin: 0 10px 6px; }
+.csm-in-dock .csm-more { width: 44px; min-width: 44px; height: 44px; }
+.csm-in-dock .csm-pop { position: absolute; inset: auto 0 calc(100% + 8px) auto; width: min(260px, calc(100vw - 32px)); }
+.cs-dock-panel { position: relative; }
+.csm-in-dock .csm-pop-wrap { position: static; }
+.cs-dock-knob { position: relative; width: 36px; height: 20px; border-radius: 999px; background: #3a3158; border: 1px solid #6d6290; }
+.cs-dock-knob::after { content: ""; position: absolute; top: 2px; inset-inline-start: 2px; width: 14px; height: 14px; border-radius: 50%; background: #d9d2f2; transition: inset-inline-start .2s; }
+.cs-dock-fx[aria-checked="true"] .cs-dock-knob { background: #0d7f91; border-color: #22e8ff; }
+.cs-dock-fx[aria-checked="true"] .cs-dock-knob::after { inset-inline-start: 18px; background: #fff; }
+
+/* the panels it opens sit above the button */
+html.has-dock body .a11y-panel { top: auto; bottom: calc(max(16px, calc(env(safe-area-inset-bottom) + 10px)) + 60px); inset-inline-start: auto; inset-inline-end: 16px; }
+body.ask-open .cs-dock { opacity: 0; pointer-events: none; transform: translateY(8px); }
+
+/* phones: away while reading downwards (js/dock.js), never over the footer's last line */
+@media (max-width: 760px) {
+  .cs-dock { inset-inline-end: 12px; }
+  .cs-dock-btn { width: 44px; height: 44px; }
+  html.dock-away .cs-dock:not(:focus-within) { transform: translateY(80px); opacity: 0; pointer-events: none; }
+}
+@media (prefers-reduced-motion: reduce) { .cs-dock, .cs-dock-panel, .cs-dock-i, .cs-dock-btn { transition: none; animation: none; } }
+html.reduce-motion .cs-dock, html.reduce-motion .cs-dock-panel, html.reduce-motion .cs-dock-i, html.reduce-motion .cs-dock-btn { transition: none; animation: none; }
+@media (forced-colors: active) { .cs-dock-btn, .cs-dock-panel { border: 1px solid CanvasText; } }
+@media print { .cs-dock { display: none !important; } }
+/* the persistent player shows another page in a frame over this one: that page has its own dock */
+html.cs-framed .cs-dock { display: none !important; }
+.csm-in-dock .sound-label { display: inline !important; }
+/* the File Journey keeps its progress bar along the bottom: the dock sits above it */
+body.fj .cs-dock { bottom: calc(max(16px, calc(env(safe-area-inset-bottom) + 10px)) + 72px); }
+body.fj ~ .a11y-panel, html.has-dock body.fj .a11y-panel { bottom: calc(max(16px, calc(env(safe-area-inset-bottom) + 10px)) + 132px); }

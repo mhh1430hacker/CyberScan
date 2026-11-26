@@ -130,6 +130,8 @@
 
   /* ------------------------------------------------------------ 1. why this result */
   let explainMode = store.get("cs-explain") === "expert" ? "expert" : "simple";
+  // one switch for the whole result: technical ids and numbers (.x-only) show only in Expert mode
+  document.documentElement.dataset.explain = explainMode;
   function whyCard(r, cls, items) {
     const l = L();
     const card = el("section", "card rp-why");
@@ -141,7 +143,7 @@
       const b = el("button", "rp-seg-btn", label); b.type = "button"; b.dataset.k = k;
       if (hint) { b.title = hint; b.append(el("small", "", ` · ${hint}`)); }
       b.setAttribute("aria-pressed", String(explainMode === k));
-      b.addEventListener("click", () => { explainMode = k; store.set("cs-explain", k); seg.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.k === k))); paint(); });
+      b.addEventListener("click", () => { explainMode = k; store.set("cs-explain", k); document.documentElement.dataset.explain = k; seg.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.k === k))); paint(); });
       seg.append(b);
     });
     head.append(ht, seg);

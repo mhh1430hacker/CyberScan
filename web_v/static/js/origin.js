@@ -70,8 +70,10 @@
     }
     function measure() {
       raf = 0;
-      const r = root.getBoundingClientRect(), span = r.height - innerHeight;
-      paint(span > 0 ? clamp(-r.top / span) : 1);
+      // the pin is short (the page was too long): the scene starts while it scrolls in, from half a
+      // screen below the top, and ends where the pin ends
+      const r = root.getBoundingClientRect(), lead = innerHeight * 0.5, span = Math.max(0, r.height - innerHeight) + lead;
+      paint(clamp((lead - r.top) / span));
     }
     // Layout is read only while the scene is on screen (and then in a frame callback), never at
     // start-up or when <html>'s classes change (the performance engine toggles them): reading it

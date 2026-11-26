@@ -48,7 +48,9 @@
       statusOn: "Protection active", statusPartial: "Protection partly available", statusUnknown: "Protection status unavailable", statusLoading: "Checking protection…", statRulesOff: "The large rule set isn't loaded here; the built-in rules still run.",
       statusUpdated: "Rules updated {d}", statRules: "threat rules", statHashes: "known-malware fingerprints", statLinks: "malicious links & domains",
       recentTitle: "Recent scans", recentAll: "All history",
-      howTitle: "How a scan works",
+      howTitle: "How a scan works", tipsTitle: "Good to know", newTitle: "What's new", newLink: "See the changelog",
+      tips: ["Not sure about an attachment or a download? Check it before you open it.", "A clean result is good news, not a guarantee: keep files from sources you trust.", "For a link in a message, paste the link itself, not the text around it.", "Several files at once? Drop them together and you get one summary."],
+      news: "Results now start with one clear verdict and the key findings; the rest is a tap away.",
       howSteps: [["Read", "The file is read as data, never opened or run."], ["Match", "Thousands of threat rules and known-malware fingerprints."], ["Measure", "Structure, entropy and hidden data, byte by byte."], ["Explain", "Every finding in plain words, with its source."]],
       promises: ["Nothing you check is ever run", "The uploaded copy is deleted after the check", "Repairs work on a copy and are verified", "Online checks send only the fingerprint, and only if you allow it"],
       insp: { SAFE: "No warning signs", UNKNOWN: "Needs review", SUSPICIOUS: "Suspicious" }, inspFindings: "{n} finding(s)",
@@ -91,7 +93,9 @@
       statusOn: "الحماية فعّالة", statusPartial: "الحماية متاحة جزئيًا", statusUnknown: "حالة الحماية غير متاحة", statusLoading: "جارٍ التحقق من الحماية…", statRulesOff: "مجموعة القواعد الكبيرة غير محمّلة هنا؛ القواعد المدمجة ما زالت تعمل.",
       statusUpdated: "حُدّثت القواعد {d}", statRules: "قاعدة تهديد", statHashes: "بصمة برامج ضارة معروفة", statLinks: "رابط ونطاق ضار",
       recentTitle: "آخر الفحوصات", recentAll: "السجل كاملًا",
-      howTitle: "كيف يعمل الفحص",
+      howTitle: "كيف يعمل الفحص", tipsTitle: "مفيد أن تعرف", newTitle: "الجديد", newLink: "اطّلع على سجل التغييرات",
+      tips: ["لست متأكدًا من مرفق أو ملف نزّلته؟ افحصه قبل أن تفتحه.", "النتيجة السليمة خبر جيد وليست ضمانًا: احتفظ بالملفات من مصادر تثق بها.", "لرابط وصلك في رسالة، الصق الرابط نفسه لا النص المحيط به.", "عدة ملفات معًا؟ أفلتها دفعة واحدة وتحصل على ملخص واحد."],
+      news: "تبدأ النتائج الآن بحكم واضح واحد وأبرز ما وُجد، والباقي بلمسة.",
       howSteps: [["القراءة", "يُقرأ الملف كبيانات، ولا يُفتح أو يُشغَّل أبدًا."], ["المطابقة", "آلاف قواعد التهديد وبصمات البرامج الضارة المعروفة."], ["القياس", "البنية والإنتروبيا والبيانات المخفية، بايتًا بايتًا."], ["الشرح", "كل نتيجة بكلمات واضحة، مع مصدرها."]],
       promises: ["لا يُشغَّل أي شيء تفحصه", "تُحذف النسخة المرفوعة بعد الفحص", "الإصلاح يعمل على نسخة ويُتحقق منه", "الفحص عبر الإنترنت يرسل البصمة فقط، وبإذنك فقط"],
       insp: { SAFE: "لا علامات تحذير", UNKNOWN: "يحتاج مراجعة", SUSPICIOUS: "مشبوه" }, inspFindings: "{n} نتيجة", srcNames: { "Offline hash database": "قاعدة البصمات المحلية", "CyberScan rules": "قواعد CyberScan" },
@@ -264,15 +268,19 @@
     });
     recentCard.append(ul);
   }
+  // the landing page already explains how a scan works; here: short tips, the promises, and what's new
   function paintHow() {
     const l = L();
-    howCard.replaceChildren(el("h3", "", l.howTitle));
-    howCard.firstChild.replaceWith(el("h2", "sp-h", l.howTitle));
-    const ol = el("ol", "sp-how-list");
-    l.howSteps.forEach(([t, d]) => { const li = el("li"); li.append(el("b", "", t), el("span", "", d)); ol.append(li); });
+    howCard.className = "sp-card sp-how sp-tips";
+    howCard.replaceChildren(el("h2", "sp-h", l.tipsTitle));
+    const tips = el("ul", "sp-tip-list");
+    l.tips.forEach((x) => tips.append(el("li", "", x)));
     const promises = el("ul", "sp-promises");
     l.promises.forEach((x) => promises.append(el("li", "", x)));
-    howCard.append(ol, promises);
+    const news = el("div", "sp-news");
+    const a = el("a", "", l.newLink); a.href = "/changelog";
+    news.append(el("b", "", l.newTitle), el("p", "", l.news), a);
+    howCard.append(tips, promises, news);
   }
   loadProtection(); loadRecent(); paintHow();
   window.addEventListener("hashchange", () => { if (location.hash.startsWith("#/scan")) loadRecent(); });

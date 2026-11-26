@@ -145,7 +145,7 @@ SCAN_URL = os.environ.get("CYBERSCAN_SCAN_URL", "app.html")    # where the landi
 HOME_URL = os.environ.get("CYBERSCAN_HOME_URL", "/")           # where the scan page's logo leads
 JOURNEY_URL = os.environ.get("CYBERSCAN_JOURNEY_URL", "/journey")   # the File Journey (its own host on the site: j.<domain>)
 LANDING_ONLY_CSS = ("landing.css", "scroll.css", "science.css", "scrolly.css", "saudi.css", "cinema.css", "team.css", "theme.css", "get-app.css", "hero-art.css",
-                    "intro.css", "landing-plus.css", "origin.css")
+                    "intro.css", "landing-plus.css", "origin.css", "landing-tidy.css")
 LANDING_ONLY_JS = ("js/gl-hero.js", "js/pipeline.js", "js/film.js", "js/story.js", "js/landing.js",
                    "js/get-app.js", "js/lite.js", "js/scroll.js", "js/science.js", "js/scrolly-i18n.js", "js/scrolly.js", "js/saudi.js", "js/tilt.js", "js/tour.js", "js/team.js",
                    "js/intro-early.js", "js/intro.js", "js/landing-i18n.js", "js/live-demo.js", "js/origin.js")   # the opening sequence (#preloader) is the landing's own

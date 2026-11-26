@@ -532,7 +532,17 @@ function updateReady() {
   const ready = state.mode === "file" ? !!fileOk
     : state.mode === "url" ? $("url").value.trim().length > 3
     : $("text").value.trim().length > 0;
-  $("go").disabled = !ready;
+  // the Start button never looks switched off: until there is something to check it says what to do,
+  // and pressing it opens the file chooser (or goes to the field)
+  const go = $("go"), label = go.querySelector("[data-i18n]");
+  go.disabled = false;
+  go.classList.toggle("waiting", !ready);
+  const key = ready ? "scan" : state.mode === "file" ? (state.file ? "scanPickOther" : "scanPickFile") : state.mode === "url" ? "scanPickUrl" : "scanPickText";
+  if (label && label.dataset.i18n !== key) { label.dataset.i18n = key; label.textContent = t(key); }
+}
+function promptInput() {
+  if (state.mode === "file") $("file").click();
+  else $(state.mode === "url" ? "url" : "text").focus();
 }
 
 function formatBytes(n) {
@@ -544,6 +554,7 @@ function formatBytes(n) {
 $("form").addEventListener("submit", (e) => {
   e.preventDefault();
   if ($("go").disabled) return;
+  if ($("go").classList.contains("waiting")) { promptInput(); return; }
   runScan();
 });
 
@@ -1615,7 +1626,7 @@ window.CS = {
   t, api, postJSON, download, toast, confirmDialog, el, $, cells, enterApp, formatBytes, scanPath,
   onLang: (fn) => langListeners.push(fn), get lang() { return lang; },
   get settings() { return state.settings; }, state, openRecord, showResult, notify, notificationsOn,
-  newScan, chooseFiles, resetChoice, setMode: (m) => tabs.find((x) => x.dataset.mode === m)?.click(),
+  newScan, chooseFiles, resetChoice, updateReady, setMode: (m) => tabs.find((x) => x.dataset.mode === m)?.click(),
   toggleLang: () => openLangMenu(), setLang,
   // one source for what every module shows about a result
   verdictOf, findingsOf, elapsedOf, modeOf, loc, ax, tf, sevWord, stageText, typeLabel, targetLabel, limitsLabel,

@@ -19,29 +19,29 @@
   Object.assign(I.ar, {
     tmNav: "الفريق", tmKicker: "العقول خلف CyberScan", tmTitle: "ONYX",
     tmLead: "ستة أشخاص ومنتج واحد. الفريق الذي يخطط لـ CyberScan ويبنيه ويصممه ويروي قصته.",
-    tmClose1: "ONE TEAM. ONE VISION. ONE MISSION.", tmClose2: "ONYX — Building the Future of Cybersecurity.",
+    tmClose1: "فريق واحد. رؤية واحدة. مهمة واحدة.", tmClose2: "ONYX: نبني مستقبل الأمن السيبراني.",
     tmLogoAlt: "شعار فريق ONYX",
   });
 
   /* the members, in order; n is the number shown on the card, photo is the file name in team/
    * (each photo stays with its person, whatever position they hold) */
   const MEMBERS = [
-    { n: 1, photo: 1, ar: "عاصم حمد الجعيدي", en: "Asim Hamad Al-Juaidi", role: "Project Manager | Software Developer",
+    { n: 1, photo: 1, ar: "عاصم حمد الجعيدي", en: "Asim Hamad Al-Juaidi", role: "Project Manager | Software Developer", rar: "مدير المشروع | مطوّر برمجيات",
       dar: "مدير المشروع، والمسؤول عن قيادته وتنسيق مسارات العمل. يمتلك اهتماماً بتطوير البرمجيات، والأمن السيبراني، وتطوير الويب، وبناء الأدوات والأنظمة الأمنية.",
       den: "Leads the project and coordinates its lines of work. His interests are software development, cybersecurity, web development and building security tools and systems." },
-    { n: 2, photo: 6, ar: "مهدي حسن آل حاجي", en: "Mahdi Hassan Al-Hajji", role: "Technical Developer | Core Development", core: true,
+    { n: 2, photo: 6, ar: "مهدي حسن آل حاجي", en: "Mahdi Hassan Al-Hajji", role: "Technical Developer | Core Development", rar: "مطوّر تقني | التطوير الأساسي", core: true,
       dar: "المسؤول عن التطوير التقني للمشروع، وتنفيذ الأنظمة البرمجية، وتطوير المكونات الأساسية ودمجها ضمن CyberScan.",
       den: "Responsible for the project's technical development: he builds its software systems and develops the core components and integrates them into CyberScan." },
-    { n: 3, ar: "عبدالهادي صالح الحبابي", en: "Abdulhadi Saleh Al-Habbabi", role: "Media & Marketing Manager",
+    { n: 3, ar: "عبدالهادي صالح الحبابي", en: "Abdulhadi Saleh Al-Habbabi", role: "Media & Marketing Manager", rar: "مدير الإعلام والتسويق",
       dar: "المسؤول عن الجانب الإعلامي والتسويقي للمشروع، وإدارة المحتوى التعريفي، وإبراز هوية CyberScan وإيصال رسالته إلى الجمهور.",
       den: "Runs the project's media and marketing, manages its introductory content, and carries CyberScan's identity and message to its audience." },
-    { n: 4, ar: "غالب مشعل الحربي", en: "Ghaleb Meshal Al-Harbi", role: "Official Spokesperson | Product & Visual Designer",
+    { n: 4, ar: "غالب مشعل الحربي", en: "Ghaleb Meshal Al-Harbi", role: "Official Spokesperson | Product & Visual Designer", rar: "المتحدث الرسمي | مصمم المنتج والهوية البصرية",
       dar: "المتحدث الرسمي باللغة الإنجليزية، والمصمم الفني للمنتجات، والمسؤول عن الجانب البصري والإبداعي، وتحويل الأفكار إلى تصاميم مرئية تعكس هوية المشروع.",
       den: "The project's official English-language spokesperson. He designs the products and owns the visual and creative side, turning ideas into designs that reflect the project's identity." },
-    { n: 5, ar: "معاذ بدر القحطاني", en: "Muath Bader Al-Qahtani", role: "Operations & Task Coordinator",
+    { n: 5, ar: "معاذ بدر القحطاني", en: "Muath Bader Al-Qahtani", role: "Operations & Task Coordinator", rar: "منسّق العمليات والمهام",
       dar: "مسؤول سير العمليات وتوزيع المهام، يعمل على تنظيم مراحل التنفيذ، وتنسيق الجهود بين أعضاء الفريق، ومتابعة تقدم الأعمال.",
       den: "Runs operations and assigns tasks: he organises the stages of delivery, coordinates the team's work and tracks its progress." },
-    { n: 6, photo: 2, ar: "سعود صالح العسكر", en: "Saud Saleh Al-Askar", role: "General Assistant",
+    { n: 6, photo: 2, ar: "سعود صالح العسكر", en: "Saud Saleh Al-Askar", role: "General Assistant", rar: "مساعد عام",
       dar: "المساعدة في اختبار المكونات ومراجعة وظائفها. كما يشارك في متابعة المتطلبات التطويرية والتعاون مع الفريق لتحسين تكامل أجزاء المشروع وجودة تنفيذها.",
       den: "Helps test the components and review how they work. He also follows the development requirements and works with the team to improve how the project's parts fit together and the quality of their delivery." },
   ];
@@ -99,8 +99,9 @@
       const body = CS.el("div", "tm-body");
       // "Al-Habbabi" stays one word: a non-breaking hyphen, so a line never ends on "AL-"
       const h = CS.el("h3", "tm-name", name.replace(/(\bAl)-/g, "$1\u2011"));
-      const role = CS.el("p", "tm-role", m.role);
-      role.dir = "ltr";
+      // the role in Arabic on the Arabic page (the English title stays for every other language)
+      const role = CS.el("p", "tm-role", isAr() && m.rar ? m.rar : m.role);
+      role.dir = isAr() && m.rar ? "rtl" : "ltr";
       body.append(h, role, CS.el("p", "tm-desc", isAr() ? m.dar : m.den));
       card.append(frame, body);
       return card;

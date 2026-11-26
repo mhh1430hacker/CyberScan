@@ -49,6 +49,7 @@
   const mfSec = $("manifesto"), mfText = $("mf-text"), mfBar = $("mf-progress");
   let mfWords = [];
   function buildManifesto() {
+    if (!mfText) return;                  // the manifesto was folded into the hero and the science story
     const keys = new Set(t("mfKeys"));
     mfText.replaceChildren();
     const text = t("manifesto");
@@ -84,6 +85,7 @@
 
   /* ================= bands ================= */
   function buildBands() {
+    if (!$("band-a")) return;             // the decorative bands were removed (page length)
     $("band-a").textContent = t("bandA").repeat(6);
     $("band-b").textContent = t("bandB").repeat(6);
   }
@@ -105,7 +107,7 @@
   const bands = [...document.querySelectorAll(".band")];
   const bandsBox = document.querySelector(".bands");
   const skewables = [...document.querySelectorAll(".skewable")];
-  const privGrid = $("priv-grid");
+  const privGrid = document.querySelector("#priv-grid.stack");     // a plain grid now (shorter page): only a .stack grid is tracked
   let lastY = scrollY, velocity = 0, skew = 0, dirty = true;
   // page positions (top, height) measured in layout()
   const pos = new Map();

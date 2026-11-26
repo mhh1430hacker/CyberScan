@@ -235,5 +235,8 @@
   window.CSAsk = {
     open(question, ctx, label, from) { setContext(ctx, label); open(from || fab, question === undefined ? C().ask : question); },
     clearContext() { setContext(null); },
+    // the site's floating dock (js/dock.js): the panel on its own; focus returns to `from` on close
+    panel(from) { open(from || fab, ""); },
+    get isOpen() { return !!panel && !panel.hidden; },
   };
 })();

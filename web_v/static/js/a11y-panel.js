@@ -186,6 +186,9 @@
     if (o) { e.preventDefault(); panel.hidden ? open(o) : shut(true); }
   });
 
+  // the site's floating dock (js/dock.js) opens the panel from its own menu; focus returns to `from`
+  window.CSA11y = { open: (from) => open(from), close: () => shut(true), get isOpen() { return !panel.hidden; } };
+
   function mount() {
     document.body.append(tab, panel);
     render();

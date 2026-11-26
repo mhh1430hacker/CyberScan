@@ -288,10 +288,11 @@ def local_summary(ctx: dict[str, Any], profile: dict[str, str], lang: str) -> di
             parts.append(f"فحصنا {what} من {lay['answered']} زاوية مختلفة، ونبّهت {lay['suspicious']} منها." if ar
                          else f"We looked at the {what} from {lay['answered']} different angles; {lay['suspicious']} of them raised a flag.")
         else:
+            # one headline score: the layered score is an input to it, named as such and only for experts
             parts.append(f"التحليل الطبقي: {lay['suspicious']} طبقة مشبوهة و{lay['clean']} سليمة من {lay['answered']} أجابت "
-                         f"({lay['applicable']} طُبقت من {lay['total']})؛ الدرجة الطبقية {lay['score']}/100." if ar
+                         f"({lay['applicable']} طُبقت من {lay['total']})" + (f"؛ الدرجة الطبقية (مُدخل في الحكم) {lay['score']}/100." if tech == "expert" else ".") if ar
                          else f"Layered analysis: {lay['suspicious']} suspicious and {lay['clean']} clean of {lay['answered']} answering layers "
-                              f"({lay['applicable']} applied of {lay['total']}); layered score {lay['score']}/100.")
+                              f"({lay['applicable']} applied of {lay['total']})" + (f"; layered score (an input to the verdict) {lay['score']}/100." if tech == "expert" else "."))
         if tech == "expert" and detail == "full":
             parts.append("الصيغة: لوغاريتم الأرجحية الموزون، والطبقات التي لا تنطبق مستبعدة من البسط والمقام." if ar
                          else "Formula: weighted log-odds; layers that don't apply are left out of numerator and denominator.")
@@ -303,7 +304,7 @@ def local_summary(ctx: dict[str, Any], profile: dict[str, str], lang: str) -> di
             parts.append(("أهم ما لاحظناه: " if ar else "What we noticed most: ") + ("، " if ar else "; ").join(f["title"] for f in top) + ".")
         else:
             parts.append(("أقوى الأدلة: " if ar else "Strongest evidence: ")
-                         + ("، " if ar else "; ").join(f"{f['title']} (+{f['weight']})" for f in top) + ".")
+                         + ("، " if ar else "; ").join(f"{f['title']} (+{f['weight']})" if tech == "expert" else f["title"] for f in top) + ".")
     elif lay.get("top") and bucket != "good" and detail != "short":
         parts.append(("الطبقات التي نبّهت: " if ar else "Layers that raised a flag: ") + ("، " if ar else ", ").join(lay["top"][:shown + 1]) + ".")
     if bucket == "good" and detail == "full":

@@ -90,7 +90,7 @@
     const items = t("marquee");
     if ($("marquee")) $("marquee").replaceChildren(...[...items, ...items].map((x) => el("span", "", x)));
 
-    $("l-steps").replaceChildren(...t("steps").map(([title, body], i) => {
+    if ($("l-steps")) $("l-steps").replaceChildren(...t("steps").map(([title, body], i) => {
       const li = el("li");
       li.setAttribute("data-reveal", "");
       li.style.setProperty("--i", i);
@@ -506,29 +506,33 @@
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(refit);
   refit();
 
-  /* ---------------- back to top ---------------- */
-  const toTop = el("button", "to-top");
-  toTop.type = "button";
-  toTop.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5m-6 6 6-6 6 6"/></svg>';
-  const paintTop = () => { toTop.setAttribute("aria-label", t("toTop")); toTop.title = t("toTop"); };
-  paintTop();
-  toTop.addEventListener("click", () => {
-    window.scrollTo({ top: 0, behavior: still() ? "auto" : "smooth" });
-    const brand = top.querySelector(".brand"); if (brand) brand.focus({ preventScroll: true });
+  /* ---------------- honest comparison: collapsed rows on phones ----------------
+   * Each row's question becomes a button; on phones a row shows only the three marks until it is
+   * opened (the explanations are long), on wider screens every row is open and the button is inert.
+   * (Back to top, Ask the AI and the other corner buttons live in the site's dock: js/dock.js.) */
+  const cmpRows = [...document.querySelectorAll("#compare .cmp tbody tr")];
+  const narrow = matchMedia("(max-width: 700px)");
+  cmpRows.forEach((tr) => {
+    const th = tr.querySelector("th");
+    if (!th || th.querySelector(".cmp-tg")) return;
+    const b = el("button", "cmp-tg");
+    b.type = "button";
+    b.append(...th.childNodes);
+    if (th.dataset.i18n) { b.dataset.i18n = th.dataset.i18n; th.removeAttribute("data-i18n"); }   // the translation now fills the button
+    b.addEventListener("click", () => { if (!narrow.matches) return; const open = !tr.classList.contains("open"); tr.classList.toggle("open", open); b.setAttribute("aria-expanded", String(open)); });
+    th.append(b);
   });
-  document.body.append(toTop);
-  let topShown = false, lastY = scrollY, hideFloat = false;
-  addEventListener("scroll", () => {
-    const y = scrollY;
-    const show = y > innerHeight * 1.5 && !landing.hidden;
-    if (show !== topShown) { topShown = show; toTop.classList.toggle("on", show); }
-    // phones: the corner buttons (Ask the AI, back to top) step aside while you read downwards
-    // and come back as soon as you scroll up or reach the end of the page
-    const atEnd = y + innerHeight >= document.documentElement.scrollHeight - 140;
-    const hide = !atEnd && y > lastY + 2 && y > innerHeight * 0.6 ? true : y < lastY - 2 || atEnd ? false : hideFloat;
-    lastY = y;
-    if (hide !== hideFloat) { hideFloat = hide; document.body.classList.toggle("float-away", hide); }
-  }, { passive: true });
+  const paintCmp = () => cmpRows.forEach((tr) => { const b = tr.querySelector(".cmp-tg"); if (b) b.setAttribute("aria-expanded", String(!narrow.matches || tr.classList.contains("open"))); });
+  // phones: Originality's five pillars are a sideways strip (landing-tidy.css), reachable by keyboard
+  const pillars = document.querySelector(".og-pillars");
+  const paintPillars = () => {
+    if (!pillars) return;
+    if (narrow.matches) { pillars.tabIndex = 0; pillars.setAttribute("aria-labelledby", "og-title"); }
+    else { pillars.removeAttribute("tabindex"); pillars.removeAttribute("aria-labelledby"); }
+  };
+  if (narrow.addEventListener) narrow.addEventListener("change", () => { paintCmp(); paintPillars(); });
+  paintCmp();
+  paintPillars();
 
   /* ---------------- lifecycle ---------------- */
   function arrive() {
@@ -540,7 +544,7 @@
     onScroll();
   }
   window.addEventListener("cs:landing", arrive);
-  window.CS.onLang(() => { build(); paintTop(); if (sheet) setMenu(!sheet.hidden); refit(); if (!landing.hidden) { landing.classList.add("ready"); scramble(landing.querySelector("[data-scramble]")); replayTitle(); } });
+  window.CS.onLang(() => { build(); if (sheet) setMenu(!sheet.hidden); refit(); if (!landing.hidden) { landing.classList.add("ready"); scramble(landing.querySelector("[data-scramble]")); replayTitle(); } });
   setInterval(() => { if (!landing.hidden && !document.hidden && !landing.querySelector(".hero").classList.contains("cs-off")) playCard(); }, 9000);
   build();
 })();

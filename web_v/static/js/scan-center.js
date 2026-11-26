@@ -22,6 +22,7 @@
     en: {
       hDate: "Date", hAll: "Any time", hDay: "Last 24 hours", hWeek: "Last 7 days", hMonth: "Last 30 days", hSort: "Sort", hNew: "Newest first", hOld: "Oldest first", hRisk: "Highest score first", reportMissing: "Report missing",
       fmtTitle: "What CyberScan reads", fmtBody: "Any file can be checked. Dedicated analyzers: PDF, Word/Excel/PowerPoint (new and old formats), Outlook messages, RTF, ZIP, Android APK, browser extensions, Windows programs (PE), Linux programs (ELF), images, emails and text.",
+      dropEg: "For example: an email attachment, an invoice, a download you didn't expect, or an app (APK, EXE). Up to {n} MB.",
       fmtLimit: "Largest file here: {n} MB", fmtNever: "Files are read as data and never opened or run.",
       fiName: "Name", fiExt: "Extension", fiSize: "Size", fiType: "Detected type", fiHash: "SHA-256", fiCheck: "Validation", fiHashing: "computing…", fiNoExt: "none",
       fiOk: "Ready to scan", fiTooBig: "Larger than the {n} MB limit", fiEmpty: "The file is empty", fiMismatch: "Extension says {a}, content looks like {b}: worth checking",
@@ -58,7 +59,14 @@
         UNKNOWN: ["The analysis was incomplete: treat the file as unverified.", "Try the scan again; if it keeps failing, check the file with another tool before opening it."],
         EMPTY: ["There is nothing to open in an empty file.", "If you expected content, get the file again from where it came from."] },
       techTitle: "Technical analysis", techNote: "For advanced users and analysts: structure, details, checks, ATT&CK mapping and engine output.",
-      report: "Open the report", reportHint: "A printable report you can save as PDF.",
+      report: "Open the full report", reportHint: "A printable report you can save as PDF.",
+      riskScore: "Risk score", again: "Scan another", more: "More", keyTitle: "Key findings", seeAll: "See all {n} findings and why", detailsTitle: "Details",
+      noFindKey: "No warning signs were found in this file.", noFindKeyUrl: "No warning signs were found in this link.", noFindKeyText: "No warning signs were found in this text.",
+      sevLow: { critical: "critical", high: "high", medium: "medium", low: "low", info: "info" }, sevItem: "{n} {k}", comma: ", ",
+      whyShort: "Why this result", whyLine: "{n} findings: {s}", whyLine1: "1 finding: {s}", layTitle: "Layered analysis", layLine: "{n} checks: {s} suspicious, {c} clean, {x} n/a",
+      extTitle: "External intelligence", extOff: "Not asked for this scan", extBad: "{b} of {n} services flagged it", extNone: "{a} of {n} services answered; none flagged it", extNoAnswer: "No service could answer", extLocal: "Known-malware lists and rule matches",
+      modelTitle: "Machine-learning model", modelUsed: "An approved model gave its view (an input, not the verdict)", modelLine: "Resembles malware: {p}% · an input, not the verdict", modelNa: "Not used: it doesn't read this kind of file", modelNone: "Not used for this result",
+      modelInput: "This is one input the verdict weighs, not a second score: the risk score at the top is the only verdict score.", techLine: "Structure, checks, ATT&CK mapping and engine output", show: "Show details", hide: "Hide details",
       identUrl: "Link details", identText: "Text details", gObservedUrl: "Observed in the link", gObservedText: "Observed in the text",
       gObservedNoteUrl: "measured by link rules and threat lists", gObservedNoteText: "measured by rules and pattern checks", chars: "{n} characters",
       clsUrl: { NO_INDICATORS_OBSERVED: ["No warning signs observed", "None of CyberScan's checks found a warning sign in this link. That is not a guarantee it is safe."],
@@ -86,6 +94,7 @@
     ar: {
       hDate: "التاريخ", hAll: "أي وقت", hDay: "آخر 24 ساعة", hWeek: "آخر 7 أيام", hMonth: "آخر 30 يومًا", hSort: "الترتيب", hNew: "الأحدث أولًا", hOld: "الأقدم أولًا", hRisk: "الأعلى درجة أولًا", reportMissing: "التقرير مفقود",
       fmtTitle: "ما الذي يقرؤه CyberScan", fmtBody: "يمكن فحص أي ملف. محلّلات مخصّصة لـ: PDF، وWord/Excel/PowerPoint (الصيغ الحديثة والقديمة)، ورسائل Outlook، وRTF، وZIP، وتطبيقات Android ‏(APK)، وإضافات المتصفح، وبرامج Windows ‏(PE)، وبرامج Linux ‏(ELF)، والصور، والبريد، والنصوص.",
+      dropEg: "مثلًا: مرفق بريد، أو فاتورة، أو ملف نزّلته ولم تتوقعه، أو تطبيق (APK أو EXE). حتى {n} ميغابايت.",
       fmtLimit: "أكبر ملف هنا: {n} ميغابايت", fmtNever: "تُقرأ الملفات كبيانات، ولا تُفتح أو تُشغَّل أبدًا.",
       fiName: "الاسم", fiExt: "الامتداد", fiSize: "الحجم", fiType: "النوع المكتشف", fiHash: "SHA-256", fiCheck: "التحقق", fiHashing: "جارٍ الحساب…", fiNoExt: "بلا امتداد",
       fiOk: "جاهز للفحص", fiTooBig: "أكبر من الحد ({n} ميغابايت)", fiEmpty: "الملف فارغ", fiMismatch: "الامتداد يقول {a} والمحتوى يبدو {b}: يستحق التحقق",
@@ -122,7 +131,14 @@
         UNKNOWN: ["لم يكتمل التحليل: عامل الملف على أنه غير متحقق منه.", "أعد الفحص، وإن تكرر الفشل فافحص الملف بأداة أخرى قبل فتحه."],
         EMPTY: ["لا يوجد ما يُفتح في ملف فارغ.", "إن توقعت محتوى، فاحصل على الملف مجددًا من مصدره."] },
       techTitle: "التحليل التقني", techNote: "للمستخدمين المتقدمين والمحللين: البنية، والتفاصيل، والفحوص، وربط ATT&CK، ومخرجات المحركات.",
-      report: "افتح التقرير", reportHint: "تقرير قابل للطباعة يمكنك حفظه بصيغة PDF.",
+      report: "افتح التقرير الكامل", reportHint: "تقرير قابل للطباعة يمكنك حفظه بصيغة PDF.",
+      riskScore: "درجة الخطر", again: "افحص شيئًا آخر", more: "المزيد", keyTitle: "أبرز ما وُجد", seeAll: "اعرض كل النتائج ({n}) وسببها", detailsTitle: "التفاصيل",
+      noFindKey: "لم تُرصد علامات تحذير في هذا الملف.", noFindKeyUrl: "لم تُرصد علامات تحذير في هذا الرابط.", noFindKeyText: "لم تُرصد علامات تحذير في هذا النص.",
+      sevLow: { critical: "حرجة", high: "مرتفعة", medium: "متوسطة", low: "منخفضة", info: "معلومة" }, sevItem: "{k}: {n}", comma: "، ",
+      whyShort: "لماذا هذه النتيجة", whyLine: "{n} نتائج — {s}", whyLine1: "نتيجة واحدة — {s}", layTitle: "التحليل الطبقي", layLine: "{n} فحصًا: {s} مشبوهة، {c} سليمة، {x} لا تنطبق",
+      extTitle: "الاستخبارات الخارجية", extOff: "لم تُسأل في هذا الفحص", extBad: "أشارت إليه {b} من {n} خدمات", extNone: "أجابت {a} من {n} خدمات، ولم تُشر إليه أي منها", extNoAnswer: "لم تستطع أي خدمة الإجابة", extLocal: "قوائم البرامج الضارة المعروفة ومطابقات القواعد",
+      modelTitle: "نموذج التعلّم الآلي", modelUsed: "أبدى نموذج معتمد رأيه (مُدخل، وليس الحكم)", modelLine: "التشابه مع البرمجيات الخبيثة: {p}% · مُدخل، وليس الحكم", modelNa: "لم يُستخدم: لا يقرأ هذا النوع من الملفات", modelNone: "لم يُستخدم لهذه النتيجة",
+      modelInput: "هذا مُدخل واحد يزنه الحكم، وليس درجة ثانية: درجة الخطر في الأعلى هي درجة الحكم الوحيدة.", techLine: "البنية والفحوص وربط ATT&CK ومخرجات المحركات", show: "اعرض التفاصيل", hide: "أخفِ التفاصيل",
       identUrl: "تفاصيل الرابط", identText: "تفاصيل النص", gObservedUrl: "ما رُصد في الرابط", gObservedText: "ما رُصد في النص",
       gObservedNoteUrl: "قيس بقواعد الروابط وقوائم التهديدات", gObservedNoteText: "قيس بالقواعد وفحص الأنماط", chars: "{n} حرفًا",
       clsUrl: { NO_INDICATORS_OBSERVED: ["لم تُرصد علامات تحذير", "لم يجد أي من فحوص CyberScan علامة تحذير في هذا الرابط. هذا ليس ضمانًا لأمانه."],
@@ -171,6 +187,22 @@
   formPanel.append(formats);
   const go = $("go");
   go.before(opts); go.after(what);
+  // the drop zone says what people usually check here
+  const dropEg = el("small", "sc-drop-eg"); dropEg.id = "drop-eg";
+  drop.append(dropEg);
+  const dropHint = drop.querySelector("small[data-i18n]");
+  if (dropHint) { dropHint.id = "drop-hint"; drop.setAttribute("aria-describedby", "drop-hint drop-eg"); } else drop.setAttribute("aria-describedby", "drop-eg");
+  // Start sits right under what is being checked; the options and notes follow it
+  const afterGo = el("div", "sc-after-go");
+  go.after(afterGo);
+  const settle = () => {
+    afterGo.append(...[document.querySelector("#form .ext-toggle"), formats, opts, what].filter(Boolean));
+    formats.hidden = !!formPanel.hidden;
+    if (CS.updateReady) CS.updateReady();
+  };
+  // the outside-services switch (js/external-intel.js) is made after this file runs: settle again once everything has
+  settle(); document.addEventListener("DOMContentLoaded", settle); window.addEventListener("load", settle); setTimeout(settle, 0);
+  new MutationObserver(() => { formats.hidden = !!formPanel.hidden; }).observe(formPanel, { attributes: true, attributeFilter: ["hidden"] });
 
   function paintFormats() {
     const l = L();
@@ -178,6 +210,7 @@
     const sm = el("summary"); sm.append(el("b", "", l.fmtTitle), el("span", "sc-limit", fill(l.fmtLimit, { n: Math.round(limitBytes() / 1048576) })));
     formats.append(sm, el("p", "", l.fmtBody), el("p", "sc-never", l.fmtNever));
     what.textContent = l.whatHappens;
+    dropEg.textContent = fill(l.dropEg, { n: Math.round(limitBytes() / 1048576) });
   }
   function paintOpts() {
     const l = L(), s = settings();
@@ -226,7 +259,7 @@
     const name = el("b", "sc-fi-name", file.name); name.dir = "auto"; name.title = file.name;
     const btns = el("div", "sc-fi-btns");
     const rep = el("button", "ghost small", l.fiReplace); rep.type = "button"; rep.addEventListener("click", () => $("file").click());
-    const rem = el("button", "ghost small", l.fiRemove); rem.type = "button"; rem.addEventListener("click", () => { CS.resetChoice && CS.resetChoice(); infoFor = null; info.hidden = true; $("go").disabled = true; });
+    const rem = el("button", "ghost small", l.fiRemove); rem.type = "button"; rem.addEventListener("click", () => { CS.resetChoice && CS.resetChoice(); infoFor = null; info.hidden = true; if (CS.updateReady) CS.updateReady(); });
     btns.append(rep, rem);
     top.append(name, btns);
     const dl = el("dl", "sc-fi-grid");
@@ -370,7 +403,7 @@
   const actions = $("actions");
   const techCard = resultSec.querySelector(".result-tabs");
   const techHead = el("div", "rc-tech-head");
-  if (techCard) techCard.before(techHead);
+  const limitsP = $("limits");   // the engine's own limits line, shown with the technical tabs
   const SEV_RANK = { critical: 0, high: 1, medium: 2, low: 3, info: 4 };
   const sevOf = (f) => String(f.severity || "info").toLowerCase();
 
@@ -391,76 +424,185 @@
     rc.replaceChildren();
     rc.className = `rc t-${tone}`;
 
-    /* --- A. executive summary --- */
-    const sum = el("section", "card rc-sum");
+    /* The result reads top to bottom in the order a person needs it:
+     *   1. one verdict card: the verdict word and colour, the one score, one plain sentence, the summary
+     *      written for the reader (js/layers.js) and Bit's line (js/result-plus.js);
+     *   2. one primary action, "Scan another", and a "More" menu with everything else;
+     *   3. the top findings in plain words;
+     *   4. the details, folded, each with a one-line summary in its header (open state remembered). */
+    const sum = el("section", "card rc-sum rx-verdict");
     const head = el("div", "rc-sum-head");
     const badge = el("span", "rc-badge", word);
     const title = el("h2", "rc-title", word);
+    title.id = "rx-verdict-title";
+    sum.setAttribute("aria-labelledby", "rx-verdict-title");
     const lede = el("p", "rc-lede", sentence);
-    head.append(el("small", "rc-kicker", l.sumTitle), badge, title, lede);
-    // the score, with what its bands mean
-    const meter = el("div", "rc-meter");
+    // what was checked, in one line
+    const ftype = r.content_analysis && r.content_analysis.file_type;
+    const typeName = CS.typeLabel(mode === "file" ? (ftype || "file") : mode);
+    const sizeTxt = mode === "file" && r.size ? fmtBytes(r.size) : mode === "text" && r.size ? fill(l.chars, { n: Number(r.size).toLocaleString(CS.lang) }) : "";
+    const tline = el("p", "rx-target");
+    const tname = el("bdi", "", CS.targetLabel(r, false)); tname.dir = mode === "url" ? "ltr" : "auto"; tname.title = String(r.target || "");
+    tline.append(tname, document.createTextNode(` · ${[typeName, sizeTxt].filter(Boolean).join(" · ")}`));
+    head.append(badge, title, lede, tline);
+    // the one score, with what its bands mean
+    const meter = el("div", "rc-meter rx-score");
     const num = el("b", "rc-score", "0"); const of = el("span", "rc-of", "/100");
     const scale = el("div", "rc-scale"); scale.setAttribute("role", "img"); scale.setAttribute("aria-label", `${l.score} ${score}/100`);
     scale.append(el("i", "z0"), el("i", "z1"), el("i", "z2"));
     const mark = el("span", "rc-mark"); scale.append(mark);
     const bands = el("div", "rc-bands"); l.bands.forEach((b) => bands.append(el("span", "", b)));
-    meter.append(el("small", "", l.score), (() => { const d = el("div", "rc-score-line"); d.append(num, of); return d; })(), scale, bands, el("p", "rc-note", l.scoreNote));
-    // model confidence: only what an approved model produced
-    const conf = el("div", "rc-conf");
-    conf.append(el("small", "", l.conf));
+    meter.append(el("small", "", l.riskScore), (() => { const d = el("div", "rc-score-line"); d.append(num, of); return d; })(), scale, bands);
+    const top = el("div", "rx-v-top"); top.append(head, meter);
+    sum.append(top);
+    rc.append(sum);
+
+    /* --- the actions: one primary, "Scan another", and More --- */
+    const actRow = el("div", "rc-actions rx-actions");
+    const repBtn = el("button", "primary rc-report", l.report); repBtn.type = "button"; repBtn.title = l.reportHint;
+    repBtn.addEventListener("click", () => openReport(r));
+    const again = el("button", "ghost rx-again", l.again); again.type = "button";
+    again.addEventListener("click", () => { CS.newScan(); const c = document.querySelector(".composer"); if (c) { c.scrollIntoView({ block: "start", behavior: reduced() ? "auto" : "smooth" }); const d = $("drop"); if (d && !d.closest("[hidden]")) d.focus({ preventScroll: true }); } });
+    const moreWrap = el("div", "rx-more");
+    const moreBtn = el("button", "ghost rx-more-btn"); moreBtn.type = "button";
+    moreBtn.append(el("span", "", l.more));
+    moreBtn.insertAdjacentHTML("beforeend", '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>');
+    const menu = el("div", "rx-menu"); menu.id = "rx-menu"; menu.hidden = true;
+    menu.setAttribute("role", "group"); menu.setAttribute("aria-label", l.more);
+    moreBtn.setAttribute("aria-expanded", "false"); moreBtn.setAttribute("aria-controls", "rx-menu");
+    menu.append(actions);
+    moreWrap.append(moreBtn, menu);
+    wireMenu(moreBtn, menu);
+    actRow.append(repBtn, again, moreWrap);
+    rc.append(actRow);
+
+    /* --- the key findings: the three that matter most, in plain words --- */
+    const key = el("section", "card rx-key");
+    key.setAttribute("aria-labelledby", "rx-key-title");
+    const kh = el("h3", "", l.keyTitle); kh.id = "rx-key-title";
+    key.append(kh);
+    const ranked = finds.slice().sort((a, b) => (SEV_RANK[a.sev] ?? 5) - (SEV_RANK[b.sev] ?? 5) || (b.contrib || 0) - (a.contrib || 0));
+    const topFinds = ranked.filter((f) => f.sev !== "info" || ranked.length <= 3).slice(0, 3);
+    if (!topFinds.length) key.append(el("p", "rc-none", byMode(l, mode, "noFindKey")));
+    else {
+      const ul = el("ul", "rx-key-list");
+      topFinds.forEach((f) => {
+        const li = el("li", `rx-kf s-${f.sev}`);
+        li.append(el("span", "rc-sev", l.sev[f.sev] || f.sev));
+        const box = el("div", "rx-kf-body");
+        const tt = el("b", "", f.title + (f.count > 1 ? ` ×${f.count}` : "")); tt.dir = "auto";
+        box.append(tt);
+        if (f.text && f.text.trim().toLowerCase() !== String(f.title).trim().toLowerCase()) { const p = el("p", "", f.text); p.dir = "auto"; box.append(p); }
+        li.append(box);
+        ul.append(li);
+      });
+      key.append(ul);
+    }
+    if (finds.length > topFinds.length) {
+      const all = el("button", "link-btn rx-see-all", fill(l.seeAll, { n: finds.length })); all.type = "button";
+      all.addEventListener("click", () => openSection("why", true));
+      key.append(all);
+    }
+    rc.append(key);
+
+    /* --- the details, folded --- */
+    const secs = el("section", "rx-secs");
+    secs.setAttribute("aria-labelledby", "rx-secs-title");
+    const sh = el("div", "rx-secs-head");
+    const st = el("h3", "", l.detailsTitle); st.id = "rx-secs-title";
+    sh.append(st);
+    secs.append(sh);
+    const bodies = {};
+    const counts = {}; finds.forEach((f) => { counts[f.sev] = (counts[f.sev] || 0) + 1; });
+    const sevLine = ["critical", "high", "medium", "low", "info"].filter((k) => counts[k]).map((k) => fill(l.sevItem, { n: counts[k], k: l.sevLow[k] })).join(l.comma);
+    const lay = r.layers && r.layers.summary;
+    const layLine = lay ? fill(l.layLine, { n: lay.total ?? (r.layers.layers || []).length, s: lay.suspicious ?? 0, c: lay.clean ?? 0, x: (lay.not_applicable ?? 0) + (lay.unavailable ?? 0) }) : "";
+    const ext = r.external;
+    let extLine = "";
+    if (ext && Array.isArray(ext.rows) && ext.rows.length) {
+      const bad = ext.rows.filter((x) => x.chip === "bad").length;
+      const answered = ext.rows.filter((x) => ["bad", "warn", "ok", "neutral"].includes(x.chip)).length;
+      extLine = !ext.ran ? l.extOff : bad ? fill(l.extBad, { b: bad, n: ext.rows.length }) : answered ? fill(l.extNone, { a: answered, n: ext.rows.length }) : l.extNoAnswer;
+    } else extLine = l.extLocal;
+    const recos = byMode(l, mode, "recos");
+    const recoList = recos[cls] || recos.UNKNOWN;
     const pred = r.prediction || {}, cs = pred.class_scores || {};
     const hasModel = pred.status && !/untrained|unavailable|unapproved|missing|disabled/i.test(String(pred.status)) && Object.keys(cs).length;
-    if (hasModel) {
-      const bars = el("div", "rc-conf-bars");
-      Object.entries(cs).forEach(([k, v]) => { const row = el("div", "rc-cb"); const b = el("span", "rc-cb-bar"); const f = el("i"); f.style.width = `${Math.min(100, Number(v))}%`; b.append(f); row.append(el("span", "", k), b, el("span", "", `${Number(v).toFixed(1)}%`)); bars.append(row); });
-      conf.append(bars, el("p", "rc-note", l.confNote));
-      if (pred.abstained) conf.append(el("p", "rc-note", l.confAbst));
-    } else if (r.ml_model && r.ml_model.status === "scored") {
-      // the EMBER2024 model (trained on millions of Windows programs and PDFs): its score for this file
-      const m = r.ml_model, pct = Math.round(Number(m.score) * 100);
-      const bars = el("div", "rc-conf-bars"), row = el("div", "rc-cb"), b = el("span", "rc-cb-bar"), f = el("i");
-      f.style.width = `${Math.min(100, pct)}%`; b.append(f);
-      row.append(el("span", "", l.confMl), b, el("span", "", `${pct}%`)); bars.append(row);
-      conf.append(bars, el("p", "rc-note", l.confMlNote));
-    } else if (r.ml_model && r.ml_model.status === "not_applicable") conf.append(el("p", "rc-conf-none", l.confMlNa));
-    else conf.append(el("p", "rc-conf-none", l.confNone));
-    // identity: what was checked, said for what it is
+    const mm = r.ml_model || {};
+    const modelLine = hasModel ? l.modelUsed : mm.status === "scored" ? fill(l.modelLine, { p: Math.round(Number(mm.score) * 100) }) : mm.status === "not_applicable" ? l.modelNa : l.modelNone;
+    [
+      ["todo", l.reco, recoList[0]],
+      ["file", byMode(l, mode, "ident"), [CS.targetLabel(r, false), typeName, sizeTxt].filter(Boolean).join(" · ")],
+      ["why", l.whyShort, finds.length ? fill(finds.length === 1 ? l.whyLine1 : l.whyLine, { n: finds.length, s: sevLine }) : byMode(l, mode, "noFindKey")],
+      ["layers", l.layTitle, layLine],
+      ["ext", l.extTitle, extLine],
+      ["model", l.modelTitle, modelLine],
+      ["tech", l.techTitle, l.techLine],
+    ].forEach(([k, name, line]) => {
+      if (k === "layers" && !lay) return;
+      const d = el("details", `rx-sec rx-${k}`); d.dataset.sec = k;
+      const s = el("summary");
+      const tx = el("span", "rx-sec-text");
+      tx.append(el("b", "rx-sec-name", name));
+      if (line) { const ln = el("span", "rx-sec-line", line); ln.dir = "auto"; tx.append(ln); }
+      s.append(tx, el("span", "rx-sec-hint", l.show));
+      const body = el("div", "rx-sec-body");
+      d.append(s, body);
+      d.open = !!openState()[k];
+      d.addEventListener("toggle", () => {
+        const o = openState(); o[k] = d.open; saveOpen(o);
+        s.querySelector(".rx-sec-hint").textContent = d.open ? L().hide : L().show;
+        if (d.open) requestAnimationFrame(() => window.dispatchEvent(new Event("resize")));   // curves and grids measure themselves
+      });
+      if (d.open) s.querySelector(".rx-sec-hint").textContent = l.hide;
+      bodies[k] = body;
+      secs.append(d);
+    });
+    rc.append(secs);
+
+    // file details: identity, the severity counts and the entropy curve
     const idc = el("dl", "rc-id");
     // values keep their own direction (a hash, a link) without leaving the column's alignment
     const addId = (k, v, mono) => { if (v == null || v === "") return; const d = el("dd", mono ? "mono" : ""); const b = el("bdi", "", String(v)); b.dir = mono ? "ltr" : "auto"; d.append(b); idc.append(el("dt", "", k), d); return d; };
     const tgt = addId(l.target, CS.targetLabel(r, false), mode === "url");
     if (tgt) tgt.title = String(r.target || "");
-    const ftype = r.content_analysis && r.content_analysis.file_type;
-    addId(l.type, CS.typeLabel(mode === "file" ? (ftype || "file") : mode));
-    if (mode === "file" && r.size) addId(l.size, `${fmtBytes(r.size)}`);
-    if (mode === "text" && r.size) addId(l.size, fill(l.chars, { n: Number(r.size).toLocaleString(CS.lang) }));
+    addId(l.type, typeName);
+    if (sizeTxt) addId(l.size, sizeTxt);
     if (mode === "file") addId(l.sha, r.sha256, true);
     const when = CS.scanTime(r);
     if (when) addId(l.when, new Intl.DateTimeFormat(CS.lang, { dateStyle: "medium", timeStyle: "medium" }).format(new Date(when)));
     addId(l.status, (r.detection_status && r.detection_status !== "complete") ? l.stPartial : l.stComplete);
-    const secs = CS.elapsedOf(r);
-    if (secs != null) addId(l.tlElapsed, `⁦${secs.toFixed(2)} s⁩`);
-    const idBox = el("div", "rc-idbox"); idBox.append(el("small", "", byMode(l, mode, "ident")), idc);
-    // severity counts
-    const counts = {}; finds.forEach((f) => { counts[f.sev] = (counts[f.sev] || 0) + 1; });
+    const secs2 = CS.elapsedOf(r);
+    if (secs2 != null) addId(l.tlElapsed, `⁦${secs2.toFixed(2)} s⁩`);
     const sevs = el("div", "rc-sevs");
     sevs.append(el("small", "", l.sevCount));
     const strip = el("div", "rc-sev-strip");
-    ["critical", "high", "medium", "low", "info"].forEach((k) => { const c = el("span", `s-${k}${counts[k] ? "" : " zero"}`); c.append(el("b", "", String(counts[k] || 0)), el("span", "", l.sev[k])); strip.append(c); });
+    ["critical", "high", "medium", "low", "info"].forEach((k2) => { const c = el("span", `s-${k2}${counts[k2] ? "" : " zero"}`); c.append(el("b", "", String(counts[k2] || 0)), el("span", "", l.sev[k2])); strip.append(c); });
     sevs.append(strip);
-    const grid = el("div", "rc-grid"); grid.append(meter, conf, idBox, sevs);
-    sum.append(head, grid);
-    // the existing actions (exports, quarantine, AI, repair...) live here, plus the report
-    const repBtn = el("button", "primary rc-report", l.report); repBtn.type = "button"; repBtn.title = l.reportHint;
-    repBtn.addEventListener("click", () => openReport(r));
-    const actRow = el("div", "rc-actions"); actRow.append(repBtn, actions);
-    sum.append(actRow);
-    rc.append(sum);
+    bodies.file.append(idc, sevs);
+    // entropy, when the scan measured it (a file; a link or a short text has no meaningful curve)
+    const en = r.entropy || {};
+    if (mode === "file" && Array.isArray(en.trajectory) && en.trajectory.length > 1) {
+      const box = el("div", "rc-entropy");
+      box.append(el("h4", "", l.entropy));
+      const svgNS = "http://www.w3.org/2000/svg", W = 600, H = 120;
+      const svg = document.createElementNS(svgNS, "svg"); svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("preserveAspectRatio", "none"); svg.setAttribute("aria-hidden", "true");
+      const pts = en.trajectory.map((v, i) => [(i / (en.trajectory.length - 1)) * W, H - 6 - (Math.min(8, Number(v)) / 8) * (H - 12)]);
+      const d = pts.map(([x, y], i) => `${i ? "L" : "M"}${x.toFixed(1)},${y.toFixed(1)}`).join("");
+      const area = document.createElementNS(svgNS, "path"); area.setAttribute("d", `${d}L${W},${H}L0,${H}Z`); area.setAttribute("class", "area");
+      const line = document.createElementNS(svgNS, "path"); line.setAttribute("d", d); line.setAttribute("class", "line");
+      const seven = document.createElementNS(svgNS, "line"); seven.setAttribute("x1", 0); seven.setAttribute("x2", W); const y7 = H - 6 - (7 / 8) * (H - 12); seven.setAttribute("y1", y7); seven.setAttribute("y2", y7); seven.setAttribute("class", "ref");
+      svg.append(area, seven, line);
+      const stats = el("div", "rc-e-stats");
+      [[l.eMean, en.mean], [l.ePeak, en.peak], [l.eJumps, en.anomalies]].forEach(([k2, v]) => { const s = el("span"); s.append(el("b", "", v == null ? "–" : (typeof v === "number" && !Number.isInteger(v) ? v.toFixed(2) : String(v))), el("small", "", k2)); stats.append(s); });
+      box.append(svg, stats, el("p", "rc-note", l.eNote));
+      bodies.file.append(box);
+    }
 
-    /* --- B/C. why: evidence by source, entropy --- */
-    const why = el("section", "card rc-why");
-    why.append(el("h3", "", l.why), el("p", "rc-note", l.whyNote));
+    // why: every finding, grouped by where it comes from (js/result-plus.js adds the evidence graph before it
+    // and the sources after it)
+    const why = el("div", "rc-why");
+    why.append(el("h4", "rx-sub", l.why), el("p", "rc-note", `${l.whyNote} ${l.scoreNote}`));
     const groups = [["observed", byMode(l, mode, "gObserved"), byMode(l, mode, "gObservedNote")], ["model", l.gModel, l.gModelNote], ["external", l.gExternal, l.gExternalNote]];
     let anyFind = false;
     groups.forEach(([src, gt, gn]) => {
@@ -473,12 +615,11 @@
       const LIMIT = 6;
       list.forEach((f, i) => {
         const li = el("li", `rc-f s-${f.sev}`); if (i >= LIMIT) li.hidden = true;
-        li.style.setProperty("--i", Math.min(i, 10));
-        const top = el("div", "rc-f-top");
+        const ftop = el("div", "rc-f-top");
         const tt = el("b", "", f.title + (f.count > 1 ? ` ×${f.count}` : "")); tt.dir = "auto";
-        top.append(el("span", "rc-sev", l.sev[f.sev] || f.sev), tt);
-        if (f.contrib) top.append(el("span", "rc-contrib", `+${f.contrib}`));
-        li.append(top);
+        ftop.append(el("span", "rc-sev", l.sev[f.sev] || f.sev), tt);
+        if (f.contrib) ftop.append(el("span", "rc-contrib x-only", `+${f.contrib}`));
+        li.append(ftop);
         if (f.text && f.text.trim().toLowerCase() !== String(f.title).trim().toLowerCase()) { const p = el("p", "", f.text); p.dir = "auto"; li.append(p); }   // skip an explanation that only repeats the title
         if (f.where) { const c = el("span", "rc-cat", f.where); c.dir = "auto"; li.append(c); }
         ul.append(li);
@@ -492,41 +633,44 @@
       why.append(g);
     });
     if (!anyFind) why.append(el("p", "rc-none", l.noFind));
-    // entropy, when the scan measured it (a file; a link or a short text has no meaningful curve)
-    const en = r.entropy || {};
-    if (mode === "file" && Array.isArray(en.trajectory) && en.trajectory.length > 1) {
-      const box = el("div", "rc-entropy");
-      box.append(el("h4", "", l.entropy));
-      const svgNS = "http://www.w3.org/2000/svg", W = 600, H = 120;
-      const svg = document.createElementNS(svgNS, "svg"); svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("preserveAspectRatio", "none"); svg.setAttribute("aria-hidden", "true");
-      const pts = en.trajectory.map((v, i) => [(i / (en.trajectory.length - 1)) * W, H - 6 - (Math.min(8, Number(v)) / 8) * (H - 12)]);
-      const d = pts.map(([x, y], i) => `${i ? "L" : "M"}${x.toFixed(1)},${y.toFixed(1)}`).join("");
-      const area = document.createElementNS(svgNS, "path"); area.setAttribute("d", `${d}L${W},${H}L0,${H}Z`); area.setAttribute("class", "area");
-      const line = document.createElementNS(svgNS, "path"); line.setAttribute("d", d); line.setAttribute("class", "line"); line.setAttribute("pathLength", "1");
-      const seven = document.createElementNS(svgNS, "line"); seven.setAttribute("x1", 0); seven.setAttribute("x2", W); const y7 = H - 6 - (7 / 8) * (H - 12); seven.setAttribute("y1", y7); seven.setAttribute("y2", y7); seven.setAttribute("class", "ref");
-      svg.append(area, seven, line);
-      const stats = el("div", "rc-e-stats");
-      [[l.eMean, en.mean], [l.ePeak, en.peak], [l.eJumps, en.anomalies]].forEach(([k, v]) => { const s = el("span"); s.append(el("b", "", v == null ? "–" : (typeof v === "number" && !Number.isInteger(v) ? v.toFixed(2) : String(v))), el("small", "", k)); stats.append(s); });
-      box.append(svg, stats, el("p", "rc-note", l.eNote));
-      why.append(box);
-      if (animate && !reduced()) line.animate([{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], { duration: 1400, easing: "cubic-bezier(.65,0,.35,1)" });
-    }
-    rc.append(why);
+    bodies.why.append(why);
 
-    /* --- E. what to do, and the limits --- */
-    const reco = el("section", "card rc-reco");
-    reco.append(el("h3", "", l.reco));
-    const recos = byMode(l, mode, "recos");
-    const ol = el("ol"); (recos[cls] || recos.UNKNOWN).forEach((x) => ol.append(el("li", "", x)));
+    // what to do, and the limits (js/scan-pro.js adds the repair card after it)
+    const reco = el("div", "rc-reco");
+    const ol = el("ol"); recoList.forEach((x) => ol.append(el("li", "", x)));
     reco.append(ol);
     const limits = CS.limitsLabel(r);
     if (limits) { const lim = el("details", "rc-limits"); lim.append(el("summary", "", l.limits)); const p = el("p", "", limits); p.dir = "auto"; lim.append(p); reco.append(lim); }
-    rc.append(reco);
-    // other modules (js/scan-pro.js: repair, intelligence sources) add their sections here
-    window.dispatchEvent(new CustomEvent("cs:rc-built", { detail: { rc, result: r, cls, findings: finds } }));
+    bodies.todo.append(reco);
 
-    /* --- D. the technical analysis below (the existing tabs) --- */
-    techHead.replaceChildren(el("h3", "", l.techTitle), el("p", "rc-note", l.techNote));
+    // the machine-learning model: an input to the verdict, never a second score
+    const conf = el("div", "rc-conf");
+    conf.append(el("p", "rx-input-note", l.modelInput));
+    if (hasModel) {
+      const bars = el("div", "rc-conf-bars");
+      Object.entries(cs).forEach(([k2, v]) => { const row = el("div", "rc-cb"); const b = el("span", "rc-cb-bar"); const f = el("i"); f.style.width = `${Math.min(100, Number(v))}%`; b.append(f); row.append(el("span", "", k2), b, el("span", "", `${Number(v).toFixed(1)}%`)); bars.append(row); });
+      conf.append(bars, el("p", "rc-note", l.confNote));
+      if (pred.abstained) conf.append(el("p", "rc-note", l.confAbst));
+    } else if (mm.status === "scored") {
+      // the EMBER2024 model (trained on millions of Windows programs and PDFs): its view of this file
+      const pct = Math.round(Number(mm.score) * 100);
+      const bars = el("div", "rc-conf-bars"), row = el("div", "rc-cb"), b = el("span", "rc-cb-bar"), f = el("i");
+      f.style.width = `${Math.min(100, pct)}%`; b.append(f);
+      row.append(el("span", "", l.confMl), b, el("span", "", `${pct}%`)); bars.append(row);
+      conf.append(bars, el("p", "rc-note", l.confMlNote));
+    } else if (mm.status === "not_applicable") conf.append(el("p", "rc-conf-none", l.confMlNa));
+    else conf.append(el("p", "rc-conf-none", l.confNone));
+    bodies.model.append(conf);
+
+    // the technical analysis (the existing tabs)
+    techHead.replaceChildren(el("p", "rc-note", l.techNote));
+    bodies.tech.append(techHead);
+    if (techCard) bodies.tech.append(techCard);
+    if (limitsP) bodies.tech.append(limitsP);
+
+    // other modules (js/scan-pro.js, external-intel.js, result-plus.js, layers.js, journey-hook.js) add theirs now
+    window.dispatchEvent(new CustomEvent("cs:rc-built", { detail: { rc, result: r, cls, findings: finds } }));
+    arrange();
 
     // motion: the score counts and its marker travels; sections arrive in turn
     if (animate && !reduced()) {
@@ -535,6 +679,82 @@
       requestAnimationFrame(run);
       [...rc.children].forEach((c, i) => c.animate([{ opacity: 0, transform: "translateY(16px)" }, { opacity: 1, transform: "none" }], { duration: 560, delay: i * 90, easing: "cubic-bezier(.22,1,.36,1)", fill: "backwards" }));
     } else { num.textContent = score; mark.style.insetInlineStart = `${score}%`; }
+  }
+
+  /* where the other modules' pieces belong in the new layout (they insert themselves next to the
+   * classic anchors; this moves each into its place, now and whenever one re-renders) */
+  function sec(k) { return rc.querySelector(`.rx-sec[data-sec="${k}"] > .rx-sec-body`); }
+  function arrange() {
+    if (arranging) return;
+    arranging = true;
+    try {
+      const sum = rc.querySelector(".rx-verdict");
+      if (!sum) return;
+      // the summary written for the reader joins the verdict card
+      const ai = rc.querySelector(":scope > .lz-ai");
+      if (ai) { ai.classList.add("rx-embed"); ai.classList.remove("card"); sum.append(ai); }
+      // ask, share and the journey go in the More menu
+      const menu = rc.querySelector("#rx-menu");
+      if (menu) {
+        const extra = rc.querySelector(".rx-actions ~ .rp-actions, :scope > .rp-actions");
+        if (extra) { menu.prepend(...extra.children); extra.remove(); }
+        const jr = rc.querySelector(".rc-journey");
+        if (jr && jr.parentElement !== menu) menu.append(jr);
+        if (jr) { const hint = jr.querySelector("small"); if (hint) hint.hidden = true; }
+        // "Check something else" has its own button now
+        const againTxt = CS.t("again");
+        actions.querySelectorAll("button").forEach((b) => { if (b.textContent.trim() === againTxt) b.hidden = true; });
+        menu.querySelectorAll("button, a").forEach((b) => { b.classList.add("rx-mi"); });
+      }
+      const put = (k, sel) => { const body = sec(k); if (!body) return; rc.querySelectorAll(sel).forEach((n) => { if (!body.contains(n)) body.append(n); }); };
+      put("layers", ":scope > .lz-card, .rx-verdict ~ .lz-card");
+      const extBody = sec("ext");
+      if (extBody) {
+        rc.querySelectorAll(".sp-intel").forEach((n) => { if (n.parentElement !== extBody) extBody.prepend(n); });
+        rc.querySelectorAll(".ext-card").forEach((n) => { if (n.parentElement !== extBody) extBody.append(n); });
+      }
+      // the explanation level (js/result-plus.js) is one switch for all the details
+      const seg = rc.querySelector(".rp-why .rp-seg");
+      const sh = rc.querySelector(".rx-secs-head");
+      if (seg && sh) sh.append(seg);
+      // the pieces from other modules are sections inside a section now: no card inside a card
+      rc.querySelectorAll(".rx-sec-body .card").forEach((c) => c.classList.add("rx-inner"));
+      // a section with nothing in it is not shown
+      rc.querySelectorAll(".rx-sec").forEach((d) => { d.hidden = !d.querySelector(".rx-sec-body").childElementCount; });
+    } finally { arranging = false; }
+  }
+  let arranging = false, arrangeRaf = 0;
+  new MutationObserver(() => { if (arranging || arrangeRaf) return; arrangeRaf = requestAnimationFrame(() => { arrangeRaf = 0; arrange(); }); }).observe(rc, { childList: true, subtree: false });
+
+  // the More menu: a disclosure button and a list of buttons (arrows move, Escape closes)
+  function wireMenu(btn, menu) {
+    const visible = () => [...menu.querySelectorAll("button, a[href]")].filter((b) => b.offsetParent !== null);
+    const close = (focus) => { if (menu.hidden) return; menu.hidden = true; btn.setAttribute("aria-expanded", "false"); if (focus) btn.focus(); };
+    const open = (first) => { menu.hidden = false; btn.setAttribute("aria-expanded", "true"); const v = visible(); if (first && v.length) v[0].focus(); };
+    btn.addEventListener("click", () => (menu.hidden ? open(false) : close(false)));
+    btn.addEventListener("keydown", (e) => { if (e.key === "ArrowDown") { e.preventDefault(); open(true); } });
+    menu.addEventListener("keydown", (e) => {
+      const v = visible(), i = v.indexOf(document.activeElement);
+      if (e.key === "Escape") { e.preventDefault(); close(true); }
+      else if (e.key === "ArrowDown") { e.preventDefault(); (v[i + 1] || v[0]).focus(); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); (v[i - 1] || v[v.length - 1]).focus(); }
+      else if (e.key === "Home") { e.preventDefault(); v[0] && v[0].focus(); }
+      else if (e.key === "End") { e.preventDefault(); v[v.length - 1] && v[v.length - 1].focus(); }
+    });
+    // a choice closes the menu (dialogs it opens take the focus themselves)
+    menu.addEventListener("click", (e) => { if (e.target.closest("button, a")) setTimeout(() => close(false), 0); });
+    document.addEventListener("click", (e) => { if (!menu.hidden && !menu.parentElement.contains(e.target)) close(false); });
+    menu.parentElement.addEventListener("focusout", (e) => { if (!menu.hidden && e.relatedTarget && !menu.parentElement.contains(e.relatedTarget)) close(false); });
+  }
+  // which detail sections are open, remembered in this browser
+  const OPEN_KEY = "cs-result-open";
+  function openState() { try { return JSON.parse(localStorage.getItem(OPEN_KEY) || "{}") || {}; } catch { return {}; } }
+  function saveOpen(o) { try { localStorage.setItem(OPEN_KEY, JSON.stringify(o)); } catch { /* storage off */ } }
+  function openSection(k, scroll) {
+    const d = rc.querySelector(`.rx-sec[data-sec="${k}"]`);
+    if (!d) return;
+    d.open = true;
+    if (scroll) { d.scrollIntoView({ block: "start", behavior: reduced() ? "auto" : "smooth" }); d.querySelector("summary").focus({ preventScroll: true }); }
   }
 
   window.addEventListener("cs:result", (e) => { const { result, animate } = e.detail || {}; if (result) render(result, animate); });
@@ -566,6 +786,66 @@
     } catch { CS.toast && CS.toast(CS.lang === "ar" ? "مساحة التخزين ممتلئة أو معطّلة: تعذّر إعداد التقرير." : "Storage is full or disabled: the report can't be prepared."); return; }
     window.open(`report.html#${key}`, "_blank", "noopener");
   }
+
+  /* ================================================================ 5. phones: four views and "More"
+   * Six views don't fit a phone's width with readable labels: Scan, Protection, Toolbox and History stay,
+   * with short labels; Repair and Settings move into a "More" menu. Wider screens keep the full sidebar. */
+  (function phoneNav() {
+    const nav = document.querySelector("#app .nav");
+    if (!nav || nav.querySelector(".nav-more-wrap")) return;
+    const SHORT = { en: { scan: "Scan", tools: "Protection", toolbox: "Toolbox", history: "History", more: "More" },
+      ar: { scan: "فحص", tools: "الحماية", toolbox: "الأدوات", history: "السجل", more: "المزيد" } };
+    const sh = () => SHORT[CS.lang === "ar" ? "ar" : "en"];
+    const views = [...nav.querySelectorAll(".nav-btn[data-view]")];
+    views.forEach((b) => {
+      const long = b.querySelector("span[data-i18n]");
+      if (long) long.classList.add("nav-long");
+      if (SHORT.en[b.dataset.view]) { const s2 = el("span", "nav-short"); s2.dataset.k = b.dataset.view; b.append(s2); }
+    });
+    const moved = views.filter((b) => b.dataset.view === "repair" || b.dataset.view === "settings");
+    const wrap = el("div", "nav-more-wrap");
+    const btn = el("button", "nav-btn nav-more"); btn.type = "button";
+    btn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5.5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18.5" cy="12" r="1.6"/></svg>';
+    const bl = el("span", "nav-short"); bl.dataset.k = "more"; btn.append(bl);
+    const menu = el("div", "nav-more-menu"); menu.id = "nav-more-menu"; menu.hidden = true;
+    btn.setAttribute("aria-expanded", "false"); btn.setAttribute("aria-controls", "nav-more-menu");
+    const links = moved.map((b) => {
+      const a = el("a"); a.href = b.getAttribute("href"); a.dataset.view = b.dataset.view;
+      const ic = b.querySelector("svg"); if (ic) a.append(ic.cloneNode(true));
+      a.append(el("span", "nav-more-label"));
+      menu.append(a);
+      return a;
+    });
+    wrap.append(btn, menu);
+    const ink = nav.querySelector(".nav-ink");
+    if (ink) ink.before(wrap); else nav.append(wrap);
+    const paint = () => {
+      const t2 = sh();
+      nav.querySelectorAll(".nav-short").forEach((x) => { x.textContent = t2[x.dataset.k] || ""; });
+      links.forEach((a, i) => { const long = moved[i].querySelector(".nav-long"); a.querySelector(".nav-more-label").textContent = long ? long.textContent : a.dataset.view; });
+      btn.setAttribute("aria-label", t2.more);
+    };
+    const mark = () => {
+      const v = (location.hash.match(/^#\/(\w+)/) || [])[1] || "";
+      btn.classList.toggle("active-in", v === "repair" || v === "settings");
+      links.forEach((a) => { if (a.dataset.view === v) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
+    };
+    const close = (focus) => { if (menu.hidden) return; menu.hidden = true; btn.setAttribute("aria-expanded", "false"); if (focus) btn.focus(); };
+    btn.addEventListener("click", () => { if (menu.hidden) { menu.hidden = false; btn.setAttribute("aria-expanded", "true"); } else close(false); });
+    btn.addEventListener("keydown", (e) => { if (e.key === "ArrowDown") { e.preventDefault(); menu.hidden = false; btn.setAttribute("aria-expanded", "true"); links[0].focus(); } });
+    menu.addEventListener("keydown", (e) => {
+      const i = links.indexOf(document.activeElement);
+      if (e.key === "Escape") { e.preventDefault(); close(true); }
+      else if (e.key === "ArrowDown") { e.preventDefault(); (links[i + 1] || links[0]).focus(); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); (links[i - 1] || links[links.length - 1]).focus(); }
+    });
+    menu.addEventListener("click", (e) => { if (e.target.closest("a")) close(false); });
+    document.addEventListener("click", (e) => { if (!wrap.contains(e.target)) close(false); });
+    wrap.addEventListener("focusout", (e) => { if (e.relatedTarget && !wrap.contains(e.relatedTarget)) close(false); });
+    window.addEventListener("hashchange", mark);
+    CS.onLang(() => requestAnimationFrame(paint));
+    paint(); mark();
+  })();
 
   /* settings arrive after start-up: repaint what depends on them */
   let lastSettings = null;

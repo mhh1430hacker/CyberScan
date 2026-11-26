@@ -31,7 +31,9 @@
   const $ = (s) => sec.querySelector(s), $$ = (s) => [...sec.querySelectorAll(s)];
   // The section is 180vh (it was 270vh). The scroll progress is mapped so that the headline is
   // already drawn in outline when the stage pins: no near-empty green screen right after the hero.
-  const progress = () => { const r = sec.getBoundingClientRect(); const raw = clamp(-r.top / Math.max(1, r.height - innerHeight), -1, 1.4); return clamp(0.28 + 0.72 * raw, -1, 1.4); };
+  // Now 125vh: the build runs while the scene scrolls in (from 0.6 of a screen below the top) and
+  // through its short pin, so no stretch of it shows an empty green screen.
+  const progress = () => { const r = sec.getBoundingClientRect(), lead = innerHeight * 0.6, span = lead + Math.max(1, r.height - innerHeight); return clamp(-0.2 + 1.25 * ((lead - r.top) / span), -1, 0.95); };   // it no longer flies out: it scrolls away whole (no empty screen after it)
 
   const stage = $(".ks-center"), pattern = $(".ks-pattern"), rays = $(".ks-rays"), glow = $(".ks-glow");
   const centre = $$(".ks-c, .ks-c2, .ks-c3"), ring1 = $$(".ks-r1"), band = $(".ks-band"), ring2 = $$(".ks-r2"), outer = $(".ks-c4");

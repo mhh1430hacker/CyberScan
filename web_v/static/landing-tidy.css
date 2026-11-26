@@ -1,0 +1,202 @@
+/* ===== The landing, tidied (Nov 2026 UX review) =====
+ * Loaded last of the landing's own sheets. Three jobs:
+ *   1. one visual system: the same kicker, card and heading scale in every section; the Saudi
+ *      scene keeps its green and Originality its gold, as accent colours only
+ *   2. a shorter page: one explanation of how it works (the science story), shorter pinned scenes,
+ *      a plain privacy grid, a compact team; phones lose the decorative visuals that cost a screen
+ *   3. the hero's live demo as a visible "Try it now" card
+ * Floating buttons are one dock (dock.css, js/dock.js). */
+
+/* ---------------- 1. one system ---------------- */
+:root { --h2-size: clamp(30px, 3.7vw, 50px); --kick: #d3b0ff; }
+/* kickers: one style (monospace capitals with the site's violet; green and gold are accents) */
+.sec-tag, .og-kicker, .ks-kicker, .sy-kicker, .tm-kicker {
+  font: 600 12.5px/1.3 Consolas, ui-monospace, "SFMono-Regular", monospace; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--kick); text-shadow: none;
+}
+.og-kicker { --kick: #e8c46a; }
+.ks-kicker { --kick: var(--k-green, #5ee0a0); }
+.sy-kicker, .tm-kicker { --kick: #8ff3ff; }
+[dir="rtl"] :is(.sec-tag, .og-kicker, .ks-kicker, .sy-kicker, .tm-kicker) { font-family: inherit; letter-spacing: .02em; font-size: 13.5px; }
+.sec-tag { margin-bottom: 14px; }
+/* headings: one scale and weight */
+.l-h2, .og-title, .ogl-title { font-size: var(--h2-size); line-height: 1.12; font-weight: 800; letter-spacing: -.015em; }
+[dir="rtl"] :is(.l-h2, .og-title, .ogl-title) { letter-spacing: 0; line-height: 1.3; }
+/* cards: one radius, edge and shadow (fabric.css tokens) */
+.ogl-col, .faq-item, .cmp-wrap, .og-pillar, .priv { border-radius: var(--r-card, 20px); }
+.ogl-col, .faq-item, .cmp-wrap, .priv { border-color: var(--edge-line, rgba(214, 184, 255, .17)); box-shadow: var(--edge-light), var(--edge-drop); }
+.priv { background: linear-gradient(160deg, rgba(255, 255, 255, .05), rgba(255, 255, 255, .012)), rgba(16, 10, 34, .72); }
+/* one section rhythm */
+.l-section { padding-top: clamp(64px, 7vw, 96px); }
+
+/* ---------------- 2. a shorter page ---------------- */
+/* the science story: the one explanation of how it works (scenes keep their order, less scroll each) */
+@media (min-width: 761px) {
+  .sy-js:not(.still) .sy-s1 { --len: 85vh; } .sy-js:not(.still) .sy-s2 { --len: 100vh; } .sy-js:not(.still) .sy-s3 { --len: 135vh; }
+  .sy-js:not(.still) .sy-s4 { --len: 80vh; } .sy-js:not(.still) .sy-s5 { --len: 85vh; } .sy-js:not(.still) .sy-s6 { --len: 100vh; }
+  /* Made by Saudi hands and Originality: shorter pins */
+  .ks-js:not(.still) { height: 125vh; }
+  .og.og-js { height: 150vh; }
+}
+.sci-head { margin-bottom: 32px; }
+/* the engine's analysers, folded under the story (js/pipeline.js builds the diagram when opened) */
+.pipe-more { max-width: 1240px; margin: 8px auto 0; padding: 0 24px; }
+.pipe-more > summary {
+  display: flex; align-items: center; justify-content: center; gap: 10px; width: fit-content; margin: 0 auto; min-height: 48px; padding: 10px 20px;
+  border-radius: 999px; border: 1px solid var(--edge-line, rgba(214, 184, 255, .17)); background: rgba(20, 11, 42, .6);
+  color: #efe6ff; font-weight: 650; cursor: pointer; list-style: none;
+}
+.pipe-more > summary::-webkit-details-marker { display: none; }
+.pipe-more > summary::after { content: ""; width: 8px; height: 8px; border: solid currentColor; border-width: 0 2px 2px 0; transform: rotate(45deg) translateY(-2px); transition: transform .2s; }
+.pipe-more[open] > summary::after { transform: rotate(-135deg); }
+.pipe-more > summary:hover { border-color: var(--edge-line-hi, rgba(228, 204, 255, .42)); }
+.pipe-more > summary:focus-visible { outline: 2px solid #22e8ff; outline-offset: 3px; }
+.pipe-more .pipe-sec { margin-top: 24px; }
+/* privacy: three cards side by side (it was a sticky stack, ~1,300 px of scrolling) */
+.priv-grid:not(.stack) { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin-top: 28px; }
+.priv-grid:not(.stack) .priv { padding: 26px 24px; }
+.stack-sec { padding-bottom: 40px; }
+/* the team: tighter, square photos */
+.onyx { padding: 84px 0 56px; }
+.tm-intro { grid-template-columns: minmax(160px, 210px) 1fr; margin-bottom: 40px; }
+.tm-photo { aspect-ratio: 1 / 1; }
+.tm-close { margin-top: 44px; }
+/* the FAQ follows the team directly (no empty screen between them) */
+.faq-sec.l-section { padding-top: 56px; }
+.l-cta { padding-block: 72px 64px !important; }
+/* the ledger right under the Originality scene */
+.ogl.l-section { padding-top: 48px; }
+
+/* ---------------- the header: music and sound effects are in the dock; the tour keeps its label ---------------- */
+@media (min-width: 1001px) and (max-width: 1600px) {
+  .l-top:not(.is-compact) .tour-btn span { display: inline; }
+  .l-top:not(.is-compact) .tour-btn { padding: 8px 14px; }
+}
+
+/* ---------------- 3. the hero's live demo: a "Try it now" card ---------------- */
+.ld-try {
+  width: min(460px, 100%); padding: 16px 18px 14px; gap: 10px; border-radius: var(--r-card, 20px);
+  background: linear-gradient(160deg, rgba(34, 232, 255, .07), rgba(180, 108, 255, .06)), rgba(14, 8, 32, .78);
+  border: 1px solid rgba(34, 232, 255, .32); box-shadow: var(--edge-light), 0 20px 50px -30px rgba(34, 232, 255, .5);
+}
+.ld-title { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 17px; color: #fff; }
+.ld-title svg { width: 20px; height: 20px; fill: rgba(34, 232, 255, .18); stroke: #22e8ff; stroke-width: 1.8; stroke-linejoin: round; }
+.ld-try .ld-hint { font-size: 14px; color: #d6cdf0; }
+.ld-try .ld-chip { min-height: 40px; padding: 8px 14px; font-size: 13px; }
+.ld-try .ld-pick { background: rgba(34, 232, 255, .08); border-color: rgba(34, 232, 255, .55); }
+
+/* ---------------- honest comparison: rows open on phones (js/landing.js) ---------------- */
+.cmp-tg { all: unset; display: block; width: 100%; font: inherit; color: inherit; text-align: start; overflow-wrap: anywhere; }
+@media (min-width: 701px) { .cmp-tg { cursor: text; } }
+@media (max-width: 700px) {
+  .cmp-tg { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 32px; cursor: pointer; }
+  .cmp-tg::after { content: ""; flex: none; width: 7px; height: 7px; border: solid #c9a2ff; border-width: 0 2px 2px 0; transform: rotate(45deg); transition: transform .2s; }
+  .cmp tr.open .cmp-tg::after { transform: rotate(-135deg); }
+  .cmp-tg:focus-visible { outline: 2px solid #22e8ff; outline-offset: 2px; border-radius: 4px; }
+  .cmp tr.open td > span:last-child { display: block; margin-top: 4px; font-size: 12.5px; }
+  .cmp tr.open { grid-template-columns: 1fr; }
+}
+
+/* ---------------- phones: one screen per idea ---------------- */
+@media (max-width: 760px) {
+  .l-section { padding-top: 52px; padding-bottom: 24px; }
+  .priv-grid:not(.stack) { grid-template-columns: 1fr; gap: 12px; margin-top: 18px; }
+  .priv-grid:not(.stack) .priv { padding: 18px 18px; display: grid; grid-template-columns: 40px 1fr; gap: 2px 14px; align-items: start; }
+  .priv-grid:not(.stack) .priv .pi { grid-row: span 2; width: 40px; height: 40px; margin: 0; }
+  .priv-grid:not(.stack) .priv b { margin: 0; font-size: 17px; }
+  .priv-grid:not(.stack) .priv p { margin: 0; font-size: 14.5px; }
+  /* features: the words, without the animated miniatures */
+  .bento { gap: 10px; grid-auto-rows: auto; }
+  .bento-card { padding: 18px 18px 16px; }
+  .bento-card .bviz { display: none; }
+  /* originality: the fingerprint smaller; the ledger tighter */
+  .og-visual { width: min(46vw, 200px) !important; }
+  .og-stage { padding-block: 48px 32px; }
+  .og-pillar { padding: 10px 12px; }
+  .ogl-col { padding: 16px; }
+  .ogl-col li { padding-block: 6px; }
+  .ogl.l-section { padding-top: 28px; }
+  /* numbers: two per row */
+  .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 10px !important; }
+  .stat { padding: 18px 10px !important; }
+  .onyx { padding: 52px 0 32px; }
+  .tm-intro { grid-template-columns: 1fr; gap: 16px; margin-bottom: 24px; }
+  .tm-emblem-reveal { width: 120px; }
+  .tm-close { margin-top: 28px; }
+  .tm-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 10px !important; }
+  .faq-sec.l-section { padding-top: 40px; }
+  .ld-try { padding: 14px 14px 12px; }
+  .l-cta { padding-block: 48px 40px !important; }
+}
+
+/* ---------------- second pass: measured lengths (desktop <= ~18,000 px, phone <= ~11,000 px) ---------------- */
+@media (min-width: 761px) {
+  .sy-js:not(.still) .sy-s1 { --len: 75vh; } .sy-js:not(.still) .sy-s2 { --len: 90vh; } .sy-js:not(.still) .sy-s3 { --len: 120vh; }
+  .sy-js:not(.still) .sy-s4 { --len: 70vh; } .sy-js:not(.still) .sy-s5 { --len: 75vh; }
+  .ks-js:not(.still) { height: 110vh; }
+  .og.og-js { height: 115vh; }
+  /* features: smaller miniatures */
+  .bento { grid-auto-rows: minmax(150px, auto); gap: 14px; }
+  .bento-card { gap: 12px; padding: 18px 20px; }
+  .bento-card .bviz { min-height: 84px; max-height: 120px; }
+  .tm-photo { aspect-ratio: 4 / 3; }
+  .cmp th, .cmp td { padding: 9px 14px; }
+  .cmp { font-size: 13.5px; line-height: 1.4; }
+}
+.l-foot { padding-bottom: 80px; }
+/* the film: less air around it */
+.film-sec.l-section { padding-top: 56px; padding-bottom: 16px; }
+/* the repair demo strip is a picture of the words beside it: phones keep the words */
+@media (max-width: 760px) {
+  #repair-sec .bytes-demo { display: none; }
+  .tm-emblem-reveal { display: none; }
+  .tm-intro { margin-bottom: 18px; }
+  /* the ledger: two figures per row */
+  .ogl-col ul { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+  .ogl-col li { grid-template-columns: 1fr; padding: 8px 10px 10px; }
+  .ogl-col li.ogl-libs { grid-column: 1 / -1; }
+  .ogl-col li > span { font-size: 13px; }
+  .ogl-col h3 { margin: 0 0 10px; font-size: 16px; }
+  .ogl-cols { gap: 12px; }
+}
+/* phones: Originality's pillars as a sideways strip (js/landing.js makes it keyboard reachable) */
+@media (max-width: 700px) {
+  .og-pillars { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; padding-bottom: 8px; scrollbar-width: thin; }
+  .og-pillars:focus-visible { outline: 2px solid #e8c46a; outline-offset: 3px; border-radius: 12px; }
+  .og-pillar { flex: 0 0 82%; scroll-snap-align: start; opacity: 1 !important; transform: none !important; }
+  .og-pillar p { max-height: none !important; opacity: 1 !important; }
+  /* the comparison: product names once, at the top; each row shows its three marks */
+  .cmp thead { display: block; }
+  .cmp thead tr { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 10px 14px; }
+  .cmp thead th { padding: 0; background: none; font-size: 11.5px; }
+  .cmp thead th:first-child { display: none; }
+  .cmp thead { background: rgba(20, 10, 40, .95); }
+  .cmp td::before { display: none !important; }
+  .cmp tbody tr { padding: 8px 14px; }
+  .cmp tbody th { padding-bottom: 2px; }
+}
+@media (max-width: 760px) {
+  /* the live figures are already in the hero and in the ledger */
+  #stats-live { display: none !important; }
+  .sy.still .sy-s6 .sy-stage, .sy:not(.sy-js) .sy-s6 .sy-stage { padding-block: 28px 20px; }
+  .sy-s6 .sy-emblem { width: 56px; height: 56px; margin-bottom: 4px; }
+  .sy-s6 .sy-word { font-size: 44px; }
+  .faq-item summary { padding: 12px 14px; }
+  .faq-list { gap: 8px !important; }
+  .bento-card { padding: 16px; gap: 8px; }
+  .sci-head { margin-bottom: 18px; }
+}
+@media (min-width: 761px) {
+  .sy-js:not(.still) .sy-s2 { --len: 80vh; } .sy-js:not(.still) .sy-s3 { --len: 105vh; }
+}
+/* the stats' live line repeated the hero's live strip and the ledger's live figures */
+#stats-live { display: none !important; }
+/* the two identity scenes: short pins, their build starts while they scroll in (js/saudi.js, js/origin.js) */
+@media (min-width: 761px) {
+  .ks-js:not(.still) { height: 125vh; }
+  .og.og-js { height: 130vh; }
+}
+/* the team's Arabic lines: no Latin letter-spacing or monospace on joined script */
+[dir="rtl"] .tm-role[dir="rtl"] { font-family: inherit; letter-spacing: 0; text-transform: none; font-size: 12.5px; text-align: right; }
+[dir="rtl"] :is(.tm-motto, .tm-sign) { letter-spacing: 0; }
+[dir="rtl"] .tm-sign { font-family: inherit; font-size: clamp(14px, 1.3vw, 17px); }
