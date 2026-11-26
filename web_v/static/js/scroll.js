@@ -241,7 +241,11 @@
   window.addEventListener("cs:landing", () => requestAnimationFrame(layout));
   buildManifesto();
   buildBands();
-  layout();
+  // positions are measured when the ResizeObserver above reports the landing's first size (after
+  // the browser's own layout, in a frame callback), not here: reading them in the middle of the
+  // page's start-up forced an extra full-page layout
+  layoutHow();
+  if (!window.ResizeObserver) requestAnimationFrame(layout);
   if (reduced) {
     mfWords.forEach((w) => w.style.setProperty("--k", "1"));
   }

@@ -16,8 +16,8 @@ body:not(.on-landing) .tint { display: none; }
 [dir="rtl"] .mf-kicker { font-family: inherit; letter-spacing: 0; font-size: 14px; }
 .mf-text { margin: 0; font-size: clamp(26px, 4.1vw, 60px); line-height: 1.22; font-weight: 750; letter-spacing: -.02em; }
 [dir="rtl"] .mf-text { letter-spacing: 0; line-height: 1.5; }
-.mw { --k: 0; display: inline-block; color: rgba(226, 232, 240, calc(.12 + var(--k) * .88)); transform: translateY(calc((1 - var(--k)) * 10px)); filter: blur(calc((1 - var(--k)) * 2px)); transition: color .15s linear; }
-.mw.key { color: color-mix(in srgb, rgba(226, 232, 240, .12), #7dd3fc calc(var(--k) * 100%)); text-shadow: 0 0 calc(var(--k) * 30px) rgba(56, 189, 248, calc(var(--k) * .55)); }
+.mw { --k: 0; display: inline-block; color: rgba(226, 232, 240, calc(.4 + var(--k) * .6)); transform: translateY(calc((1 - var(--k)) * 10px)); filter: blur(calc((1 - var(--k)) * 2px)); transition: color .15s linear; }
+.mw.key { color: color-mix(in srgb, rgba(226, 232, 240, .4), #7dd3fc calc(var(--k) * 100%)); text-shadow: 0 0 calc(var(--k) * 30px) rgba(56, 189, 248, calc(var(--k) * .55)); }
 .mf-progress { height: 2px; width: min(420px, 60%); background: rgba(148, 163, 184, .2); border-radius: 2px; overflow: hidden; }
 .mf-progress i { display: block; height: 100%; transform-origin: left; transform: scaleX(0); background: linear-gradient(90deg, var(--accent), #a78bfa); }
 [dir="rtl"] .mf-progress i { transform-origin: right; }

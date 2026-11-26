@@ -110,12 +110,13 @@
 @keyframes fx-up { from { opacity: 0; transform: translate3d(0, 22px, 0); } }
 @keyframes fx-down { from { opacity: 0; transform: translate3d(0, -14px, 0); } }
 @keyframes fx-card { from { opacity: 0; transform: perspective(1200px) translate3d(0, 40px, 0) rotateX(14deg) scale(.95); } }
-.landing.ready .l-top { animation: fx-down .8s var(--ease-out) backwards; }
-.landing.ready .hero-sub { animation: fx-up 1s var(--ease-out) .42s backwards; }
-.landing.ready .hero-ctas > * { animation: fx-up .9s var(--ease-out) backwards; }
-.landing.ready .hero-ctas > :nth-child(1) { animation-delay: .54s; }
-.landing.ready .hero-ctas > :nth-child(2) { animation-delay: .62s; }
-.landing.ready .hero-ctas > :nth-child(3) { animation-delay: .7s; }
+/* the same entrance, a little quicker: the first screen is complete ~0.5 s sooner */
+.landing.ready .l-top { animation: fx-down .55s var(--ease-out) backwards; }
+.landing.ready .hero-sub { animation: fx-up .7s var(--ease-out) .2s backwards; }
+.landing.ready .hero-ctas > * { animation: fx-up .65s var(--ease-out) backwards; }
+.landing.ready .hero-ctas > :nth-child(1) { animation-delay: .28s; }
+.landing.ready .hero-ctas > :nth-child(2) { animation-delay: .34s; }
+.landing.ready .hero-ctas > :nth-child(3) { animation-delay: .4s; }
 .landing.ready .hero-visual .scan-card { animation: fx-card 1.3s var(--ease-out) .3s backwards; }
 
 /* the typed word: before a new word, the old one is selected like text in an editor, then replaced */

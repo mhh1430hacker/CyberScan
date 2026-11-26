@@ -14,10 +14,35 @@
   const canvas = document.getElementById("gl-hero");
   if (canvas && window.CSAdapt) CSAdapt.register("hero", canvas, "particles");
   if (!canvas) return;
-  const gl = canvas.getContext("webgl2", { antialias: false, alpha: true, premultipliedAlpha: true, powerPreference: "high-performance" });
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (!gl) { canvas.remove(); return; }
+  // The hero's layout (body.has-gl) is decided now, before the first paint, from the WebGL API's
+  // presence (js/performance/capabilityDetector.js); the WebGL work itself (context, shaders, the
+  // first shape) comes later, so it never competes with the first paint or the first interaction:
+  // the first WebGL context of a page starts the browser's GPU path, 150 ms on a cold desktop and
+  // close to a second with a software renderer. It starts when the page has loaded and gone idle
+  // if this session already knows the GPU is real, otherwise on the visitor's first move, scroll,
+  // touch or key, or 6 s after load, whichever comes first.
+  const caps = window.CSCaps ? window.CSCaps.get() : null;
+  if (caps ? !caps.webgl2 : typeof WebGL2RenderingContext === "undefined") { canvas.remove(); return; }
   document.body.classList.add("has-gl");
+  let booted = false;
+  const fail = () => { canvas.remove(); document.body.classList.remove("has-gl"); };
+  const later = window.requestIdleCallback || ((fn) => setTimeout(fn, 300));
+  const kick = () => { if (!booted) { booted = true; try { boot(); } catch (err) { console.warn("CyberScan GL disabled:", err); fail(); } } };
+  const onLoad = (fn) => { if (document.readyState === "complete") setTimeout(fn, 0); else addEventListener("load", () => setTimeout(fn, 0), { once: true }); };
+  if (caps && caps.glProbed !== false && !caps.software) onLoad(() => later(kick, { timeout: 1500 }));
+  else {
+    const EV = ["pointerdown", "pointermove", "keydown", "wheel", "touchstart", "scroll"];
+    let t = 0;
+    const go = () => { EV.forEach((e) => removeEventListener(e, go, true)); clearTimeout(t); later(kick, { timeout: 400 }); };
+    EV.forEach((e) => addEventListener(e, go, { capture: true, passive: true }));
+    onLoad(() => { t = setTimeout(go, 6000); });
+  }
+
+  function boot() {
+  const gl = canvas.getContext("webgl2", { antialias: false, alpha: true, premultipliedAlpha: true, powerPreference: "high-performance" });
+  if (!gl) { fail(); return; }
+  if (window.CSCaps && window.CSCaps.reportGL) window.CSCaps.reportGL(gl);
 
   const small = Math.min(innerWidth, innerHeight) < 700;
   // Fewer, slightly larger points: the shapes read the same and the GPU does half the work.
@@ -116,7 +141,7 @@
     if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
   } catch (err) {
     console.warn("CyberScan GL disabled:", err);
-    canvas.remove(); document.body.classList.remove("has-gl");
+    fail();
     return;
   }
   gl.useProgram(prog);
@@ -431,4 +456,5 @@
   window.addEventListener("cs:landing", () => { mixStart = performance.now(); mixMs = 2600; pickShape(); wake(); });
 
   window.CSGL = { morph, get shape() { return current; }, get hold() { return hold; } };
+  }
 })();

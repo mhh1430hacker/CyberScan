@@ -167,6 +167,7 @@ ENGINE_NAMES = {
     "Secret patterns": ("Secret patterns", "أنماط الأسرار"),
     "Hash database": ("Known-malware fingerprints", "بصمات البرامج الضارة المعروفة"),
     "Content inspection": ("Content inspection", "فحص المحتوى"),
+    "EMBER2024 model": ("Malware-trained model (EMBER2024)", "نموذج مدرَّب على البرامج الضارة (EMBER2024)"),
 }
 
 
@@ -298,7 +299,29 @@ def engine_text(name: str, raw: Any) -> dict[str, Any]:
         if low == "busy":
             return out("content.busy", "partial", "Skipped: the scanner was busy", "تُخطّي: كان الماسح مشغولًا")
         return out("content.failed", "failed", "Couldn't run", "تعذّر التشغيل")
+    if name == "EMBER2024 model":
+        score = re.match(r"scored (\d(?:\.\d+)?)", low)
+        if score:
+            value = score.group(1)
+            return out("ember.scored", "ran", f"Scored {value} out of 1 (0 = like clean files, 1 = like malware)",
+                       f"أعطى {_n_text(value)} من 1 (0 = يشبه الملفات السليمة، 1 = يشبه البرامج الضارة)")
+        if low.startswith("not applicable"):
+            return out("ember.not_applicable", "not_applicable",
+                       "Only covers Windows programs and PDF documents, so it doesn't apply to this file",
+                       "يغطي برامج ويندوز وملفات PDF فقط، لذا لا ينطبق على هذا الملف")
+        if "too large" in low:
+            return out("ember.too_large", "not_applicable", "Skipped: the file is too large for this model",
+                       "تُخطّي: الملف أكبر من أن يقرأه هذا النموذج")
+        if "disabled" in low:
+            return out("ember.disabled", "disabled", "Turned off in Settings", "متوقف في الإعدادات")
+        return out("ember.unavailable", "unavailable", "The model isn't installed here, so it wasn't used",
+                   "النموذج غير مثبّت هنا، لذا لم يُستخدم")
     return out("engine.other", "unknown", status or "No answer", status or "لا إجابة")
+
+
+def _n_text(value: str) -> str:
+    """A decimal in Arabic text, kept left-to-right."""
+    return "⁨" + value + "⁩"
 
 
 # ----------------------------------------------------------------------------- verdicts and errors

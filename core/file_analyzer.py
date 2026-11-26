@@ -12,7 +12,7 @@ from core.archive_inspector import inspect_zip
 from core.feature_extractor import extract_file_features
 from core.mitre_mapper import map_findings_to_mitre
 from core.pe_decompiler import analyze_pe_file
-from core import archive_scan, hash_intel
+from core import archive_scan, hash_intel, ml_malware
 from core.yara_engine import scan_bytes_with_yara, scan_file_for_yara
 from core.heuristic_engine import PIECE_SEPARATOR, evaluate_heuristics, strings_beyond
 from core.magic_bytes import naturally_compressed
@@ -420,6 +420,17 @@ def analyze_file(
             60,
         ))
 
+    # The malware-trained model (EMBER2024): one explained, weighted piece of evidence. It never
+    # makes a file "known malware" (risk_engine reserves that for an exact intel listing).
+    if settings.get("ml_malware_model", True):
+        check_deadline()
+        malware_model = ml_malware.assess(file_data)
+    else:
+        malware_model = {"status": "disabled", "engine": ml_malware.ENGINE}
+    features["ml_malware_model"] = malware_model
+    corroborated = any(int(item.contribution or 0) >= 15 for item in findings)
+    findings += ml_malware.findings(malware_model, signed=signed, corroborated=corroborated)
+
     score = max(
         int(score),
         max((item.contribution for item in findings), default=0),
@@ -548,6 +559,7 @@ def analyze_file(
                 if archive_inspection.status != "not_zip"
                 else "not a ZIP container"
             ),
+            ml_malware.ENGINE: ml_malware.status_line(malware_model),
         },
         pe_analysis=pe_result,
         mitre_techniques=mitre_techniques,

@@ -32,7 +32,7 @@
     id: "معرّف التقرير", generated: "تاريخ الإنشاء", scanned: "وقت الفحص", engine: "المحرك", target: "الهدف", type: "النوع", size: "الحجم", sha: "SHA-256", mode: "نوع الفحص",
     modes: { file: "ملف", url: "رابط", text: "نص" },
     score: "الدرجة", band: "النطاق", scoreNote: "الدرجة أدلة موزونة من كل فحوص CyberScan، من 0 إلى 100: كل نتيجة تضيف وزنها، وأقوى دليل يحدد الحد الأدنى. ليست احتمالًا لوجود برمجية خبيثة.",
-    model: "نموذج التعلّم الآلي", modelNone: "غير متاح: لا يوجد نموذج معتمد مثبّت، فاعتمدت النتيجة على الأدلة الساكنة فقط.", modelNote: "درجات النموذج غير معايَرة وليست احتمالات.",
+    model: "نموذج التعلّم الآلي", modelNone: "غير متاح لهذا الملف (النموذج يغطي برامج Windows وملفات PDF)؛ واعتمدت النتيجة على الأدلة الساكنة.", modelNote: "درجات النموذج غير معايَرة وليست احتمالات.",
     sev: "الخطورة", finding: "الدليل", detail: "الشرح", source: "المصدر", contrib: "الوزن", none: "لم تُرصد علامات تحذير.",
     evCaption: "كل ما وجدته الفحوص، مرتبًا حسب وزنه في الدرجة.",
     engines: "حالة المحركات", mitre: "تقنيات MITRE ATT&CK", pe: "بنية البرنامج (PE)", entropy: "الإنتروبيا", mean: "المتوسط", peak: "الذروة", jumps: "قفزات", status: "الحالة", complete: "مكتمل", partial: "جزئي (لم يكتمل فحص المحتوى)",
@@ -56,7 +56,7 @@
     id: "Report ID", generated: "Generated", scanned: "Scanned", engine: "Engine", target: "Target", type: "Type", size: "Size", sha: "SHA-256", mode: "Scan type",
     modes: { file: "File", url: "Link", text: "Text" },
     score: "Score", band: "Band", scoreNote: "The score is weighted evidence from all of CyberScan's checks, from 0 to 100: each finding adds its weight, and the strongest piece of evidence sets the minimum. It is not a probability of malware.",
-    model: "Machine-learning model", modelNone: "Not available: no approved model is installed, so the result rests on static evidence only.", modelNote: "Model scores are uncalibrated and are not probabilities.",
+    model: "Machine-learning model", modelNone: "Not available for this file (the model covers Windows programs and PDFs); the result rests on static evidence.", modelNote: "Model scores are uncalibrated and are not probabilities.",
     sev: "Severity", finding: "Finding", detail: "Explanation", source: "Source", contrib: "Weight", none: "No warning signs were observed.",
     evCaption: "Everything the checks found, ordered by its weight in the score.",
     engines: "Engine status", mitre: "MITRE ATT&CK techniques", pe: "Program structure (PE)", entropy: "Entropy", mean: "mean", peak: "peak", jumps: "sudden jumps", status: "Status", complete: "Complete", partial: "Partial (content inspection incomplete)",
@@ -254,7 +254,8 @@
   rk.append(kv([[T.score, `${score} / 100`], [T.band, score >= 50 ? T.bands[2] : score > 0 ? T.bands[1] : T.bands[0]]]), scale, el("p", "note", T.scoreNote));
   const pred = r.prediction || {}, cs = pred.class_scores || {};
   const hasModel = pred.status && !/untrained|unavailable|unapproved|missing|disabled/i.test(String(pred.status)) && Object.keys(cs).length;
-  rk.append(el("h3", "", T.model), el("p", "", hasModel ? Object.entries(cs).map(([k, v]) => `${k}: ${Number(v).toFixed(1)}%`).join(" · ") : T.modelNone));
+  const em = r.ml_model && r.ml_model.status === "scored" ? `EMBER2024: ${Math.round(Number(r.ml_model.score) * 100)}%` : "";
+  rk.append(el("h3", "", T.model), el("p", "", hasModel ? Object.entries(cs).map(([k, v]) => `${k}: ${Number(v).toFixed(1)}%`).join(" · ") : (em || T.modelNone)));
   if (hasModel) rk.append(el("p", "note", T.modelNote));
   // 7. detection evidence: each row says which check found it
   const sourceOf = (f) => f.where || T.cats[String(f.cat || "").toLowerCase()] || String(f.cat || "").replace(/_/g, " ") || "–";
@@ -292,6 +293,8 @@
   if (mitre.length) { te.append(el("h3", "", T.mitre)); const ul = el("ul"); mitre.forEach(([id, nm]) => { const li = el("li"); li.append(ltr(id), document.createTextNode(` · ${nm || ""}`)); ul.append(li); }); te.append(ul); }
   const engines = view.engines || Object.entries(r.engines || {});
   if (engines.length) te.append(el("h3", "", T.engines), kv(engines));
+  // the layered analysis (js/layers.js): grid, counts, layered score, formula and the full list
+  if (r.layers && window.CSLayers) window.CSLayers.renderStatic(te, r.layers, ar ? "ar" : "en");
   // 9. recommended actions
   const rc = section(T.s[7]); const ol = el("ol"); (T.recos[cls] || T.recos.UNKNOWN).forEach((x) => ol.append(el("li", "", x))); rc.append(ol);
   // 10. metadata: the duration, how the score was put together, and how many checks agreed

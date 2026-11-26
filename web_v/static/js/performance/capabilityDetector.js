@@ -2,8 +2,9 @@
  *
  * Feature detection only; nothing is assumed. Read once per session and cached in sessionStorage
  * (keyed by screen and pixel ratio), so later pages don't probe again. Two kinds of facts:
- *   sync (needed before the first frame): WebGL / WebGL2, the GPU's reported renderer (when the
- *     browser exposes it), texture limits, cores, memory, pixel ratio, screen, data saver, pointer;
+ *   sync (needed before the first frame): WebGL / WebGL2 support, cores, memory, pixel ratio,
+ *     screen, data saver, pointer; the GPU's reported renderer and texture limits come a little
+ *     later (see readGL: reading them needs a WebGL context, too slow to create before first paint);
  *   async (filled in when the page is idle): WebGPU adapter, video decoding (mediaCapabilities),
  *     battery and compute pressure, where available.
  * Browsers hide or round much of this (deviceMemory is capped at 8, renderer strings may be
@@ -15,32 +16,46 @@
   let caps = null;
   try { const c = JSON.parse(sessionStorage.getItem(KEY) || "null"); if (c && c.sig === sig) caps = c; } catch { /* storage off */ }
 
+  // Reading the GPU means creating a WebGL context, and the first context in a page starts the
+  // browser's GPU path: from ~5 ms on a warm desktop to 150 ms on a cold one and close to a second
+  // with a software renderer (SwiftShader). That would block the first paint, so the page starts
+  // from what the WebGL API's presence says (provisional, glProbed: false) and reads the GPU later:
+  // from the hero's own context when it starts (js/gl-hero.js passes it in), or on the visitor's
+  // first move / 6 s after load, whichever comes first. The level is then recomputed.
+  function readGL(gl, caveat) {
+    const out = { webgl: false, webgl2: false, renderer: "", vendor: "", software: false, maxTexture: 0, majorPerformanceCaveat: !!caveat, glProbed: true };
+    if (!gl) return out;
+    out.webgl = true;
+    out.webgl2 = typeof WebGL2RenderingContext !== "undefined" && gl instanceof WebGL2RenderingContext;
+    out.maxTexture = gl.getParameter(gl.MAX_TEXTURE_SIZE) || 0;
+    const dbg = gl.getExtension("WEBGL_debug_renderer_info");          // may be absent or masked
+    out.renderer = String(dbg ? gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER) || "");
+    out.vendor = String(dbg ? gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL) : gl.getParameter(gl.VENDOR) || "");
+    out.software = /swiftshader|llvmpipe|softpipe|software|basic render|microsoft basic/i.test(out.renderer) || out.majorPerformanceCaveat;
+    return out;
+  }
   function probeGL() {
-    const out = { webgl: false, webgl2: false, renderer: "", vendor: "", software: false, maxTexture: 0, majorPerformanceCaveat: false };
+    let out = readGL(null);
     try {
       const c = document.createElement("canvas");
-      let gl = c.getContext("webgl2", { failIfMajorPerformanceCaveat: true });
-      if (gl) out.webgl2 = true;
-      else {
+      let gl = c.getContext("webgl2", { failIfMajorPerformanceCaveat: true }), caveat = false;
+      if (!gl) {
         gl = c.getContext("webgl2") || null;
-        if (gl) { out.webgl2 = true; out.majorPerformanceCaveat = true; }
+        if (gl) caveat = true;
       }
       if (!gl) gl = c.getContext("webgl") || c.getContext("experimental-webgl");
-      if (gl) {
-        out.webgl = true;
-        out.maxTexture = gl.getParameter(gl.MAX_TEXTURE_SIZE) || 0;
-        const dbg = gl.getExtension("WEBGL_debug_renderer_info");          // may be absent or masked
-        out.renderer = String(dbg ? gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER) || "");
-        out.vendor = String(dbg ? gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL) : gl.getParameter(gl.VENDOR) || "");
-        out.software = /swiftshader|llvmpipe|softpipe|software|basic render|microsoft basic/i.test(out.renderer) || out.majorPerformanceCaveat;
-        const lose = gl.getExtension("WEBGL_lose_context"); if (lose) lose.loseContext();   // give the context back at once
-      }
+      out = readGL(gl, caveat);
+      if (gl) { const lose = gl.getExtension("WEBGL_lose_context"); if (lose) lose.loseContext(); }   // give the context back at once
     } catch { /* no WebGL */ }
     return out;
   }
+  function provisionalGL() {
+    const w2 = typeof WebGL2RenderingContext !== "undefined", w1 = w2 || typeof WebGLRenderingContext !== "undefined";
+    return { webgl: w1, webgl2: w2, renderer: "", vendor: "", software: false, maxTexture: 0, majorPerformanceCaveat: false, glProbed: false };
+  }
 
   if (!caps) {
-    const gl = probeGL();
+    const gl = provisionalGL();
     const nav = navigator, conn = nav.connection || {};
     caps = {
       sig,
@@ -99,8 +114,28 @@
     } catch { /* not allowed here */ }
   }
 
+  /* the deferred GPU read (see readGL above): once, from the hero's context or a probe of its own */
+  function setGL(info) {
+    if (caps.glProbed !== false) return;
+    Object.assign(caps, info);
+    changed();
+  }
+  if (caps.glProbed === false) {
+    const EV = ["pointerdown", "pointermove", "keydown", "wheel", "touchstart", "scroll"];
+    let t = 0;
+    const go = () => {
+      EV.forEach((e) => removeEventListener(e, go, true)); clearTimeout(t);
+      setTimeout(() => { if (caps.glProbed === false) setGL(probeGL()); }, 250);   // let the hero (if any) report first
+    };
+    EV.forEach((e) => addEventListener(e, go, { capture: true, passive: true }));
+    const arm = () => { t = setTimeout(go, 6000); };
+    if (document.readyState === "complete") arm(); else addEventListener("load", arm, { once: true });
+  }
+
   window.CSCaps = {
     get: () => caps,
+    /* the hero passes its own WebGL context in, so the GPU is read without a second context */
+    reportGL(gl, caveat) { try { setGL(readGL(gl, caveat)); } catch { /* context lost */ } },
     onChange: (fn) => listeners.push(fn),
     refreshScreen() { caps.dpr = window.devicePixelRatio || 1; caps.screenW = screen.width; caps.screenH = screen.height; changed(); },
   };

@@ -59,9 +59,15 @@ def project_files() -> dict[str, Path]:
     tree("Tools")
     for rel in ("web_v/server.py", "web_v/services.py", "web_v/assistant.py", "web_v/assistant_knowledge.md", "web_v/toolbox.py", "web_v/bit_brain.py", "web_v/profile_stats.py",
                 "web_v/site_extras.py", "web_v/email_check.py", "web_v/visits.py", "web_v/seo_meta.py",
+                "web_v/tailored_summary.py",  # the result summary written for the reader (core/layers/*.py ships with "core")
+                "core/layers/__init__.py", "core/layers/base.py", "core/layers/context.py", "core/layers/aggregate.py",
+                "core/layers/orchestrator.py", "core/layers/catalog_structure.py", "core/layers/catalog_content.py", "core/layers/catalog_intel.py",
                 "ui/scan_service.py", "ui/secrets.py", "core/external_intel.py", "core/hash_intel.py", "intel/__init__.py", "intel/updater.py", "config.py",
                 "intel/data/forge.yarx", "intel/data/manifest.json", "intel/data/malware-hashes.bin",
-                "intel/data/urlhaus.txt.gz", "intel/data/phishing-domains.txt.gz", "intel/data/secrets.json"):
+                "intel/data/urlhaus.txt.gz", "intel/data/phishing-domains.txt.gz", "intel/data/secrets.json",
+                # EMBER2024 malware-trained models (Apache-2.0; ~3.1 MB) and what they need
+                "intel/data/ml/models.json", "intel/data/ml/EMBER2024_PE.model.gz", "intel/data/ml/EMBER2024_PDF.model.gz",
+                "intel/data/ml/pefile_warnings.txt", "intel/data/ml/LICENSE-EMBER2024-Apache-2.0.txt", "NOTICE"):
         if (ROOT / rel).is_file():
             files[rel] = ROOT / rel
     # pure-Python packages the engines need (taken from this computer's Python)

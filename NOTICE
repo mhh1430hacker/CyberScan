@@ -1,0 +1,42 @@
+CyberScan — third-party notices for the machine-learning malware models
+=========================================================================
+
+1. EMBER2024 benchmark models (used)
+   Files: intel/data/ml/EMBER2024_PE.model.gz, intel/data/ml/EMBER2024_PDF.model.gz
+   Source: https://huggingface.co/joyce8/EMBER2024-benchmark-models (EMBER2024_PE.model,
+           EMBER2024_PDF.model; SHA-256 of the originals in intel/data/ml/models.json)
+   Licence: Apache License 2.0 (full text: intel/data/ml/LICENSE-EMBER2024-Apache-2.0.txt)
+   Modification: gzip-compressed only; the model text is unchanged.
+   Citation: R. J. Joyce, G. Miller, P. Roth, R. Zak, E. Zaresky-Williams, H. Anderson,
+             E. Raff and J. Holt, "EMBER2024 - A Benchmark Dataset for Holistic Evaluation
+             of Malware Classifiers", Proceedings of the 31st ACM SIGKDD Conference on
+             Knowledge Discovery and Data Mining, 2025. arXiv:2506.05074.
+
+2. EMBER2024 feature extractor "thrember" (adapted)
+   Files: core/ember_features.py (adapted from thrember/features.py),
+          intel/data/ml/pefile_warnings.txt (copied unchanged from thrember)
+   Source: https://github.com/FutureComputing4AI/EMBER2024, commit
+           0ef753e81d98bf209f71b03cd331dfc190b5b54d
+   Licence: Apache License 2.0
+   Changes (also listed at the top of core/ember_features.py): scikit-learn's FeatureHasher
+   replaced by an equivalent pure-Python implementation; the Authenticode feature group
+   reads signatures with core/authenticode_der.py instead of signify; faster equivalent
+   computations of entropy, the byte/entropy histogram and string regex counts; malformed
+   files degrade to zeroed feature groups instead of raising. Verified equal to the
+   original extractor on 600 files of this machine (all 2,568 values, relative difference
+   below 1e-6).
+
+3. Not used, and why
+   * SOREL-20M pretrained models (Sophos / ReversingLabs, s3://sorel-20m/09-DEC-2020/
+     baselines/): the code in github.com/sophos/SOREL-20M is Apache-2.0, but everything in
+     the bucket, the baseline models included, is under Sophos' "Terms and Conditions of
+     Use - SOREL-20M Dataset", which limits use "solely for legitimate security research
+     purposes" and forbids making the Content "or any derivative works created based on
+     the Content" accessible to a third party (section 2(c)). Shipping those models in a
+     public website and phone app would do that, so they are not downloaded or used.
+   * EMBER 2017/2018 (github.com/elastic/ember): its feature code is AGPL-3.0 (the data and
+     the 2018 model are MIT). Its v2 feature extractor was not ported; EMBER2024's
+     Apache-2.0 extractor and newer models are used instead.
+   * EMBER2024's ELF, APK and .NET models: same licence, but not shipped yet. There were
+     no clean ELF or Android files here to set a safe threshold, and the Windows-program
+     model already covers .NET programs.

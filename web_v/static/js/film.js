@@ -672,9 +672,10 @@
       const b = el("button");
       b.type = "button";
       const fill = el("i", "cine-seg-fill");
-      b.append(el("span", "cine-seg-bar"), el("span", "cine-seg-name", names[i]), el("span", "cine-seg-len", `${fmt(c)} · ${Math.round(len)}s`));
+      // the button's name is its visible text ("Intro 0:00 · 7s"; the space is a grid gap on screen),
+      // so what a screen reader announces and what a voice-control user reads are the same words
+      b.append(el("span", "cine-seg-bar"), el("span", "cine-seg-name", names[i]), " ", el("span", "cine-seg-len", `${fmt(c)} · ${Math.round(len)}s`));
       b.querySelector(".cine-seg-bar").append(fill);
-      b.setAttribute("aria-label", `${names[i]}, ${fmt(c)}`);
       b.addEventListener("click", () => { seek(c); if (!playing) play(); });
       li.append(b); li.btn = b; li.fill = fill;
       return li;
@@ -710,6 +711,7 @@
     rate = SPEEDS[(SPEEDS.indexOf(rate) + 1) % SPEEDS.length];
     audio.playbackRate = rate;
     $("film-speed").textContent = `${rate}×`;
+    nameButtons();
   });
 
   /* volume and mute (iOS ignores volume: the slider hides there, mute still works) */
@@ -769,7 +771,7 @@
       setTimeout(() => URL.revokeObjectURL(url), 5000);
       recorder = null; player.classList.remove("exporting"); toast(t("filmExported"));
     };
-    pause(); seek(0); rate = 1; audio.playbackRate = 1; $("film-speed").textContent = "1×";
+    pause(); seek(0); rate = 1; audio.playbackRate = 1; $("film-speed").textContent = "1×"; nameButtons();
     player.classList.add("exporting"); toast(t("filmExporting"));
     recorder.start(1000);
     play();
@@ -951,7 +953,14 @@
     render();
   })();
 
-  window.CS.onLang(() => { buildChapters(); buildCc(); chapterChanged(chapterAt(time)); paintMeta(); paintMini(); paintResume(); draw(); });
+  // the speed and subtitle buttons show "1×" and "CC": their names contain those words too
+  function nameButtons() {
+    const sp = $("film-speed"), cc = $("film-cc");
+    if (sp) sp.setAttribute("aria-label", `${t("filmSpeed") || "Playback speed"} ${sp.textContent}`);
+    if (cc) cc.setAttribute("aria-label", `${t("filmSubs") || "Subtitles"} ${cc.textContent}`);
+  }
+  nameButtons();
+  window.CS.onLang(() => { nameButtons(); buildChapters(); buildCc(); chapterChanged(chapterAt(time)); paintMeta(); paintMini(); paintResume(); draw(); });
   buildChapters();
   buildCc();
   draw();

@@ -256,3 +256,7 @@ body.on-landing .glow-cursor { opacity: 1; }
   [data-reveal] { opacity: 1; transform: none; filter: none; }
   .hero-title .w { transform: none; opacity: 1; }
 }
+
+/* the page's base colour on the root as well (it sits under the fixed tint and backdrop layers, so
+   nothing changes on screen): contrast checkers read the text against it instead of white */
+html { background-color: #07040f; }

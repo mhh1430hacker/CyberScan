@@ -78,6 +78,10 @@ def present(result: ScanResult, target: str, mode: str | None, raw: bytes | None
     out["sha256"] = view.sha256 or ""
     out["structure"] = structure_payload(result, raw)
     out["intel"] = intel_payload(result)
+    # the EMBER2024 model's answer (core/ml_malware.py), for the "Model confidence" box
+    ml = (result.feature_summary or {}).get("ml_malware_model")
+    if isinstance(ml, dict):
+        out["ml_model"] = {k: ml.get(k) for k in ("status", "model", "score", "band", "kind", "detail") if k in ml}
     try:
         out["external"] = external_payload(result, target, mode, out["sha256"])
     except Exception:  # noqa: BLE001 - presentation must never break a result
@@ -319,6 +323,76 @@ def apply_final_verdict(result: ScanResult, content: dict[str, Any] | None, *, i
                       f"content inspection, {content_score}/100); classification: {classification}.")
     return {"final_score": score, "classification": classification, "host_score": host_score,
             "host_classification": host_classification, "content_score": content_score}
+
+
+# ------------------------------------------------------------ layered analysis (core.layers)
+# ~180 independent layers over the same input; their weighted log-odds score is EXPLAINED evidence
+# next to the verdict, not a replacement for it. One conservative rule lets it move the verdict:
+# a clean-looking result is raised to "review" when the layered score is 70+ AND the suspicious
+# layers come from 3+ different categories (independent views agreeing). It never lowers a verdict.
+LAYERED_RAISE_SCORE = 70
+LAYERED_RAISE_CATEGORIES = 3
+LAYERED_RAISE_WEIGHT = 25
+
+
+def run_layered(result: ScanResult | None, raw: bytes, mode: str, display: str, candidate: str,
+                progress: Any = None) -> dict[str, Any] | None:
+    """Run every layer over the scanned bytes and the host result; never raises."""
+    try:
+        from core import layers  # noqa: PLC0415
+
+        kind = {"File": "file", "URL": "url"}.get(mode, "text")
+        return layers.analyze(raw or b"", mode=kind, name=Path(display).name if kind == "file" else "",
+                              target=candidate if kind == "url" else "", result=result, progress=progress)
+    except Exception:  # noqa: BLE001 - the scan's own verdict stands without the layers
+        logging.exception("Layered analysis failed")
+        return None
+
+
+def apply_layered(result: ScanResult, layered: dict[str, Any] | None, content: dict[str, Any] | None, *,
+                  incomplete: bool) -> dict[str, Any]:
+    """Add the layered score to ``result`` as explained evidence (call before ``apply_final_verdict``).
+    Returns how it moved the verdict: {"applied", "from", "to", "rule", "en", "ar"}."""
+    from detection.engine import final_verdict  # noqa: PLC0415
+
+    rule = {"en": (f"The layered score can only raise a 'no warning signs' result to 'review', and only when it is "
+                   f"{LAYERED_RAISE_SCORE}+ with suspicious layers in {LAYERED_RAISE_CATEGORIES}+ different categories. "
+                   "It never lowers a verdict."),
+            "ar": (f"لا تستطيع الدرجة الطبقية إلا رفع نتيجة «لا علامات تحذير» إلى «مراجعة»، وفقط عندما تكون {LAYERED_RAISE_SCORE} فأكثر "
+                   f"مع طبقات مشبوهة في {LAYERED_RAISE_CATEGORIES} فئات مختلفة أو أكثر. ولا تخفض أي نتيجة أبدًا.")}
+    content_score = int((content or {}).get("score") or 0)
+    before = final_verdict(int(result.combined_score or 0), str(result.classification), content_score, incomplete=incomplete)[1]
+    if str(result.classification) == "EMPTY":
+        before = "EMPTY"
+    effect = {"applied": False, "from": before, "to": before, "rule": rule}
+    summary = (layered or {}).get("summary") or {}
+    score = summary.get("score")
+    categories = list(summary.get("suspicious_categories") or [])
+    if score is None:
+        effect.update(en="The layers had nothing to say about this input.", ar="لم يكن لدى الطبقات ما تقوله عن هذا المدخل.")
+        return effect
+    agree_en = f"{summary.get('suspicious', 0)} of {summary.get('answered', 0)} answering layers flagged something; layered score {score}/100."
+    agree_ar = f"{summary.get('suspicious', 0)} من {summary.get('answered', 0)} طبقة أجابت رصدت شيئًا؛ الدرجة الطبقية {score}/100."
+    if before == "NO_INDICATORS_OBSERVED" and score >= LAYERED_RAISE_SCORE and len(categories) >= LAYERED_RAISE_CATEGORIES:
+        result.evidence.append(Finding(
+            "layers", "medium", "Independent analysis layers agree something is off",
+            f"{agree_en} Suspicious layers in {len(categories)} categories ({', '.join(categories)}): reviewed before trusting.",
+            LAYERED_RAISE_WEIGHT, engines=["Layered analysis"]))
+        result.combined_score = max(int(result.combined_score or 0), LAYERED_RAISE_WEIGHT)
+        after = final_verdict(int(result.combined_score), str(result.classification), content_score, incomplete=incomplete)[1]
+        effect.update(applied=True, to=after, en=f"{agree_en} Raised the verdict to review.",
+                      ar=f"{agree_ar} رفعت النتيجة إلى «مراجعة».")
+    else:
+        effect.update(en=f"{agree_en} Shown as evidence; the verdict was not changed.",
+                      ar=f"{agree_ar} معروضة كدليل؛ ولم تتغير النتيجة.")
+    return effect
+
+
+def layered_payload(layered: dict[str, Any] | None, effect: dict[str, Any] | None) -> dict[str, Any] | None:
+    """What the page shows: the summary (counts, score, formula, effect) and every layer's answer."""
+    if not layered:
+        return None
+    return {**layered, "summary": {**layered.get("summary", {}), "effect": effect or {}}}
 
 
 def scan_result_from_payload(payload: dict[str, Any], target: str | None = None) -> ScanResult:

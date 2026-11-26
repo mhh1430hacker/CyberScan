@@ -1,0 +1,30 @@
+{
+  "source": "EMBER2024 benchmark LightGBM classifiers (Joyce, Miller, Roth, Zak, Zaresky-Williams, Anderson, Raff, Holt; KDD 2025), https://huggingface.co/joyce8/EMBER2024-benchmark-models, Apache License 2.0",
+  "feature_version": 3,
+  "feature_dim": 2568,
+  "note": "Thresholds were set on clean files only (no malware is used in this project). benign_rate_* = share of clean files at or above the threshold in Tools/bench_ml_models.py; it is a false-alarm estimate on this machine's software, not a detection rate.",
+  "models": {
+    "PE": {
+      "name": "EMBER2024 Windows-program model",
+      "file": "EMBER2024_PE.model.gz",
+      "sha256": "630e74e9500eeb6a6aaecdc6eea909f8c034f0044f555c6891f20047ec0f324e",
+      "original_sha256": "4252027863492ac138785c8c18576f43dad77d00faddc14e8c0072e8db419f99",
+      "threshold_high": 0.9,
+      "threshold_review": 0.5,
+      "threshold_clean": 0.1,
+      "benign_rate_high": "0 of 1,200 (both samples)",
+      "benign_rate_review": "7 of 1,200 (0.6%) in the calibration sample; 4 of 1,200 in Tools/bench_ml_models.py"
+    },
+    "PDF": {
+      "name": "EMBER2024 PDF model",
+      "file": "EMBER2024_PDF.model.gz",
+      "sha256": "7a5ab05cbff22e04115b7e4ff56bbcdb46f4d86a0bf1b5b96669e6405f4857cd",
+      "original_sha256": "a7e30eb883f8918cf28aaa98b6124cf2eb25a98ea3d58f3053a4fb49e24c3161",
+      "threshold_high": 0.9,
+      "threshold_review": 0.7,
+      "threshold_clean": 0.1,
+      "benign_rate_high": "1 of 270 (0.4%) in the calibration sample; 0 of 45 in Tools/bench_ml_models.py",
+      "benign_rate_review": "1 of 270 (0.4%) in the calibration sample; 0 of 45 in Tools/bench_ml_models.py"
+    }
+  }
+}

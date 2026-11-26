@@ -36,7 +36,7 @@
     return pos;
   }
 
-  function build() {
+  function build(width) {
     const data = model();
     nodesBox.replaceChildren();
     nodes = data.map((d, i) => {
@@ -53,13 +53,13 @@
       nodesBox.append(n);
       return { ...d, el: n, x: 0, y: 0, flash: 0 };
     });
-    layout();
+    layout(width);
     select(active, true);
   }
 
-  function layout() {
+  function layout(width) {
     const diagram = $("pipe-diagram");
-    const w = diagram.clientWidth;
+    const w = width || diagram.clientWidth;
     vertical = w < 760;
     const h = vertical ? 760 : 470;
     diagram.style.height = `${h}px`;
@@ -101,10 +101,9 @@
       p.setAttribute("class", "wire");
       p.style.setProperty("--hue", byId[engine] ? byId[engine].hue : "#94a3b8");
       svg.append(p);
-      const len = p.getTotalLength();
-      const pts = [];
-      for (let k = 0; k <= 48; k++) { const q = p.getPointAtLength((k / 48) * len); pts.push(q.x, q.y); }
-      const wire = { a, b, engine, el: p, len, pts };
+      // the wire's length and 49 sample points are read when a packet first travels it (they
+      // need layout: ~900 reads, too many to do while the page starts)
+      const wire = { a, b, engine, el: p, len: 1, pts: null };
       wires.push(wire);
       return wire;
     };
@@ -130,9 +129,17 @@
     if (!silent) { panel.classList.remove("swap"); void panel.offsetWidth; panel.classList.add("swap"); }
   }
 
+  function sample(w) {
+    if (!w || w.pts) return;
+    w.len = w.el.getTotalLength() || 1;
+    w.pts = [];
+    for (let k = 0; k <= 48; k++) { const q = w.el.getPointAtLength((k / 48) * w.len); w.pts.push(q.x, q.y); }
+  }
+
   function spawn() {
     const prefer = nodes[active] && nodes[active].kind === "engine" && Math.random() < 0.55 ? Number(nodes[active].id.slice(1)) : (Math.random() * 9) | 0;
     const legs = [wires.find((w) => w.a === "in" && w.b === `e${prefer}`), wires.find((w) => w.a === `e${prefer}` && w.b === "fuse"), wires.find((w) => w.a === "fuse")];
+    legs.forEach(sample);
     const c = document.createElementNS(NS, "circle");
     c.setAttribute("r", "3.6");
     c.setAttribute("class", "packet");
@@ -173,11 +180,17 @@
     });
   }
 
-  const run = () => { if (!reduced && visible && !document.hidden && !raf) { last = performance.now(); raf = requestAnimationFrame(frame); } };
+  const run = () => { if (!reduced && visible && wires.length && !document.hidden && !raf) { last = performance.now(); raf = requestAnimationFrame(frame); } };
   new IntersectionObserver((entries) => { visible = entries[0].isIntersecting; run(); }, { threshold: 0.05 }).observe(box);
   document.addEventListener("visibilitychange", run);
-  new ResizeObserver(() => layout()).observe($("pipe-diagram"));
-  window.CS.onLang(() => build());
-  build();
-  run();
+  // Built from the ResizeObserver's first report (it comes with the diagram's width, after the
+  // browser's own layout and before the frame is painted), so start-up forces no layout here.
+  let lastW = 0;
+  new ResizeObserver((es) => {
+    const w = Math.round(es[0].contentRect.width);
+    if (!w || w === lastW) return;
+    const first = !lastW; lastW = w;
+    if (first) { build(w); run(); } else layout(w);
+  }).observe($("pipe-diagram"));
+  window.CS.onLang(() => { if (lastW) build(); });
 })();

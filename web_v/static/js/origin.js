@@ -73,12 +73,19 @@
       const r = root.getBoundingClientRect(), span = r.height - innerHeight;
       paint(span > 0 ? clamp(-r.top / span) : 1);
     }
-    function apply() {
+    // Layout is read only while the scene is on screen (and then in a frame callback), never at
+    // start-up or when <html>'s classes change (the performance engine toggles them): reading it
+    // there forced a full-page layout in the middle of loading.
+    let lastCalm = null;
+    function apply(e) {
       const calm = still();
+      if (Array.isArray(e) && calm === lastCalm) return;   // a class change that doesn't concern this scene
+      lastCalm = calm;
       root.classList.toggle("og-js", !calm);
       root.classList.toggle("still", calm);
       if (calm) { paint(1); pillars.forEach((el) => { el.classList.add("is-done"); el.classList.remove("is-on"); }); }
-      else measure();
+      else if (on) { if (!raf) raf = requestAnimationFrame(measure); }
+      else if (lastActive === -1) paint(0);
     }
     if (ridges.length) {
       apply();

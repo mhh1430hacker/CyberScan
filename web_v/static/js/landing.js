@@ -192,11 +192,14 @@
     let ti = 0, ci = 0, del = false;
     // the card keeps the height of the longest text while it is typed and erased, so the cards
     // around it don't move (they jumped ~28 px as the AI sentence grew a line)
-    const reserve = () => { if (!node.isConnected) return; node.style.minHeight = ""; const was = node.textContent; let h = 0; texts.forEach((x) => { node.textContent = x; h = Math.max(h, node.offsetHeight); }); node.textContent = was; node.style.minHeight = `${h}px`; };
-    reserve();
-    if (window.ResizeObserver) { let rw = node.offsetWidth; new ResizeObserver(() => { if (node.offsetWidth !== rw) { rw = node.offsetWidth; reserve(); } }).observe(node); }
+    // (measured when the card first comes on screen, and again when its width changes: measuring
+    // every card at start-up meant one forced layout per text while the page was loading)
+    let reserved = false;
+    const reserve = () => { if (!node.isConnected) return; reserved = true; node.style.minHeight = ""; const was = node.textContent; let h = 0; texts.forEach((x) => { node.textContent = x; h = Math.max(h, node.offsetHeight); }); node.textContent = was; node.style.minHeight = `${h}px`; };
+    if (window.ResizeObserver) { let rw = -1; new ResizeObserver((es) => { const w = Math.round(es[0].contentRect.width); if (rw === -1) { rw = w; return; } if (w !== rw) { rw = w; if (reserved) reserve(); } }).observe(node); }
     const step = () => {
       if (!onScreen(node)) { bentoTimers.push(setTimeout(step, 500)); return; }
+      if (!reserved) reserve();
       const text = texts[ti % texts.length];
       node.textContent = text.slice(0, ci);
       if (!del && ci < text.length) ci++;
@@ -205,7 +208,7 @@
       else { del = false; ti++; }
       bentoTimers.push(setTimeout(step, del ? 14 : speed));
     };
-    if (reduced) node.textContent = texts[0]; else step();
+    if (reduced) node.textContent = texts[0]; else bentoTimers.push(setTimeout(step, 0));   // after js/lite.js has marked what is off screen
   }
 
   function buildBento() {
@@ -295,9 +298,11 @@
     meter.style.transition = "none";
     meter.style.strokeDashoffset = 326.73;
     num.textContent = "0";
-    void meter.getBoundingClientRect();
-    meter.style.transition = "";
+    // the transition comes back two frames later (the reset has been drawn by then) instead of
+    // after a forced layout read
+    requestAnimationFrame(() => requestAnimationFrame(() => { meter.style.transition = ""; }));
     setTimeout(() => {
+      meter.style.transition = "";
       card.classList.add("lit");
       meter.style.strokeDashoffset = 326.73 * (1 - 0.87);
       const start = performance.now();

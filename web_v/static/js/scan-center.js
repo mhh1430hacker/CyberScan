@@ -42,7 +42,7 @@
         EMPTY: ["Empty file", "This file has no content, so there is nothing to check. If you expected content, the copy may be incomplete."] },
       sumTitle: "Security summary", score: "Score", scoreNote: "Weighted evidence from all of CyberScan's checks, from 0 to 100: each finding adds its weight, and the strongest piece of evidence sets the minimum. It is not a probability of malware.",
       bands: ["0: no indicators", "1–49: review", "50+: suspicious"],
-      conf: "Model confidence", confNone: "Not available: no approved machine-learning model is installed, so this result rests on static evidence only.",
+      conf: "Model confidence", confNone: "Not available for this result: the result rests on static evidence.", confMl: "Resembles malware (EMBER2024)", confMlNote: "A model trained on millions of Windows programs and PDFs. It is one piece of evidence among many, not a probability, and never decides a verdict alone.", confMlNa: "The machine-learning model (EMBER2024) reads complete Windows programs and PDF files only; this file isn't one it can read, so it was not used.",
       confNote: "Model scores are uncalibrated: they rank classes, they are not probabilities.", confAbst: "The model abstained (more than one class fits).",
       ident: "File identity", target: "Target", type: "Type", size: "Size", sha: "SHA-256", when: "Scanned", status: "Status", stComplete: "Complete", stPartial: "Partial (content inspection incomplete)",
       sevCount: "Findings by severity", sev: { critical: "Critical", high: "High", medium: "Medium", low: "Low", info: "Info" },
@@ -106,7 +106,7 @@
         EMPTY: ["ملف فارغ", "لا يحتوي هذا الملف على أي محتوى، فلا يوجد ما يُفحص. إن توقعت محتوى فقد تكون النسخة ناقصة."] },
       sumTitle: "الملخص الأمني", score: "الدرجة", scoreNote: "أدلة موزونة من كل فحوص CyberScan، من 0 إلى 100: كل نتيجة تضيف وزنها، وأقوى دليل يحدد الحد الأدنى. ليست احتمالًا لوجود برمجية خبيثة.",
       bands: ["0: لا مؤشرات", "1–49: مراجعة", "50+: مشبوه"],
-      conf: "ثقة النموذج", confNone: "غير متاحة: لا يوجد نموذج تعلّم آلي معتمد مثبّت، لذلك تعتمد هذه النتيجة على الأدلة الساكنة فقط.",
+      conf: "ثقة النموذج", confNone: "غير متاحة لهذه النتيجة: تعتمد النتيجة على الأدلة الساكنة.", confMl: "تشابه مع البرمجيات الخبيثة (EMBER2024)", confMlNote: "نموذج مدرَّب على ملايين برامج Windows وملفات PDF. هو دليل واحد بين أدلة كثيرة، وليس احتمالًا، ولا يقرّر الحكم وحده.", confMlNa: "نموذج التعلّم الآلي (EMBER2024) يقرأ برامج Windows الكاملة وملفات PDF فقط؛ وهذا الملف ليس مما يستطيع قراءته، فلم يُستخدم.",
       confNote: "درجات النموذج غير معايَرة: ترتّب الفئات، وليست احتمالات.", confAbst: "امتنع النموذج عن الحكم (أكثر من فئة محتملة).",
       ident: "هوية الملف", target: "الهدف", type: "النوع", size: "الحجم", sha: "SHA-256", when: "وقت الفحص", status: "الحالة", stComplete: "مكتمل", stPartial: "جزئي (فحص المحتوى لم يكتمل)",
       sevCount: "ما وُجد حسب الخطورة", sev: { critical: "حرج", high: "مرتفع", medium: "متوسط", low: "منخفض", info: "معلومة" },
@@ -416,7 +416,15 @@
       Object.entries(cs).forEach(([k, v]) => { const row = el("div", "rc-cb"); const b = el("span", "rc-cb-bar"); const f = el("i"); f.style.width = `${Math.min(100, Number(v))}%`; b.append(f); row.append(el("span", "", k), b, el("span", "", `${Number(v).toFixed(1)}%`)); bars.append(row); });
       conf.append(bars, el("p", "rc-note", l.confNote));
       if (pred.abstained) conf.append(el("p", "rc-note", l.confAbst));
-    } else conf.append(el("p", "rc-conf-none", l.confNone));
+    } else if (r.ml_model && r.ml_model.status === "scored") {
+      // the EMBER2024 model (trained on millions of Windows programs and PDFs): its score for this file
+      const m = r.ml_model, pct = Math.round(Number(m.score) * 100);
+      const bars = el("div", "rc-conf-bars"), row = el("div", "rc-cb"), b = el("span", "rc-cb-bar"), f = el("i");
+      f.style.width = `${Math.min(100, pct)}%`; b.append(f);
+      row.append(el("span", "", l.confMl), b, el("span", "", `${pct}%`)); bars.append(row);
+      conf.append(bars, el("p", "rc-note", l.confMlNote));
+    } else if (r.ml_model && r.ml_model.status === "not_applicable") conf.append(el("p", "rc-conf-none", l.confMlNa));
+    else conf.append(el("p", "rc-conf-none", l.confNone));
     // identity: what was checked, said for what it is
     const idc = el("dl", "rc-id");
     // values keep their own direction (a hash, a link) without leaving the column's alignment

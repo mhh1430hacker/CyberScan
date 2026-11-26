@@ -69,10 +69,13 @@
       return cell;
     }
 
+    // the first sizing (while the page is still starting) uses the window's size, which needs no
+    // layout; the canvas's own size is read again in the first frame
+    let early = true;
     function resize() {
       dpr = window.CSPerf ? window.CSPerf.dpr(1.5) : Math.min(window.devicePixelRatio || 1, 1.5);
-      width = canvas.clientWidth || window.innerWidth;
-      height = canvas.clientHeight || window.innerHeight;
+      width = (early ? 0 : canvas.clientWidth) || window.innerWidth;
+      height = (early ? 0 : canvas.clientHeight) || window.innerHeight;
       canvas.width = Math.round(width * dpr);
       canvas.height = Math.round(height * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -279,6 +282,8 @@
     document.addEventListener("pointerleave", onLeave);
     document.addEventListener("visibilitychange", onVisibility);
     resize();
+    early = false;
+    requestAnimationFrame(() => { const w = canvas.clientWidth, h = canvas.clientHeight; if ((w && w !== width) || (h && h !== height)) resize(); });
     if (reduced) { running = false; draw(performance.now()); } else raf = requestAnimationFrame(frame);
 
     return {

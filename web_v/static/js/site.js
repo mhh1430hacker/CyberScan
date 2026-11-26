@@ -21,10 +21,12 @@
   function applyLang() {
     document.documentElement.lang = lang;
     document.documentElement.dir = CS_LANGS.dir(lang);
-    document.querySelectorAll(".lang-btn").forEach((b) => { b.textContent = CS_LANGS.names[lang]; });
-    document.querySelectorAll("[data-i18n]").forEach((n) => { if (n.dataset.keep) return; const v = t(n.dataset.i18n); if (typeof v === "string") n.textContent = v; });
-    document.querySelectorAll("[data-i18n-ph]").forEach((n) => { n.placeholder = t(n.dataset.i18nPh); });
-    document.querySelectorAll("[data-i18n-aria]").forEach((n) => { const v = t(n.dataset.i18nAria); if (typeof v === "string" && v !== n.dataset.i18nAria) n.setAttribute("aria-label", v); });
+    document.querySelectorAll(".lang-btn").forEach((b) => { if (b.textContent !== CS_LANGS.names[lang]) b.textContent = CS_LANGS.names[lang]; });
+    // only what differs is written: the server already sends the page in its language, and
+    // rewriting identical text would make the browser lay the whole page out again at start-up
+    document.querySelectorAll("[data-i18n]").forEach((n) => { if (n.dataset.keep) return; const v = t(n.dataset.i18n); if (typeof v === "string" && n.textContent !== v) n.textContent = v; });
+    document.querySelectorAll("[data-i18n-ph]").forEach((n) => { const v = t(n.dataset.i18nPh); if (n.placeholder !== v) n.placeholder = v; });
+    document.querySelectorAll("[data-i18n-aria]").forEach((n) => { const v = t(n.dataset.i18nAria); if (typeof v === "string" && v !== n.dataset.i18nAria && n.getAttribute("aria-label") !== v) n.setAttribute("aria-label", v); });
     listeners.forEach((fn) => fn());
   }
   async function setLang(code) {

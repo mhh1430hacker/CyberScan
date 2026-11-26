@@ -261,6 +261,60 @@ def _named(title: str, explanation: str, ar: bool, language: str) -> PlainText |
     return None
 
 
+# The EMBER2024 malware-trained model (core.ml_malware): the score is part of the title.
+_ML = re.compile(r"^Machine-learning model: (\d(?:\.\d+)?)(?: — (strongly resembles malware|some resemblance to malware|"
+                 r"resembles clean software|undecided)| \((signed program)\))$")
+_ML_TEXT = {
+    "strongly resembles malware": (
+        ("Learning model: resembles malware ({score})",
+         "A model trained on millions of real malicious and clean files (EMBER2024) scored this file {score} out of 1: "
+         "it strongly resembles malware. On its own this asks for a closer look; it never makes a file \"known malware\"."),
+        ("نموذج التعلّم: يشبه البرامج الضارة ({score})",
+         "نموذج دُرِّب على ملايين الملفات الضارة والسليمة الحقيقية (EMBER2024) أعطى هذا الملف {score} من 1: "
+         "يشبه البرامج الضارة بقوة. وحده يستدعي نظرة أدق، ولا يجعل الملف أبدًا \"برنامجًا ضارًا معروفًا\".")),
+    "some resemblance to malware": (
+        ("Learning model: some resemblance to malware ({score})",
+         "A model trained on millions of real malicious and clean files (EMBER2024) scored this file {score} out of 1. "
+         "Many clean files score in this range too, so this is a light signal only."),
+        ("نموذج التعلّم: شبه بسيط بالبرامج الضارة ({score})",
+         "نموذج دُرِّب على ملايين الملفات الضارة والسليمة الحقيقية (EMBER2024) أعطى هذا الملف {score} من 1. "
+         "ملفات سليمة كثيرة تقع في هذا المدى أيضًا، لذا هذه إشارة خفيفة فقط.")),
+    "resembles clean software": (
+        ("Learning model: resembles clean software ({score})",
+         "A model trained on millions of real malicious and clean files (EMBER2024) scored this file {score} out of 1: "
+         "it resembles clean software. This supports a clean result but doesn't cancel other warning signs."),
+        ("نموذج التعلّم: يشبه البرامج السليمة ({score})",
+         "نموذج دُرِّب على ملايين الملفات الضارة والسليمة الحقيقية (EMBER2024) أعطى هذا الملف {score} من 1: "
+         "يشبه البرامج السليمة. هذا يدعم نتيجة سليمة لكنه لا يلغي علامات التحذير الأخرى.")),
+    "undecided": (
+        ("Learning model: undecided ({score})",
+         "A model trained on millions of real malicious and clean files (EMBER2024) scored this file {score} out of 1, "
+         "between its clean and malware ranges, so it adds nothing either way."),
+        ("نموذج التعلّم: غير حاسم ({score})",
+         "نموذج دُرِّب على ملايين الملفات الضارة والسليمة الحقيقية (EMBER2024) أعطى هذا الملف {score} من 1، "
+         "بين مدى السليم ومدى الضار، فلا يضيف شيئًا في أي اتجاه.")),
+    "signed program": (
+        ("Learning model: resembles malware, but signed ({score})",
+         "A model trained on millions of real malicious and clean files (EMBER2024) scored this file {score} out of 1, "
+         "but the program carries a valid digital signature, so this is only a note."),
+        ("نموذج التعلّم: يشبه البرامج الضارة لكنه موقَّع ({score})",
+         "نموذج دُرِّب على ملايين الملفات الضارة والسليمة الحقيقية (EMBER2024) أعطى هذا الملف {score} من 1، "
+         "لكن البرنامج يحمل توقيعًا رقميًا صالحًا، لذا هذه ملاحظة فقط.")),
+}
+
+
+def _ml_model(title: str, ar: bool, language: str) -> PlainText | None:
+    match = _ML.match(title.strip())
+    if not match:
+        return None
+    score = isolate(match.group(1), language)
+    en, arabic = _ML_TEXT[match.group(2) or match.group(3)]
+    plain_title, body = arabic if ar else en
+    if language not in ("en", "ar"):
+        plain_title, body = tr(en[0], language), tr(en[1], language)
+    return PlainText(plain_title.format(score=score), body.format(score=score), True)
+
+
 def plain(title: str, explanation: str, language: str) -> PlainText:
     """Plain title and body for one engine finding, in ``language``."""
     ar = language == "ar"
@@ -268,6 +322,9 @@ def plain(title: str, explanation: str, language: str) -> PlainText:
     named = _named(title, explanation, ar, language)
     if named is not None:
         return named
+    model = _ml_model(title, ar, language)
+    if model is not None:
+        return model
     if key.startswith("zip structure"):
         members = _MEMBERS.search(explanation)
         count = members.group(1) if members else "?"

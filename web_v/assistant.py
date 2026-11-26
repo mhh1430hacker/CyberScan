@@ -553,3 +553,44 @@ def ask(question: Any, history: Any, *, local: bool, client: str = "local", olla
         result["source"] = "quota"   # today's free AI questions are used up: the guide answers
         result["remaining"] = 0
     return result
+
+
+# ------------------------------------------------------------------ result summary written for the reader
+def summarize(context: Any, profile: Any, lang: Any, *, local: bool, client: str = "local",
+              ollama_model: str = "qwen3:8b", use_model: bool = True) -> dict[str, Any]:
+    """The summary at the top of a result, tailored to the reader's 5-question profile.
+
+    Receives the result's summary only (``web_v.tailored_summary.clean_context``: verdict, score,
+    layered counts, top evidence; never the file or its name). A model writes it under a strict
+    prompt when one answers (Bedrock, then Ollama on the user's own machine); otherwise the
+    template writer does, so a summary is always there, in English or Arabic."""
+    try:
+        import tailored_summary as ts  # noqa: PLC0415 - web_v is on the path (server, tests)
+    except ImportError:  # pragma: no cover - imported as a package
+        from web_v import tailored_summary as ts  # noqa: PLC0415
+
+    ctx = ts.clean_context(context)
+    if ctx is None:
+        raise AskError("expected a result summary")
+    who = ts.clean_profile(profile)
+    language = "ar" if str(lang or "").lower().startswith("ar") else "en"
+    system = ts.system_prompt(ctx, who, language)
+    request = [{"role": "user", "content": "Write the summary now." if language == "en" else "اكتب الملخص الآن."}]
+    base = {"profile": who, "lang": language, "written_for": ts.written_for(who, language)}
+    remaining = LIMITS.remaining(client)
+    if use_model and _bedrock_configured() and remaining > 0:
+        try:
+            result = _ask_bedrock(request, system)
+            if result["answer"] and not result["refused"]:
+                LIMITS.spend(client)
+                return {**base, "text": result["answer"], "steps": [], "source": "bedrock"}
+        except Exception:  # noqa: BLE001 - throttled or unavailable: the template writer answers
+            pass
+    if use_model and local and _ollama_ready(ollama_model):
+        try:
+            result = _ask_ollama(request, ollama_model, system)
+            if result["answer"]:
+                return {**base, "text": result["answer"], "steps": [], "source": "ollama"}
+        except Exception:  # noqa: BLE001
+            pass
+    return {**base, **ts.local_summary(ctx, who, language)}

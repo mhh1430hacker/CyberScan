@@ -468,7 +468,7 @@ def _render_page(raw: bytes, token: str, scan: bool, lang: str | None = None) ->
                   '<div class="grain" aria-hidden="true"></div>', '<div class="cursor-ring" aria-hidden="true"><span></span></div>',
                   '<div class="cursor-dot" aria-hidden="true"></div>', '<script src="js/cells.js"></script>', '<script src="js/fx.js"></script>'):
         html = html.replace(piece, "")
-    html = html.replace('<link rel="stylesheet" href="a11y.css">', '<link rel="stylesheet" href="a11y.css">\n  <link rel="stylesheet" href="scan.css">\n  <link rel="stylesheet" href="workspace.css">\n  <link rel="stylesheet" href="scan-center.css">\n  <link rel="stylesheet" href="scan-pro.css">\n  <link rel="stylesheet" href="result-plus.css">\n  <link rel="stylesheet" href="scan-extras.css">', 1)
+    html = html.replace('<link rel="stylesheet" href="a11y.css">', '<link rel="stylesheet" href="a11y.css">\n  <link rel="stylesheet" href="scan.css">\n  <link rel="stylesheet" href="workspace.css">\n  <link rel="stylesheet" href="scan-center.css">\n  <link rel="stylesheet" href="scan-pro.css">\n  <link rel="stylesheet" href="result-plus.css">\n  <link rel="stylesheet" href="scan-extras.css">\n  <link rel="stylesheet" href="layers.css">', 1)
     html = html.replace('<body class="on-landing">', '<body class="page-scan">', 1)
     html = html.replace("<title>CyberScan</title>", "<title>CyberScan · Scan</title>", 1)
     html = html.replace('<a class="skip-link" href="#top"', '<a class="skip-link" href="#app"', 1)
@@ -912,11 +912,22 @@ class Job:
         self.result: dict[str, Any] | None = None
         self.error: str | None = None             # a friendly sentence, never Python exception text
         self.error_info: dict[str, Any] | None = None   # {code, message, en, ar}
+        # layered analysis, streamed while it runs: {"done", "total", "cells": [{"id", "s", "st"}]}
+        self.layers: dict[str, Any] | None = None
+
+    def layer_progress(self, entry: dict[str, Any], done: int, total: int) -> None:
+        if self.layers is None:
+            self.layers = {"done": 0, "total": total, "cells": []}
+        self.layers["cells"].append({"id": entry["id"], "s": entry.get("signal"), "st": entry.get("status")})
+        self.layers["done"] = done
+        self.layers["total"] = total
 
     def snapshot(self) -> dict[str, Any]:
         out = {"id": self.id, "status": self.status, "stages": self.stages, "result": self.result, "error": self.error}
         if self.error_info:
             out["error_info"] = self.error_info
+        if self.layers is not None:
+            out["layers"] = {**self.layers, "cells": list(self.layers["cells"])}
         if self.status == "running":
             out["elapsed_ms"] = int((time.monotonic() - self.accepted_at) * 1000)
         return out
@@ -1090,11 +1101,17 @@ class App:
                 content_state = ("complete" if sentinel_ok and not content_incomplete
                                  else "partial" if sentinel_ok else CONTENT_STATUS.get(str((envelope or {}).get("status")), "failed"))
                 parts: dict[str, Any] = {}
+                layered: dict[str, Any] | None = None
+                layer_effect: dict[str, Any] | None = None
                 if is_result:
                     if empty:
                         result.classification = "EMPTY"
                     else:
                         result.engine_status["Content inspection"] = content_state
+                        # ~180 independent layers over the same input (core.layers), streamed to the page
+                        layered = services.run_layered(result, raw, mode, display, candidate, job.layer_progress)
+                        layer_effect = services.apply_layered(
+                            result, layered, content, incomplete=host_incomplete or (content_incomplete and not sentinel_ok))
                     parts = services.apply_final_verdict(
                         result, content, incomplete=host_incomplete or (content_incomplete and not sentinel_ok))
                     if content_incomplete and not empty:
@@ -1130,6 +1147,8 @@ class App:
                     content_analysis=content or {},
                     detection_engine=(envelope or {}).get("engine"),
                 )
+                if layered is not None:
+                    job.result["layers"] = services.layered_payload(layered, layer_effect)
                 if empty:
                     from core.status_text import error_text, text, verdict_text  # noqa: PLC0415
 
@@ -2051,6 +2070,30 @@ def make_handler(app: App, port: int) -> type[BaseHTTPRequestHandler]:
             threading.Thread(target=updater.refresh, name="intel-refresh-now", daemon=True).start()
             self._json(HTTPStatus.ACCEPTED, {**updater.state(), "running": True})
 
+        # ---- layered analysis catalog (core.layers): names, categories, what each layer checks ----
+        def layers_catalog(self, query: dict) -> None:
+            from core import layers  # noqa: PLC0415
+
+            self._json(HTTPStatus.OK, {"layers": layers.catalog(), "formula": layers.FORMULA,
+                                       "categories": {k: {"en": v[0], "ar": v[1]} for k, v in layers.CATEGORIES.items()}})
+
+        # ---- the result summary written for the reader's profile (web_v/assistant.py: summarize) ----
+        def assistant_summary(self, query: dict) -> None:
+            data = self._json_body(16 * 1024)
+            if not isinstance(data, dict):
+                raise ApiError(400, "expected {context, profile, lang}")
+            forwarded = self.headers.get("X-Forwarded-For", "") if PUBLIC else ""
+            client = forwarded.split(",")[0].strip() or self.client_address[0]
+            # the burst guard limits model calls only: past it, the template writer answers (costs nothing)
+            use_model = assistant.LIMITS.allow(client)
+            model = "qwen3:8b" if PUBLIC else str(load_settings().get("ai_model", "qwen3:8b"))
+            try:
+                result = assistant.summarize(data.get("context"), data.get("profile"), data.get("lang"),
+                                             local=not PUBLIC, client=client, ollama_model=model, use_model=use_model)
+            except assistant.AskError as exc:
+                raise ApiError(400, str(exc)) from exc
+            self._json(HTTPStatus.OK, result)
+
         # ---- Ask the AI about CyberScan (web_v/assistant.py) -----------
         def assistant_ask(self, query: dict) -> None:
             data = self._json_body(16 * 1024)
@@ -2225,6 +2268,8 @@ ROUTES = [
     _route("GET", r"/api/protection", "protection_info"),
     _route("POST", r"/api/protection/update", "protection_update"),
     _route("POST", r"/api/assistant", "assistant_ask"),
+    _route("POST", r"/api/assistant/summary", "assistant_summary"),
+    _route("GET", r"/api/layers", "layers_catalog"),
     _route("POST", r"/api/bit", "bit_decide"),
     _route("GET", r"/api/ai/status", "ai_status"),
     _route("GET", rf"/api/ai/{ID}", "ai_poll"),

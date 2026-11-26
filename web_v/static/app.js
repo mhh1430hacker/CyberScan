@@ -51,7 +51,7 @@ const APPX = {
     vEmpty: "Empty file", vEmptyBody: "This file has no content, so there is nothing to check.",
     techEvidence: "Every finding, with the check that found it and its weight", intelUrl: "Who was asked about this link, and what each one answered.", intelText: "Who was asked about this text, and what each one answered.",
     tabsLabel: "Result details",
-    pastedText: "Pasted text", limitsText: "Static analysis only: nothing was opened or run. No trained machine-learning model is installed, so this result rests on rules and measured evidence.",
+    pastedText: "Pasted text", limitsText: "Static analysis only: nothing was opened or run. It rests on rules, measured evidence and, for Windows programs and PDFs, a machine-learning model (EMBER2024).",
     types: { pdf: "PDF document", text: "Text", txt: "Text", url: "Link", link: "Link", zip: "ZIP archive", pe: "Windows program", exe: "Windows program", elf: "Linux program", docx: "Word document", doc: "Word document", xlsx: "Excel workbook", xls: "Excel workbook", pptx: "PowerPoint presentation", ppt: "PowerPoint presentation", office: "Office document", ole: "Office document (old format)", rtf: "RTF document", msg: "Outlook message", eml: "Email", email: "Email", apk: "Android app", image: "Image", png: "PNG image", jpeg: "JPEG image", jpg: "JPEG image", gif: "GIF image", html: "Web page", script: "Script", archive: "Archive", file: "File", binary: "Binary data", unknown: "Unknown" },
     cMode: "Kind", cScanned: "Scanned", cElapsed: "Duration", cEngine: "Engine", cWhere: "Source",
     retryNone: "Nothing to retry: choose the file again.",
@@ -83,7 +83,7 @@ const APPX = {
     vEmpty: "ملف فارغ", vEmptyBody: "لا يحتوي هذا الملف على أي محتوى، فلا يوجد ما يُفحص.",
     techEvidence: "كل ما وُجد، مع الفحص الذي وجده ووزنه", intelUrl: "من سُئل عن هذا الرابط، وبماذا أجاب كل مصدر.", intelText: "من سُئل عن هذا النص، وبماذا أجاب كل مصدر.",
     tabsLabel: "تفاصيل النتيجة",
-    pastedText: "نص ملصق", limitsText: "تحليل ساكن فقط: لم يُفتح أو يُشغَّل أي شيء. لا يوجد نموذج تعلّم آلي مدرَّب مثبّت، لذلك تعتمد هذه النتيجة على القواعد والأدلة المقيسة.",
+    pastedText: "نص ملصق", limitsText: "تحليل ساكن فقط: لم يُفتح أو يُشغَّل أي شيء. تعتمد على القواعد والأدلة المقيسة، وعلى نموذج تعلّم آلي (EMBER2024) لبرامج Windows وملفات PDF.",
     types: { pdf: "مستند PDF", text: "نص", txt: "نص", url: "رابط", link: "رابط", zip: "أرشيف ZIP", pe: "برنامج Windows", exe: "برنامج Windows", elf: "برنامج Linux", docx: "مستند Word", doc: "مستند Word", xlsx: "مصنف Excel", xls: "مصنف Excel", pptx: "عرض PowerPoint", ppt: "عرض PowerPoint", office: "مستند Office", ole: "مستند Office (صيغة قديمة)", rtf: "مستند RTF", msg: "رسالة Outlook", eml: "بريد إلكتروني", email: "بريد إلكتروني", apk: "تطبيق Android", image: "صورة", png: "صورة PNG", jpeg: "صورة JPEG", jpg: "صورة JPEG", gif: "صورة GIF", html: "صفحة ويب", script: "سكربت", archive: "أرشيف", file: "ملف", binary: "بيانات ثنائية", unknown: "غير معروف" },
     cMode: "النوع", cScanned: "وقت الفحص", cElapsed: "المدة", cEngine: "المحرك", cWhere: "المصدر",
     retryNone: "لا يوجد ما يُعاد: اختر الملف مرة أخرى.",
@@ -593,6 +593,8 @@ function poll(id) {
 function showJob(job, id) {
   if (!job.stages) { showError(job.error ? { message: job.error } : { kind: "network" }); return; }
   renderStages(job.stages);
+  // the layered analysis streams its cells here (js/layers.js draws them live)
+  window.dispatchEvent(new CustomEvent("cs:job", { detail: job }));
   if (job.status === "running") { state.polling = setTimeout(() => poll(id), 220); return; }
   if (job.status === "failed") { showError({ message: String(job.error || ""), info: job.error_info }); return; }
   renderStages(job.stages.map((s) => ({ ...s, state: "complete" })));

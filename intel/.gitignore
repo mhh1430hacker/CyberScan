@@ -1,1 +1,3 @@
-data/
+data/*
+# the EMBER2024 models are pinned by SHA-256 (models.json) and versioned, not fetched
+!data/ml/

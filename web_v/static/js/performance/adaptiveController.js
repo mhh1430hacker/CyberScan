@@ -27,6 +27,7 @@
   const LEARN = "cs-adapt-learned";
 
   let cap = Score.capability(caps);
+  cap.gl = caps.glProbed !== false;   // false: the GPU is read a little later (see the onChange below)
   let ceiling = cap.level;
   let level = ceiling;
   const offsets = { three: 0, particles: 0, canvas: 0, css: 0, video: 0 };
@@ -98,6 +99,12 @@
   }
   // the device's own signals
   window.CSCaps.onChange((c) => {
+    // the GPU is read a little after the first paint (capabilityDetector.js): re-score once it is known
+    if (c.glProbed && !cap.gl) {
+      const was = ceiling;
+      cap = Score.capability(c); cap.gl = true; ceiling = cap.level;
+      if (!manual()) { level = level === was ? ceiling : Math.max(level, ceiling); apply("GPU read"); }
+    }
     if (manual()) return;
     if ((c.pressure === "serious" || c.pressure === "critical") && Date.now() - lastChange > 6000 && level < 5) { level++; change("down", `CPU pressure: ${c.pressure}`); }
     const lowBattery = c.battery && !c.battery.charging && c.battery.level < 0.2;
@@ -108,7 +115,7 @@
     window.__csPerfResize = setTimeout(() => {
       if (Math.abs((window.devicePixelRatio || 1) - caps.dpr) < 0.01 && screen.width === caps.screenW) return;
       window.CSCaps.refreshScreen();
-      cap = Score.capability(window.CSCaps.get()); ceiling = cap.level;
+      cap = Score.capability(window.CSCaps.get()); cap.gl = window.CSCaps.get().glProbed !== false; ceiling = cap.level;
       if (level < ceiling) level = ceiling;
       apply("screen changed");
     }, 400);
